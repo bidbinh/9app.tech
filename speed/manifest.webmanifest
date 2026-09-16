@@ -1,0 +1,20 @@
+{
+  "name": "9speed — Cảnh báo tốc độ & biển báo",
+  "short_name": "9speed",
+  "description": "Hiển thị tốc độ hiện tại, giới hạn tốc độ và cảnh báo biển báo, camera phía trước theo vị trí GPS.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#101916",
+  "theme_color": "#101916",
+  "categories": ["navigation", "travel", "utilities"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

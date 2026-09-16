@@ -1,0 +1,373 @@
+/* 9speed — giao diện tối, chữ to, tối ưu cho việc liếc nhìn khi đang lái xe. */
+
+:root {
+  --bg: #0b1220;
+  --panel: #111a2e;
+  --panel-2: #16223c;
+  --line: #24314f;
+  --text: #e8eefc;
+  --muted: #93a4c6;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f43f5e;
+  --accent: #38bdf8;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* ---------- Bản đồ chiếm toàn bộ phần còn lại ---------- */
+.map-wrap { position: relative; flex: 1 1 auto; min-height: 0; }
+#map { position: absolute; inset: 0; background: #0f172a; }
+
+/* HUD chồng lên bản đồ — không chiếm chiều cao flex */
+.hud {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 700;
+  pointer-events: none;
+  padding-top: var(--safe-top);
+  background: linear-gradient(180deg, rgba(11, 18, 32, .88) 0%, rgba(11, 18, 32, .42) 62%, transparent 100%);
+}
+.hud > * { pointer-events: auto; }
+
+/* ---------- Thanh trạng thái ---------- */
+.statusbar {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px 2px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: transparent;
+}
+.statusbar::-webkit-scrollbar { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(17, 26, 46, .82);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+.chip.road {
+  flex: 0 1 auto;
+  max-width: min(48vw, 280px);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+  font-weight: 600;
+}
+.chip .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, .6);
+}
+.chip.live .dot { background: var(--ok); animation: pulse 2s infinite; }
+.chip.stale .dot { background: var(--warn); }
+.chip.err .dot { background: var(--danger); }
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, .55); }
+  70%  { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* ---------- Đồng hồ tốc độ (gọn, overlay) ---------- */
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 10px 10px;
+  background: transparent;
+  transition: background .25s ease;
+}
+.hero.over {
+  background: linear-gradient(180deg, rgba(59, 13, 28, .78) 0%, transparent 100%);
+  animation: flash 1s ease-in-out infinite;
+}
+@keyframes flash {
+  0%, 100% { box-shadow: inset 0 0 0 0 rgba(244, 63, 94, 0); }
+  50%      { box-shadow: inset 0 0 40px 0 rgba(244, 63, 94, .35); }
+}
+
+.speed-block { display: flex; flex-direction: column; min-width: 0; }
+.speed-row { display: flex; align-items: baseline; gap: 8px; }
+.speed-value {
+  font-size: clamp(40px, 12vw, 64px);
+  font-weight: 800;
+  line-height: .92;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.03em;
+  transition: color .2s ease;
+  text-shadow: 0 1px 8px rgba(11, 18, 32, .8);
+}
+.hero.over .speed-value { color: var(--danger); }
+.speed-unit { font-size: 13px; color: var(--muted); letter-spacing: .12em; }
+.speed-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 55vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.limit-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 0 0 auto; }
+.limit-sign {
+  width: clamp(52px, 15vw, 68px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  border: 6px solid #d61f26;
+  display: grid;
+  place-items: center;
+  color: #111;
+  font-weight: 800;
+  font-size: clamp(20px, 6.5vw, 28px);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+}
+.limit-sign.unknown { border-color: #64748b; color: #64748b; background: #e2e8f0; }
+.limit-sign.law { border-color: #e4852b; }
+.limit-source { font-size: 10px; color: var(--muted); text-align: center; max-width: 110px; }
+
+/* ---------- Tuyến có camera giám sát ---------- */
+.corridor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 8px 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: rgba(59, 42, 8, .92);
+  border: 1px solid #6b4f12;
+  color: #fde68a;
+  font-size: 13px;
+  font-weight: 600;
+}
+.corridor-icon { font-size: 16px; }
+
+/* ---------- Băng cảnh báo ---------- */
+.alerts { padding: 0 8px 10px; }
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(22, 34, 60, .92);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--warn);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.alert-item.sev-3 { border-left-color: var(--danger); }
+.alert-icon { font-size: 22px; }
+.alert-text { flex: 1; font-size: 15px; font-weight: 600; }
+.alert-dist { font-size: 15px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.alert-more { font-size: 12px; color: var(--muted); padding: 6px 4px 0; }
+
+/* ---------- Bản đồ (Leaflet) ---------- */
+.leaflet-container { font-family: inherit; background: #0f172a; }
+.leaflet-control-attribution { font-size: 10px; background: rgba(11, 18, 32, .75) !important; color: var(--muted) !important; }
+.leaflet-control-attribution a { color: var(--accent) !important; }
+.leaflet-bottom.leaflet-left { bottom: 8px; left: 8px; }
+
+.island-label { background: none !important; border: none !important; }
+.island-label-inner {
+  text-align: center;
+  color: #fde68a;
+  text-shadow: 0 1px 2px #0b1220, 0 0 6px #0b1220;
+  line-height: 1.15;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.island-label-inner strong { display: block; font-size: 12px; font-weight: 700; }
+.island-label-inner span { font-size: 10px; color: #e8eefc; }
+
+.veh-arrow {
+  width: 0; height: 0;
+  margin: 6px auto;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 26px solid var(--accent);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .6));
+  transform-origin: 50% 66%;
+  transition: transform .3s ease-out;
+}
+.poi-bubble {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 15px;
+  background: #fff7ed;
+  border: 2px solid var(--warn);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+}
+.poi-bubble.sev-3 { border-color: var(--danger); background: #fee2e2; }
+
+.recenter, .sim-hint { position: absolute; z-index: 500; }
+.recenter {
+  right: 10px; bottom: 14px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(17, 26, 46, .92);
+  color: var(--accent);
+  font-size: 22px;
+  cursor: pointer;
+}
+.sim-hint {
+  left: 70px; right: 64px; bottom: 16px;
+  background: rgba(17, 26, 46, .92);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* ---------- Thanh công cụ ---------- */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px calc(8px + var(--safe-bottom));
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+.btn {
+  flex: 0 0 auto;
+  min-width: 52px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:active { transform: scale(.97); }
+.btn.primary { flex: 1 1 auto; background: var(--accent); color: #05223a; font-size: 17px; }
+.btn.primary.on { background: var(--danger); color: #fff; }
+.btn.active { outline: 2px solid var(--accent); }
+.btn.off { opacity: .45; }
+.btn.ghost { background: transparent; border: none; font-size: 20px; }
+.btn.wide { width: 100%; height: 42px; font-size: 14px; }
+
+/* ---------- Bảng cài đặt ---------- */
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .55); z-index: 900; }
+.sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 901;
+  max-height: 86dvh;
+  overflow-y: auto;
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  border-radius: 18px 18px 0 0;
+  padding: 4px 16px calc(20px + var(--safe-bottom));
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--panel); padding: 10px 0; }
+.sheet-head h2 { font-size: 17px; margin: 0; }
+.row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.row.column { flex-direction: column; align-items: stretch; gap: 8px; }
+.row select {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 10px; font-size: 14px; max-width: 58%;
+}
+.row input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); }
+.row input[type="range"] { width: 100%; accent-color: var(--accent); }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+
+.legend { padding: 14px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+.legend h3 { font-size: 13px; color: var(--text); margin: 0 0 8px; }
+.legend p { margin: 0 0 8px; }
+.legend code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+.src-osm { color: var(--ok); }
+.src-law { color: var(--warn); }
+.warn { color: #fda4af; }
+
+@media (min-width: 720px) {
+  .speed-sub { max-width: 40vw; }
+  .sheet { left: 50%; transform: translateX(-50%); max-width: 520px; border-radius: 18px 18px 0 0; }
+}
+
+[hidden] { display: none !important; }
+
+.chip.corridor-chip {
+  color: #fde68a;
+  border-color: #6b4f12;
+  background: rgba(59, 42, 8, .9);
+}
+
+.limit-sign.law {
+  border-style: dashed;
+  border-color: #e4852b;
+  background: #fff7ed;
+}
+
+.toast {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 12px;
+  z-index: 650;
+  pointer-events: none;
+}
+.toast .alert-item {
+  pointer-events: auto;
+  padding: 8px 10px;
+  background: rgba(17, 26, 46, .94);
+}
+.alert-icon { font-size: 16px; }
+.alert-text { font-size: 14px; }
+.alert-dist { font-size: 14px; white-space: nowrap; }
+
+.toolbar .tool-icon {
+  width: 20px; height: 20px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.toolbar > .btn:not(.primary) {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; font-size: 10px; min-width: 52px;
+}
+.toolbar > .btn:not(.primary) span { font-size: 10px; font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101916">
+<meta name="description" content="Cảnh báo tốc độ giới hạn và biển báo giao thông theo vị trí hiện tại.">
+<title>9speed — Cảnh báo tốc độ &amp; biển báo</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="9speed">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <section class="map-wrap">
+    <div id="map"></div>
+
+    <div class="hud">
+      <header class="statusbar">
+        <span class="chip" id="chip-gps" title="Trạng thái định vị">
+          <span class="dot"></span><span id="gps-text">Chưa bật</span>
+        </span>
+        <span class="chip" id="chip-data" title="Dữ liệu bản đồ">
+          <span id="data-text">OSM: —</span>
+        </span>
+        <span class="chip road" id="chip-road" title="Đường hiện tại">—</span>
+        <span class="chip corridor-chip" id="chip-corridor" hidden>Phạt nguội tuyến</span>
+      </header>
+
+      <section class="hero" id="hero">
+        <div class="speed-block">
+          <div class="speed-row">
+            <div class="speed-value" id="speed-value">0</div>
+            <div class="speed-unit">km/h</div>
+          </div>
+          <div class="speed-sub" id="speed-sub">Nhấn Bắt đầu để định vị</div>
+        </div>
+        <div class="limit-block">
+          <div class="limit-sign unknown" id="limit-sign">
+            <span id="limit-value">--</span>
+          </div>
+          <div class="limit-source" id="limit-source">chưa có dữ liệu</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="toast" id="alerts" hidden>
+      <div class="alert-item" id="alert-main">
+        <span class="alert-icon" id="alert-icon">⚠</span>
+        <span class="alert-text" id="alert-text"></span>
+        <span class="alert-dist" id="alert-dist"></span>
+      </div>
+    </div>
+
+    <button class="recenter" id="btn-recenter" title="Bám theo vị trí" hidden>⌖</button>
+    <div class="sim-hint" id="sim-hint" hidden>Chạm lên bản đồ để đặt điểm xuất phát</div>
+  </section>
+
+  <!-- Thanh điều khiển -->
+  <nav class="toolbar">
+    <button class="btn primary" id="btn-start">Bắt đầu hành trình</button>
+    <button class="btn" id="btn-sound" title="Bật/tắt âm thanh" aria-label="Bật/tắt âm thanh" aria-pressed="true"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z M15 8a6 6 0 0 1 0 8 M18 5a10 10 0 0 1 0 14"/></svg><span>Âm thanh</span></button>
+    <button class="btn" id="btn-sim" title="Chế độ mô phỏng" aria-label="Chế độ mô phỏng" aria-pressed="false"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 4 11 8-11 8V4Z M4 5v14"/></svg><span>Mô phỏng</span></button>
+    <button class="btn" id="btn-settings" title="Cài đặt" aria-label="Cài đặt" aria-expanded="false" aria-controls="sheet"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7m4 0h5M4 17h3m4 0h9"/><circle cx="13" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Cài đặt</span></button>
+  </nav>
+
+</div>
+
+<!-- Bảng cài đặt -->
+<div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+<aside class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Cài đặt">
+  <div class="sheet-head">
+    <h2>Cài đặt</h2>
+    <button class="btn ghost" id="btn-close-sheet" aria-label="Đóng cài đặt">✕</button>
+  </div>
+
+  <label class="row">
+    <span>Loại phương tiện</span>
+    <select id="sel-vehicle"></select>
+  </label>
+
+  <label class="row">
+    <span>Âm báo</span>
+    <input type="checkbox" id="chk-sound">
+  </label>
+
+  <div class="row column">
+    <label class="row">
+      <span>Giọng đọc tiếng Việt thuần</span>
+      <input type="checkbox" id="chk-voice">
+    </label>
+    <p class="note" id="voice-note"></p>
+  </div>
+
+  <label class="row">
+    <span>Giữ màn hình luôn sáng</span>
+    <input type="checkbox" id="chk-awake">
+  </label>
+
+  <label class="row">
+    <span>Bản đồ bám theo xe</span>
+    <input type="checkbox" id="chk-follow">
+  </label>
+
+  <div class="row column" id="sim-controls" hidden>
+    <span>Tốc độ xe mô phỏng: <b id="sim-speed-label">50</b> km/h</span>
+    <input type="range" id="rng-sim-speed" min="0" max="130" step="5" value="50">
+  </div>
+
+  <div class="row column">
+    <span>Lớp camera tự quản</span>
+    <p class="note" id="overlay-note">đang tải…</p>
+    <p class="note">Nhấn giữ lên bản đồ để tự đánh dấu một điểm camera. Nhấn giữ lại lên điểm đã đánh dấu để xoá.</p>
+    <button class="btn wide" id="btn-export-poi">Xuất điểm tôi đánh dấu (JSON)</button>
+  </div>
+
+  <div class="row column">
+    <button class="btn wide" id="btn-clear-cache">Xoá bộ nhớ đệm bản đồ</button>
+    <p class="note" id="cache-note"></p>
+  </div>
+
+  <div class="legend">
+    <h3>Nguồn giới hạn tốc độ</h3>
+    <p><b class="src-osm">Biển báo</b> — lấy từ tag <code>maxspeed</code> trên OpenStreetMap, độ tin cậy cao.</p>
+    <p><b class="src-law">Theo luật</b> — suy luận từ loại đường và khu đông dân cư theo Thông tư 31/2019/TT-BGTVT khi OSM chưa có biển.</p>
+    <p>Giọng đọc: phạt tốc độ, cắt đường sắt, biển cấm (rẽ / quay đầu / khung giờ) và vượt tốc. Số suy luận theo luật hiện vành cam, không đọc thành tiếng.</p>
+    <p class="warn">Đây là công cụ tham khảo. Biển báo thực tế trên đường luôn là căn cứ cuối cùng. Không thao tác điện thoại khi đang lái xe.</p>
+  </div>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

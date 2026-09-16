@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#07080c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="9app">
+<meta name="description" content="Cổng 9app — 9speed, 9pick và các app khác. Dùng trên điện thoại.">
+<title>9app</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/mark.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/mark.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="phone">
+  <header class="top">
+    <div class="brand">
+      <img src="icons/mark.svg" alt="" width="28" height="28">
+      <div>
+        <strong>9app</strong>
+        <span>Hệ sinh thái trên điện thoại</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="cats" id="cats" aria-label="Phân loại"></nav>
+  <main class="grid" id="grid"></main>
+  <p class="empty" id="empty" hidden>Chưa có app trong mục này.</p>
+  <p class="toast" id="toast" hidden></p>
+  <footer class="hint">Giữ icon để ghim vào Ưu thích</footer>
+</div>
+
+<p class="desk">9app dùng trên điện thoại. Mở bằng điện thoại cùng Wi-Fi, hoặc thu hẹp cửa sổ.</p>
+
+<script type="module" src="js/launcher.js"></script>
+</body>
+</html>
