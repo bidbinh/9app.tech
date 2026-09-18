@@ -6,6 +6,8 @@
 //
 // /            launcher 9app (folder này)
 // /speed/...   app 9speed (../9speed.tech)
+// /9pick/...   proxy 9pick.tech (cùng origin với launcher)
+// /9quy/...    proxy quỹ phụ huynh (uvicorn :8088)
 
 import http from 'node:http';
 import https from 'node:https';
@@ -13,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { matchGate, proxyGate } from './js/gate.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SPEED = path.resolve(ROOT, '..', '9speed.tech');
@@ -60,6 +63,12 @@ function handler(req, res) {
 
   if (urlPath.startsWith('/certs/') || urlPath.startsWith('/.git') || urlPath === '/.gitignore') {
     res.writeHead(403).end('Forbidden');
+    return;
+  }
+
+  const gate = matchGate(urlPath);
+  if (gate) {
+    proxyGate(req, res, gate, { secure: useHttps });
     return;
   }
 

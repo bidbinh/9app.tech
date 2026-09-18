@@ -18,6 +18,14 @@ export const APPS = [
     ready: true,
   },
   {
+    id: 'quy',
+    name: '9quy',
+    href: '9quy/',
+    icon: 'icons/quy.svg',
+    categories: ['family'],
+    ready: true,
+  },
+  {
     id: 'pick',
     name: '9pick',
     href: 'pick/',
