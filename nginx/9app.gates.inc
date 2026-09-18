@@ -53,7 +53,7 @@ location = /9quy {
 }
 
 location ^~ /9quy/ {
-    proxy_pass http://127.0.0.1:8088/;
+    proxy_pass http://9quy:8088/;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
@@ -67,7 +67,7 @@ location ^~ /9quy/ {
     proxy_send_timeout 600s;
     client_max_body_size 20m;
 
-    proxy_redirect http://127.0.0.1:8088/ /9quy/;
+    proxy_redirect http://9quy:8088/ /9quy/;
     proxy_redirect / /9quy/;
 
     proxy_cookie_path / /9quy/;
@@ -75,7 +75,7 @@ location ^~ /9quy/ {
 
     sub_filter_once off;
     sub_filter_types text/css text/javascript application/javascript application/json;
-    sub_filter 'http://127.0.0.1:8088' '/9quy';
+    sub_filter 'http://9quy:8088' '/9quy';
     sub_filter 'href="/' 'href="/9quy/';
     sub_filter "href='/" "href='/9quy/";
     sub_filter 'src="/' 'src="/9quy/';
