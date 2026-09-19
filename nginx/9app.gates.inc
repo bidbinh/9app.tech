@@ -30,7 +30,7 @@ location ^~ /9pick/ {
     proxy_hide_header X-Frame-Options;
 
     sub_filter_once off;
-    sub_filter_types text/css text/javascript application/javascript application/json;
+    sub_filter_types text/html text/css text/javascript application/javascript application/json;
     sub_filter 'https://9pick.tech' '/9pick';
     sub_filter 'http://9pick.tech' '/9pick';
     sub_filter 'https://k77htk.com' '/9pick';
@@ -46,6 +46,7 @@ location ^~ /9pick/ {
     sub_filter "|| '/" "|| '/9pick/";
     sub_filter '?tiep=/' '?tiep=/9pick/';
     sub_filter 'url(/' 'url(/9pick/';
+    sub_filter '</body>' '<script src="/js/homebar.js"></script></body>';
 }
 
 location = /9quy {
@@ -74,7 +75,7 @@ location ^~ /9quy/ {
     proxy_hide_header X-Frame-Options;
 
     sub_filter_once off;
-    sub_filter_types text/css text/javascript application/javascript application/json;
+    sub_filter_types text/html text/css text/javascript application/javascript application/json;
     sub_filter 'http://9quy:8088' '/9quy';
     sub_filter 'href="/' 'href="/9quy/';
     sub_filter "href='/" "href='/9quy/";
@@ -87,4 +88,47 @@ location ^~ /9quy/ {
     sub_filter "|| '/" "|| '/9quy/";
     sub_filter '?tiep=/' '?tiep=/9quy/';
     sub_filter 'url(/' 'url(/9quy/';
+    sub_filter '</body>' '<script src="/js/homebar.js"></script></body>';
+}
+
+location = /9fin {
+    return 301 /9fin/;
+}
+
+location ^~ /9fin/ {
+    proxy_pass http://9fin:8080/;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Prefix /9fin;
+    proxy_set_header Accept-Encoding "";
+
+    proxy_request_buffering off;
+    proxy_read_timeout 600s;
+    proxy_send_timeout 600s;
+    client_max_body_size 20m;
+
+    proxy_redirect http://9fin:8080/ /9fin/;
+    proxy_redirect / /9fin/;
+
+    proxy_cookie_path / /9fin/;
+    proxy_hide_header X-Frame-Options;
+
+    sub_filter_once off;
+    sub_filter_types text/html text/css text/javascript application/javascript application/json;
+    sub_filter 'http://9fin:8080' '/9fin';
+    sub_filter 'href="/' 'href="/9fin/';
+    sub_filter "href='/" "href='/9fin/";
+    sub_filter 'src="/' 'src="/9fin/';
+    sub_filter "src='/" "src='/9fin/";
+    sub_filter 'action="/' 'action="/9fin/';
+    sub_filter 'content="/' 'content="/9fin/';
+    sub_filter "('/" "('/9fin/";
+    sub_filter '("/' '("/9fin/';
+    sub_filter "|| '/" "|| '/9fin/";
+    sub_filter '?tiep=/' '?tiep=/9fin/';
+    sub_filter 'url(/' 'url(/9fin/';
+    sub_filter '</body>' '<script src="/js/homebar.js"></script></body>';
 }

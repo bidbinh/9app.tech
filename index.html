@@ -1,40 +1,137 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#07080c">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="9app">
-<meta name="description" content="Cổng 9app — 9speed, 9pick và các app khác. Dùng trên điện thoại.">
-<title>9app</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/mark.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/mark.svg">
-<link rel="stylesheet" href="css/style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="9app">
+<meta name="description" content="Không gian ứng dụng của bạn — 9speed, 9log, Gia phả, 9pick, Hội phụ huynh.">
+<title>9app</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/mark.svg?v=12" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/mark.svg?v=12"><link rel="stylesheet" href="css/style.css?v=12">
 </head>
 <body>
-<div id="phone">
-  <header class="top">
-    <div class="brand">
-      <img src="icons/mark.svg" alt="" width="28" height="28">
-      <div>
-        <strong>9app</strong>
-        <span>Hệ sinh thái trên điện thoại</span>
-      </div>
-    </div>
-  </header>
+<svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.4"/><rect x="14" y="4" width="6" height="6" rx="1.4"/><rect x="4" y="14" width="6" height="6" rx="1.4"/><rect x="14" y="14" width="6" height="6" rx="1.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 19c.8-3.4 3.2-5 7-5s6.2 1.6 7 5"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></symbol>
+</defs></svg>
 
-  <nav class="cats" id="cats" aria-label="Phân loại"></nav>
-  <main class="grid" id="grid"></main>
-  <p class="empty" id="empty" hidden>Chưa có app trong mục này.</p>
-  <p class="toast" id="toast" hidden></p>
-  <footer class="hint">Giữ icon để ghim vào Ưu thích</footer>
+<div id="phone" class="workspace">
+<header class="top">
+<a class="brand" href="./" aria-label="9app — Trang chủ"><img src="icons/mark.svg?v=12" width="32" height="32" alt=""><span>app</span></a>
+<label class="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span class="visually">Tìm ứng dụng</span><input id="search" type="search" placeholder="Tìm ứng dụng…" autocomplete="off" enterkeyhint="search"></label>
+<button class="round-btn" id="btn-bell" type="button" aria-label="Thông báo"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg></button>
+<button class="round-btn tb" id="btn-account" type="button" aria-label="Tài khoản">TB</button>
+</header>
+
+<main class="main" id="view-home">
+<section class="banner" id="banner">
+<div class="banner-copy">
+<div class="banner-kicker">KHÔNG GIAN CỦA BẠN</div>
+<h1>Mọi thứ của bạn, một chỗ</h1>
+<p>Gia đình, đi đường, sở thích.</p>
+<button class="banner-cta" id="btn-discover" type="button">Khám phá ngay</button>
+</div>
+<svg class="banner-art" viewBox="0 0 180 130" aria-hidden="true">
+<rect x="92" y="8" width="36" height="36" rx="10" fill="#38BDF8"/>
+<rect x="128" y="22" width="42" height="42" rx="12" fill="#60A5FA"/>
+<path d="M141 36h16M149 28v16" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+<rect x="70" y="42" width="40" height="40" rx="11" fill="#F472B6"/>
+<circle cx="83" cy="56" r="5" fill="#fff"/><circle cx="97" cy="56" r="5" fill="#fff"/><path d="M78 72c2-6 8-8 12-8s10 2 12 8" fill="none" stroke="#fff" stroke-width="2.4"/>
+<rect x="112" y="62" width="40" height="40" rx="11" fill="#34D399"/>
+<rect x="122" y="78" width="5" height="16" rx="1" fill="#fff"/><rect x="130" y="72" width="5" height="22" rx="1" fill="#fff"/><rect x="138" y="68" width="5" height="26" rx="1" fill="#fff"/>
+<rect x="148" y="48" width="28" height="28" rx="8" fill="#818CF8"/>
+<rect x="155" y="55" width="14" height="16" rx="2" fill="none" stroke="#fff" stroke-width="2"/>
+<rect x="84" y="86" width="28" height="28" rx="8" fill="#FB923C"/>
+<circle cx="98" cy="100" r="7" fill="none" stroke="#fff" stroke-width="2"/>
+</svg>
+<div class="banner-mark">9app</div>
+<div class="banner-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+</section>
+
+<section class="block" id="recent-wrap" hidden>
+<div class="block-head">
+<div class="block-title"><span class="mark mark-clock"><svg class="icon"><use href="#i-clock"/></svg></span><h2>Gần đây</h2></div>
+</div>
+<div id="recent" class="h-row"></div>
+</section>
+
+<section class="block" id="suggest-wrap">
+<div class="block-head">
+<div class="block-title"><span class="mark mark-star"><svg class="icon"><use href="#i-star"/></svg></span><div><h2>Ứng dụng gợi ý cho bạn</h2><p class="block-sub">Mới · Nhiều người dùng · Bạn chưa dùng</p></div></div>
+<button class="text-link" id="btn-all-suggest" type="button">Xem tất cả →</button>
+</div>
+<div id="suggest" class="h-row">
+<article class="tile"><a class="tile-link" href="https://mobile.9log.tech/?from=9app"><img src="icons/log.svg?v=12" alt="" width="56" height="56"><span class="tile-name">9log</span></a></article>
+</div>
+</section>
+
+<section class="block" id="library">
+<div class="block-head">
+<div class="block-title"><span class="mark mark-grid"><svg class="icon"><use href="#i-grid"/></svg></span><h2>Ứng dụng của tôi</h2></div>
+<button class="text-link" id="btn-all-mine" type="button">Xem tất cả →</button>
+</div>
+<div id="list">
+<div class="group">
+<div class="group-head"><h3>Sở thích</h3></div>
+<div class="my-grid">
+<article class="tile"><a class="tile-link" href="9pick/"><img src="icons/pick.svg?v=12" alt="" width="56" height="56"><span class="tile-name">9pick</span></a></article>
+</div>
+</div>
+<div class="group">
+<div class="group-head"><h3>Gia đình</h3></div>
+<div class="my-grid">
+<article class="tile"><a class="tile-link" href="9fin/"><img src="icons/fin.svg?v=12" alt="" width="56" height="56"><span class="tile-name">9Fin</span></a></article>
+<article class="tile"><a class="tile-link" href="https://hotranvanxomtrai.com/?from=9app"><img src="icons/giapha.svg?v=12" alt="" width="56" height="56"><span class="tile-name">Gia phả</span></a></article>
+<article class="tile"><a class="tile-link" href="9quy/"><img src="icons/quy.svg?v=12" alt="" width="56" height="56"><span class="tile-name">Hội phụ huynh</span></a></article>
+</div>
+</div>
+<div class="group">
+<div class="group-head"><h3>Lái xe</h3></div>
+<div class="my-grid">
+<article class="tile"><a class="tile-link" href="speed/"><img src="icons/speed.svg?v=12" alt="" width="56" height="56"><span class="tile-name">9speed</span></a></article>
+</div>
+</div>
+</div>
+<div class="empty" id="empty" hidden><h3>Chưa có ứng dụng</h3><p id="empty-message">Bấm + để thêm ứng dụng.</p></div>
+</section>
+</main>
+
+<section class="page" id="unused" hidden>
+<div class="page-head"><h1>Thư viện</h1><p>Chọn ứng dụng để thêm vào trang chủ.</p></div>
+<div id="unused-list" class="my-grid"></div>
+<div class="empty" id="unused-empty" hidden><h3>Không còn ứng dụng nào</h3><p>Mọi ứng dụng đều đang hiện trên trang chủ.</p></div>
+</section>
+
+<section class="page" id="notify" hidden>
+<div class="page-head"><h1>Thông báo</h1></div>
+<div class="empty"><h3>Chưa có thông báo</h3><p>Khi có cập nhật từ các ứng dụng, sẽ hiện ở đây.</p></div>
+</section>
+
+<section class="page" id="account" hidden>
+<div class="page-head"><h1>Tài khoản</h1></div>
+<div class="card-note">
+<p>9app lưu ưa thích và ứng dụng vừa dùng trên máy này, không cần đăng nhập.</p>
+<p class="muted" id="account-note"></p>
+</div>
+</section>
+
+<nav class="tabbar" aria-label="Điều hướng">
+<button class="tab on" id="tab-home" type="button"><svg class="icon"><use href="#i-home"/></svg>Trang chủ</button>
+<button class="tab" id="tab-lib" type="button"><svg class="icon"><use href="#i-grid"/></svg>Thư viện</button>
+<button class="tab-plus" id="btn-add" type="button" aria-label="Thêm ứng dụng"><span>+</span></button>
+<button class="tab" id="tab-bell" type="button"><svg class="icon"><use href="#i-bell"/></svg>Thông báo</button>
+<button class="tab" id="tab-user" type="button"><svg class="icon"><use href="#i-user"/></svg>Tài khoản</button>
+</nav>
+<button id="btn-close-unused" type="button" hidden aria-hidden="true"></button>
 </div>
 
-<p class="desk">9app dùng trên điện thoại. Mở bằng điện thoại cùng Wi-Fi, hoặc thu hẹp cửa sổ.</p>
-
-<script type="module" src="js/launcher.js"></script>
+<p class="toast" id="toast" role="status" hidden></p>
+<div class="sheet-backdrop" id="act-backdrop" hidden></div>
+<aside class="sheet act" id="act" hidden role="dialog" aria-modal="true" aria-labelledby="act-name"><h2 class="act-name" id="act-name"></h2><button type="button" id="act-fav"></button><button type="button" class="danger" id="act-hide">Ẩn khỏi trang chủ</button><button type="button" class="ghost" id="act-cancel">Đóng</button></aside>
+<script src="js/apps.js?v=15"></script>
+<script src="js/launcher.js?v=15"></script>
 </body>
 </html>

@@ -1,39 +1,76 @@
-// Danh mục app trong hệ sinh thái 9app.
-// Thêm app mới: một object, một icon SVG, href trỏ tới thư mục app.
+// Danh mục app. Không dùng export — WebView ô tô cũ không chạy ES module.
 
-export const CATEGORIES = [
-  { id: 'fav', label: 'Ưu thích' },
+var CATEGORIES = [
   { id: 'work', label: 'Công việc' },
+  { id: 'drive', label: 'Lái xe' },
   { id: 'family', label: 'Gia đình' },
   { id: 'hobby', label: 'Sở thích' },
+  { id: 'life', label: 'Đời sống' },
 ];
 
-export const APPS = [
+var APPS = [
+  {
+    id: 'log',
+    name: '9log',
+    blurb: 'Quản lý vận tải, đơn hàng trên điện thoại',
+    href: 'https://mobile.9log.tech/?from=9app',
+    icon: 'icons/log.svg?v=11',
+    category: 'work',
+    ready: true,
+    home: false,
+  },
   {
     id: 'speed',
     name: '9speed',
+    blurb: 'Cảnh báo tốc độ, biển báo, camera phạt nguội',
     href: 'speed/',
-    icon: 'icons/speed.svg',
-    categories: ['work'],
+    icon: 'icons/speed.svg?v=11',
+    category: 'drive',
+    ready: true,
+  },
+  {
+    id: 'giapha',
+    name: 'Gia phả',
+    blurb: 'Gia phả họ Trần — Xóm Trại',
+    href: 'https://hotranvanxomtrai.com/?from=9app',
+    icon: 'icons/giapha.svg?v=11',
+    category: 'family',
     ready: true,
   },
   {
     id: 'quy',
-    name: '9quy',
+    name: 'Hội phụ huynh',
+    blurb: 'Hội phụ huynh: thu chi, sự kiện, QR nộp tiền',
     href: '9quy/',
-    icon: 'icons/quy.svg',
-    categories: ['family'],
+    icon: 'icons/quy.svg?v=11',
+    category: 'family',
+    ready: true,
+  },
+  {
+    id: 'fin',
+    name: '9Fin',
+    blurb: 'Sổ thu chi, quét QR thanh toán, đồng bộ SePay',
+    href: '9fin/',
+    icon: 'icons/fin.svg?v=11',
+    category: 'family',
     ready: true,
   },
   {
     id: 'pick',
     name: '9pick',
-    href: 'pick/',
-    icon: 'icons/pick.svg',
-    categories: ['hobby'],
-    ready: false,
+    blurb: 'Câu lạc bộ, video sân, chọn đội',
+    href: '9pick/',
+    icon: 'icons/pick.svg?v=11',
+    category: 'hobby',
+    ready: true,
+  },
+  {
+    id: 'vannien',
+    name: 'Vạn Niên',
+    blurb: 'Lịch âm dương, ngày giờ hoàng đạo, phong thủy',
+    href: 'vannien/',
+    icon: 'icons/vannien.svg?v=12',
+    category: 'life',
+    ready: true,
   },
 ];
-
-export const FAV_KEY = '9app.favs';
-export const TAB_KEY = '9app.tab';

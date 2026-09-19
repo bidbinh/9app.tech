@@ -1,0 +1,18 @@
+{
+  "name": "Lịch Vạn Niên Phong Thủy",
+  "short_name": "Vạn Niên",
+  "description": "Lịch âm dương, ngày giờ hoàng đạo, phong thủy bát trạch. Miễn phí, không đăng nhập.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0906",
+  "theme_color": "#0c0906",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

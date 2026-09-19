@@ -5,6 +5,7 @@ export const GATES = [
   { prefix: '/giapha', origin: 'https://hotranvanxomtrai.com' },
   { prefix: '/9pick', origin: 'https://9pick.tech' },
   { prefix: '/9quy', origin: 'http://127.0.0.1:8088' },
+  { prefix: '/9fin', origin: 'http://127.0.0.1:8080' },
 ];
 
 const TEXT_TYPE = /^(text\/|application\/(javascript|json|xml|manifest|x-javascript|ld\+json))/i;
@@ -48,6 +49,9 @@ export function rewriteText(text, prefix, origin) {
   s = s.replace(/(\b(?:fetch|axios)\(\s*["'`])\/(?!\/)/g, root());
   s = s.replace(/(\blocation(?:\.href)?\s*=\s*["'`])\/(?!\/)/g, root());
   s = s.replace(/(\blocation\.(?:assign|replace)\(\s*["'`])\/(?!\/)/g, root());
+  if (/<\/body>/i.test(s) && s.indexOf('js/homebar.js') < 0) {
+    s = s.replace(/<\/body>/i, '<script src="/js/homebar.js"></script></body>');
+  }
   return s;
 }
 

@@ -8,6 +8,7 @@
 // /speed/...   app 9speed (../9speed.tech)
 // /9pick/...   proxy 9pick.tech (cùng origin với launcher)
 // /9quy/...    proxy quỹ phụ huynh (uvicorn :8088)
+// /9fin/...    proxy sổ thu chi cá nhân (uvicorn :8080)
 
 import http from 'node:http';
 import https from 'node:https';

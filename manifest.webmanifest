@@ -7,9 +7,10 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#07080c",
-  "theme_color": "#07080c",
+  "background_color": "#f4f7fb",
+  "theme_color": "#2F7BFF",
   "icons": [
+    { "src": "icons/mark.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icons/mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }
