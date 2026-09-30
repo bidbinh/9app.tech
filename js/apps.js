@@ -60,7 +60,7 @@ var APPS = [
     name: '9Sport',
     blurb: 'Câu lạc bộ thể thao: trận, quỹ, video',
     href: '9pick/',
-    icon: 'icons/sport.svg?v=1',
+    icon: 'icons/sport.svg?v=2',
     category: 'hobby',
     ready: true,
   },
