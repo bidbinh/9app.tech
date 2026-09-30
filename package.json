@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cổng 9app.tech — gom 9speed, 9pick và các app trong hệ sinh thái. Chỉ dùng trên điện thoại.",
+  "description": "Cổng 9app.tech — gom 9speed, 9Sport và các app trong hệ sinh thái. Chỉ dùng trên điện thoại.",
   "scripts": {
     "start": "node server.js",
     "start:https": "node server.js --https",

@@ -1,7 +1,7 @@
 {
   "name": "9app",
   "short_name": "9app",
-  "description": "Cổng mở 9speed, 9pick và các app trong hệ sinh thái.",
+  "description": "Cổng mở 9speed, 9Sport và các app trong hệ sinh thái.",
   "lang": "vi",
   "start_url": "./",
   "scope": "./",

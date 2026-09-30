@@ -57,10 +57,10 @@ var APPS = [
   },
   {
     id: 'pick',
-    name: '9pick',
-    blurb: 'Câu lạc bộ, video sân, chọn đội',
+    name: '9Sport',
+    blurb: 'Câu lạc bộ thể thao: trận, quỹ, video',
     href: '9pick/',
-    icon: 'icons/pick.svg?v=11',
+    icon: 'icons/sport.svg?v=1',
     category: 'hobby',
     ready: true,
   },
