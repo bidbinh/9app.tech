@@ -3,6 +3,7 @@ import { query, tx } from './db.js';
 import * as ledger from './ledger.js';
 import * as registry from './carriers/index.js';
 import { CarrierError } from './errors.js';
+import * as lifecycle from './lifecycle.js';
 
 const LEASE_SEC = 120;
 const MAX_ATTEMPTS = 4;
@@ -58,7 +59,7 @@ export async function onCreated(shipment, result) {
     const tolerance = Math.round((sh.cost_price * config.priceDriftPct) / 100);
     await c.query(
       `UPDATE shipments SET carrier_code=$2, tracking_code=$3, shipping_status='created', payment_status='captured',
-         fee_confirmed=$4, cost_price=$4, buffer_open=true, delivered_at=NULL, updated_at=now(),
+         fee_confirmed=$4, cost_price=$4, buffer_open=true, closed_at=NULL, updated_at=now(),
          needs_attention = CASE WHEN $5 > $6 THEN 'fee_drift' ELSE needs_attention END
        WHERE id=$1`,
       [sh.id, result.carrierCode, result.trackingCode || result.carrierCode, fee, drift, tolerance]);
@@ -169,8 +170,24 @@ async function processCreate(job) {
   }
 }
 
+async function processCancelCheck(job) {
+  const r = await lifecycle.resolveCancel(job.shipment_id);
+  if (r.status === 'requested') {
+    if (job.attempts >= 30) {
+      await query("UPDATE shipments SET needs_attention='cancel_unknown' WHERE id=$1", [job.shipment_id]);
+      await setOutbox(job.id, 'attention', { delaySec: 3600 });
+      return 'attention';
+    }
+    await setOutbox(job.id, 'pending', { delaySec: 120 });
+    return 'waiting';
+  }
+  await setOutbox(job.id, 'done');
+  return r.status;
+}
+
 async function processJob(job) {
   if (job.kind === 'create_shipment') return processCreate(job);
+  if (job.kind === 'cancel_check') return processCancelCheck(job);
   await setOutbox(job.id, 'done');
   return 'skipped';
 }
@@ -201,10 +218,22 @@ export async function resolveUnknown(shipmentId, action, details = {}) {
   return true;
 }
 
+// Việc định kỳ: hỏi hành trình hãng không có webhook, nhả đệm hết hạn.
+export async function maintenance() {
+  const polled = await lifecycle.pollTracking();
+  const released = await lifecycle.releaseExpiredBuffers();
+  return { polled, released };
+}
+
 let timer = null;
+let tick = 0;
 export function start(intervalMs = 5000) {
   if (timer) return;
-  timer = setInterval(() => { runOnce().catch((e) => console.error('[worker]', e.message)); }, intervalMs);
+  timer = setInterval(() => {
+    runOnce().catch((e) => console.error('[worker]', e.message));
+    tick += 1;
+    if (tick % 12 === 0) maintenance().catch((e) => console.error('[maintenance]', e.message));
+  }, intervalMs);
   timer.unref();
 }
 export function stop() { if (timer) { clearInterval(timer); timer = null; } }

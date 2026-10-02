@@ -65,7 +65,6 @@ export const mockControl = {
     state.byCode.clear();
     state.byRef.clear();
     state.behaviors.length = 0;
-    state.seq = 0;
   },
   take(carrierId, method) {
     const i = state.behaviors.findIndex((b) => b.carrierId === carrierId && b.method === method && b.times > 0);

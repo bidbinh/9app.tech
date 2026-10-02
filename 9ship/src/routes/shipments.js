@@ -6,6 +6,7 @@ import { render, verifyLabel, signLabel } from '../labels.js';
 import { html } from '../http.js';
 import * as registry from '../carriers/index.js';
 import { config } from '../config.js';
+import * as lifecycle from '../lifecycle.js';
 
 const WAIT_MS = 7000;
 
@@ -25,6 +26,11 @@ export function shipmentRoutes(app) {
 
   app.route('GET', '/v1/shipments', async (ctx) => ({ shipments: await orders.list(ctx.user.id) }), { auth: 'user' });
   app.route('GET', '/v1/shipments/:id', async (ctx) => orders.get(ctx.user.id, ctx.params.id), { auth: 'user' });
+
+  app.route('POST', '/v1/shipments/:id/cancel', async (ctx) => {
+    const r = await lifecycle.cancel(ctx.user.id, ctx.params.id);
+    return { cancel: r, shipment: await orders.get(ctx.user.id, ctx.params.id) };
+  }, { auth: 'user', limit: 20, limitKey: 'cancel' });
 
   // Link nhãn có ký, hết hạn sau 1 giờ; làm mới bằng GET này khi đang đăng nhập.
   app.route('GET', '/v1/shipments/:id/label', async (ctx) => {
