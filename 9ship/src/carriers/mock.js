@@ -30,6 +30,7 @@ const SPECS = {
     handovers: ['dropoff'],
     caps: { dropoff: true, pickup: false, findByReference: false, webhook: false, officeList: true, labelNative: false },
     service: 'economy', serviceName: 'Tiết kiệm',
+    refuses: ['electronics', 'fragile'],
   },
 };
 
@@ -89,7 +90,7 @@ export const mockControl = {
   },
 };
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => { setTimeout(r, ms).unref(); });
 const roundUp100 = (n) => Math.round(n / 100) * 100;
 
 function pickBehavior(id, method) {
@@ -118,6 +119,7 @@ function makeAdapter(id, spec) {
       const from = findProvince(req.from?.province);
       const to = findProvince(req.to?.province);
       if (!from || !to) throw new CarrierError('tỉnh không hợp lệ');
+      if (spec.refuses && spec.refuses.includes(req.goodsType)) return [];
       const cw = chargeable(req, spec);
       if (cw > 30000) throw new CarrierError('vượt trọng lượng tối đa của hãng (30kg)');
       const zone = zoneOf(from.code, to.code);

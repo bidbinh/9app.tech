@@ -28,7 +28,9 @@ const BY_CODE = new Map(PROVINCES.map((p) => [p.code, p]));
 // Nhận mã (slug) hoặc tên đầy đủ, trả về tỉnh hoặc null.
 export function findProvince(input) {
   if (!input) return null;
-  return BY_CODE.get(slug(input)) || null;
+  const s = slug(input);
+  const bare = s.replace(/^(thanh-pho|tinh|tp)-/, '');
+  return BY_CODE.get(s) || BY_CODE.get(bare) || BY_CODE.get('tp-' + bare) || null;
 }
 
 export function isRemote(code) {

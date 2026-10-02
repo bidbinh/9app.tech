@@ -38,4 +38,5 @@ export const config = {
   requireCapDefault: bool(env.REQUIRE_CAP_DEFAULT, true),
   mockCarriers: bool(env.MOCK_CARRIERS, true),
   rateLimitPerMin: int(env.RATE_LIMIT_PER_MIN, 120),
+  routeLimitFactor: int(env.ROUTE_LIMIT_FACTOR, 1),
 };
