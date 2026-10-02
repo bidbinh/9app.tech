@@ -6,7 +6,10 @@
   "description": "9Ship — gửi chuyển phát nhanh nội địa cho cá nhân, tổng hợp nhiều hãng.",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test --test-concurrency=1 test/"
+    "test": "node --test --test-concurrency=1 test/",
+    "demo": "node scripts/demo.js",
+    "totp": "node scripts/totp.js",
+    "db": "docker compose -f docker-compose.demo.yml up -d"
   },
   "engines": {
     "node": ">=20"

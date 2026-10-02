@@ -47,6 +47,8 @@ export async function start() {
     console.warn('[cảnh báo] MOCK_CARRIERS đang bật ở production: chỉ dùng cho thử nghiệm.');
   }
   registry.initDefault();
+  const external = await registry.loadExternal();
+  if (external.length) console.log('Adapter ngoài đã nạp:', external.join(', '));
   const n = await syncPickupPoints();
   const app = buildApp();
   const port = await app.listen(config.port);

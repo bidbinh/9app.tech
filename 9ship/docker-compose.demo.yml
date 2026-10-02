@@ -1,0 +1,9 @@
+# Chỉ PostgreSQL cho chạy thử/kiểm thử trên máy: cổng 5440, mật khẩu "ship". Không dùng cho production.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ship
+      POSTGRES_DB: ship
+    ports:
+      - "127.0.0.1:5440:5432"

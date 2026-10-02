@@ -44,6 +44,14 @@ test('Origin lạ bị chặn', async () => {
   assert.equal(r.status, 403);
 });
 
+test('Origin trùng X-Forwarded-Host (đi qua cổng 9app) được chấp nhận', async () => {
+  const body = { from: { province: 'Hà Nội' }, to: { province: 'Huế' }, weightG: 300 };
+  const ok = await post('/v1/quotes', body, { ...H, origin: 'https://9app.tech', 'x-forwarded-host': '9app.tech' });
+  assert.equal(ok.status, 200);
+  const bad = await post('/v1/quotes', body, { ...H, origin: 'https://evil.example', 'x-forwarded-host': '9app.tech' });
+  assert.equal(bad.status, 403);
+});
+
 test('đầu vào sai trả 400 với định dạng lỗi chung', async () => {
   const r = await post('/v1/quotes', { from: { province: 'Hà Nội' }, to: { province: 'Huế' }, weightG: 0 });
   assert.equal(r.status, 400);

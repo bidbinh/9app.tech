@@ -151,7 +151,8 @@ function makeAdapter(id, spec) {
       const existing = state.byRef.get(req.ref);
       if (existing) return summary(existing);
       state.seq += 1;
-      const code = id.replace('mock-', 'MK').toUpperCase() + String(100000 + state.seq);
+      // có thành phần thời gian để mã không trùng sau khi khởi động lại (đơn cũ vẫn nằm trong CSDL)
+      const code = id.replace('mock-', 'MK').toUpperCase() + Date.now().toString(36).toUpperCase().slice(-5) + String(1000 + state.seq);
       let fee = req.expectedFee;
       if (b && b.startsWith('fee_drift:')) fee += Number.parseInt(b.split(':')[1], 10);
       const s = {

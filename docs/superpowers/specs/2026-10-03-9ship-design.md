@@ -188,3 +188,16 @@ Sau v1: điểm nhận gửi riêng và trang quầy, API key cho shop, COD và 
 - **Địa danh hai cấp sang ba cấp** không phải ánh xạ một-một: một xã/phường mới có thể gộp nhiều phường cũ thuộc vùng cước khác nhau; cần geocode đến tọa độ hoặc hỏi thêm địa chỉ cũ.
 - **Hóa đơn VAT** cho cước: chưa định rõ ai xuất (hãng, đơn vị tổng hợp hay 9Ship).
 - **Pháp lý và thuế** khi giữ tiền trả trước của người dùng: cần xác nhận với kế toán và luật sư (ví đơn mục đích hay phải qua trung gian thanh toán có phép) trước pha 4 và trước khi chạy tiền thật.
+
+## 13. Ghi chú triển khai (khác biệt so với thiết kế ở trên)
+
+Bản cài đặt đầu tiên khác thiết kế ở các điểm sau; những điểm này là quyết định có chủ đích khi làm, cần người duyệt biết:
+
+- **Nhãn in** là trang HTML khổ 100×150 mm hoặc A6 (CSS `@page`) có mã vạch Code128 và QR; in trực tiếp hoặc "Lưu thành PDF" từ trình duyệt. Chưa sinh tệp PDF phía máy chủ.
+- **Giá hãng thay đổi giữa báo giá và tạo đơn** (hãng không cấp token giá): tăng trong ngưỡng `PRICE_DRIFT_PCT` thì 9Ship chịu; tăng quá ngưỡng thì dừng trước khi giữ tiền và tạo báo giá mới (409 `price_changed`); **giảm thì khách vẫn trả đúng giá đã thấy** (không bắt xác nhận lại).
+- **Bản đồ quầy** là danh sách quầy theo khoảng cách kèm liên kết "Chỉ đường" mở bản đồ ngoài, chưa nhúng bản đồ. Địa chỉ chỉ chuẩn hóa đến cấp tỉnh/thành (mã slug), phường/xã nhập tự do; chưa có geocode đến đường.
+- **Quản trị** đăng nhập bằng mã quản trị cộng TOTP (RFC 6238); có một vai trò admin, chưa phân quyền chi tiết.
+- **Năng lực `idempotentCreate`** của adapter (chưa có trong thiết kế): quyết định có được tự thử lại `createShipment` sau sự cố giữa chừng hay phải vào hàng đợi quản trị.
+- **Tắt trần niêm yết**: `require_cap` mặc định bật; offer không có trần đáng tin bị ẩn và ghi cảnh báo.
+- **Điểm nhận gửi riêng và trang quầy** vẫn ngoài v1 như thiết kế.
+- **Cổng 9app**: ô 9Ship trong `js/catalog.js`, gate dev trong `js/gate.js`, khối nginx không dùng `sub_filter`.

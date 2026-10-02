@@ -6,6 +6,7 @@ export const GATES = [
   { prefix: '/9pick', origin: 'https://9pick.tech' },
   { prefix: '/9quy', origin: 'http://127.0.0.1:8088' },
   { prefix: '/9fin', origin: 'http://127.0.0.1:8080' },
+  { prefix: '/9ship', origin: 'http://127.0.0.1:8099' },
 ];
 
 const TEXT_TYPE = /^(text\/|application\/(javascript|json|xml|manifest|x-javascript|ld\+json))/i;

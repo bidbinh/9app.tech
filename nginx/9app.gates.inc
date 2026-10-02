@@ -132,3 +132,23 @@ location ^~ /9fin/ {
     sub_filter 'url(/' 'url(/9fin/';
     sub_filter '</body>' '<script src="/js/homebar.js"></script></body>';
 }
+
+# 9Ship — dịch vụ riêng (Node + PostgreSQL, thư mục 9ship/). Khác các gate ở trên:
+# KHÔNG dùng sub_filter (sub_filter viết lại cả JSON và sẽ làm hỏng API). Ứng dụng tự hiểu tiền tố /9ship
+# và dùng đường dẫn tương đối, cookie Path=/9ship/.
+# X-Forwarded-For phải bị ghi đè bằng $remote_addr: dịch vụ dùng nó để giới hạn tốc độ và OTP.
+location = /9ship {
+    return 301 /9ship/;
+}
+
+location ^~ /9ship/ {
+    proxy_pass http://9ship:8099;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Prefix /9ship;
+    proxy_read_timeout 60s;
+    client_max_body_size 1m;
+}

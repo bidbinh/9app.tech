@@ -136,7 +136,8 @@ export function createApp() {
         if (origin) {
           let oh = '';
           try { oh = new URL(origin).host; } catch { /* sai định dạng */ }
-          if (oh !== req.headers.host) throw new ApiError(403, 'csrf', 'Origin không hợp lệ');
+          // Origin phải trùng host mà trình duyệt đã gõ: Host, hoặc X-Forwarded-Host do cổng/nginx đặt.
+          if (oh !== req.headers.host && oh !== req.headers['x-forwarded-host']) throw new ApiError(403, 'csrf', 'Origin không hợp lệ');
         }
       }
       if (r.opts.limit && rateLimited(r.opts.limitKey ? r.opts.limitKey + ':' + ip : r.re.source + ':' + ip, r.opts.limit * config.routeLimitFactor)) {
