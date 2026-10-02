@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { createApp } from './http.js';
-import { config } from './config.js';
+import { config, productionProblems } from './config.js';
 import { migrate, query } from './db.js';
 import * as worker from './worker.js';
 import * as registry from './carriers/index.js';
@@ -42,10 +42,12 @@ export function buildApp() {
 }
 
 export async function start() {
-  await migrate();
-  if (config.production && config.mockCarriers) {
-    console.warn('[cảnh báo] MOCK_CARRIERS đang bật ở production: chỉ dùng cho thử nghiệm.');
+  const problems = productionProblems();
+  if (problems.length && process.env.ALLOW_UNSAFE_PRODUCTION !== '1') {
+    console.error(['Cấu hình production không an toàn, từ chối khởi động:'].concat(problems).join('\n - '));
+    process.exit(1);
   }
+  await migrate();
   registry.initDefault();
   const external = await registry.loadExternal();
   if (external.length) console.log('Adapter ngoài đã nạp:', external.join(', '));

@@ -73,7 +73,7 @@ Mỗi `Offer`:
 `eventId` duy nhất ổn định (sự kiện trùng bị bỏ qua). `status` thuộc: `created, picked_up, in_transit, delivery_failed, returning, delivered, returned, lost, cancelled`. Trạng thái chỉ tiến, sự kiện đến muộn không làm lùi. `feeTotal` = **cước tổng mới** khi hãng cân/đo lại (không phải phần chênh).
 
 ### `parseWebhook(headers, rawBody) → [{ eventId, code, status, at, note, feeTotal?, feeFinal?, listTotal? }]`
-Phải **xác thực chữ ký** và ném `CarrierError` nếu sai. `feeFinal: true` khi cước đã chốt (nhả tiền đệm ngay). `listTotal` = giá niêm yết của chính cân đã xác nhận (để áp trần); phần cước hãng thu vượt trần do 9Ship chịu.
+Phải **xác thực chữ ký** và ném `CarrierError` nếu sai. `feeFinal: true` khi cước đã chốt (nhả tiền đệm ngay). `listTotal` = giá niêm yết của chính cân đã xác nhận (để áp trần); nếu hãng chỉ cho biết cân (`weightG`), 9Ship tra bảng `list_prices`. Không có cả hai thì khách trả trọn phần cước tăng. Phần cước hãng thu vượt trần, hoặc không thu được của khách vì ví vượt hạn mức, do 9Ship chịu (đơn được gắn cờ `fee_unpaid` cho quản trị).
 
 ### `findByReference(ref) → { carrierCode, trackingCode, fee } | null`
 `null` = hãng **xác nhận chưa có** đơn. Nếu không chắc (lỗi mạng) thì ném lỗi, đừng trả `null`.

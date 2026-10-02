@@ -12,15 +12,22 @@ const RANK = {
 };
 const TERMINAL = new Set(['delivered', 'returned', 'lost', 'cancelled', 'create_failed']);
 const KNOWN = new Set(Object.keys(RANK));
+const NO_MORE_FEES = new Set(['refunded', 'partially_refunded', 'released']);
 
 export const isTerminal = (s) => TERMINAL.has(s);
 
+const inTx = (c0, fn) => (c0 ? fn(c0) : tx(fn));
+
 // ---------- nhả tiền đệm ----------
 export async function releaseBuffer(shipmentId, c0 = null) {
-  const run = async (c) => {
+  return inTx(c0, async (c) => {
     const rows = await c.query('SELECT * FROM shipments WHERE id=$1 FOR UPDATE', [shipmentId]);
     const sh = rows[0];
-    if (!sh || !sh.buffer_open || sh.buffer_amount <= 0) return false;
+    if (!sh || !sh.buffer_open) return false;
+    if (sh.buffer_amount <= 0) {
+      await c.query('UPDATE shipments SET buffer_open=false, updated_at=now() WHERE id=$1', [sh.id]);
+      return false;
+    }
     const walletId = await ledger.lockWallet(c, sh.user_id);
     const bufId = await ledger.userAccount(c, sh.user_id, 'hold_buffer');
     await ledger.post(c, {
@@ -29,19 +36,19 @@ export async function releaseBuffer(shipmentId, c0 = null) {
     });
     await c.query('UPDATE shipments SET buffer_open=false, buffer_amount=0, updated_at=now() WHERE id=$1', [sh.id]);
     return true;
-  };
-  return c0 ? run(c0) : tx(run);
+  });
 }
 
 // ---------- điều chỉnh cước (hãng cân/đo lại) ----------
 // Chênh lệch tính từ cước tổng mới so với phiên bản cước gần nhất đã ghi nhận.
-export async function applyFee(shipmentId, newTotal, { source, sourceEventId = null, breakdown = null, listTotal = null, final = false } = {}) {
+// Không bao giờ ném lỗi vì ví: hãng đã tính cước thì phải ghi nhận; phần không thu được của khách do 9Ship chịu và đơn bị gắn cờ.
+export async function applyFee(shipmentId, newTotal, { source, sourceEventId = null, breakdown = null, listTotal = null, final = false } = {}, c0 = null) {
   if (!Number.isSafeInteger(newTotal) || newTotal < 0) throw new ApiError(400, 'invalid_fee', 'Cước không hợp lệ');
-  return tx(async (c) => {
+  return inTx(c0, async (c) => {
     const rows = await c.query('SELECT * FROM shipments WHERE id=$1 FOR UPDATE', [shipmentId]);
     const sh = rows[0];
     if (!sh || sh.payment_status === 'held') return { applied: false, reason: 'not_captured' };
-    if (sh.payment_status === 'refunded') return { applied: false, reason: 'refunded' };
+    if (NO_MORE_FEES.has(sh.payment_status) || sh.cancel_status === 'confirmed') return { applied: false, reason: 'closed' };
     const walletId = await ledger.lockWallet(c, sh.user_id);
 
     const last = (await c.query('SELECT version, total FROM carrier_fee_versions WHERE shipment_id=$1 ORDER BY version DESC LIMIT 1', [shipmentId]))[0];
@@ -62,14 +69,36 @@ export async function applyFee(shipmentId, newTotal, { source, sourceEventId = n
     const revenue = await ledger.systemAccount(c, 'revenue');
     const cost = await ledger.systemAccount(c, 'carrier_cost');
     const deposit = await ledger.systemAccount(c, 'aggregator_deposit');
-    let customerDelta = delta;
-    let absorbed = 0;
-    if (delta > 0 && listTotal != null) {
-      // tổng thu không vượt niêm yết của chính cân đã xác nhận; phần vượt do 9Ship chịu
-      const maxCharge = Math.max(sh.sell_price, listTotal);
-      customerDelta = Math.max(0, Math.min(delta, maxCharge - sh.sell_price));
-      absorbed = delta - customerDelta;
+    let customerDelta;
+    let absorbedNow = 0;       // phần 9Ship chịu thêm lần này
+    let absorbedBack = 0;      // phần 9Ship được giảm nợ chịu khi cước giảm
+    let flag = null;
+
+    if (delta > 0) {
+      customerDelta = delta;
+      if (listTotal != null) {
+        // tổng thu không vượt niêm yết của chính cân đã xác nhận; phần vượt do 9Ship chịu
+        const maxCharge = Math.max(sh.sell_price, listTotal);
+        customerDelta = Math.max(0, Math.min(delta, maxCharge - sh.sell_price));
+        absorbedNow = delta - customerDelta;
+      }
+      // hạn mức ví: phần không thu được của khách (vượt trần âm) cũng do 9Ship chịu và gắn cờ
+      const fromBufferWanted = Math.min(sh.buffer_open ? sh.buffer_amount : 0, customerDelta);
+      const walletBal = await ledger.balance(c, walletId);
+      const room = Math.max(0, walletBal + config.walletOverdraftCap);
+      const needWallet = customerDelta - fromBufferWanted;
+      if (needWallet > room) {
+        const unpaid = needWallet - room;
+        customerDelta -= unpaid;
+        absorbedNow += unpaid;
+        flag = 'fee_unpaid';
+      }
+    } else {
+      // cước giảm: giảm phần 9Ship đang chịu trước, còn lại hoàn cho khách
+      absorbedBack = Math.min(sh.absorbed, -delta);
+      customerDelta = delta + absorbedBack; // <= 0
     }
+
     const entries = [];
     let fromBuffer = 0;
     if (customerDelta > 0) {
@@ -88,21 +117,24 @@ export async function applyFee(shipmentId, newTotal, { source, sourceEventId = n
       kind: 'adjustment', idemScope: 'fee', idemKey: `${shipmentId}:${version}`, shipmentId, payload: { delta, customerDelta },
       entries,
     });
+    const newBufferOpen = (sh.buffer_open ? sh.buffer_amount - fromBuffer : 0) > 0;
     await c.query(
       `UPDATE shipments SET fee_confirmed=$2, cost_price=$2, sell_price = sell_price + $3,
-         buffer_amount = buffer_amount - $4, updated_at=now() WHERE id=$1`,
-      [shipmentId, newTotal, customerDelta, fromBuffer]);
+         buffer_amount = buffer_amount - $4, buffer_open = $5, absorbed = absorbed + $6 - $7,
+         needs_attention = COALESCE($8, needs_attention), updated_at=now() WHERE id=$1`,
+      [shipmentId, newTotal, customerDelta, fromBuffer, newBufferOpen, absorbedNow, absorbedBack, flag]);
     await c.query(
       'INSERT INTO adjustments(shipment_id, kind, amount, reason, ledger_tx_id) VALUES($1,$2,$3,$4,$5)',
-      [shipmentId, delta > 0 ? 'increase' : 'decrease', customerDelta, `hãng báo cước ${newTotal} (trước đó ${prev})${absorbed ? `, 9Ship chịu ${absorbed}` : ''}`, post.txId]);
+      [shipmentId, delta > 0 ? 'increase' : 'decrease', customerDelta,
+        `hãng báo cước ${newTotal} (trước đó ${prev})${absorbedNow ? `, 9Ship chịu ${absorbedNow}` : ''}${absorbedBack ? `, giảm phần 9Ship đã chịu ${absorbedBack}` : ''}`, post.txId]);
     if (final) await releaseBuffer(shipmentId, c);
-    return { applied: true, delta, customerDelta, absorbed, version };
+    return { applied: true, delta, customerDelta, absorbed: absorbedNow, absorbedBack, flag, version };
   });
 }
 
 // ---------- hủy và hoàn tiền ----------
-async function confirmCancel(shipmentId, { feeRetained = 0, note = '' } = {}) {
-  return tx(async (c) => {
+async function confirmCancel(shipmentId, { feeRetained = 0, note = '' } = {}, c0 = null) {
+  return inTx(c0, async (c) => {
     const rows = await c.query('SELECT * FROM shipments WHERE id=$1 FOR UPDATE', [shipmentId]);
     const sh = rows[0];
     if (!sh || sh.cancel_status === 'confirmed') return false;
@@ -174,44 +206,70 @@ export async function resolveCancel(shipmentId) {
 }
 
 // ---------- nhận sự kiện hành trình (webhook hoặc polling) ----------
-export async function ingest(carrierId, events) {
-  let accepted = 0;
-  for (const ev of events) {
-    const rows = await query('SELECT * FROM shipments WHERE carrier=$1 AND carrier_code=$2', [carrierId, ev.code]);
-    if (!rows.length) continue;
-    const sh = rows[0];
-    if (!KNOWN.has(ev.status) && ev.status !== 'fee_update') continue;
-    const at = ev.at ? new Date(ev.at) : new Date();
-    const ins = await query(
+// Mỗi sự kiện được ghi và áp dụng trong MỘT giao dịch: nếu áp dụng lỗi thì sự kiện không bị "tiêu thụ" và hãng/polling sẽ gửi lại.
+async function ingestOne(carrierId, ev) {
+  const at = ev.at ? new Date(ev.at) : new Date();
+  return tx(async (c) => {
+    const rows = await c.query('SELECT id FROM shipments WHERE carrier=$1 AND carrier_code=$2', [carrierId, ev.code]);
+    if (!rows.length) return false;
+    const sh = (await c.query('SELECT * FROM shipments WHERE id=$1 FOR UPDATE', [rows[0].id]))[0];
+    const ins = await c.query(
       `INSERT INTO tracking_events(shipment_id, carrier_event_id, status, note, event_at, raw)
        VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT (shipment_id, carrier_event_id) DO NOTHING RETURNING id`,
       [sh.id, ev.eventId, ev.status, String(ev.note || '').slice(0, 300), isNaN(at) ? new Date() : at, JSON.stringify(ev)]);
-    if (!ins.length) continue; // sự kiện trùng: không áp dụng lại
-    accepted += 1;
+    if (!ins.length) return false; // sự kiện trùng: không áp dụng lại
 
     if (ev.feeTotal !== undefined && ev.status !== 'cancelled') {
-      await applyFee(sh.id, ev.feeTotal, { source: 'webhook', sourceEventId: ev.eventId, listTotal: ev.listTotal ?? null, final: Boolean(ev.feeFinal) });
+      if (Number.isSafeInteger(ev.feeTotal) && ev.feeTotal >= 0) {
+        let listTotal = ev.listTotal ?? null;
+        if (listTotal == null && Number.isFinite(ev.weightG)) listTotal = await listPriceFor(c, sh, ev.weightG);
+        await applyFee(sh.id, ev.feeTotal, { source: 'webhook', sourceEventId: ev.eventId, listTotal, final: Boolean(ev.feeFinal) }, c);
+      } else {
+        await c.query("UPDATE shipments SET needs_attention='fee_invalid' WHERE id=$1", [sh.id]);
+      }
     }
-    if (ev.status === 'fee_update') continue;
+    if (ev.status === 'fee_update') return true;
+
+    const cur = (await c.query('SELECT shipping_status, cancel_status FROM shipments WHERE id=$1', [sh.id]))[0];
 
     if (ev.status === 'cancelled') {
-      // chỉ tin sự kiện hủy khi ta đang chờ hủy hoặc đơn chưa được lấy hàng
-      if (sh.cancel_status === 'requested' && ['created'].includes(sh.shipping_status)) {
-        await confirmCancel(sh.id, { feeRetained: ev.feeTotal ?? 0, note: ev.note || 'Hãng xác nhận hủy' });
+      if (cur.cancel_status === 'confirmed') return true;
+      if (cur.shipping_status === 'created') {
+        // hãng xác nhận hủy (theo yêu cầu của khách) hoặc tự hủy vì không lấy được hàng: hoàn tiền
+        await confirmCancel(sh.id, { feeRetained: ev.feeTotal ?? 0, note: ev.note || 'Hãng hủy đơn' }, c);
+      } else if (!TERMINAL.has(cur.shipping_status)) {
+        await c.query("UPDATE shipments SET needs_attention='carrier_cancelled', updated_at=now() WHERE id=$1", [sh.id]);
       }
-      continue;
+      return true;
     }
 
     // chỉ tiến theo thứ hạng
-    const cur = (await query('SELECT shipping_status, cancel_status FROM shipments WHERE id=$1', [sh.id]))[0];
-    if (TERMINAL.has(cur.shipping_status)) continue;
-    if ((RANK[ev.status] ?? 0) <= (RANK[cur.shipping_status] ?? 0)) continue;
+    if (TERMINAL.has(cur.shipping_status)) return true;
+    if ((RANK[ev.status] ?? 0) <= (RANK[cur.shipping_status] ?? 0)) return true;
     const closed = TERMINAL.has(ev.status);
-    await query(
+    await c.query(
       `UPDATE shipments SET shipping_status=$2, closed_at = CASE WHEN $3 THEN now() ELSE closed_at END,
          cancel_status = CASE WHEN cancel_status='requested' AND $4 THEN 'rejected' ELSE cancel_status END, updated_at=now()
        WHERE id=$1`,
       [sh.id, ev.status, closed, RANK[ev.status] >= RANK.picked_up]);
+    return true;
+  });
+}
+
+// Giá niêm yết công bố theo cân hãng đã xác nhận (nếu hãng cho biết cân và bảng giá có dữ liệu).
+async function listPriceFor(c, sh, weightG) {
+  const route = `${sh.sender.province}>${sh.receiver.province}`;
+  const r = await c.query(
+    `SELECT price FROM list_prices WHERE carrier=$1 AND service=$2 AND route IN ($3,'*') AND max_weight_g >= $4
+      ORDER BY (route='*') ASC, max_weight_g ASC LIMIT 1`, [sh.carrier, sh.service, route, weightG]);
+  return r.length ? r[0].price : null;
+}
+
+export async function ingest(carrierId, events) {
+  let accepted = 0;
+  for (const ev of events) {
+    if (!KNOWN.has(ev.status) && ev.status !== 'fee_update') continue;
+    if (await ingestOne(carrierId, ev)) accepted += 1;
   }
   return accepted;
 }
@@ -232,7 +290,9 @@ export async function pollTracking({ everySec = 300, limit = 50 } = {}) {
     try {
       const events = await adapter.track(r.carrier_code);
       n += await ingest(r.carrier, events.map((e) => ({ ...e, code: r.carrier_code })));
-    } catch { /* lần sau thử lại */ }
+    } catch (e) {
+      console.error('[poll]', r.id, e.message); // sự kiện chưa bị tiêu thụ nên lần sau sẽ thử lại
+    }
   }
   return n;
 }

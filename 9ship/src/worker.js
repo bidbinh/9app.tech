@@ -7,7 +7,14 @@ import * as lifecycle from './lifecycle.js';
 
 const LEASE_SEC = 120;
 const MAX_ATTEMPTS = 4;
-export const workerOpts = { reconcileMinAgeMs: 120_000 };
+// confirmations: số lần tra cứu liên tiếp đều "hãng chưa có đơn" mới được nhả tiền (hãng có thể tra cứu chậm đồng bộ).
+export const workerOpts = { reconcileMinAgeMs: 120_000, confirmations: 2 };
+
+function withTimeout(promise, ms) {
+  let t;
+  const timeout = new Promise((_, rej) => { t = setTimeout(() => rej(new Error('timeout')), ms); t.unref?.(); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+}
 
 async function claim(limit = 10, shipmentId = null) {
   return query(
@@ -19,7 +26,7 @@ async function claim(limit = 10, shipmentId = null) {
      UPDATE outbox o SET status='processing', attempts = o.attempts + 1,
             next_at = now() + ($1 || ' seconds')::interval
        FROM due WHERE o.id = due.id
-     RETURNING o.id, o.shipment_id, o.kind, o.attempts, due.prev AS status`,
+     RETURNING o.id, o.shipment_id, o.kind, o.attempts, o.payload, due.prev AS status`,
     [String(LEASE_SEC), limit, shipmentId],
   );
 }
@@ -126,7 +133,11 @@ async function processCreate(job) {
   const sh = (await query('SELECT * FROM shipments WHERE id=$1', [job.shipment_id]))[0];
   if (!sh || sh.payment_status !== 'held') { await setOutbox(job.id, 'done'); return 'skipped'; }
   const adapter = registry.get(sh.carrier);
-  if (!adapter) { await onFailed(sh.id, 'hãng không còn đăng ký'); return 'failed'; }
+  if (!adapter) {
+    // Không biết hãng đã nhận đơn chưa (có thể do cấu hình CARRIER_MODULES bị lỗi sau khi khởi động lại): không nhả tiền.
+    await markAttention(sh, job.id, 'adapter_missing');
+    return 'attention';
+  }
 
   const ageMs = Date.now() - new Date(sh.created_at).getTime();
   const reconciling = job.status === 'reconcile' || job.attempts > 1;
@@ -138,7 +149,11 @@ async function processCreate(job) {
     try { found = await adapter.findByReference(sh.carrier_ref); } catch { lookupOk = false; }
     if (found) { await onCreated(sh, found); return 'created'; }
     if (job.status === 'reconcile') {
-      if (lookupOk && ageMs >= workerOpts.reconcileMinAgeMs) { await onFailed(sh.id, 'đối soát: hãng chưa có đơn'); return 'failed'; }
+      if (lookupOk && ageMs >= workerOpts.reconcileMinAgeMs) {
+        const nulls = ((job.payload && job.payload.nullLookups) || 0) + 1;
+        if (nulls >= workerOpts.confirmations) { await onFailed(sh.id, 'đối soát: hãng chưa có đơn'); return 'failed'; }
+        await query("UPDATE outbox SET payload = jsonb_set(payload, '{nullLookups}', to_jsonb($2::int)) WHERE id=$1", [job.id, nulls]);
+      }
       await setOutbox(job.id, 'reconcile', { delaySec: 30 });
       return 'reconciling';
     }
@@ -153,7 +168,7 @@ async function processCreate(job) {
   }
 
   try {
-    const res = await adapter.createShipment(buildCreateRequest(sh));
+    const res = await withTimeout(adapter.createShipment(buildCreateRequest(sh)), config.createTimeoutMs);
     await onCreated(sh, res);
     return 'created';
   } catch (e) {

@@ -358,6 +358,11 @@
         toast('Giá của hãng vừa thay đổi. Vui lòng chọn lại.');
         return go('#/quote');
       }
+      if (e.code === 'idempotency_conflict') {
+        toast('Yêu cầu tạo đơn trước đó đã được ghi nhận. Hãy kiểm tra mục Đơn của tôi.');
+        state.idem = null; store('flow', null);
+        return go('#/orders');
+      }
       if (e.code === 'quote_expired') { state.notice = 'Báo giá đã hết hạn, hãy xem giá lại.'; return go('#/'); }
       fail(e);
     });

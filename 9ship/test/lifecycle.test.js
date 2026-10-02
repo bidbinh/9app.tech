@@ -112,8 +112,13 @@ test('cước tăng vượt đệm: phần còn lại trừ ví; ví âm có tr�
   const { q, offer } = await getOffer(u);
   await assert.rejects(orders.create(u, { quoteId: q.quoteId, offerId: offer.offerId, sender: SENDER, receiver: RECEIVER }, key()),
     (e) => e.code === 'wallet_negative');
-  // vượt trần âm thì bị chặn, không ghi
-  await assert.rejects(lifecycle.applyFee(o.id, cost0 + 10_000_000, { source: 'webhook', sourceEventId: 'g3' }), (e) => e.status === 402);
+  // vượt hạn mức âm: không ném lỗi (hãng đã tính cước), ví dừng ở hạn mức, 9Ship chịu phần còn lại và đơn bị gắn cờ
+  const w1 = await wallet(u);
+  const r = await lifecycle.applyFee(o.id, cost0 + 10_000_000, { source: 'webhook', sourceEventId: 'g3' });
+  assert.equal(r.applied, true);
+  assert.equal(r.flag, 'fee_unpaid');
+  assert.equal(await wallet(u), -config.walletOverdraftCap);
+  assert.ok(w1 >= -config.walletOverdraftCap);
   await auditOk();
 });
 

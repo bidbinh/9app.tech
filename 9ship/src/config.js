@@ -15,6 +15,7 @@ export const config = {
   priceDriftPct: int(env.PRICE_DRIFT_PCT, 5),
   quoteTtlMin: int(env.QUOTE_TTL_MIN, 15),
   carrierTimeoutMs: int(env.CARRIER_TIMEOUT_MS, 4000),
+  createTimeoutMs: int(env.CREATE_TIMEOUT_MS, 30000),
   unknownCreateHours: int(env.UNKNOWN_CREATE_HOURS, 2),
   // OTP
   otpProvider: env.OTP_PROVIDER || 'console',
@@ -36,7 +37,20 @@ export const config = {
   bankAccountName: env.BANK_ACCOUNT_NAME || '9SHIP',
   topupTtlMin: int(env.TOPUP_TTL_MIN, 60),
   requireCapDefault: bool(env.REQUIRE_CAP_DEFAULT, true),
-  mockCarriers: bool(env.MOCK_CARRIERS, true),
+  // Mặc định bật khi không phải production; production phải bật tường minh (và sẽ bị từ chối khi khởi động).
+  mockCarriers: bool(env.MOCK_CARRIERS, env.NODE_ENV !== 'production'),
   rateLimitPerMin: int(env.RATE_LIMIT_PER_MIN, 120),
   routeLimitFactor: int(env.ROUTE_LIMIT_FACTOR, 1),
 };
+
+const DEFAULT_SIGN = 'dev-sign-secret-change-me';
+// Từ chối khởi động production với cấu hình không an toàn.
+export function productionProblems(c = config) {
+  const p = [];
+  if (!c.production) return p;
+  if (c.mockCarriers) p.push('MOCK_CARRIERS đang bật: hãng mô phỏng có webhook công khai với bí mật cố định');
+  if (!c.signSecret || c.signSecret === DEFAULT_SIGN || c.signSecret.length < 24) p.push('SIGN_SECRET chưa đặt hoặc quá yếu (cần ít nhất 24 ký tự ngẫu nhiên)');
+  if (c.otpProvider === 'console') p.push('OTP_PROVIDER=console: production không gửi được mã đăng nhập');
+  if (c.otpDev) p.push('OTP_DEV không được bật ở production');
+  return p;
+}

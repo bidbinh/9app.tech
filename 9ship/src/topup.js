@@ -80,20 +80,20 @@ export async function ingestBankTx({ bankTxId, amount, content, raw = null }) {
   const setInbox = (st, note, topupId = null) => query(
     'UPDATE bank_inbox SET status=$2, note=$3, matched_topup_id=$4 WHERE bank_tx_id=$1', [String(bankTxId), st, note, topupId]);
   if (!m) { await setInbox('unmatched', 'không thấy mã nạp trong nội dung'); return { status: 'unmatched' }; }
-  const t = (await query('SELECT * FROM topups WHERE code=$1', [m[0]]))[0];
-  if (!t) { await setInbox('unmatched', 'mã nạp không tồn tại'); return { status: 'unmatched' }; }
-  if (t.amount !== amount) { await setInbox('needs_review', `lệch số tiền: yêu cầu ${t.amount}, nhận ${amount}`, t.id); return { status: 'needs_review' }; }
-  if (t.status !== 'pending' || new Date(t.expires_at) < new Date()) {
-    await setInbox('needs_review', 'yêu cầu nạp đã hết hạn hoặc đã xử lý', t.id);
-    return { status: 'needs_review' };
-  }
-  await tx(async (c) => {
-    const upd = await c.query("UPDATE topups SET status='paid', bank_tx_id=$2 WHERE id=$1 AND status='pending' RETURNING id", [t.id, String(bankTxId)]);
-    if (!upd.length) return;
+  const t0 = (await query('SELECT id FROM topups WHERE code=$1', [m[0]]))[0];
+  if (!t0) { await setInbox('unmatched', 'mã nạp không tồn tại'); return { status: 'unmatched' }; }
+  // Kiểm tra và cộng ví trong cùng một giao dịch có khóa dòng: hai thông báo đồng thời hoặc việc hết hạn chạy xen giữa không làm mất tiền.
+  const res = await tx(async (c) => {
+    const t = (await c.query('SELECT * FROM topups WHERE id=$1 FOR UPDATE', [t0.id]))[0];
+    if (t.amount !== amount) return { status: 'needs_review', note: `lệch số tiền: yêu cầu ${t.amount}, nhận ${amount}`, topupId: t.id };
+    if (t.status !== 'pending' || new Date(t.expires_at) < new Date()) return { status: 'needs_review', note: 'yêu cầu nạp đã hết hạn hoặc đã xử lý', topupId: t.id };
+    await c.query("UPDATE topups SET status='paid', bank_tx_id=$2 WHERE id=$1", [t.id, String(bankTxId)]);
     await creditFromBank(c, t.user_id, amount, { idemScope: 'bank-tx', idemKey: String(bankTxId), payload: { topup: t.id } });
     await c.query("UPDATE bank_inbox SET status='matched', matched_topup_id=$2, note='' WHERE bank_tx_id=$1", [String(bankTxId), t.id]);
+    return { status: 'matched' };
   });
-  return { status: 'matched' };
+  if (res.status === 'needs_review') await setInbox('needs_review', res.note, res.topupId);
+  return { status: res.status };
 }
 
 // Quản trị ghép tay một giao dịch chưa ghép được: cộng đúng số tiền thực nhận cho người dùng chỉ định.

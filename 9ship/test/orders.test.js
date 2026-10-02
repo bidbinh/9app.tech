@@ -173,6 +173,9 @@ test('timeout trước khi hãng nhận: đối soát xác nhận hãng chưa c�
   assert.equal((await worker.runOnce({ shipmentId: shipment.id }))[0].result, 'unknown');
   assert.equal((await orders.get(u, shipment.id)).paymentStatus, 'held');
   await due();
+  assert.equal((await worker.runOnce({ shipmentId: shipment.id }))[0].result, 'reconciling', 'một lần chưa thấy là chưa đủ chắc để nhả');
+  assert.equal((await orders.get(u, shipment.id)).paymentStatus, 'held');
+  await due();
   assert.equal((await worker.runOnce({ shipmentId: shipment.id }))[0].result, 'failed');
   const v = await orders.get(u, shipment.id);
   assert.equal(v.paymentStatus, 'released');
