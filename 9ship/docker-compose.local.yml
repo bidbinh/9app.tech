@@ -1,0 +1,41 @@
+# Triển khai thử trên máy cá nhân bằng Docker: dịch vụ + PostgreSQL riêng, hãng mô phỏng, OTP hiện trên màn hình.
+# KHÔNG dùng cho người dùng thật. Production dùng docker-compose.yml + .env (xem docs/SETUP-CHECKLIST.md).
+#   docker compose -f docker-compose.local.yml up -d --build
+name: 9ship-local
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ship
+      POSTGRES_PASSWORD: ship-local
+      POSTGRES_DB: ship
+    volumes:
+      - ship-local-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ship -d ship"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  9ship:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development          # bật OTP hiện trên màn hình và nút demo hành trình
+      PORT: "8099"
+      DATABASE_URL: postgres://ship:ship-local@db:5432/ship
+      MOCK_CARRIERS: "true"
+      OTP_DEV: "1"
+      SIGN_SECRET: local-only-sign-secret-0123456789abcdef
+      ADMIN_TOKEN: demo-admin
+      ADMIN_TOTP_SECRET: JBSWY3DPEHPK3PXP
+      BANK_ACCOUNT: "0011001234567"
+      BANK_ACCOUNT_NAME: CONG TY 9SHIP DEMO
+      BANK_WEBHOOK_SECRET: demo-bank
+    ports:
+      - "127.0.0.1:8099:8099"
+volumes:
+  ship-local-db:
