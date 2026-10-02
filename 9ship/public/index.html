@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ea580c">
+<title>9Ship — Gửi hàng nhanh</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div>
+      <h1>9Ship</h1>
+      <div class="sub">So giá nhiều hãng, gửi tại quầy gần bạn</div>
+    </div>
+    <div class="row"><a class="home-link" href="/" id="homeLink">9app</a><button class="who" id="who" type="button">Đăng nhập</button></div>
+  </div>
+  <div id="view" class="spin">Đang tải…</div>
+</div>
+<nav class="nav" id="nav">
+  <a href="#/" data-r="send"><b>📦</b>Gửi hàng</a>
+  <a href="#/orders" data-r="orders"><b>🧾</b>Đơn của tôi</a>
+  <a href="#/wallet" data-r="wallet"><b>👛</b>Ví</a>
+</nav>
+<div class="toast hidden" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

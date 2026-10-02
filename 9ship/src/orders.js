@@ -40,6 +40,7 @@ export function shipmentView(row, { events = [], carrierName } = {}) {
     carrier: row.carrier,
     carrierName: carrierName || registry.get(row.carrier)?.name || row.carrier,
     service: row.service,
+    serviceName: (row.offer && row.offer.serviceName) || row.service,
     handover: row.handover,
     pickupPointId: row.pickup_point_id,
     trackingCode: row.tracking_code,
@@ -158,7 +159,7 @@ export async function create(userId, input, idemKey) {
         [userId, quote.id, idemKey, payloadHash, offer.carrier, offer.service, offer.contract, carrierRef, request.handover,
           pickupPointId, request.goodsType, request.declaredValue, request.weightG, offer.priceBookVersion || '', cost, sell,
           offer.capVerified ? offer.listPrice : null, sell, buffer, JSON.stringify(sender), JSON.stringify(receiver),
-          JSON.stringify({ service: offer.service, contract: offer.contract, priceToken: offer.priceToken, costTotal: cost }),
+          JSON.stringify({ service: offer.service, serviceName: offer.serviceName, contract: offer.contract, priceToken: offer.priceToken, costTotal: cost }),
           JSON.stringify(request)]);
       const sh = ins[0];
       await ledger.post(c, {

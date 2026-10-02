@@ -3,6 +3,7 @@ import { quoteAll } from '../rating.js';
 import { PROVINCES, pointsNear } from '../places.js';
 import { ApiError } from '../errors.js';
 import * as registry from '../carriers/index.js';
+import { config } from '../config.js';
 
 export const GOODS_LABELS = {
   general: 'Hàng thông thường', document: 'Tài liệu, giấy tờ', clothes: 'Quần áo, giày dép', electronics: 'Đồ điện tử',
@@ -14,6 +15,9 @@ export function quotesRoutes(app) {
     provinces: PROVINCES.map((p) => ({ code: p.code, name: p.name })),
     goodsTypes: GOODS_TYPES.map((g) => ({ code: g, label: GOODS_LABELS[g] })),
     limits: { maxWeightG: MAX_WEIGHT_G, maxDeclaredValue: MAX_DECLARED },
+    bufferPct: config.bufferPct,
+    bufferMin: config.bufferMin,
+    demo: !config.production && config.mockCarriers,
     carriers: registry.list().map((a) => ({ id: a.id, name: a.name, capabilities: a.capabilities })),
     notice: 'Không gửi hàng cấm: chất nổ, chất cháy, vũ khí, chất ma túy, hàng giả, động vật sống và các mặt hàng pháp luật cấm lưu thông.',
   }));

@@ -94,7 +94,7 @@ export async function render(shipment, { size = '100x150', carrierName = '', pic
 @page { size: ${page}; margin: 0; }
 *{box-sizing:border-box} body{margin:0;font:12px/1.35 Arial,Helvetica,sans-serif;color:#000;background:#eee}
 .label{width:${page.split(' ')[0]};min-height:${page.split(' ')[1]};margin:0 auto;background:#fff;padding:4mm;border:1px solid #000}
-.row{display:flex;gap:3mm;align-items:center;justify-content:space-between}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3mm}
 .carrier{font-size:16px;font-weight:700}
 .code{font:700 18px/1.2 "Courier New",monospace;text-align:center;letter-spacing:1px;margin:1mm 0}
 .bar{display:block;width:100%;height:16mm}
