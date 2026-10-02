@@ -12,7 +12,7 @@ const SPECS = {
     table: { noi_tinh: [22000, 4500], noi_mien: [28000, 5500], lien_mien: [38000, 7000] },
     eta: { noi_tinh: [1, 1], noi_mien: [1, 2], lien_mien: [2, 3] },
     handovers: ['dropoff', 'pickup'],
-    caps: { dropoff: true, pickup: true, findByReference: true, webhook: true, officeList: true, labelNative: false },
+    caps: { dropoff: true, pickup: true, findByReference: true, webhook: true, officeList: true, labelNative: false, idempotentCreate: true },
     service: 'express', serviceName: 'Giao nhanh',
   },
   'mock-chuan': {
@@ -20,7 +20,7 @@ const SPECS = {
     table: { noi_tinh: [18000, 3500], noi_mien: [24000, 4500], lien_mien: [32000, 6000] },
     eta: { noi_tinh: [1, 2], noi_mien: [2, 3], lien_mien: [3, 5] },
     handovers: ['dropoff', 'pickup'],
-    caps: { dropoff: true, pickup: true, findByReference: true, webhook: false, officeList: true, labelNative: false },
+    caps: { dropoff: true, pickup: true, findByReference: true, webhook: false, officeList: true, labelNative: false, idempotentCreate: true },
     service: 'standard', serviceName: 'Giao chuẩn',
   },
   'mock-tietkiem': {
@@ -28,7 +28,7 @@ const SPECS = {
     table: { noi_tinh: [15000, 3000], noi_mien: [20000, 4000], lien_mien: [27000, 5000] },
     eta: { noi_tinh: [2, 3], noi_mien: [3, 4], lien_mien: [4, 6] },
     handovers: ['dropoff'],
-    caps: { dropoff: true, pickup: false, findByReference: false, webhook: false, officeList: true, labelNative: false },
+    caps: { dropoff: true, pickup: false, findByReference: false, webhook: false, officeList: true, labelNative: false, idempotentCreate: true },
     service: 'economy', serviceName: 'Tiết kiệm',
     refuses: ['electronics', 'fragile'],
   },

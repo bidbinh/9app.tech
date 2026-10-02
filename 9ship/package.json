@@ -8,9 +8,14 @@
     "start": "node src/server.js",
     "test": "node --test --test-concurrency=1 test/"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "pg": "^8.13.0",
     "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "jsbarcode": "^3.12.3"
   }
 }

@@ -47,7 +47,7 @@ export async function balance(c, accountId) {
     [accountId],
   );
   if (!r.length) return 0;
-  return DEBIT_NATURAL.has(r[0].kind) ? r[0].s : -r[0].s;
+  return DEBIT_NATURAL.has(r[0].kind) ? r[0].s : 0 - r[0].s;
 }
 
 export async function walletBalance(c, userId) {
