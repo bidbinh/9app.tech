@@ -34,6 +34,7 @@ function newCode() {
 }
 
 export async function create(userId, amount) {
+  if (!config.bankConfigured) throw new ApiError(503, 'topup_unavailable', 'Chức năng nạp tiền chưa được bật');
   if (!Number.isSafeInteger(amount) || amount < MIN_TOPUP || amount > MAX_TOPUP) {
     throw new ApiError(400, 'invalid_amount', `Số tiền nạp từ ${MIN_TOPUP.toLocaleString('vi-VN')} đến ${MAX_TOPUP.toLocaleString('vi-VN')} đồng`);
   }

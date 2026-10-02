@@ -45,6 +45,13 @@ test('CRC16-CCITT khớp vectơ chuẩn và mã VietQR tự kiểm', () => {
   assert.ok(p.includes('5303704') && p.includes('540') && p.includes('9SABCD2345'));
 });
 
+test('chưa cấu hình tài khoản ngân hàng ở production thì không cho nạp ví', async () => {
+  const u = await newUser();
+  config.bankConfigured = false;
+  try { await assert.rejects(topup.create(u, 100000), (e) => e.status === 503 && e.code === 'topup_unavailable'); }
+  finally { config.bankConfigured = true; }
+});
+
 test('tạo yêu cầu nạp: giới hạn số tiền, có mã và QR', async () => {
   const u = await newUser();
   await assert.rejects(topup.create(u, 5000), (e) => e.status === 400);

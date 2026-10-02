@@ -34,6 +34,8 @@ export const config = {
   // VietQR
   bankBin: env.BANK_BIN || '970436',
   bankAccount: env.BANK_ACCOUNT || '0000000000',
+  // production không được dùng tài khoản giả: chưa cấu hình thì chặn nạp ví
+  bankConfigured: Boolean(env.BANK_ACCOUNT) || env.NODE_ENV !== 'production',
   bankAccountName: env.BANK_ACCOUNT_NAME || '9SHIP',
   topupTtlMin: int(env.TOPUP_TTL_MIN, 60),
   requireCapDefault: bool(env.REQUIRE_CAP_DEFAULT, true),
