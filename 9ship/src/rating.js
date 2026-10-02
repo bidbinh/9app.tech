@@ -4,6 +4,25 @@ import { query } from './db.js';
 import * as registry from './carriers/index.js';
 import { applyMargin, pickRule, priceBookVersion } from './pricing.js';
 import { nearestPoints } from './places.js';
+import * as ledger from './ledger.js';
+import { tx } from './db.js';
+
+// ---- cảnh báo cho quản trị: offer bị ẩn vì biên hoặc thiếu trần ----
+const alerts = new Map();
+function recordAlert(carrier, route, reason) {
+  const k = `${carrier}|${route}|${reason}`;
+  const a = alerts.get(k) || { carrier, route, reason, count: 0, last: null };
+  a.count += 1;
+  a.last = new Date().toISOString();
+  alerts.set(k, a);
+}
+export const getAlerts = () => [...alerts.values()].sort((a, b) => b.count - a.count).slice(0, 100);
+export const clearAlerts = () => alerts.clear();
+
+export async function getSetting(key, def) {
+  const r = await query('SELECT value FROM settings WHERE key=$1', [key]);
+  return r.length ? r[0].value : def;
+}
 
 // ---- circuit breaker theo hãng ----
 const breaker = new Map(); // id -> { fails, openUntil, lastError }
@@ -62,6 +81,15 @@ export async function quoteAll(req, { userId = null } = {}) {
   const adapters = registry.list();
   const skipped = [];
 
+  // Ký quỹ của đơn vị tổng hợp xuống dưới ngưỡng: tạm ẩn mọi offer để không nhận đơn không thanh toán được.
+  const depositMin = await getSetting('deposit_min', 0);
+  if (depositMin > 0) {
+    const bal = await tx(async (c) => ledger.balance(c, await ledger.systemAccount(c, 'aggregator_deposit')));
+    if (bal < depositMin) {
+      return { quoteId: null, expiresAt: null, offers: [], skipped: adapters.map((a) => ({ carrier: a.id, reason: 'deposit_low' })) };
+    }
+  }
+
   const settled = await Promise.all(adapters.map(async (a) => {
     if (isOpen(a.id)) { skipped.push({ carrier: a.id, reason: 'circuit_open' }); return []; }
     try {
@@ -89,7 +117,7 @@ export async function quoteAll(req, { userId = null } = {}) {
     }
 
     const m = applyMargin({ cost: raw.cost.total, rule, listPrice, listVerifiedAt });
-    if (m.hidden) { skipped.push({ carrier: raw.carrier, reason: m.reason }); continue; }
+    if (m.hidden) { skipped.push({ carrier: raw.carrier, reason: m.reason }); recordAlert(raw.carrier, route, m.reason); continue; }
 
     const offer = {
       offerId: `${raw.carrier}:${raw.service}:${raw.contract}`,
