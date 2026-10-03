@@ -227,13 +227,28 @@
     ]));
     p.scrollIntoView && p.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  // App ngân hàng của tài khoản nhận tiền. Liên kết chỉ MỞ app (app ngân hàng không nhận số tiền/nội dung từ liên kết), nên nội dung chuyển khoản được chép sẵn.
+  var BANK_APPS = {
+    '970432': { app: 'VPBank NEO', scheme: 'vpbankonline', pkg: 'com.vnpay.vpbankonline' },
+    '970422': { app: 'MB Bank', scheme: 'mbbank', pkg: 'com.mbmobile' }
+  };
+  function openBankApp(b, t) {
+    try { navigator.clipboard.writeText(t.transfer.content); } catch (e) { /* bỏ qua */ }
+    S9.toast('Đã chép nội dung ' + t.transfer.content + '. Trong app: Chuyển tiền → dán nội dung.');
+    var ua = navigator.userAgent || '';
+    var url = /Android/i.test(ua) ? 'intent://#Intent;scheme=' + b.scheme + ';package=' + b.pkg + ';end' : (/iPhone|iPad|iPod/i.test(ua) ? b.scheme + '://' : '');
+    if (!url) return S9.toast('Hãy mở app ngân hàng trên điện thoại.');
+    setTimeout(function () { location.href = url; }, 400);
+  }
   function drawTopup(t) {
     var p = panel();
+    var bankApp = BANK_APPS[t.transfer.bankBin] || null;
     p.appendChild(h('div', { class: 'card' }, [
       h('h2', { text: 'Quét mã hoặc chuyển khoản' }),
       h('div', { class: 'qr', id: 'qrbox' }),
       S9.kv('Số tiền', S9.vnd(t.amount)), S9.kv('Ngân hàng (BIN)', t.transfer.bankBin), S9.kv('Số tài khoản', t.transfer.account), S9.kv('Chủ tài khoản', t.transfer.accountName),
       S9.kv('Nội dung (bắt buộc)', t.transfer.content),
+      bankApp ? h('button', { type: 'button', class: 'btn', text: 'Mở app ' + bankApp.app, onclick: function () { openBankApp(bankApp, t); } }) : null,
       h('button', { type: 'button', class: 'btn ghost', text: 'Sao chép nội dung chuyển khoản', onclick: function () { try { navigator.clipboard.writeText(t.transfer.content); S9.toast('Đã sao chép'); } catch (e) { S9.toast('Hãy chép tay: ' + t.transfer.content); } } }),
       h('div', { class: 'muted small mt', id: 'tp-status', text: 'Đang chờ tiền về… Ví tự cộng khi nhận được tiền (thường dưới 1 phút).' })
     ]));
