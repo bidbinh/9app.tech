@@ -1,6 +1,8 @@
 import crypto from 'node:crypto';
 import { config } from '../config.js';
 import { html } from '../http.js';
+import * as lifecycle from '../lifecycle.js';
+import { parseNhanhWebhook } from '../carriers/nhanh.js';
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const same = (a, b) => { const x = Buffer.from(String(a)); const y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
@@ -17,10 +19,14 @@ export function nhanhRoutes(app) {
   });
 
   // Nhanh.vn gọi thử địa chỉ này khi lưu app (phải trả 200) rồi gửi sự kiện kèm header Authorization = mã xác thực.
+  // Luôn trả 200 để Nhanh.vn không tụt ưu tiên webhook; sự kiện sai mã hoặc không hiểu thì bỏ qua.
   app.route('POST', '/v1/webhooks/nhanh', async (ctx) => {
     const token = config.nhanhWebhookToken;
-    const authed = Boolean(token) && same(ctx.headers.authorization || '', token);
-    // Chưa xử lý sự kiện nào: chỉ xác nhận đã nhận. Sự kiện sai mã bị bỏ qua nhưng vẫn trả 200 để bước kiểm tra địa chỉ của Nhanh.vn qua được.
-    return { ok: true, accepted: authed ? 0 : undefined };
+    if (!token || !same(ctx.headers.authorization || '', token)) return { ok: true, accepted: 0 };
+    let groups;
+    try { groups = parseNhanhWebhook(ctx.raw); } catch { return { ok: true, accepted: 0 }; }
+    let accepted = 0;
+    for (const g of groups) accepted += await lifecycle.ingest(g.adapterId, g.events);
+    return { ok: true, accepted };
   }, { raw: true, noCsrf: true, limit: 600, limitKey: 'webhook' });
 }

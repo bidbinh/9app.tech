@@ -39,6 +39,11 @@ export async function loadExternal(modules = process.env.CARRIER_MODULES || '') 
     const a = createGhtk(process.env);
     if (a) { register(a); loaded.push(a.id); }
   }
+  // Nhanh.vn chỉ bật khi NHANH_ENABLED=1 (sau khi kho đã có địa chỉ và đã thử đơn thật).
+  if (process.env.NHANH_ACCESS_TOKEN && process.env.NHANH_ENABLED === '1') {
+    const { createNhanh } = await import('./nhanh.js');
+    for (const a of createNhanh(process.env)) { register(a); loaded.push(a.id); }
+  }
   for (const spec of modules.split(',').map((x) => x.trim()).filter(Boolean)) {
     const url = spec.startsWith('.') || spec.startsWith('/') || /^[A-Za-z]:/.test(spec)
       ? pathToFileURL(path.resolve(here, '..', spec.startsWith('./carriers/') ? spec.replace('./carriers/', 'carriers/') : spec)).href
