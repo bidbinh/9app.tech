@@ -49,6 +49,7 @@
     }
     // main
     tabs.className = 'tabs';
+    barIn.appendChild(h('a', { href: '/', class: 'home9app', 'aria-label': 'Về 9app' }, [S9.ico('back', 20), '9app']));
     barIn.appendChild(h('a', { href: '#/', class: 'brand', 'aria-label': '9Ship' }, [h('span', { class: 'mark' }, [S9.ico('box', 18, 2.2)]), '9Ship']));
     barIn.appendChild(h('a', { href: '#/me', class: 'pill', id: 'wallet-pill', 'aria-label': 'Ví' }, [S9.ico('wallet', 16), h('span', { id: 'wallet-amt', text: S.wallet ? S9.vnd(S.wallet.balance) : '…' })]));
     S9.clear(tabs);
@@ -175,7 +176,7 @@
         ];
       }
       S9.clear(view);
-      view.appendChild(h('div', { class: 'auth' }, [h('div', { class: 'auth-in' }, nodes)]));
+      view.appendChild(h('div', { class: 'auth' }, [h('div', { class: 'auth-in' }, nodes.concat([h('a', { class: 'link back9app', href: '/', text: '‹ Về 9app' })]))]));
       setTimeout(function () { var el = document.getElementById({ phone: 'lg-phone', login: 'lg-pass', register: 'lg-code', reset: 'lg-code' }[st.step]); if (el) { try { el.focus(); } catch (e) { /* bỏ qua */ } } }, 60);
     }
 

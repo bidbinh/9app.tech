@@ -190,3 +190,6 @@ table.t { width: 100%; border-collapse: collapse; font-size: 13px; } table.t th,
 .admin-sub { color: var(--mute); font-size: 12px; }
 
 .cta.above { bottom: 56px; padding-bottom: 10px; }
+
+.home9app { display: flex; align-items: center; padding: 6px 8px 6px 0; font-weight: 700; font-size: 14px; color: #9a3412; border-radius: 10px; }
+.back9app { display: block; text-align: center; margin: 18px auto 0; font-weight: 600; }
