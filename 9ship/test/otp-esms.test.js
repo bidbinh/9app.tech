@@ -50,8 +50,8 @@ test('Zalo gửi được thì không gọi SMS; đúng khóa, mẫu, số đi�
   assert.match(b.TempData.otp, /^\d{6}$/);
   assert.equal(b.TempData.time, '5');
   assert.equal(b.Sandbox, undefined);
-  // mã gửi đi chính là mã đăng nhập được
-  const s = await auth.verifyOtp('0966509898', b.TempData.otp);
+  // mã gửi đi chính là mã đăng ký được
+  const s = await auth.register('0966509898', b.TempData.otp, 'Chủ Sản Phẩm', 'matkhau-test');
   assert.equal(s.user.phone, '0966509898');
 });
 
@@ -103,5 +103,5 @@ test('mã OTP hết hạn 5 phút và dùng một lần như các kênh khác', 
   await auth.requestOtp('0966509893', '1.1.1.8');
   const code = calls[0].body.TempData.otp;
   await query("UPDATE otps SET expires_at = now() - interval '1 second' WHERE phone='0966509893'");
-  await assert.rejects(auth.verifyOtp('0966509893', code), (e) => e.status === 400);
+  await assert.rejects(auth.register('0966509893', code, 'Người Dùng', 'matkhau-test'), (e) => e.status === 400);
 });

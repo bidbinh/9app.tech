@@ -111,34 +111,36 @@ test('đơn bị từ chối vì phường sai thì không lưu địa chỉ', a
   assert.equal((await addresses.list(u)).length, 0);
 });
 
-test('đăng nhập thủ công: không gửi mã, quản trị cấp mã dùng một lần, hết hạn thì vô hiệu', async () => {
+test('đăng ký với kênh thủ công: không gửi mã, quản trị cấp mã dùng một lần, hết hạn thì vô hiệu', async () => {
   const saved = config.otpProvider;
   config.otpProvider = 'manual';
+  const reg = (phone, code) => call('POST', '/v1/auth/register', undefined, { phone, code, name: 'Người Thử', password: 'matkhau-thu' });
   try {
     const phone = '0917000001';
-    let r = await call('POST', '/v1/auth/otp', undefined, { phone });
+    let r = await call('POST', '/v1/auth/register/otp', undefined, { phone });
     assert.equal(r.status, 200);
     assert.equal((await r.json()).manual, true);
-    // chưa có mã nào được cấp: không đăng nhập được
-    r = await call('POST', '/v1/auth/verify', undefined, { phone, code: '123456' });
-    assert.equal(r.status, 400);
+    // chưa có mã nào được cấp: không đăng ký được
+    assert.equal((await reg(phone, '123456')).status, 400);
     // quản trị cấp mã
     assert.equal((await call('POST', '/v1/admin/otp', undefined, { phone })).status, 401, 'cần quyền quản trị');
     const login = await call('POST', '/v1/admin/login', undefined, { token: 'adm-tok', otp: auth.totp(config.adminTotpSecret) });
     const admin = (login.headers.getSetCookie()[0] || '').split(';')[0];
     const issued = await (await call('POST', '/v1/admin/otp', admin, { phone, reason: 'thử' })).json();
     assert.match(issued.code, /^\d{6}$/);
-    assert.equal((await call('POST', '/v1/auth/verify', undefined, { phone, code: issued.code === '000000' ? '111111' : '000000' })).status, 400);
-    r = await call('POST', '/v1/auth/verify', undefined, { phone, code: issued.code });
-    assert.equal(r.status, 200);
-    // dùng lại thì không được
-    assert.equal((await call('POST', '/v1/auth/verify', undefined, { phone, code: issued.code })).status, 400);
-    // cấp mã mới vô hiệu mã cũ; mã hết hạn bị từ chối
+    assert.equal((await reg(phone, issued.code === '000000' ? '111111' : '000000')).status, 400);
+    assert.equal((await reg(phone, issued.code)).status, 200);
+    // đã có tài khoản thì không đăng ký lại; đăng nhập bằng mật khẩu
+    assert.equal((await reg(phone, issued.code)).status, 409);
+    assert.equal((await call('POST', '/v1/auth/login', undefined, { phone, password: 'matkhau-thu' })).status, 200);
+    // quên mật khẩu: cấp mã mới vô hiệu mã cũ; mã hết hạn bị từ chối
+    const rs = (code, password) => call('POST', '/v1/auth/reset', undefined, { phone, code, password });
     const i1 = await (await call('POST', '/v1/admin/otp', admin, { phone })).json();
     const i2 = await (await call('POST', '/v1/admin/otp', admin, { phone })).json();
-    assert.equal((await call('POST', '/v1/auth/verify', undefined, { phone, code: i1.code })).status === 200 && i1.code !== i2.code, false);
+    assert.notEqual(i1.code, i2.code);
+    assert.equal((await rs(i1.code, 'matkhau-moi-1')).status, 400, 'mã cũ đã bị vô hiệu');
     await query("UPDATE otps SET expires_at = now() - interval '1 second' WHERE phone=$1", [phone]);
-    assert.equal((await call('POST', '/v1/auth/verify', undefined, { phone, code: i2.code })).status, 400);
+    assert.equal((await rs(i2.code, 'matkhau-moi-1')).status, 400);
     const audit = await query("SELECT count(*)::int n FROM admin_audit WHERE action='otp.issue'");
     assert.ok(audit[0].n >= 3, 'mỗi lần cấp mã đều được ghi nhật ký');
   } finally { config.otpProvider = saved; }

@@ -88,83 +88,182 @@
     else if (d.length === 9) d = '0' + d;
     return d;
   }
+  // ---------- đăng nhập / đăng ký ----------
+  // Số điện thoại → (đã có mật khẩu) nhập mật khẩu | (số mới) tạo tài khoản bằng OTP một lần, hoặc dùng tài khoản 9Sport/9app.
   S9.routes.auth = function () {
     S9.frame({ mode: 'auth' });
-    var step = 1, phone = S9.keep('phone') || '', manual = false, devCode = null, err = '', busy = false, left = 0;
+    var st = { step: 'phone', phone: S9.keep('phone') || '', manual: false, devCode: null, sso: false, err: '', busy: false, left: 0, link: false, legacy: false };
+    var countdown = null;
 
     function perk(t) { return h('li', {}, [S9.ico('check', 18, 2.5), t]); }
+    function logo() { return h('div', { class: 'logo' }, [h('span', { class: 'mark' }, [S9.ico('box', 24, 2.2)]), h('b', { text: '9Ship' })]); }
+    function errBox(center) { return h('div', { class: 'hint-err', id: 'lg-err', style: center ? 'text-align:center' : '', text: st.err }); }
+    function setErr(msg) { st.err = msg || ''; st.busy = false; var e = document.getElementById('lg-err'); if (e) e.textContent = st.err; var b = document.getElementById('lg-go'); if (b) { b.disabled = false; b.textContent = b.getAttribute('data-label'); } }
+    function clearErr() { st.err = ''; var e = document.getElementById('lg-err'); if (e) e.textContent = ''; }
+    function goBtn(label, fn) { return h('button', { class: 'btn', id: 'lg-go', type: 'button', 'data-label': label, text: label, onclick: fn }); }
+    function busy(label) { st.busy = true; var b = document.getElementById('lg-go'); if (b) { b.disabled = true; b.textContent = label; } }
+    function passField(id, placeholder, autocomplete) {
+      var inp = h('input', { type: 'password', id: id, autocomplete: autocomplete, placeholder: placeholder || 'Mật khẩu', 'aria-label': placeholder || 'Mật khẩu' });
+      var show = h('button', { type: 'button', class: 'link', style: 'position:absolute;right:14px;top:14px', text: 'Hiện', onclick: function () { var t = inp.type === 'password'; inp.type = t ? 'text' : 'password'; this.textContent = t ? 'Ẩn' : 'Hiện'; } });
+      inp.addEventListener('input', clearErr);
+      return h('div', { style: 'position:relative' }, [inp, show]);
+    }
+    function codeField() {
+      var code = h('input', { type: 'text', id: 'lg-code', class: 'otp-in', inputmode: 'numeric', maxlength: '6', autocomplete: 'one-time-code', placeholder: '••••••', 'aria-label': 'Mã xác thực 6 số' });
+      code.addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 6); clearErr(); });
+      return code;
+    }
+
     function draw() {
       var nodes;
-      if (step === 1) {
-        var inp = h('input', { type: 'tel', inputmode: 'tel', id: 'lg-phone', autocomplete: 'tel-national', placeholder: '912 345 678', value: phone.replace(/^0/, ''), 'aria-label': 'Số điện thoại' });
-        inp.addEventListener('input', function () { err = ''; var e = document.getElementById('lg-err'); if (e) e.textContent = ''; });
-        inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+      if (st.step === 'phone') {
+        var inp = h('input', { type: 'tel', inputmode: 'tel', id: 'lg-phone', autocomplete: 'tel-national', placeholder: '912 345 678', value: st.phone.replace(/^0/, ''), 'aria-label': 'Số điện thoại' });
+        inp.addEventListener('input', clearErr);
+        inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') checkPhone(); });
         nodes = [
-          h('div', { class: 'logo' }, [h('span', { class: 'mark' }, [S9.ico('box', 24, 2.2)]), h('b', { text: '9Ship' })]),
+          logo(),
           h('h1', {}, ['Gửi hàng toàn quốc,', h('br'), h('em', { text: 'so giá trong một chạm' })]),
-          h('p', { class: 'lead', text: 'Đăng nhập bằng số điện thoại để bắt đầu gửi hàng, lưu sẵn người nhận và theo dõi đơn.' }),
+          h('p', { class: 'lead', text: 'Dùng chung tài khoản với các app 9app.tech. Nhập số điện thoại để đăng nhập hoặc tạo tài khoản.' }),
           h('label', { class: 'f', text: 'Số điện thoại', for: 'lg-phone' }),
           h('div', { class: 'phone-in' }, [h('span', { class: 'cc', text: '+84' }), inp]),
-          h('div', { class: 'hint-err', id: 'lg-err', text: err }),
-          h('button', { class: 'btn', id: 'lg-go', type: 'button', text: 'Tiếp tục', onclick: send }),
-          h('ul', { class: 'perks' }, [perk('So sánh giá nhiều hãng vận chuyển trong một lần nhập'), perk('Gợi ý quầy gửi hàng gần bạn'), perk('Lưu sẵn người nhận, lần sau chỉ cần một chạm'), perk('In nhãn, theo dõi hành trình, hoàn tiền khi hủy đơn')]),
-          h('div', { class: 'fine', text: 'Chúng tôi chỉ dùng số điện thoại để đăng nhập và liên hệ về đơn hàng.' })
+          errBox(),
+          goBtn('Tiếp tục', checkPhone),
+          h('ul', { class: 'perks' }, [perk('So sánh giá nhiều hãng vận chuyển trong một lần nhập'), perk('Gợi ý quầy gửi hàng gần bạn'), perk('Lưu sẵn người nhận, lần sau chỉ cần một chạm'), perk('In nhãn, theo dõi hành trình, hoàn tiền khi hủy đơn')])
+        ];
+      } else if (st.step === 'login') {
+        nodes = [
+          logo(),
+          h('h1', { text: st.link ? 'Dùng tài khoản 9app' : 'Chào mừng quay lại' }),
+          h('p', { class: 'lead' }, [st.link ? 'Nhập mật khẩu tài khoản 9Sport/9app của số ' : 'Nhập mật khẩu cho số ', h('b', { text: st.phone })]),
+          passField('lg-pass', 'Mật khẩu', 'current-password'),
+          errBox(),
+          goBtn('Đăng nhập', login),
+          h('div', { class: 'row sb mt2' }, [
+            h('button', { class: 'link', type: 'button', text: '‹ Đổi số điện thoại', onclick: function () { st.step = 'phone'; st.err = ''; draw(); } }),
+            h('button', { class: 'link', type: 'button', text: 'Quên mật khẩu?', onclick: function () { startOtp('reset'); } })
+          ])
+        ];
+      } else if (st.step === 'choose') {
+        nodes = [
+          logo(),
+          h('h1', { text: 'Số này chưa có tài khoản 9Ship' }),
+          h('p', { class: 'lead' }, ['Số ', h('b', { text: st.phone }), st.sso ? '. Bạn đã dùng 9Sport hay app khác của 9app.tech chưa?' : '. Tạo tài khoản mới chỉ mất một phút.']),
+          h('button', { class: 'btn', type: 'button', text: 'Tạo tài khoản mới', onclick: function () { startOtp('register'); } }),
+          st.sso ? h('button', { class: 'btn ghost', type: 'button', text: 'Tôi đã có tài khoản 9Sport / 9app', onclick: function () { st.link = true; st.step = 'login'; st.err = ''; draw(); } }) : null,
+          h('div', { class: 'row mt2' }, [h('button', { class: 'link', type: 'button', text: '‹ Đổi số điện thoại', onclick: function () { st.step = 'phone'; st.err = ''; draw(); } })])
         ];
       } else {
-        var code = h('input', { type: 'text', id: 'lg-code', class: 'otp-in', inputmode: 'numeric', maxlength: '6', autocomplete: 'one-time-code', placeholder: '••••••', 'aria-label': 'Mã xác thực 6 số' });
-        code.addEventListener('input', function () {
-          this.value = this.value.replace(/\D/g, '').slice(0, 6);
-          err = ''; var e = document.getElementById('lg-err'); if (e) e.textContent = '';
-          if (this.value.length === 6) verify(this.value);
-        });
+        // register | reset: nhập OTP (chỉ lần này) + thông tin + mật khẩu
+        var isReset = st.step === 'reset';
         nodes = [
-          h('div', { class: 'logo' }, [h('span', { class: 'mark' }, [S9.ico('box', 24, 2.2)]), h('b', { text: '9Ship' })]),
-          h('h1', { text: 'Nhập mã xác thực' }),
-          h('p', { class: 'lead' }, [manual ? 'Nhập mã đăng nhập do quản trị 9Ship gửi cho số ' : 'Mã gồm 6 số đã được gửi tới ', h('b', { text: phone })]),
-          manual ? h('div', { class: 'alert info' }, ['Hiện chưa có tin nhắn SMS tự động. Hãy liên hệ quản trị 9Ship (Zalo) để nhận mã đăng nhập cho số điện thoại này. Mã dùng một lần, có hiệu lực 15 phút.']) : null,
-          devCode ? h('div', { class: 'alert info', text: 'Chế độ thử nghiệm — mã của bạn: ' + devCode }) : null,
-          code,
-          h('div', { class: 'hint-err', id: 'lg-err', style: 'text-align:center', text: err }),
-          h('button', { class: 'btn', id: 'lg-go', type: 'button', text: 'Đăng nhập', onclick: function () { verify(document.getElementById('lg-code').value); } }),
+          logo(),
+          h('h1', { text: isReset ? 'Đặt lại mật khẩu' : (st.legacy ? 'Đặt mật khẩu' : 'Tạo tài khoản') }),
+          h('p', { class: 'lead' }, [st.manual ? 'Nhập mã xác thực do quản trị 9Ship gửi cho số ' : 'Mã gồm 6 số đã được gửi tới ', h('b', { text: st.phone }), '. Chỉ cần xác thực một lần này.']),
+          st.manual ? h('div', { class: 'alert info', text: 'Hiện chưa gửi tin nhắn tự động được. Hãy liên hệ quản trị 9Ship (Zalo) để nhận mã cho số điện thoại này. Mã dùng một lần, có hiệu lực 15 phút.' }) : null,
+          st.devCode ? h('div', { class: 'alert info', text: 'Chế độ thử nghiệm — mã của bạn: ' + st.devCode }) : null,
+          h('label', { class: 'f', text: 'Mã xác thực (OTP)' }),
+          codeField(),
+          isReset ? null : h('div', {}, [h('label', { class: 'f', text: 'Họ và tên' }), h('input', { type: 'text', id: 'lg-name', autocomplete: 'name', placeholder: 'Nguyễn Văn A', maxlength: '80' })]),
+          h('label', { class: 'f', text: isReset ? 'Mật khẩu mới (ít nhất 6 ký tự)' : 'Mật khẩu (ít nhất 6 ký tự)' }),
+          passField('lg-pass', 'Mật khẩu', 'new-password'),
+          errBox(),
+          goBtn(isReset ? 'Đặt lại mật khẩu' : 'Tạo tài khoản', finishOtp),
           h('div', { class: 'row sb mt2' }, [
-            h('button', { class: 'link', type: 'button', text: '‹ Đổi số điện thoại', onclick: function () { step = 1; err = ''; draw(); } }),
-            manual ? null : h('button', { class: 'link', type: 'button', id: 'lg-resend', disabled: left > 0 ? true : null, text: left > 0 ? 'Gửi lại sau ' + left + 's' : 'Gửi lại mã', onclick: function () { if (left <= 0) send(true); } })
+            h('button', { class: 'link', type: 'button', text: '‹ Quay lại', onclick: function () { st.step = isReset ? 'login' : 'choose'; st.err = ''; draw(); } }),
+            st.manual ? null : h('button', { class: 'link', type: 'button', id: 'lg-resend', disabled: st.left > 0 ? true : null, text: st.left > 0 ? 'Gửi lại sau ' + st.left + 's' : 'Gửi lại mã', onclick: function () { if (st.left <= 0) startOtp(st.step, true); } })
           ])
         ];
       }
-      var wrap = h('div', { class: 'auth' }, [h('div', { class: 'auth-in' }, nodes)]);
-      S9.clear(view); view.appendChild(wrap);
-      setTimeout(function () { var el = document.getElementById(step === 1 ? 'lg-phone' : 'lg-code'); if (el) { try { el.focus(); } catch (e) { /* bỏ qua */ } } }, 60);
+      S9.clear(view);
+      view.appendChild(h('div', { class: 'auth' }, [h('div', { class: 'auth-in' }, nodes)]));
+      setTimeout(function () { var el = document.getElementById({ phone: 'lg-phone', login: 'lg-pass', register: 'lg-code', reset: 'lg-code' }[st.step]); if (el) { try { el.focus(); } catch (e) { /* bỏ qua */ } } }, 60);
     }
-    function fail(msg) { err = msg; busy = false; var e = document.getElementById('lg-err'); if (e) e.textContent = msg; var b = document.getElementById('lg-go'); if (b) { b.disabled = false; b.textContent = step === 1 ? 'Tiếp tục' : 'Đăng nhập'; } }
-    function send(resend) {
-      if (busy) return;
-      phone = normPhone(resend === true ? phone : document.getElementById('lg-phone').value);
-      if (!/^0[35789]\d{8}$/.test(phone)) return fail('Số điện thoại chưa đúng. Nhập 10 số, ví dụ 0912 345 678.');
-      busy = true;
-      var b = document.getElementById('lg-go'); if (b) { b.disabled = true; b.textContent = 'Đang gửi mã…'; }
-      S9.api('POST', 'auth/otp', { phone: phone }).then(function (r) {
-        busy = false; S9.keep('phone', phone);
-        manual = !!r.manual; devCode = r.devCode || null; step = 2; err = '';
-        left = manual ? 0 : 30; draw();
-        if (left > 0) { var iv = setInterval(function () { left--; var el = document.getElementById('lg-resend'); if (!el) { clearInterval(iv); return; } if (left <= 0) { clearInterval(iv); el.disabled = false; el.textContent = 'Gửi lại mã'; } else el.textContent = 'Gửi lại sau ' + left + 's'; }, 1000); }
-      }, function (e) { fail(e.code === 'otp_unavailable' ? 'Chưa gửi được mã. Vui lòng thử lại sau hoặc liên hệ quản trị.' : e.message); });
+
+    function inPhone() { return normPhone(document.getElementById('lg-phone').value); }
+    function checkPhone() {
+      if (st.busy) return;
+      st.phone = inPhone();
+      if (!/^0[35789]\d{8}$/.test(st.phone)) return setErr('Số điện thoại chưa đúng. Nhập 10 số, ví dụ 0912 345 678.');
+      busy('Đang kiểm tra…');
+      S9.api('POST', 'auth/check', { phone: st.phone }).then(function (r) {
+        st.busy = false; st.sso = !!r.sso; st.link = false; st.err = '';
+        S9.keep('phone', st.phone);
+        st.step = r.state === 'login' ? 'login' : 'choose';
+        draw();
+      }, function (e) { setErr(e.message); });
     }
-    function verify(code) {
-      if (busy) return;
-      code = String(code || '').replace(/\D/g, '');
-      if (code.length !== 6) return fail('Nhập đủ 6 số của mã xác thực.');
-      busy = true;
-      var b = document.getElementById('lg-go'); if (b) { b.disabled = true; b.textContent = 'Đang đăng nhập…'; }
-      S9.api('POST', 'auth/verify', { phone: phone, code: code }).then(function (r) {
-        busy = false; S.user = r.user;
-        S9.afterLogin().then(function () { S9.route(); });
+    function afterAuth(r) {
+      st.busy = false;
+      S.user = r.user;
+      S9.afterLogin().then(function () {
+        S9.route();
+        if (r.needsName) S9.askName();
+      });
+    }
+    function login() {
+      if (st.busy) return;
+      var pass = document.getElementById('lg-pass').value;
+      if (!pass) return setErr('Nhập mật khẩu.');
+      busy('Đang đăng nhập…');
+      S9.api('POST', 'auth/login', { phone: st.phone, password: pass }).then(afterAuth, function (e) {
+        if (e.code === 'password_required') { st.legacy = true; return startOtp('register'); }
+        setErr(e.code === 'bad_credentials' ? 'Số điện thoại hoặc mật khẩu không đúng.' : e.message);
+      });
+    }
+    // gửi OTP cho đăng ký / quên mật khẩu
+    function startOtp(kind, resend) {
+      if (st.busy && !resend) return;
+      st.busy = true;
+      S9.api('POST', kind === 'reset' ? 'auth/reset/otp' : 'auth/register/otp', { phone: st.phone }).then(function (r) {
+        st.busy = false; st.manual = !!r.manual; st.devCode = r.devCode || null; st.step = kind; st.err = '';
+        st.left = st.manual ? 0 : 30;
+        draw();
+        clearInterval(countdown);
+        if (st.left > 0) {
+          countdown = setInterval(function () {
+            st.left--;
+            var el = document.getElementById('lg-resend');
+            if (!el) { clearInterval(countdown); return; }
+            if (st.left <= 0) { clearInterval(countdown); el.disabled = false; el.textContent = 'Gửi lại mã'; } else el.textContent = 'Gửi lại sau ' + st.left + 's';
+          }, 1000);
+        }
       }, function (e) {
-        busy = false; var el = document.getElementById('lg-code'); if (el) { el.value = ''; try { el.focus(); } catch (x) { /* bỏ qua */ } }
-        fail(e.code === 'otp_invalid' ? 'Mã không đúng hoặc đã hết hạn.' : e.message);
+        st.busy = false;
+        if (e.code === 'account_exists') { st.step = 'login'; st.err = 'Số này đã có tài khoản. Nhập mật khẩu để đăng nhập.'; return draw(); }
+        if (e.code === 'no_account') { st.step = 'choose'; st.err = ''; return draw(); }
+        if (st.step === 'phone' || st.step === 'login' || st.step === 'choose') { S9.toast(e.code === 'otp_unavailable' ? 'Chưa gửi được mã. Vui lòng thử lại sau hoặc liên hệ quản trị.' : e.message); } else setErr(e.message);
+      });
+    }
+    function finishOtp() {
+      if (st.busy) return;
+      var code = document.getElementById('lg-code').value;
+      var pass = document.getElementById('lg-pass').value;
+      var nameEl = document.getElementById('lg-name');
+      if (code.length !== 6) return setErr('Nhập đủ 6 số của mã xác thực.');
+      if (nameEl && nameEl.value.trim().length < 2) return setErr('Nhập họ và tên.');
+      if (pass.length < 6) return setErr('Mật khẩu cần ít nhất 6 ký tự.');
+      busy('Đang xử lý…');
+      var isReset = st.step === 'reset';
+      var body = isReset ? { phone: st.phone, code: code, password: pass } : { phone: st.phone, code: code, name: nameEl.value.trim(), password: pass };
+      S9.api('POST', isReset ? 'auth/reset' : 'auth/register', body).then(afterAuth, function (e) {
+        if (e.code === 'account_exists') { st.step = 'login'; st.err = 'Số này đã có tài khoản. Nhập mật khẩu để đăng nhập.'; return draw(); }
+        setErr(e.code === 'otp_invalid' ? 'Mã không đúng hoặc đã hết hạn.' : e.code === 'otp_locked' ? 'Nhập sai quá nhiều lần, hãy xin mã mới.' : e.message);
       });
     }
     draw();
+  };
+
+  // Hỏi họ tên một lần nếu tài khoản (ví dụ lấy từ 9Sport) chưa có tên.
+  S9.askName = function () {
+    var sh = S9.sheet('Bạn tên là gì?');
+    var inp = h('input', { type: 'text', id: 'nm-in', maxlength: '80', placeholder: 'Họ và tên', autocomplete: 'name' });
+    sh.body.appendChild(h('p', { class: 'muted', text: 'Tên hiển thị trong tài khoản của bạn (người nhận sẽ không thấy).' }));
+    sh.body.appendChild(inp);
+    sh.body.appendChild(h('button', { class: 'btn', type: 'button', text: 'Lưu', onclick: function () {
+      var v = inp.value.trim();
+      if (v.length < 2) return S9.toast('Nhập họ và tên');
+      S9.api('PATCH', 'me', { name: v }).then(function (r) { S.user = r.user; sh.close(); S9.route(); }, S9.fail);
+    } }));
   };
 
   S9.afterLogin = function () {

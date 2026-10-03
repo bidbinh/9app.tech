@@ -16,7 +16,7 @@ import { validateQuoteRequest } from '../src/pricing.js';
 import { mockControl } from '../src/carriers/mock.js';
 import { syncPickupPoints } from '../src/places.js';
 import { buildApp } from '../src/server.js';
-import { setup, close, newUser, fund, wallet, acct, sysAcct, makeCreated, getOffer, key, SENDER, RECEIVER } from './helpers.js';
+import { setup, close, newUser, fund, wallet, acct, sysAcct, makeCreated, getOffer, key, loginCookie, SENDER, RECEIVER } from './helpers.js';
 
 let app; let base;
 before(async () => {
@@ -208,12 +208,12 @@ test('rút tiền song song với tạo đơn, ví chỉ đủ một việc: ví
   await auditOk();
 });
 
-test('API rút tiền cần xác thực lại OTP (step-up)', async () => {
-  auth.sentForTests.length = 0;
+test('API rút tiền cần nhập lại mật khẩu (step-up)', async () => {
   const phone = '0915000001';
-  await fetch(base + '/v1/auth/otp', { method: 'POST', headers: H, body: JSON.stringify({ phone }) });
+  await fetch(base + '/v1/auth/register/otp', { method: 'POST', headers: H, body: JSON.stringify({ phone }) });
   const code = auth.sentForTests.at(-1).code;
-  const v = await fetch(base + '/v1/auth/verify', { method: 'POST', headers: H, body: JSON.stringify({ phone, code }) });
+  const v = await fetch(base + '/v1/auth/register', { method: 'POST', headers: H, body: JSON.stringify({ phone, code, name: 'Người Rút Tiền', password: 'matkhau-rut' }) });
+  assert.equal(v.status, 200);
   const cookie = (v.headers.getSetCookie()[0] || '').split(';')[0];
   const uid = (await query('SELECT id FROM users WHERE phone=$1', [phone]))[0].id;
   await fund(uid, 300000);
@@ -221,10 +221,9 @@ test('API rút tiền cần xác thực lại OTP (step-up)', async () => {
   let r = await fetch(base + '/v1/wallet/withdrawals', { method: 'POST', headers: { ...H, cookie, 'idempotency-key': key() }, body });
   assert.equal(r.status, 403);
   assert.equal((await r.json()).error.code, 'step_up_required');
-  await query("UPDATE otps SET created_at = now() - interval '1 minute' WHERE phone=$1", [phone]);
-  await fetch(base + '/v1/auth/step-up/request', { method: 'POST', headers: { ...H, cookie }, body: '{}' });
-  const code2 = auth.sentForTests.at(-1).code;
-  r = await fetch(base + '/v1/auth/step-up/verify', { method: 'POST', headers: { ...H, cookie }, body: JSON.stringify({ code: code2 }) });
+  r = await fetch(base + '/v1/auth/step-up', { method: 'POST', headers: { ...H, cookie }, body: JSON.stringify({ password: 'sai-mat-khau' }) });
+  assert.equal(r.status, 401);
+  r = await fetch(base + '/v1/auth/step-up', { method: 'POST', headers: { ...H, cookie }, body: JSON.stringify({ password: 'matkhau-rut' }) });
   assert.equal(r.status, 200);
   r = await fetch(base + '/v1/wallet/withdrawals', { method: 'POST', headers: { ...H, cookie, 'idempotency-key': key() }, body });
   assert.equal(r.status, 200);
@@ -338,10 +337,7 @@ test('API quản trị cần phiên admin; có MFA mới vào được', async (
   const j = await r.json();
   assert.ok('balances' in j && 'queues' in j && Array.isArray(j.carriers));
   // người dùng thường không vào được admin
-  auth.sentForTests.length = 0;
-  await fetch(base + '/v1/auth/otp', { method: 'POST', headers: H, body: JSON.stringify({ phone: '0915000002' }) });
-  const uc = await fetch(base + '/v1/auth/verify', { method: 'POST', headers: H, body: JSON.stringify({ phone: '0915000002', code: auth.sentForTests.at(-1).code }) });
-  const ucookie = (uc.headers.getSetCookie()[0] || '').split(';')[0];
+  const ucookie = await loginCookie(await newUser());
   r = await fetch(base + '/v1/admin/overview', { headers: { cookie: ucookie } });
   assert.equal(r.status, 401);
 });

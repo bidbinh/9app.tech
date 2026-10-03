@@ -194,6 +194,16 @@
         h('button', { type: 'button', class: 'btn ghost', text: 'Lưu tên', onclick: function () {
           S9.api('PATCH', 'me', { name: val('pf-name') }).then(function (r) { S.user = r.user; S9.toast('Đã lưu'); }, S9.fail);
         } }),
+        h('details', { class: 'mt' }, [
+          h('summary', { class: 'link', text: 'Đổi mật khẩu' }),
+          field('Mật khẩu hiện tại', h('input', { type: 'password', id: 'pw-cur', autocomplete: 'current-password' })),
+          field('Mật khẩu mới (ít nhất 6 ký tự)', h('input', { type: 'password', id: 'pw-new', autocomplete: 'new-password' })),
+          h('button', { type: 'button', class: 'btn ghost', text: 'Đổi mật khẩu', onclick: function () {
+            S9.api('POST', 'me/password', { current: document.getElementById('pw-cur').value, password: document.getElementById('pw-new').value }).then(function () {
+              S9.toast('Đã đổi mật khẩu. Các thiết bị khác sẽ phải đăng nhập lại.'); document.getElementById('pw-cur').value = ''; document.getElementById('pw-new').value = '';
+            }, function (e) { S9.toast(e.message); });
+          } })
+        ]),
         h('button', { type: 'button', class: 'btn danger', text: 'Đăng xuất', onclick: function () { if (confirm('Đăng xuất khỏi ' + S.user.phone + '?')) S9.logout(); } })
       ]));
       S9.mount(nodes);
@@ -239,18 +249,10 @@
     var p = panel();
     p.appendChild(h('div', { class: 'card' }, [
       h('h2', { text: 'Rút tiền về ngân hàng' }),
-      h('div', { class: 'muted small', text: 'Để bảo vệ tài khoản, cần xác nhận lại bằng mã OTP.' }),
-      h('button', { type: 'button', class: 'btn', text: 'Gửi mã OTP', onclick: function () {
-        S9.api('POST', 'auth/step-up/request', {}).then(function (r) {
-          S9.clear(p);
-          p.appendChild(h('div', { class: 'card' }, [
-            h('h2', { text: 'Nhập mã OTP' }),
-            r.manual ? h('div', { class: 'alert info', text: 'Liên hệ quản trị 9Ship để nhận mã xác thực rút tiền.' }) : null,
-            r.devCode ? h('div', { class: 'alert info', text: 'Chế độ thử nghiệm — mã: ' + r.devCode }) : null,
-            field('Mã 6 số', h('input', { type: 'text', id: 'su-code', inputmode: 'numeric', maxlength: '6' })),
-            h('button', { type: 'button', class: 'btn', text: 'Xác nhận', onclick: function () { S9.api('POST', 'auth/step-up/verify', { code: val('su-code') }).then(withdrawForm, S9.fail); } })
-          ]));
-        }, S9.fail);
+      h('div', { class: 'muted small', text: 'Để bảo vệ tiền của bạn, hãy nhập lại mật khẩu.' }),
+      field('Mật khẩu', h('input', { type: 'password', id: 'su-pass', autocomplete: 'current-password' })),
+      h('button', { type: 'button', class: 'btn', text: 'Tiếp tục', onclick: function () {
+        S9.api('POST', 'auth/step-up', { password: document.getElementById('su-pass').value }).then(withdrawForm, function (e) { S9.toast(e.code === 'bad_credentials' ? 'Mật khẩu không đúng' : e.message); });
       } })
     ]));
   }

@@ -29,6 +29,11 @@ export const config = {
   // admin
   adminToken: env.ADMIN_TOKEN || '',
   adminTotpSecret: env.ADMIN_TOTP_SECRET || '',
+  // dùng chung tài khoản với 9Sport (để trống = tắt). Trên máy chủ: http://k77htk:8000
+  sso9sportUrl: env.SSO_9SPORT_URL || '',
+  sso9sportTimeoutMs: int(env.SSO_9SPORT_TIMEOUT_MS, 8000),
+  loginMaxFails: int(env.LOGIN_MAX_FAILS, 5),
+  loginLockMin: int(env.LOGIN_LOCK_MIN, 15),
   // OTP qua eSMS (giống 9Sport): Zalo ZNS trước, SMS brandname sau
   esmsBase: (env.ESMS_BASE || 'https://rest.esms.vn').replace(/\/+$/, ''),
   esmsApiKey: env.ESMS_API_KEY || '',
