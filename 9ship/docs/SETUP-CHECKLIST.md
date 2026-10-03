@@ -16,6 +16,21 @@ Thứ tự khuyến nghị: **1 → 2 → pha 0 → 3 → 4 → 5**. Việc 6 l�
 2. Xin tài khoản **sandbox** và khóa API. Viết adapter theo `ADAPTER-CONTRACT.md`, chạy bộ kiểm thử hợp đồng với sandbox.
 3. Đặt `CARRIER_MODULES` và `MOCK_CARRIERS=false`.
 
+## 1a. Nối GHTK (adapter đã viết sẵn, chỉ cần khóa)
+
+Adapter `src/carriers/ghtk.js` được viết theo tài liệu chính thức https://api.ghtk.vn/docs/ (tính phí, đăng đơn, hủy, trạng thái, nhãn, webhook) và đã được kiểm thử với một máy chủ giả dựng theo tài liệu đó. **Chưa từng chạy với GHTK thật**, nên phải làm đủ các bước:
+
+1. Đăng ký tài khoản khách hàng GHTK (doanh nghiệp), vào phần API/kết nối để **tạo Token** (cấp quyền: tạo đơn, tính phí, lấy trạng thái, hủy, in nhãn) và lấy **mã đối tác** (dùng làm header `X-Client-Source`).
+2. Đặt trong `.env` trên máy chủ: `GHTK_TOKEN`, `GHTK_PARTNER_CODE`, `GHTK_WEBHOOK_HASH` (chuỗi bí mật bạn tự đặt, dài ngẫu nhiên). Nếu GHTK cho môi trường thử, đặt thêm `GHTK_BASE`.
+3. Chạy `npm run ghtk:check` (trên máy có `.env` đó). Lệnh này chỉ **tính phí** vài tuyến mẫu, không tạo đơn, không tốn tiền; nó cho biết GHTK có chấp nhận tên tỉnh/phường của 9Ship không. Nếu GHTK dùng tên khác (ví dụ "TP. Hồ Chí Minh"), đặt `GHTK_PROVINCE_ALIASES='{"tp-ho-chi-minh":"TP. Hồ Chí Minh"}'`.
+4. Đăng ký **webhook** trong tài khoản GHTK: `https://9app.tech/9ship/v1/webhooks/ghtk?hash=<GHTK_WEBHOOK_HASH>`.
+5. **Giá niêm yết (trần):** API GHTK không trả giá niêm yết, nên mặc định offer của GHTK bị ẩn (lý do `no_verified_cap` trong Quản trị → Tổng quan → Cảnh báo giá). Bạn có hai cách: (a) nhập bảng giá niêm yết công bố của GHTK ở Quản trị → Giá và ký quỹ → "Giá niêm yết công bố" (đúng tinh thần cam kết "không cao hơn niêm yết"); hoặc (b) thêm quy tắc cho hãng `ghtk` và **bỏ tick** "Bắt buộc có giá niêm yết đáng tin" (khi đó 9Ship không thể bảo đảm giá bán thấp hơn niêm yết, và mục "tiết kiệm" sẽ không hiện).
+6. `docker compose -f docker-compose.server.yml up -d --build` để nạp khóa (adapter tự đăng ký khi có `GHTK_TOKEN`). Gửi **một đơn thật số tiền nhỏ** (pha 0) và đối chiếu: cước, nhãn, hủy, hành trình.
+
+Giới hạn đã biết của adapter GHTK: GHTK không có API danh sách bưu cục nên chưa có "quầy gần nhất" cho GHTK (vẫn chọn được "Gửi tại bưu cục", GHTK nhận bằng `pick_option=post`); thời gian giao hàng là ước lượng theo tuyến vì API tính phí không trả; bảng mã trạng thái được ánh xạ theo tài liệu và cần đối chiếu lại với sandbox; nhãn của 9Ship là nhãn riêng, nhãn PDF gốc GHTK lấy được qua `getLabel`.
+
+**Chưa nối được:** GHN (tài liệu `developer.ghn.vn` không truy cập tự động được, và API dùng mã quận/phường kiểu cũ, chưa rõ cách dùng với địa chỉ hai cấp), Viettel Post, J&T, Ninja Van, VNPost… Mỗi hãng cần tài khoản sandbox và tài liệu; viết theo `ADAPTER-CONTRACT.md`.
+
 ## 2. Pha 0 — kiểm chứng bằng một đơn thật (trước khi mở cho người dùng)
 
 Với từng hãng sẽ bật, dùng đúng tài khoản dự kiến cho 9Ship, gửi **một đơn thật số tiền nhỏ** và kiểm tra:

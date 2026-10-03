@@ -286,7 +286,8 @@ export async function pollTracking({ everySec = 300, limit = 50 } = {}) {
   for (const r of rows) {
     const adapter = registry.get(r.carrier);
     await query('UPDATE shipments SET polled_at=now() WHERE id=$1', [r.id]);
-    if (!adapter || adapter.capabilities.webhook) continue;
+    // hãng có webhook thì không hỏi hành trình, trừ khi khai báo poll (cần hỏi để đối chiếu cước cuối)
+    if (!adapter || (adapter.capabilities.webhook && !adapter.capabilities.poll)) continue;
     try {
       const events = await adapter.track(r.carrier_code);
       n += await ingest(r.carrier, events.map((e) => ({ ...e, code: r.carrier_code })));

@@ -9,7 +9,7 @@ export function webhookRoutes(app) {
     if (!adapter || !adapter.capabilities.webhook) throw new ApiError(404, 'not_found', 'Không có webhook cho hãng này');
     let events;
     try {
-      events = adapter.parseWebhook(ctx.headers, ctx.raw);
+      events = adapter.parseWebhook(ctx.headers, ctx.raw, ctx.query);
     } catch (e) {
       if (e instanceof CarrierError) throw new ApiError(401, 'bad_signature', 'Chữ ký webhook không hợp lệ');
       throw new ApiError(400, 'bad_payload', 'Nội dung webhook không hợp lệ');

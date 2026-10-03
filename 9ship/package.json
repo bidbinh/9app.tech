@@ -9,7 +9,8 @@
     "test": "node --test --test-concurrency=1 test/",
     "demo": "node scripts/demo.js",
     "totp": "node scripts/totp.js",
-    "db": "docker compose -f docker-compose.demo.yml up -d"
+    "db": "docker compose -f docker-compose.demo.yml up -d",
+    "ghtk:check": "node scripts/ghtk-check.js"
   },
   "engines": {
     "node": ">=20"
