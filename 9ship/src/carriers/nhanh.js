@@ -173,19 +173,26 @@ export function createNhanh(env = process.env, fetchImpl = globalThis.fetch) {
         const data = j.data || {};
         const code = data.id ? String(data.id) : '';
         if (!code) throw new CarrierError('Nhanh.vn không trả mã đơn', { unknown: true });
-        if (!data.carrierCode) {
+        let tracking = data.carrierCode ? String(data.carrierCode) : '';
+        // Nhanh.vn có thể gửi hãng xong mà chưa trả mã ngay: hỏi lại vài lần.
+        for (let i = 0; !tracking && i < 3; i++) {
+          await new Promise((r) => setTimeout(r, i === 0 ? 1500 : 3000));
+          const cur = await orderOf(code).catch(() => null);
+          if (cur && cur.carrier && cur.carrier.carrierCode) tracking = String(cur.carrier.carrierCode);
+        }
+        if (!tracking) {
+          // Đơn đã nằm trong Nhanh.vn (có thể đã gửi hãng) nhưng chưa có mã vận đơn: KHÔNG nhả tiền, chuyển quản trị xử lý tay.
           const err = Array.isArray(data.sendCarrierError) ? data.sendCarrierError.join('; ') : '';
-          // Đơn đã có trong Nhanh.vn nhưng chưa gửi hãng: báo lỗi rõ ràng để tiền được nhả, quản trị dọn đơn trong Nhanh.vn
-          throw new CarrierError(`Nhanh.vn tạo đơn ${code} nhưng chưa gửi được cho hãng${err ? ': ' + err : ''}`);
+          throw new CarrierError(`Nhanh.vn tạo đơn ${code} nhưng chưa có mã vận đơn của hãng${err ? ': ' + err : ''}`, { unknown: true });
         }
         const o = await orderOf(code).catch(() => null);
         const fee = o && viewOf(o).fee > 0 ? viewOf(o).fee : req.expectedFee;
-        return { carrierCode: code, trackingCode: String(data.carrierCode), fee, trackingUrl: data.trackingUrl || null };
+        return { carrierCode: code, trackingCode: tracking, fee, trackingUrl: data.trackingUrl || null };
       },
 
       async cancel(code) {
         try {
-          await call('order/cancelcarrier', { orderId: [Number(code)] });
+          await call('order/cancelcarrier', { orderId: Number(code) }); // Nhanh.vn nhận một số, không nhận mảng
           return { status: 'confirmed' };
         } catch (e) {
           if (!(e instanceof CarrierError) || e.unknown || e.retryable) throw e;

@@ -40,7 +40,7 @@ before(async () => {
         if (f.ids) rows = rows.filter((o) => f.ids.includes(o.info.id));
         return send({ code: 1, data: rows });
       }
-      if (path === 'order/cancelcarrier') return send({ code: 1, data: {} });
+      if (path === 'order/cancelcarrier') return typeof body.orderId === 'number' ? send({ code: 1, data: {} }) : send({ code: 0, errorCode: 'ERR_DATA_404', messages: 'Đơn hàng không tồn tại' });
       return send({ code: 0, errorCode: 'ERR_404', messages: 'khong co' });
     });
   });
@@ -106,13 +106,13 @@ test('createShipment: gửi đúng nội dung, không thu hộ, trả mã đơn 
   assert.equal(b.shippingAddress.locationVersion, 'v2');
 });
 
-test('createShipment: thiếu sản phẩm mẫu / hãng không nhận đơn đều là lỗi rõ (nhả tiền)', async () => {
+test('createShipment: thiếu sản phẩm mẫu là lỗi rõ (nhả tiền); đơn có trong Nhanh.vn mà chưa có mã vận đơn là "không rõ" (giữ tiền)', async () => {
   state();
   const [noProd] = mk({ NHANH_PRODUCT_ID: '' });
   await assert.rejects(noProd.createShipment(CREATE), (e) => e instanceof CarrierError && !e.unknown && /NHANH_PRODUCT_ID/.test(e.message));
   const [spx] = mk();
   failNext = Object.assign((send) => send({ code: 1, data: { id: 9001, sendCarrierError: ['hãng từ chối'] } }), { path: 'order/add' });
-  await assert.rejects(spx.createShipment(CREATE), (e) => e instanceof CarrierError && !e.unknown && /chưa gửi được/.test(e.message));
+  await assert.rejects(spx.createShipment(CREATE), (e) => e instanceof CarrierError && e.unknown === true && /chưa có mã vận đơn/.test(e.message), 'chưa có mã vận đơn: không được nhả tiền');
 });
 
 test('createShipment: Nhanh.vn lỗi 5xx là "không rõ" (không tự nhả tiền)', async () => {
