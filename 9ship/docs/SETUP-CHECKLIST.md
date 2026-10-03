@@ -52,7 +52,9 @@ Kết quả quyết định tổ hợp (dịch vụ, hợp đồng, điểm nh�
 
 ## 4. Gửi OTP
 
-`OTP_PROVIDER=webhook` gọi `OTP_WEBHOOK_URL` bằng `POST {"phone","message"}` kèm `Authorization: Bearer OTP_WEBHOOK_TOKEN`. Bạn cần một đầu SMS brandname hoặc Zalo ZNS và một relay nhỏ nhận lời gọi đó rồi gửi tin. Có thể viết kênh riêng bằng `registerOtpProvider` trong `src/auth.js`. Không dùng `console` ở production (mã bị ẩn khỏi log nên không ai đăng nhập được).
+Mặc định ở production là `OTP_PROVIDER=manual` (chưa có SMS): người dùng nhập số điện thoại, **quản trị cấp mã đăng nhập một lần** ở Quản trị → Người dùng → "Cấp mã đăng nhập" (mã 6 số, hiệu lực 15 phút) rồi gửi cho họ qua Zalo hoặc tin nhắn. Mỗi lần cấp đều ghi nhật ký. Cách này dùng được ngay nhưng không mở rộng được.
+
+Khi có kênh thật: `OTP_PROVIDER=webhook` gọi `OTP_WEBHOOK_URL` bằng `POST {"phone","message"}` kèm `Authorization: Bearer OTP_WEBHOOK_TOKEN`. Bạn cần một đầu SMS brandname hoặc Zalo ZNS và một relay nhỏ nhận lời gọi đó rồi gửi tin. Có thể viết kênh riêng bằng `registerOtpProvider` trong `src/auth.js`. Không dùng `console` ở production (mã bị ẩn khỏi log).
 
 ## 5. Triển khai
 
