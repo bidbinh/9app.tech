@@ -12,6 +12,7 @@ import { authRoutes } from './routes/auth.js';
 import { moneyRoutes } from './routes/money.js';
 import { shipmentRoutes } from './routes/shipments.js';
 import { webhookRoutes } from './routes/webhooks.js';
+import { nhanhRoutes } from './routes/nhanh.js';
 import { adminRoutes } from './routes/admin.js';
 import { addressRoutes } from './routes/addresses.js';
 import { consoleApiRoutes } from './console-api.js';
@@ -22,6 +23,7 @@ export function buildApp() {
   authRoutes(app);
   addressRoutes(app);
   quotesRoutes(app);
+  nhanhRoutes(app);      // trước webhookRoutes: /v1/webhooks/nhanh phải khớp trước /v1/webhooks/:carrier
   moneyRoutes(app);      // đăng ký trước webhookRoutes: /v1/webhooks/bank phải khớp trước /v1/webhooks/:carrier
   shipmentRoutes(app);
   webhookRoutes(app);

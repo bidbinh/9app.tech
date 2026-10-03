@@ -34,6 +34,8 @@ export const config = {
   sso9sportTimeoutMs: int(env.SSO_9SPORT_TIMEOUT_MS, 8000),
   loginMaxFails: int(env.LOGIN_MAX_FAILS, 5),
   loginLockMin: int(env.LOGIN_LOCK_MIN, 15),
+  // NhanhShip (Nhanh.vn): mã xác thực webhook
+  nhanhWebhookToken: env.NHANH_WEBHOOK_TOKEN || '',
   // API quản trị cho 9app Console (để trống = tắt)
   consoleApiKeyId: env.CONSOLE_API_KEY_ID || '',
   consoleApiSecret: env.CONSOLE_API_SECRET || '',
