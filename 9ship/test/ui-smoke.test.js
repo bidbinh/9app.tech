@@ -42,7 +42,7 @@ test('trang quản trị có noindex và các tệp tĩnh có đúng kiểu', as
 });
 
 test('JS giao diện đúng cú pháp, kiểu ES5 (không mũi tên, let/const, template) và gọi API bằng đường dẫn tương đối', () => {
-  for (const f of ['app.js', 'admin.js', 'label.js']) {
+  for (const f of ['ui.js', 'addr.js', 'core.js', 'flow.js', 'account.js', 'app.js', 'admin.js', 'label.js']) {
     const src = fs.readFileSync(path.join(PUB, f), 'utf8');
     assert.doesNotThrow(() => new vm.Script(src, { filename: f }), f);
     assert.ok(!/=>/.test(src), f + ' có hàm mũi tên');
@@ -61,12 +61,27 @@ test('HTML không có script nội tuyến (để CSP script-src self hoạt đ�
   }
 });
 
-test('innerHTML chỉ dùng cho SVG mã QR do máy chủ sinh', () => {
-  const src = fs.readFileSync(path.join(PUB, 'app.js'), 'utf8');
-  const uses = src.match(/innerHTML/g) || [];
-  assert.equal(uses.length, 1);
-  assert.ok(src.includes('qrbox').valueOf());
-  assert.ok(!fs.readFileSync(path.join(PUB, 'admin.js'), 'utf8').includes('innerHTML'));
+test('innerHTML chỉ dùng cho SVG mã QR do máy chủ sinh (một chỗ duy nhất)', () => {
+  let total = 0;
+  for (const f of ['ui.js', 'addr.js', 'core.js', 'flow.js', 'account.js', 'app.js', 'admin.js', 'label.js']) {
+    const n = (fs.readFileSync(path.join(PUB, f), 'utf8').match(/innerHTML/g) || []).length;
+    if (f !== 'account.js') assert.equal(n, 0, f + ' dùng innerHTML');
+    total += n;
+  }
+  assert.equal(total, 1);
+});
+
+test('thứ tự nạp script: ui, addr, core, flow, account, app', () => {
+  const html = fs.readFileSync(path.join(PUB, 'index.html'), 'utf8');
+  const order = [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(order, ['ui.js', 'addr.js', 'core.js', 'flow.js', 'account.js', 'app.js']);
+});
+
+test('dữ liệu phường/xã được phục vụ tĩnh và đủ 34 tỉnh', async () => {
+  const r = await fetch(base + '/9ship/data/vn-wards.json');
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(Object.keys(j.provinces).length, 34);
 });
 
 test('/healthz hoạt động; meta cho giao diện đủ trường', async () => {
