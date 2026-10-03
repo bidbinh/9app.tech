@@ -240,6 +240,32 @@
     if (!url) return S9.toast('Hãy mở app ngân hàng trên điện thoại.');
     setTimeout(function () { location.href = url; }, 400);
   }
+  // Chuyển SVG QR thành ảnh PNG (nền trắng) rồi chia sẻ/tải về để quét từ thư viện ảnh trong app ngân hàng: cách duy nhất điền sẵn đủ số tài khoản, tiền, nội dung ở mọi ngân hàng.
+  function saveQr(t) {
+    var svg = document.querySelector('#qrbox svg');
+    if (!svg) return S9.toast('Chưa có mã QR');
+    var xml = new XMLSerializer().serializeToString(svg).replace('<svg ', '<svg width="720" height="720" ');
+    var img = new Image();
+    img.onload = function () {
+      var size = 720, pad = 48, cv = document.createElement('canvas');
+      cv.width = size + pad * 2; cv.height = size + pad * 2;
+      var c = cv.getContext('2d');
+      c.fillStyle = '#fff'; c.fillRect(0, 0, cv.width, cv.height);
+      c.imageSmoothingEnabled = false;
+      c.drawImage(img, pad, pad, size, size);
+      cv.toBlob(function (blob) {
+        if (!blob) return S9.toast('Không tạo được ảnh');
+        var file = window.File ? new File([blob], '9ship-qr-' + t.transfer.content + '.png', { type: 'image/png' }) : null;
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file] }).catch(function () {}); return; }
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = file ? file.name : '9ship-qr.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        S9.toast('Đã lưu ảnh QR. Mở app ngân hàng → Quét QR → chọn ảnh.');
+      }, 'image/png');
+    };
+    img.onerror = function () { S9.toast('Không tạo được ảnh QR'); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  }
   function drawTopup(t) {
     var p = panel();
     var bankApp = BANK_APPS[t.transfer.bankBin] || null;
@@ -248,7 +274,8 @@
       h('div', { class: 'qr', id: 'qrbox' }),
       S9.kv('Số tiền', S9.vnd(t.amount)), S9.kv('Ngân hàng (BIN)', t.transfer.bankBin), S9.kv('Số tài khoản', t.transfer.account), S9.kv('Chủ tài khoản', t.transfer.accountName),
       S9.kv('Nội dung (bắt buộc)', t.transfer.content),
-      bankApp ? h('button', { type: 'button', class: 'btn', text: 'Mở app ' + bankApp.app, onclick: function () { openBankApp(bankApp, t); } }) : null,
+      h('button', { type: 'button', class: 'btn', text: 'Lưu ảnh QR để quét trong app ngân hàng', onclick: function () { saveQr(t); } }),
+      bankApp ? h('button', { type: 'button', class: 'btn ghost', text: 'Mở app ' + bankApp.app, onclick: function () { openBankApp(bankApp, t); } }) : null,
       h('button', { type: 'button', class: 'btn ghost', text: 'Sao chép nội dung chuyển khoản', onclick: function () { try { navigator.clipboard.writeText(t.transfer.content); S9.toast('Đã sao chép'); } catch (e) { S9.toast('Hãy chép tay: ' + t.transfer.content); } } }),
       h('div', { class: 'muted small mt', id: 'tp-status', text: 'Đang chờ tiền về… Ví tự cộng khi nhận được tiền (thường dưới 1 phút).' })
     ]));
