@@ -30,13 +30,57 @@ const providers = {
     if (!r.ok) throw new Error('kênh OTP trả ' + r.status);
   },
 };
+// ---- eSMS: Zalo ZNS (mẫu đã duyệt) rồi SMS brandname, giống cách 9Sport gửi OTP ----
+const esmsHasZalo = () => Boolean(config.esmsApiKey && config.esmsSecret && config.esmsZaloOa && config.esmsZaloTemp);
+const esmsHasSms = () => Boolean(config.esmsApiKey && config.esmsSecret && config.esmsBrandname);
+export const esmsConfigured = () => esmsHasZalo() || esmsHasSms();
+
+async function esmsPost(path, body) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), config.esmsTimeoutMs);
+  try {
+    const res = await fetch(config.esmsBase + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: ctl.signal });
+    if (!res.ok) throw new Error('eSMS HTTP ' + res.status);
+    const j = await res.json().catch(() => ({}));
+    if (String(j.CodeResult) !== '100') throw new Error('eSMS ' + j.CodeResult + ': ' + (j.ErrorMessage || ''));
+  } finally { clearTimeout(timer); }
+}
+const phoneZero = (p) => p; // số đã chuẩn hóa dạng 0xxxxxxxxx
+const fillTemplate = (t, code) => String(t).split('{ma}').join(code).split('{phut}').join(String(Math.round(config.otpTtlSec / 60)));
+
+const esmsChannels = {
+  async zalo(phone, code) {
+    if (!esmsHasZalo()) throw new Error('chưa cấu hình Zalo qua eSMS');
+    const data = JSON.parse(config.esmsZaloData);
+    const tempData = {};
+    for (const [k, v] of Object.entries(data)) tempData[k] = fillTemplate(v, code);
+    const body = { ApiKey: config.esmsApiKey, SecretKey: config.esmsSecret, OAID: config.esmsZaloOa, TempID: config.esmsZaloTemp, Phone: phoneZero(phone), TempData: tempData, SendingMode: '1', campaignid: 'OTP 9Ship' };
+    if (config.esmsSandbox) body.Sandbox = '1';
+    await esmsPost('/MainService.svc/json/SendZaloMessage_V6/', body);
+  },
+  async sms(phone, code) {
+    if (!esmsHasSms()) throw new Error('chưa cấu hình SMS brandname');
+    const body = { ApiKey: config.esmsApiKey, SecretKey: config.esmsSecret, Brandname: config.esmsBrandname, Phone: phoneZero(phone), Content: fillTemplate(config.esmsSmsTemplate, code), SmsType: '2', IsUnicode: '0' };
+    if (config.esmsSandbox) body.Sandbox = '1';
+    await esmsPost('/MainService.svc/json/SendMultipleMessage_V4_post_json/', body);
+  },
+};
+providers.esms = async (phone, code) => {
+  let last = null;
+  for (const ch of config.esmsChannels) {
+    if (!esmsChannels[ch]) continue;
+    try { await esmsChannels[ch](phone, code); return; } catch (e) { last = e; console.error('[otp] kênh', ch, 'lỗi:', e.message); }
+  }
+  throw last || new Error('không có kênh OTP nào được cấu hình');
+};
+
 export function registerOtpProvider(name, fn) { providers[name] = fn; }
 export const sentForTests = [];
 
 export async function requestOtp(phoneInput, ip) {
   const phone = normalizePhone(phoneInput);
   // Kênh thủ công: không gửi gì; người dùng nhận mã do quản trị cấp (issueOtp) qua kênh riêng như Zalo.
-  if (config.otpProvider === 'manual') return { ok: true, manual: true };
+  if (config.otpProvider === 'manual' || (config.otpProvider === 'esms' && !esmsConfigured())) return { ok: true, manual: true };
   const [{ n: perPhone }] = await query(
     "SELECT count(*)::int AS n FROM otps WHERE phone=$1 AND created_at > now() - interval '24 hours'", [phone]);
   const [{ n: perIp }] = await query(

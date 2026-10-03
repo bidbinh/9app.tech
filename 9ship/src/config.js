@@ -29,6 +29,18 @@ export const config = {
   // admin
   adminToken: env.ADMIN_TOKEN || '',
   adminTotpSecret: env.ADMIN_TOTP_SECRET || '',
+  // OTP qua eSMS (giống 9Sport): Zalo ZNS trước, SMS brandname sau
+  esmsBase: (env.ESMS_BASE || 'https://rest.esms.vn').replace(/\/+$/, ''),
+  esmsApiKey: env.ESMS_API_KEY || '',
+  esmsSecret: env.ESMS_SECRET || '',
+  esmsBrandname: env.ESMS_BRANDNAME || '',
+  esmsSmsTemplate: env.ESMS_SMS_TEMPLATE || '{ma} la ma xac thuc 9Sport cua ban, hieu luc {phut} phut. Khong chia se ma nay.',
+  esmsZaloOa: env.ESMS_ZALO_OA || '',
+  esmsZaloTemp: env.ESMS_ZALO_TEMP || '',
+  esmsZaloData: env.ESMS_ZALO_DATA || '{"otp": "{ma}", "time": "{phut}"}',
+  esmsChannels: (env.ESMS_CHANNELS || 'zalo,sms').split(',').map((x) => x.trim()).filter(Boolean),
+  esmsSandbox: env.ESMS_SANDBOX === '1',
+  esmsTimeoutMs: int(env.ESMS_TIMEOUT_MS, 12000),
   // ký link nhãn, webhook
   signSecret: env.SIGN_SECRET || 'dev-sign-secret-change-me',
   bankWebhookSecret: env.BANK_WEBHOOK_SECRET || '',
