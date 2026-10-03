@@ -34,6 +34,9 @@ export const config = {
   sso9sportTimeoutMs: int(env.SSO_9SPORT_TIMEOUT_MS, 8000),
   loginMaxFails: int(env.LOGIN_MAX_FAILS, 5),
   loginLockMin: int(env.LOGIN_LOCK_MIN, 15),
+  // API quản trị cho 9app Console (để trống = tắt)
+  consoleApiKeyId: env.CONSOLE_API_KEY_ID || '',
+  consoleApiSecret: env.CONSOLE_API_SECRET || '',
   // OTP qua eSMS (giống 9Sport): Zalo ZNS trước, SMS brandname sau
   esmsBase: (env.ESMS_BASE || 'https://rest.esms.vn').replace(/\/+$/, ''),
   esmsApiKey: env.ESMS_API_KEY || '',

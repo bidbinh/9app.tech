@@ -14,6 +14,7 @@ import { shipmentRoutes } from './routes/shipments.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { adminRoutes } from './routes/admin.js';
 import { addressRoutes } from './routes/addresses.js';
+import { consoleApiRoutes } from './console-api.js';
 import { ApiError } from './errors.js';
 
 export function buildApp() {
@@ -25,6 +26,7 @@ export function buildApp() {
   shipmentRoutes(app);
   webhookRoutes(app);
   adminRoutes(app);
+  consoleApiRoutes(app);
 
   app.route('GET', '/healthz', async () => {
     await query('SELECT 1');
