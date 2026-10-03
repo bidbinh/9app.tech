@@ -18,7 +18,8 @@ export const config = {
   createTimeoutMs: int(env.CREATE_TIMEOUT_MS, 30000),
   unknownCreateHours: int(env.UNKNOWN_CREATE_HOURS, 2),
   // OTP
-  otpProvider: env.OTP_PROVIDER || 'console',
+  // manual = mã do quản trị cấp (chưa có kênh SMS); console chỉ để phát triển
+  otpProvider: env.OTP_PROVIDER || (env.NODE_ENV === 'production' ? 'manual' : 'console'),
   otpDev: bool(env.OTP_DEV, false) && env.NODE_ENV !== 'production',
   otpTtlSec: int(env.OTP_TTL_SEC, 300),
   otpMaxTries: int(env.OTP_MAX_TRIES, 5),

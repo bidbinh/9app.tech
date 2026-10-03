@@ -10,7 +10,7 @@ import { quoteAll, resetBreakers } from '../src/rating.js';
 import { validateQuoteRequest } from '../src/pricing.js';
 import { mockControl } from '../src/carriers/mock.js';
 import { syncPickupPoints } from '../src/places.js';
-import { setup, makeUser, close } from './helpers.js';
+import { setup, makeUser, close, SENDER, RECEIVER } from './helpers.js';
 
 after(close);
 before(async () => {
@@ -34,8 +34,6 @@ const wallet = (userId) => tx((c) => ledger.walletBalance(c, userId));
 const acct = (userId, kind) => tx(async (c) => ledger.balance(c, await ledger.userAccount(c, userId, kind)));
 const due = () => query("UPDATE outbox SET next_at = now() WHERE status IN ('pending','processing','reconcile','attention')");
 
-const SENDER = { contact: 'Nguyễn Văn A', phone: '0901234567', street: '12 Lê Lợi', ward: 'Bến Nghé', province: 'TP Hồ Chí Minh' };
-const RECEIVER = { contact: 'Trần Thị B', phone: '0987654321', street: '34 Hai Bà Trưng', ward: 'Hàng Bài', province: 'Hà Nội' };
 
 async function getOffer(userId, carrier = 'mock-chuan', over = {}) {
   const req = validateQuoteRequest({ from: { province: 'TP Hồ Chí Minh', lat: 10.7769, lng: 106.7009 }, to: { province: 'Hà Nội' }, weightG: 1000, ...over });

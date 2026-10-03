@@ -24,8 +24,8 @@ export function quotesRoutes(app) {
 
   app.route('POST', '/v1/quotes', async (ctx) => {
     const req = validateQuoteRequest(ctx.body);
-    return quoteAll(req, { userId: ctx.user ? ctx.user.id : null });
-  }, { limit: 40, limitKey: 'quotes' });
+    return quoteAll(req, { userId: ctx.user.id });
+  }, { auth: 'user', limit: 40, limitKey: 'quotes' });
 
   app.route('GET', '/v1/pickup-points', async (ctx) => {
     const lat = Number(ctx.query.lat);
@@ -41,5 +41,5 @@ export function quotesRoutes(app) {
         lat: p.lat, lng: p.lng, distanceKm: p.distanceKm,
       })),
     };
-  });
+  }, { auth: 'user' });
 }

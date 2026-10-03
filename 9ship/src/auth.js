@@ -35,6 +35,8 @@ export const sentForTests = [];
 
 export async function requestOtp(phoneInput, ip) {
   const phone = normalizePhone(phoneInput);
+  // Kênh thủ công: không gửi gì; người dùng nhận mã do quản trị cấp (issueOtp) qua kênh riêng như Zalo.
+  if (config.otpProvider === 'manual') return { ok: true, manual: true };
   const [{ n: perPhone }] = await query(
     "SELECT count(*)::int AS n FROM otps WHERE phone=$1 AND created_at > now() - interval '24 hours'", [phone]);
   const [{ n: perIp }] = await query(
@@ -58,6 +60,18 @@ export async function requestOtp(phoneInput, ip) {
   }
   if (!config.production) sentForTests.push({ phone, code });
   return config.otpDev ? { ok: true, devCode: code } : { ok: true };
+}
+
+// Quản trị cấp mã đăng nhập dùng một lần (15 phút) cho một số điện thoại khi chưa có kênh SMS.
+export async function issueOtp(phoneInput) {
+  const phone = normalizePhone(phoneInput);
+  const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+  const expiresAt = new Date(Date.now() + 15 * 60_000);
+  await query('UPDATE otps SET used=true WHERE phone=$1 AND used=false', [phone]);
+  await query(
+    'INSERT INTO otps(phone, code_hash, expires_at, ip) VALUES($1,$2,$3,$4)',
+    [phone, sha(code + ':' + phone + ':' + config.signSecret), expiresAt, 'admin']);
+  return { phone, code, expiresAt: expiresAt.toISOString() };
 }
 
 async function consumeOtp(phone, code) {

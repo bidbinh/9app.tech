@@ -208,7 +208,16 @@
   }
 
   function vUsers() {
-    mount([h('div', { class: 'card' }, [h('h2', { text: 'Tìm người dùng theo số điện thoại' }), field('Số điện thoại (ít nhất 4 số)', h('input', { type: 'text', id: 'u-q', inputmode: 'numeric' })),
+    mount([h('div', { class: 'card' }, [h('h2', { text: 'Cấp mã đăng nhập' }),
+      h('div', { class: 'muted small mb', text: 'Khi chưa có kênh SMS: nhập số điện thoại, hệ thống tạo mã 6 số dùng một lần (hiệu lực 15 phút). Gửi mã đó cho người dùng qua Zalo hoặc tin nhắn.' }),
+      field('Số điện thoại', h('input', { type: 'tel', id: 'o-phone', inputmode: 'tel' })),
+      h('button', { class: 'btn', text: 'Tạo mã', onclick: function () {
+        api('POST', 'admin/otp', { phone: val('o-phone') }).then(function (r) {
+          var box = document.getElementById('o-res'); clear(box);
+          box.appendChild(h('div', { class: 'code-box' }, [h('div', { class: 'muted small', text: 'Mã đăng nhập cho ' + r.phone + ' (hết hạn ' + new Date(r.expiresAt).toLocaleTimeString('vi-VN') + ')' }), h('div', { class: 'code', text: r.code })]));
+        }, fail);
+      } }), h('div', { id: 'o-res' })]),
+      h('div', { class: 'card' }, [h('h2', { text: 'Tìm người dùng theo số điện thoại' }), field('Số điện thoại (ít nhất 4 số)', h('input', { type: 'text', id: 'u-q', inputmode: 'numeric' })),
       h('button', { class: 'btn', text: 'Tìm', onclick: search })]), h('div', { id: 'u-res' })]);
     return Promise.resolve();
     function search() {

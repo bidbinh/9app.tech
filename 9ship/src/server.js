@@ -13,11 +13,13 @@ import { moneyRoutes } from './routes/money.js';
 import { shipmentRoutes } from './routes/shipments.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { adminRoutes } from './routes/admin.js';
+import { addressRoutes } from './routes/addresses.js';
 import { ApiError } from './errors.js';
 
 export function buildApp() {
   const app = createApp();
   authRoutes(app);
+  addressRoutes(app);
   quotesRoutes(app);
   moneyRoutes(app);      // đăng ký trước webhookRoutes: /v1/webhooks/bank phải khớp trước /v1/webhooks/:carrier
   shipmentRoutes(app);

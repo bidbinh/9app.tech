@@ -5,6 +5,8 @@ import * as orders from '../src/orders.js';
 import * as worker from '../src/worker.js';
 import { quoteAll } from '../src/rating.js';
 import { validateQuoteRequest } from '../src/pricing.js';
+import { wardsOf } from '../src/geo.js';
+import crypto from 'node:crypto';
 
 // Mỗi bài kiểm thử gọi setup() để có CSDL sạch cùng quy tắc giá mặc định.
 export async function setup() {
@@ -38,8 +40,8 @@ export const acct = (userId, kind) => tx(async (c) => ledger.balance(c, await le
 export const sysAcct = (kind) => tx(async (c) => ledger.balance(c, await ledger.systemAccount(c, kind)));
 export const due = () => query("UPDATE outbox SET next_at = now() WHERE status IN ('pending','processing','reconcile','attention')");
 
-export const SENDER = { contact: 'Nguyễn Văn A', phone: '0901234567', street: '12 Lê Lợi', ward: 'Bến Nghé', province: 'TP Hồ Chí Minh' };
-export const RECEIVER = { contact: 'Trần Thị B', phone: '0987654321', street: '34 Hai Bà Trưng', ward: 'Hàng Bài', province: 'Hà Nội' };
+export const SENDER = { contact: 'Nguyễn Văn A', phone: '0901234567', street: '12 Lê Lợi', ward: wardsOf('tp-ho-chi-minh')[0], province: 'TP Hồ Chí Minh' };
+export const RECEIVER = { contact: 'Trần Thị B', phone: '0987654321', street: '34 Hai Bà Trưng', ward: wardsOf('ha-noi')[0], province: 'Hà Nội' };
 
 export async function getOffer(userId, carrier = 'mock-chuan', over = {}) {
   const req = validateQuoteRequest({ from: { province: 'TP Hồ Chí Minh', lat: 10.7769, lng: 106.7009 }, to: { province: 'Hà Nội' }, weightG: 1000, ...over });
@@ -58,4 +60,12 @@ export async function makeCreated(userId, { carrier = 'mock-chuan', funds = 3000
   const view = await orders.get(userId, shipment.id);
   assert.equal(view.shippingStatus, 'created');
   return { id: shipment.id, view, offer, buffer: orders.bufferFor(offer.sellPrice), funds };
+}
+
+// Tạo phiên đăng nhập cho người dùng và trả về giá trị header Cookie.
+export async function loginCookie(userId) {
+  const token = crypto.randomBytes(24).toString('hex');
+  await query('INSERT INTO sessions(token_hash, user_id, role, expires_at) VALUES($1,$2,$3, now() + interval \'1 day\')',
+    [crypto.createHash('sha256').update(token).digest('hex'), userId, 'user']);
+  return 'sid=' + token;
 }

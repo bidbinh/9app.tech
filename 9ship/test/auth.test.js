@@ -2,6 +2,8 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createApp } from '../src/http.js';
 import { authRoutes } from '../src/routes/auth.js';
+import { addressRoutes } from '../src/routes/addresses.js';
+import { wardsOf } from '../src/geo.js';
 import { config } from '../src/config.js';
 import * as auth from '../src/auth.js';
 import { query } from '../src/db.js';
@@ -16,6 +18,7 @@ before(async () => {
   config.routeLimitFactor = 1000;
   app = createApp();
   authRoutes(app);
+  addressRoutes(app);
   base = 'http://127.0.0.1:' + await app.listen(0);
 });
 after(async () => { await app.close(); await close(); });
@@ -98,7 +101,7 @@ test('sổ địa chỉ: thêm, liệt kê, xóa; không đọc được của n
   const c1 = cookieOf(await post('/v1/auth/verify', { phone: '0912000008', code: lastCode('0912000008') }));
   await post('/v1/auth/otp', { phone: '0912000009' });
   const c2 = cookieOf(await post('/v1/auth/verify', { phone: '0912000009', code: lastCode('0912000009') }));
-  const add = await (await post('/v1/addresses', { contact: 'An', phone: '0987654321', street: '1 Lê Lợi', province: 'Hà Nội' }, c1)).json();
+  const add = await (await post('/v1/addresses', { contact: 'An', phone: '0987654321', street: '1 Lê Lợi', ward: wardsOf('ha-noi')[0], province: 'Hà Nội' }, c1)).json();
   const mine = await (await fetch(base + '/v1/addresses', { headers: { cookie: c1 } })).json();
   assert.equal(mine.addresses.length, 1);
   const theirs = await (await fetch(base + '/v1/addresses', { headers: { cookie: c2 } })).json();

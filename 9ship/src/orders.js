@@ -5,24 +5,11 @@ import { ApiError } from './errors.js';
 import * as ledger from './ledger.js';
 import * as registry from './carriers/index.js';
 import { quoteAll, publicOffer } from './rating.js';
-import { normalizePhone } from './auth.js';
-import { findProvince } from './geo.js';
+import { cleanParty } from './party.js';
+import * as addresses from './addresses.js';
 import { signLabel } from './labels.js';
 
 function bad(msg, field) { return new ApiError(400, 'invalid_request', msg, { field }); }
-
-function cleanParty(p, field) {
-  if (!p || typeof p !== 'object') throw bad(`${field} là bắt buộc`, field);
-  const prov = findProvince(p.province);
-  if (!prov) throw bad(`${field}.province không hợp lệ`, field + '.province');
-  const contact = String(p.contact || '').trim();
-  const street = String(p.street || '').trim();
-  if (contact.length < 2 || contact.length > 80) throw bad(`${field}.contact cần 2-80 ký tự`, field + '.contact');
-  if (street.length < 3 || street.length > 200) throw bad(`${field}.street cần 3-200 ký tự`, field + '.street');
-  let phone;
-  try { phone = normalizePhone(p.phone); } catch { throw bad(`${field}.phone không hợp lệ`, field + '.phone'); }
-  return { contact, phone, street, ward: String(p.ward || '').trim().slice(0, 80), province: prov.code, provinceName: prov.name };
-}
 
 export function newCarrierRef() {
   return '9S' + crypto.randomBytes(7).toString('hex').toUpperCase();
@@ -172,6 +159,9 @@ export async function create(userId, input, idemKey) {
         ],
       });
       await c.query("INSERT INTO outbox(shipment_id, kind, payload) VALUES($1,'create_shipment','{}')", [sh.id]);
+      // tự lưu vào sổ địa chỉ để lần sau chọn nhanh; người gửi đầu tiên trở thành mặc định
+      await addresses.upsert(c, userId, sender, { touch: true, makeDefaultIfNone: true, lat: request.from.lat ?? null, lng: request.from.lng ?? null });
+      await addresses.upsert(c, userId, receiver, { touch: true });
       return sh;
     });
     return { shipment, replay: false };

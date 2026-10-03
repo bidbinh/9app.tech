@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { ApiError } from './errors.js';
-import { findProvince } from './geo.js';
+import { findProvince, canonicalWard } from './geo.js';
 
 export const GOODS_TYPES = ['general', 'document', 'clothes', 'electronics', 'food_dry', 'cosmetics', 'fragile'];
 export const MAX_WEIGHT_G = 30000;
@@ -21,7 +21,12 @@ function place(p, field) {
   if (!p || typeof p !== 'object') throw bad(`${field} là bắt buộc`, field);
   const prov = findProvince(p.province);
   if (!prov) throw bad(`${field}.province không hợp lệ`, field + '.province');
-  const out = { province: prov.code, provinceName: prov.name, ward: String(p.ward || '').slice(0, 80) };
+  let ward = '';
+  if (p.ward) {
+    ward = canonicalWard(prov.code, p.ward);
+    if (!ward) throw bad(`${field}.ward không thuộc ${prov.name}`, field + '.ward');
+  }
+  const out = { province: prov.code, provinceName: prov.name, ward };
   if (p.lat !== undefined && p.lng !== undefined) {
     if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng) || Math.abs(p.lat) > 90 || Math.abs(p.lng) > 180) {
       throw bad(`${field} có tọa độ không hợp lệ`, field + '.lat');

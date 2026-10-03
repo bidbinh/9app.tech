@@ -5,6 +5,7 @@ import * as withdrawals from '../withdrawals.js';
 import * as claims from '../claims.js';
 import { ApiError } from '../errors.js';
 import { query } from '../db.js';
+import * as auth from '../auth.js';
 
 const A = { auth: 'admin' };
 const WHO = 'admin';
@@ -63,6 +64,13 @@ export function adminRoutes(app) {
     await admin.audit(WHO, 'claim.update', ctx.params.id, null, { status: b.status, compensation: b.compensation || 0 }, b.note || '');
     return r;
   }, A);
+
+  // Cấp mã đăng nhập một lần cho số điện thoại (kênh OTP thủ công). Mọi lần cấp đều được ghi nhật ký.
+  app.route('POST', '/v1/admin/otp', async (ctx) => {
+    const r = await auth.issueOtp(ctx.body?.phone);
+    await admin.audit(WHO, 'otp.issue', r.phone, null, null, ctx.body?.reason || '');
+    return r;
+  }, { auth: 'admin', limit: 30, limitKey: 'adminotp' });
 
   app.route('GET', '/v1/admin/audit', async () => ({ items: await admin.listAudit() }), A);
   app.route('GET', '/v1/admin/health', async () => ({ ok: true, db: (await query('SELECT 1 AS ok'))[0].ok === 1 }), A);

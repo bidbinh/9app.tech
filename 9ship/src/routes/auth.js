@@ -37,28 +37,4 @@ export function authRoutes(app) {
     ctx.setCookie('sid', token, { maxAge: 8 * 3600 });
     return { ok: true };
   }, { limit: 8, limitKey: 'adminlogin' });
-
-  // ---- sổ địa chỉ ----
-  app.route('GET', '/v1/addresses', async (ctx) => ({
-    addresses: await query('SELECT id, label, contact, phone, street, ward, province, lat, lng FROM addresses WHERE user_id=$1 ORDER BY id DESC LIMIT 50', [ctx.user.id]),
-  }), { auth: 'user' });
-
-  app.route('POST', '/v1/addresses', async (ctx) => {
-    const b = ctx.body || {};
-    const need = ['contact', 'phone', 'street', 'province'];
-    for (const k of need) if (!b[k] || typeof b[k] !== 'string') throw new ApiError(400, 'invalid_request', `Thiếu ${k}`);
-    const count = (await query('SELECT count(*)::int AS n FROM addresses WHERE user_id=$1', [ctx.user.id]))[0].n;
-    if (count >= 50) throw new ApiError(400, 'limit', 'Tối đa 50 địa chỉ');
-    const r = await query(
-      `INSERT INTO addresses(user_id, label, contact, phone, street, ward, province, lat, lng)
-       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
-      [ctx.user.id, String(b.label || '').slice(0, 40), b.contact.slice(0, 80), auth.normalizePhone(b.phone), b.street.slice(0, 200),
-        String(b.ward || '').slice(0, 80), b.province.slice(0, 60), Number.isFinite(b.lat) ? b.lat : null, Number.isFinite(b.lng) ? b.lng : null]);
-    return { id: r[0].id };
-  }, { auth: 'user' });
-
-  app.route('DELETE', '/v1/addresses/:id', async (ctx) => {
-    await query('DELETE FROM addresses WHERE id=$1 AND user_id=$2', [Number(ctx.params.id) || 0, ctx.user.id]);
-    return { ok: true };
-  }, { auth: 'user' });
 }

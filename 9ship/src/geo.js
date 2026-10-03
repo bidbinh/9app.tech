@@ -2,6 +2,10 @@
 // (nội tỉnh / nội miền / liên miền) cho adapter mock; adapter thật dùng bảng của hãng.
 // Cần đối chiếu với danh mục hành chính hiện hành và mã địa danh của từng hãng (xem SETUP-CHECKLIST).
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const NORTH = ['Hà Nội', 'Lai Châu', 'Điện Biên', 'Sơn La', 'Lạng Sơn', 'Quảng Ninh', 'Cao Bằng', 'Tuyên Quang',
   'Lào Cai', 'Thái Nguyên', 'Phú Thọ', 'Bắc Ninh', 'Hưng Yên', 'Hải Phòng', 'Ninh Bình'];
 const CENTRAL = ['Thanh Hóa', 'Nghệ An', 'Hà Tĩnh', 'Quảng Trị', 'Huế', 'Đà Nẵng', 'Quảng Ngãi', 'Gia Lai',
@@ -52,4 +56,28 @@ export function haversineKm(lat1, lng1, lat2, lng2) {
   const dLng = rad(lng2 - lng1);
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// ---- phường/xã theo danh mục hành chính hai cấp (public/data/vn-wards.json, nạp bằng scripts/fetch-wards.mjs) ----
+let WARDS = null;
+function wardData() {
+  if (!WARDS) {
+    const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'data', 'vn-wards.json');
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8')).provinces;
+    WARDS = {};
+    for (const [code, p] of Object.entries(raw)) WARDS[code] = new Map(p.wards.map((w) => [slug(w), w]));
+  }
+  return WARDS;
+}
+
+export function wardsOf(provinceCode) {
+  const m = wardData()[provinceCode];
+  return m ? [...m.values()] : [];
+}
+
+// Trả về tên phường/xã chuẩn nếu thuộc tỉnh, ngược lại null. So khớp không phân biệt hoa/thường và dấu.
+export function canonicalWard(provinceCode, input) {
+  const m = wardData()[provinceCode];
+  if (!m || !input) return null;
+  return m.get(slug(input)) || null;
 }
