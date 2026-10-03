@@ -88,3 +88,8 @@ textarea { height: 80px; padding: 8px 11px; width: 100%; } input:focus, select:f
 .toast { position: fixed; right: 24px; bottom: 24px; max-width: 420px; background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 12px; z-index: 80; box-shadow: var(--shadow); }
 .apps-grid .appcard { display: flex; align-items: center; justify-content: space-between; }
 .statusline { display: inline-flex; align-items: center; } .statusline i { width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; display: inline-block; background: var(--faint); } .statusline i.ok { background: var(--ok); } .statusline i.stale { background: #f59e0b; } .statusline i.down { background: var(--bad); }
+
+.side .nav.home9 { margin: 0 12px 6px; background: rgba(255,255,255,.08); color: #fff; font-weight: 600; }
+.side .nav.home9:hover { background: rgba(255,255,255,.16); }
+.back9 { display: block; text-align: center; margin-top: 16px; color: var(--mute); font-size: 13px; text-decoration: none; }
+.back9:hover { color: var(--brand); }

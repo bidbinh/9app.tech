@@ -149,6 +149,7 @@
     const nav = (href, icon, label, on) => h('a', { class: 'nav' + (on ? ' on' : ''), href }, [ico(icon), label]);
     const side = h('aside', { class: 'side' }, [
       h('div', { class: 'brand' }, [h('img', { src: 'icon.svg', alt: '' }), '9app Console']),
+      h('a', { class: 'nav home9', href: '/', text: '← Về 9app' }),
       h('div', { class: 'grp', text: 'Tổng hợp' }),
       nav('#/', 'home', 'Tổng quan', !r0),
       nav('#/money', 'money', 'Dòng tiền', r0 === 'money'),
@@ -185,6 +186,7 @@
     root.appendChild(h('div', { class: 'login' }, h('div', { class: 'login-card' }, [
       h('div', { class: 'logo' }, [h('img', { src: 'icon.svg', alt: '' }), h('div', {}, [h('h1', { text: '9app Console' }), h('p', { class: 'sub', text: 'Quản trị chung các ứng dụng 9app.tech' })])]),
       h('label', { text: 'Tên đăng nhập', for: 'u' }), u, h('label', { text: 'Mật khẩu', for: 'p' }), p, h('label', { text: 'Mã xác thực (Authenticator)', for: 't' }), t, err, btn,
+      h('a', { class: 'back9', href: '/', text: '← Về 9app' }),
     ])));
     u.focus();
   }
