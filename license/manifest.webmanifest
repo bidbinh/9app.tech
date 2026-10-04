@@ -1,0 +1,21 @@
+{
+  "name": "9license — Ôn thi bằng lái xe",
+  "short_name": "9license",
+  "description": "Ôn thi giấy phép lái xe A1, A, B1, B: 600 câu hỏi, thi thử đúng cấu trúc đề, ôn câu sai, nhắc lịch.",
+  "lang": "vi",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d9488",
+  "theme_color": "#0d9488",
+  "categories": ["education", "utilities"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

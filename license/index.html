@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0d9488">
+<meta name="description" content="9license: ôn thi giấy phép lái xe hạng A1, A, B1, B với bộ 600 câu hỏi chính thức, thi thử đúng cấu trúc đề, ôn câu sai, lặp lại ngắt quãng.">
+<title>9license — Ôn thi bằng lái xe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="9license">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#view">Bỏ qua điều hướng</a>
+<div id="app">
+  <header class="dau-tren">
+    <a class="home9app" id="home9app" data-ve-9app="1" href="https://9app.tech/" aria-label="Về trang 9app">‹ 9app</a>
+    <a class="hieu" href="#/" aria-label="9license, về trang chủ"><img class="logo" src="icons/icon.svg" alt="" width="28" height="28"><b>9license</b></a>
+    <span class="spacer"></span>
+    <button id="btn-hang" class="chip chip-btn" type="button" aria-haspopup="dialog" aria-label="Đổi hạng giấy phép lái xe">Hạng B</button>
+    <a id="btn-set" class="icon-btn" href="#/cai-dat" aria-label="Cài đặt"></a>
+  </header>
+  <main id="view" tabindex="-1"><noscript>9license cần bật JavaScript để chạy.</noscript></main>
+  <nav id="nav" class="tabbar" aria-label="Điều hướng chính"></nav>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="modal-root"></div>
+<script type="module" src="js/app.js"></script>
+<script src="/js/homebar.js"></script>
+</body>
+</html>

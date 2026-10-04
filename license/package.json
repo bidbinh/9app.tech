@@ -1,0 +1,13 @@
+{
+  "name": "9license",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9license: ôn thi giấy phép lái xe (webapp tĩnh PWA, không build).",
+  "scripts": {
+    "test": "node --test tests/",
+    "validate": "node tools/validate.mjs",
+    "build-data": "node tools/build-data.mjs",
+    "e2e": "node scripts/e2e.mjs"
+  }
+}

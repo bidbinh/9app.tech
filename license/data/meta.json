@@ -1,0 +1,86 @@
+{
+  "version": "2026-10-04.2",
+  "tra_cuu_ngay": "2026-10-04",
+  "bo_cau_hoi": {
+    "ten": "Bộ 600 câu hỏi dùng cho sát hạch lái xe cơ giới đường bộ",
+    "co_quan": "Cục Cảnh sát giao thông, Bộ Công an",
+    "van_ban": "Công văn 2262/CSGT-P5 ngày 07/5/2025 (hướng dẫn sử dụng bộ 600 câu hỏi); biên soạn theo khoản 1 Điều 35 Thông tư 12/2025/TT-BCA",
+    "ap_dung_tu": "2025-06-01",
+    "so_cau": 600,
+    "theo_chuong": {
+      "1": 180,
+      "2": 25,
+      "3": 58,
+      "4": 37,
+      "5": 185,
+      "6": 115
+    },
+    "diem_liet": {
+      "tong": 60,
+      "A1_A": 20,
+      "B1": 30
+    },
+    "tap_theo_hang": {
+      "A1_A": 250,
+      "B1": 300,
+      "B_C1_C_D1_D2_D": 600
+    },
+    "pdf_sha256": "d473be679b53458a33acc52057f3a4fe532ea489e91d88fb86789073cd98a9c5",
+    "cach_trich": "Văn bản và hình trích tự động từ file PDF công bố của Cục CSGT; đáp án đúng là dòng được gạch chân trong PDF (đúng như hướng dẫn của Cục). Mỗi câu được kiểm tra có đúng 1 đáp án gạch chân. Số câu và danh sách điểm liệt đối chiếu với Phụ lục I, II, III của Công văn 2262/CSGT-P5.",
+    "pdf_url": "https://khodulieu.sohoa.tuyenquang.gov.vn/congthongtin/media/edb12a6ad8ecfde537ec02cbb7e2a1b1.pdf",
+    "pdf_trang_goc": "https://xaydungchinhsach.chinhphu.vn/600-cau-hoi-dung-cho-sat-hach-lai-xe-co-gioi-duong-bo-119250513095211625.htm",
+    "pdf_ghi_chu": "Link tải PDF (bản đăng lại trên cổng Công an tỉnh Tuyên Quang, 6,0 MB, 04/10/2026) và SHA-256 để tái lập dữ liệu. Repo không đính kèm file PDF vì quyền phân phối lại chưa được xác nhận; tải về từ link rồi kiểm SHA-256 trước khi chạy tools/extract-600.py."
+  },
+  "nguon": [
+    {
+      "ten": "Công văn 2262/CSGT-P5 ngày 07/5/2025 của Cục CSGT (cơ cấu đề từng hạng, Phụ lục I, II, III)",
+      "url": "https://cdn.thuvienphapluat.vn/uploads/khoinghiep/2025/05/14/huong-dan-so-2262-csgt-p5.pdf",
+      "dung_cho": "Cơ cấu đề theo chương, tập 250/300/600 câu, danh sách 60 câu điểm liệt",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Bộ 600 câu hỏi (PDF) – bản đăng lại trên cổng Công an tỉnh Tuyên Quang; bản gốc của Cục CSGT tại csgt.vn",
+      "url": "https://congan.tuyenquang.gov.vn/vi/tin-bai/bo-600-cau-hoi-dung-cho-sat-hach-lai-xe-co-gioi-duong-bo?type=EXECUTIVE_DIRECTION&id=157456",
+      "dung_cho": "Nội dung 600 câu hỏi, đáp án, hình",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Trang Chính phủ: hướng dẫn sử dụng bộ 600 câu hỏi",
+      "url": "https://xaydungchinhsach.chinhphu.vn/huong-dan-su-dung-bo-600-cau-hoi-dung-de-sat-hach-lai-xe-co-gioi-duong-bo-119250513110514585.htm",
+      "dung_cho": "Đối chiếu bố cục 6 chương, hiệu lực từ 01/6/2025",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Thông tư 12/2025/TT-BCA ngày 28/02/2025 của Bộ Công an (bản PDF văn bản gốc, Phụ lục II, IV: số câu, thời gian, điểm đạt, điểm liệt)",
+      "url": "https://storage-vnportal.vnpt.vn/gov-bpc/3167/Images/document/Thong%20tu%2012.2025.TT.BCA.pdf",
+      "dung_cho": "Số câu, thời gian, điểm đạt lý thuyết A1, A, B1, B, C1, C, D1/D2/D theo quy định hiện hành",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Thông tư 108/2026/TT-BCA ngày 29/6/2026 của Bộ Công an (thay thế Thông tư 12/2025/TT-BCA) – tổng hợp của LuatVietnam",
+      "url": "https://luatvietnam.vn/linh-vuc-khac/diem-moi-thong-tu-108-2026-tt-bca-ve-sat-hach-cap-giay-phep-lai-xe-va-quoc-te-883-110169-article.html",
+      "dung_cho": "Số câu, thời gian, điểm đạt mới áp dụng từ 01/3/2027; bỏ sát hạch mô phỏng; đạt phần trước mới thi phần sau",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Nghị định 94/2026/NĐ-CP ngày 31/3/2026 (hiệu lực 01/7/2026) – bài của Báo điện tử Chính phủ",
+      "url": "https://xaydungchinhsach.chinhphu.vn/quy-dinh-moi-bo-phan-sat-hach-lai-xe-mo-phong-tu-01-7-2026-119260627105803901.htm",
+      "dung_cho": "Bỏ phần sát hạch mô phỏng trên máy tính từ 01/7/2026; thứ tự thi",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Luật Trật tự, an toàn giao thông đường bộ 2024 (hiệu lực 01/01/2025), Điều 57 về hạng giấy phép lái xe – qua bài tổng hợp của Thư Viện Nhà Đất",
+      "url": "https://thuviennhadat.vn/phap-luat/tai-ve-60-cau-diem-liet-thi-bang-lai-xe-tu-01-6-2025-679392.html",
+      "dung_cho": "Mô tả các hạng A1, A, B1, B, C1, C, D1, D2, D",
+      "ngay_tra": "2026-10-04"
+    }
+  ],
+  "chua_chac": [
+    "Quy định đang thay đổi: từ 01/3/2027 đề thi lý thuyết tăng số câu theo Thông tư 108/2026/TT-BCA. Số liệu mới lấy từ bài tổng hợp, chưa đối chiếu được toàn bộ Phụ lục của văn bản gốc.",
+    "Hạng B1 theo đề mới (50 câu, 33 phút, đạt 45) chỉ thấy ở nguồn thứ cấp; cần đối chiếu Phụ lục II Thông tư 108/2026/TT-BCA.",
+    "Thông tư 108/2026/TT-BCA nói câu hỏi có thêm dạng đúng/sai, nối đáp án, video tình huống; bộ câu hỏi chính thức cho đề mới chưa được công bố khi tra cứu (04/10/2026), nên app dùng bộ 600 câu hiện hành.",
+    "Đề mới có còn đúng 1 câu điểm liệt mỗi đề hay không chưa xác nhận được từ văn bản gốc; app mặc định giữ 1 câu điểm liệt để ôn an toàn.",
+    "Cách phần mềm thi thật chọn câu trong từng nhóm (có loại câu điểm liệt khỏi các nhóm thường hay không) không được công bố; app loại các câu điểm liệt khỏi nhóm thường để đề không trùng câu.",
+    "Chuyển đổi hạng cũ (B1, B2 ô tô) sang hạng B mới: xem văn bản chính thức hoặc hỏi cơ sở đào tạo."
+  ]
+}
