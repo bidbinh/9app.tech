@@ -1,0 +1,15 @@
+{
+  "name": "9lunch",
+  "short_name": "9lunch",
+  "description": "Chọn quán, gom món, chia tiền và thu tiền cơm trưa cho cả nhóm.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff7f0",
+  "theme_color": "#e0662c",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

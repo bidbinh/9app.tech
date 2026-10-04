@@ -1,0 +1,25 @@
+{
+  "name": "9lunch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9lunch — chọn quán, gom món, chia tiền và thu tiền cơm trưa cho nhóm đồng nghiệp.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node scripts/dev.js",
+    "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.13.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^18.4.0-beta.17",
+    "jsqr": "^1.4.0",
+    "pngjs": "^7.0.0"
+  }
+}
