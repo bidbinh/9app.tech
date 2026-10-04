@@ -1,0 +1,17 @@
+# Triển khai 9interview lên máy chủ dùng chung. Không cần cơ sở dữ liệu (không lưu nội dung người dùng).
+#   cp .env.example .env   (điền INTERVIEW_AI_KEY nếu muốn bật AI)
+#   docker compose -f docker-compose.server.yml up -d --build
+name: 9interview
+services:
+  interview:
+    build: .
+    image: 9interview:latest
+    container_name: 9interview
+    restart: unless-stopped
+    env_file: .env
+    mem_limit: 128m
+    networks: [tms]
+networks:
+  tms:
+    external: true
+    name: ops_tms-network

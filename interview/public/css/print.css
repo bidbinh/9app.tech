@@ -1,0 +1,70 @@
+/* ===== Mẫu CV (dùng cho cả xem trước và in) ===== */
+.cv { width: 210mm; min-height: 297mm; background: #fff; color: #1b1b1b; font-size: 13px; line-height: 1.5; padding: 14mm 16mm; box-sizing: border-box; text-align: left; }
+.cv * { box-sizing: border-box; }
+.cv h1 { margin: 0; font-size: 28px; line-height: 1.2; }
+.cv h2 { margin: 0 0 6px; font-size: 13px; }
+.cv ul { margin: 4px 0 0; padding-left: 18px; } .cv li { margin: 2px 0; }
+.cv p { margin: 4px 0; }
+.cv-sec { margin-top: 16px; }
+.cv-item { margin: 0 0 10px; break-inside: avoid; page-break-inside: avoid; }
+.cv-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.cv-d { white-space: nowrap; color: #555; font-size: 12px; }
+.cv-contact { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; font-size: 12px; color: #444; }
+.cv-photo { width: 92px; height: 92px; border-radius: 50%; object-fit: cover; }
+.cv-note { color: #444; margin-top: 2px; }
+
+/* Cổ điển */
+.tpl-codien { font-family: "Times New Roman", Cambria, "Noto Serif", serif; }
+.tpl-codien .cv-head { text-align: center; border-bottom: 2px solid #222; padding-bottom: 10px; }
+.tpl-codien h1 { letter-spacing: .04em; text-transform: uppercase; font-size: 26px; }
+.tpl-codien .cv-title { font-size: 15px; font-style: italic; margin-top: 2px; }
+.tpl-codien .cv-contact { justify-content: center; }
+.tpl-codien h2 { text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #888; padding-bottom: 3px; }
+.tpl-codien .cv-skills { display: flex; flex-wrap: wrap; gap: 2px 18px; list-style: none; padding: 0; }
+.tpl-codien .cv-skills li::before { content: "• "; }
+
+/* Hiện đại */
+.tpl-hiendai { font-family: "Segoe UI", Roboto, Arial, "Helvetica Neue", sans-serif; }
+.tpl-hiendai .cv-head { border-left: 7px solid #2563eb; padding: 2px 0 2px 14px; }
+.tpl-hiendai h1 { font-size: 30px; font-weight: 800; color: #0f2a5c; }
+.tpl-hiendai .cv-title { font-size: 16px; color: #2563eb; font-weight: 600; margin-top: 2px; }
+.tpl-hiendai h2 { color: #2563eb; text-transform: uppercase; letter-spacing: .1em; font-size: 12px; border-bottom: 2px solid #dbe6ff; padding-bottom: 4px; }
+.tpl-hiendai .cv-skills { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; }
+.tpl-hiendai .cv-skills li { border: 1px solid #b9ceff; background: #f2f6ff; border-radius: 6px; padding: 2px 10px; margin: 0; }
+
+/* Tối giản */
+.tpl-toigian { font-family: "Segoe UI", Roboto, Arial, sans-serif; font-size: 12px; padding: 12mm 15mm; }
+.tpl-toigian h1 { font-size: 24px; font-weight: 700; }
+.tpl-toigian .cv-title { color: #555; margin-top: 1px; }
+.tpl-toigian .cv-sec { margin-top: 12px; }
+.tpl-toigian h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: #000; font-weight: 800; }
+.tpl-toigian .cv-d { font-size: 11px; color: #666; }
+.tpl-toigian .cv-skills { display: block; list-style: none; padding: 0; } .tpl-toigian .cv-skills li { display: inline; margin: 0; } .tpl-toigian .cv-skills li:not(:last-child)::after { content: " · "; }
+
+/* Nổi bật */
+.tpl-noibat { font-family: "Segoe UI", Roboto, Arial, sans-serif; padding-top: 0; }
+.tpl-noibat .cv-head { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 16px; margin: 0 -16mm; padding: 14mm 16mm 9mm; background: #12355f; color: #fff; }
+.tpl-noibat .cv-head h1 { font-size: 30px; }
+.tpl-noibat .cv-title { color: #bcd4f5; font-size: 16px; margin-top: 2px; }
+.tpl-noibat .cv-contact { color: #e3eefc; }
+.tpl-noibat .cv-photo { border: 3px solid #fff; flex: none; }
+.tpl-noibat h2 { color: #12355f; text-transform: uppercase; letter-spacing: .1em; font-size: 12px; border-bottom: 3px solid #12355f; display: inline-block; padding-bottom: 2px; margin-bottom: 8px; }
+.tpl-noibat .cv-sec { margin-top: 18px; }
+.tpl-noibat .cv-skills { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; padding: 0; } .tpl-noibat .cv-skills li::before { content: "▪ "; color: #12355f; }
+
+/* Thư xin việc khi in */
+.letter { width: 210mm; padding: 22mm 24mm; font-family: "Times New Roman", Cambria, "Noto Serif", serif; font-size: 14px; line-height: 1.65; color: #111; background: #fff; }
+.letter p { margin: 0 0 12px; }
+
+@media print {
+  @page { size: A4; margin: 14mm 0; }
+  @page :first { margin-top: 0; }
+  html, body { background: #fff !important; }
+  #app-shell, #toast, .modal-back, noscript { display: none !important; }
+  #print-root { display: block !important; }
+  .cv { min-height: 0; padding: 14mm 16mm 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .tpl-toigian.cv { padding: 12mm 15mm 0; }
+  .tpl-noibat.cv { padding-top: 0; }
+  .letter { padding: 14mm 24mm 0; }
+  .cv-sec > h2 { break-after: avoid; }
+}
