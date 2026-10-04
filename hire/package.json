@@ -1,0 +1,16 @@
+{
+  "name": "9hire",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9hire: việc làm thêm, tuyển nhanh cho quán và cửa hàng nhỏ, có chống lừa đảo.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node scripts/dev.js",
+    "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "^8.13.0" },
+  "devDependencies": { "embedded-postgres": "^18.4.0-beta.17" }
+}

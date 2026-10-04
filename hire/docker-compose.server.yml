@@ -1,0 +1,19 @@
+# Triển khai 9hire lên máy chủ dùng chung (PostgreSQL của 9Ship, CSDL "hire", vai trò "hire").
+#   cp .env.example .env && docker compose -f docker-compose.server.yml up -d --build
+name: 9hire
+services:
+  hire:
+    build: .
+    image: 9hire:latest
+    container_name: 9hire
+    restart: unless-stopped
+    env_file: .env
+    mem_limit: 160m
+    networks: [shipdb, tms]
+networks:
+  shipdb:
+    external: true
+    name: 9ship_internal
+  tms:
+    external: true
+    name: ops_tms-network
