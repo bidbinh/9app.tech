@@ -1,0 +1,627 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-10-04",
+  "note": "Dữ liệu nhập tay từ trang chính thức của giải/nhà tổ chức và nguồn tin đáng tin. Trường không rõ để null. verified=true khi ngày thấy trên trang chính thức hoặc có từ 2 nguồn độc lập khớp nhau trong năm 2026/2027.",
+  "races": [
+    {
+      "id": "techcombank-hanoi-2026", "name": "Techcombank Hanoi International Marathon 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hà Nội", "venue": "Hồ Hoàn Kiếm", "startDate": "2026-10-04", "endDate": null, "raceDay": "2026-10-04",
+      "distances": [5, 10, 21.1, 42.2], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Techcombank / Pulse Active (theo trang giải)",
+      "website": "https://marathonhn.com/en/", "registerUrl": "https://irace.vn/su-kien/techcombank-ha-noi-marathon/",
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giải diễn ra hôm nay (04/10/2026). Mùa thứ 5.",
+      "source": "https://marathonhn.com/en/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "gemadept-run-hai-phong-2026", "name": "Gemadept Run Hải Phòng 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hải Phòng", "venue": null, "startDate": "2026-10-10", "endDate": null, "raceDay": "2026-10-10",
+      "distances": [5, 10], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": null,
+      "website": "https://irace.vn/su-kien/gemadept-run/", "registerUrl": "https://irace.vn/su-kien/gemadept-run/",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Xuất phát 05:00 theo trang iRace.",
+      "source": "https://irace.vn/su-kien/gemadept-run/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vpbank-dat-sen-hong-2026", "name": "VPBank Đất Sen Hồng Music Marathon 2026", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "Cao Lãnh, Đồng Tháp", "venue": null, "startDate": "2026-10-11", "endDate": null, "raceDay": "2026-10-11",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": 170000, "priceTo": 420000, "currency": "VND", "organizer": "UBND tỉnh Đồng Tháp, VPBank",
+      "website": "https://datsenhongmarathon.com", "registerUrl": "https://actiup.net/vi/event/vpbank-dat-sen-hong-music-marathon-2026",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá 170.000đ (5K) đến 420.000đ (42K) là giá early bird mở 24 giờ ngày 29/09; hiện giá có thể khác. Một nguồn ghi đã đóng đăng ký.",
+      "source": "https://datsenhongmarathon.com", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "global-gate-ha-long-esg-2026", "name": "Global Gate Hạ Long ESG++ Marathon 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hạ Long, Quảng Ninh", "venue": "Vinhomes Global Gate Hạ Long", "startDate": "2026-10-11", "endDate": null, "raceDay": "2026-10-11",
+      "distances": [3, 10, 21], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "DHA Việt Nam",
+      "website": "https://halongbaymarathon.com/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": { "start": "2026-10-10", "end": "2026-10-10" },
+      "note": "Đã đóng đăng ký theo nguồn tin. Nhận BIB (expo) ngày 10/10.",
+      "source": "https://tuoitre.vn/khoi-dong-giai-chay-giua-ky-quan-global-gate-ha-long-esg-marathon-2026-100260918233845804.htm", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vietnam-jungle-marathon-2026", "name": "Vietnam Jungle Marathon 2026", "type": "trail", "region": "vn-bac", "country": "VN",
+      "city": "Pù Luông, Thanh Hóa", "venue": "Khu bảo tồn thiên nhiên Pù Luông", "startDate": "2026-10-17", "endDate": null, "raceDay": "2026-10-17",
+      "distances": [10, 25, 50, 70], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Vietnam Trail Series (Topas Travel)",
+      "website": "https://vietnamtrailseries.com/jungle-marathon/", "registerUrl": "https://vietnamtrailseries.com/jungle-marathon/vjm-book-now/",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Có gói 3 ngày trọn gói và gói chỉ chạy. Xem bảng phí trên trang giải.",
+      "source": "https://vietnamtrailseries.com/jungle-marathon/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "garmin-run-vietnam-2026", "name": "Garmin Run Vietnam 2026", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "TP. Hồ Chí Minh", "venue": "Khu đô thị Sala", "startDate": "2026-10-17", "endDate": "2026-10-18", "raceDay": "2026-10-18",
+      "distances": [5, 10, 21], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Garmin Vietnam / Pulse Active",
+      "website": "https://pace8.vn/su-kien/garmin-run-vietnam-2026", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Có chạy đôi (Couple Run). Trang Pace8 ghi đã hết thời gian đăng ký.",
+      "source": "https://www.garmin.com/vi-VN/newsroom/press-release/news-2026-may-garmin-run/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "lao-cai-marathon-2026", "name": "Lào Cai Marathon 2026 - Dòng chảy biên cương", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Lào Cai", "venue": null, "startDate": "2026-10-18", "endDate": null, "raceDay": "2026-10-18",
+      "distances": [5.5, 10.5, 21], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "TNHH Việt Jungle",
+      "website": "https://irace.vn/su-kien/lao-cai-marathon/", "registerUrl": "https://irace.vn/su-kien/lao-cai-marathon/",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chạy dọc sông Hồng. Một nguồn ghi đã đóng đăng ký.",
+      "source": "https://irace.vn/su-kien/lao-cai-marathon/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vpbank-hanoi-2026", "name": "VPBank Hanoi International Marathon 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hà Nội", "venue": "Hồ Hoàn Kiếm", "startDate": "2026-10-18", "endDate": null, "raceDay": "2026-10-18",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": 668000, "priceTo": 1668000, "currency": "VND", "organizer": "VPBank",
+      "website": "https://vpbankmarathon.com/", "registerUrl": "https://ticket.irace.vn/vpbank-hanoi-international-marathon",
+      "regStatus": "soldout", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Vé Standard (668.000đ - 1.668.000đ) đã hết; theo dõi các đợt vé khác trên trang giải. Mùa thứ 7.",
+      "source": "https://vpbankmarathon.com/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "gemadept-run-hcmc-2026", "name": "Gemadept Run HCMC 2026", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "TP. Hồ Chí Minh", "venue": "Công viên Sala, An Khánh", "startDate": "2026-10-24", "endDate": "2026-10-25", "raceDay": "2026-10-25",
+      "distances": [5, 10, 21], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": null,
+      "website": "https://worldsmarathons.com/marathon/gemadept-run-hcmc", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": { "start": "2026-10-24", "end": "2026-10-24" },
+      "note": "Chỉ có thông tin từ trang tổng hợp; ngày 24/10 là ngày expo, ngày chạy 25/10.",
+      "source": "https://worldsmarathons.com/marathon/gemadept-run-hcmc", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "gia-lai-city-trail-2026", "name": "Gia Lai City Trail 2026 - Giấc mơ Đại ngàn", "type": "trail", "region": "vn-trung", "country": "VN",
+      "city": "Pleiku, Gia Lai", "venue": "Biển Hồ", "startDate": "2026-11-01", "endDate": null, "raceDay": "2026-11-01",
+      "distances": [6, 12, 30, 50, 70], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 548000, "priceTo": 2568000, "currency": "VND", "organizer": "UBND Pleiku, Vietrace365",
+      "website": "https://gialaicitytrail.com", "registerUrl": "https://gialaicitytrail.com",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá thường từ 548.000đ (6K) đến 2.568.000đ (70K). Một số trang tổng hợp ghi 31/10, trang giải ghi 01/11.",
+      "source": "https://gialaicitytrail.com", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "lamdong-trail-2026", "name": "Lamdong Trail 2026", "type": "trail", "region": "vn-trung", "country": "VN",
+      "city": "Đà Lạt, Lâm Đồng", "venue": "Thung lũng Tình Yêu", "startDate": "2026-11-06", "endDate": "2026-11-08", "raceDay": null,
+      "distances": [5, 15, 25, 55, 85], "format": null, "elevation": null, "tags": ["UTMB Index", "Asia Trail Master"],
+      "priceFrom": 750000, "priceTo": 2900000, "currency": "VND", "organizer": null,
+      "website": "https://lamdongtrail.vn/distance/", "registerUrl": "https://lamdongtrail.vn/distance/",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá giai đoạn thường 750.000đ - 2.900.000đ; giai đoạn Late từ 17/08 đến 05/10, sau đó hỏi lại ban tổ chức. Có Kids Trail và Family 5K.",
+      "source": "https://lamdongtrail.vn/distance/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "standard-chartered-hanoi-2026", "name": "Standard Chartered Marathon Di sản Hà Nội 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hà Nội", "venue": null, "startDate": "2026-11-06", "endDate": "2026-11-08", "raceDay": "2026-11-08",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": 500000, "priceTo": 1500000, "currency": "VND", "organizer": "DHA Vietnam",
+      "website": "https://hanoi-marathon.com/en/2026/", "registerUrl": "https://payment.vietnamheritagemarathon.com/",
+      "regStatus": "soldout", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Trang giải thông báo đã đủ 100% số lượng ở mọi cự ly.",
+      "source": "https://hanoi-marathon.com/en/2026/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "ca-mau-marathon-2026", "name": "Marathon Cà Mau 2026 - Cúp Petrovietnam", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "Cà Mau", "venue": "Quảng trường Phan Ngọc Hiển", "startDate": "2026-11-14", "endDate": "2026-11-15", "raceDay": "2026-11-15",
+      "distances": [2, 5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "UBND tỉnh Cà Mau",
+      "website": "https://baocamau.vn/mot-giai-chay-hai-hanh-trinh-a123945.html", "registerUrl": null,
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Đăng ký qua iRace; hạn đổi cự ly 15/10. Có cự ly 2K cho trẻ 6-15 tuổi và gia đình. Marathon xuất phát 03:30.",
+      "source": "https://tuoitre.vn/hon-7000-van-dong-vien-san-sang-chinh-phuc-marathon-ca-mau-2026-100260912180038837.htm", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "trang-an-marathon-2026", "name": "Tràng An Marathon 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Ninh Bình", "venue": "Khu di sản Tràng An", "startDate": "2026-11-15", "endDate": null, "raceDay": "2026-11-15",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 569000, "priceTo": 1399000, "currency": "VND", "organizer": "VRace (Vu Media), Sở VHTT Ninh Bình",
+      "website": "https://tranganmarathon.com", "registerUrl": "https://tranganmarathon.com",
+      "regStatus": "open", "regOpens": null, "regCloses": "2026-10-30", "bibPickup": null,
+      "note": "Giai đoạn Late 11-30/10: 5K 799.000đ, 10K 899.000đ, 21K 1.099.000đ, 42K 1.399.000đ. Đăng ký qua ActiUp, iRace hoặc 5Bib. Xuất phát 05:00.",
+      "source": "https://tranganmarathon.com", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "run-for-green-da-lat-2026", "name": "Giải chạy Quốc tế vì Đà Lạt Xanh 2026", "type": "road", "region": "vn-trung", "country": "VN",
+      "city": "Đà Lạt, Lâm Đồng", "venue": null, "startDate": "2026-11-22", "endDate": null, "raceDay": "2026-11-22",
+      "distances": [1.5, 5, 10, 21], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 200000, "priceTo": null, "currency": "VND", "organizer": null,
+      "website": "https://irace.vn/su-kien/quoc-te-vi-da-lat-xanh/", "registerUrl": "https://actiup.net/vi/event/2026-international-run-for-a-green-da-lat",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giờ chạy 05:00-12:00 ngày 22/11. Vé từ 200.000đ.",
+      "source": "https://irace.vn/su-kien/quoc-te-vi-da-lat-xanh/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "halong-bay-heritage-marathon-2026", "name": "Halong Bay Heritage Marathon 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hạ Long, Quảng Ninh", "venue": null, "startDate": "2026-11-20", "endDate": "2026-11-22", "raceDay": "2026-11-22",
+      "distances": [2, 5, 10, 21, 42], "format": null, "elevation": null, "tags": ["World Athletics Label", "AIMS"],
+      "priceFrom": 1000000, "priceTo": 2375000, "currency": "VND", "organizer": "Halong Bay Heritage Marathon Org.",
+      "website": "https://halongmarathon.com", "registerUrl": "https://paymenthalong.vietnamheritagemarathon.com/",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá giai đoạn Late (01/09 - 15/10): 5K 1.000.000đ, 10K 1.375.000đ, 21K 2.000.000đ, 42K 2.375.000đ. Có fun run 2K.",
+      "source": "https://halongmarathon.com", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "yen-tu-heritage-marathon-2026", "name": "Yên Tử Heritage Marathon 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Yên Tử, Quảng Ninh", "venue": null, "startDate": "2026-11-28", "endDate": "2026-11-29", "raceDay": null,
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 589000, "priceTo": 1119000, "currency": "VND", "organizer": "iRace",
+      "website": "https://ticket.irace.vn/yen-tu-heritage-marathon-2026", "registerUrl": "https://ticket.irace.vn/yen-tu-heritage-marathon-2026",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá giai đoạn Late: 5K 589.000đ, 10K 749.000đ, 21K 929.000đ, 42K 1.119.000đ; Kid 419.000đ.",
+      "source": "https://ticket.irace.vn/yen-tu-heritage-marathon-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vung-tau-city-trail-2026", "name": "Vung Tau City Trail 2026", "type": "trail", "region": "vn-nam", "country": "VN",
+      "city": "Vũng Tàu", "venue": "Núi Lớn", "startDate": "2026-11-29", "endDate": null, "raceDay": "2026-11-29",
+      "distances": [7, 12, 25, 35], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 550000, "priceTo": 850000, "currency": "VND", "organizer": "iRace",
+      "website": "https://ticket.irace.vn/vung-tau-city-trail-2026", "registerUrl": "https://ticket.irace.vn/vung-tau-city-trail-2026",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá early bird 550.000đ (7K) đến 850.000đ (35K). Hạn đổi cự ly/thông tin 15/11.",
+      "source": "https://ticket.irace.vn/vung-tau-city-trail-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vnexpress-hanoi-midnight-2026", "name": "VnExpress Marathon Hanoi Midnight 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hà Nội", "venue": null, "startDate": "2026-11-29", "endDate": null, "raceDay": "2026-11-29",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 420000, "priceTo": 1350000, "currency": "VND", "organizer": "VnExpress, FPT Online",
+      "website": "https://vm.vnexpress.net/ha-noi-2026", "registerUrl": "https://vm.vnexpress.net/ha-noi-2026/dang-ky-ca-nhan",
+      "regStatus": "open", "regOpens": "2026-09-04", "regCloses": "2026-11-19", "bibPickup": null,
+      "note": "Giai đoạn: Early Bird 25/09-15/10, Regular 16/10-06/11, Late 07-19/11. Giá 5K 420.000-790.000đ; 42K 780.000-1.350.000đ.",
+      "source": "https://vm.vnexpress.net/ha-noi-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "ultra-trail-cao-bang-2026", "name": "Ultra Trail Cao Bằng 2026", "type": "trail", "region": "vn-bac", "country": "VN",
+      "city": "Cao Bằng", "venue": null, "startDate": "2026-11-29", "endDate": null, "raceDay": "2026-11-29",
+      "distances": [10, 25, 42, 70, 100, 160], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Race Jungle (Đường Đua Mới JSC)",
+      "website": "https://racejungle.com", "registerUrl": "https://dangky.bestmarathon.vn",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Mùa thứ 5. Cần mở trang Race Jungle để xem giá và hạn đăng ký.",
+      "source": "https://bestmarathon.vn/race-info/ultra-trail-cao-bang-2026/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "techcombank-hcmc-2026", "name": "Techcombank Ho Chi Minh City International Marathon 2026", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "TP. Hồ Chí Minh", "venue": "Lê Duẩn - Nguyễn Bỉnh Khiêm, Quận 1", "startDate": "2026-12-06", "endDate": null, "raceDay": "2026-12-06",
+      "distances": [1.5, 3, 5, 10, 21.1, 42.2], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Sunrise Events Vietnam",
+      "website": "https://marathonhcmc.com/en/", "registerUrl": "https://marathonhcmc.com/en/",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Mùa thứ 9. Trang giải ghi đăng ký đã mở qua in.njuko.com. Phân biệt với HCMC Marathon (Pulse Active) ngày 17/01/2027.",
+      "source": "https://marathonhcmc.com/en/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "dinh-lap-eco-trail-2026", "name": "Dinh Lap Eco-Trail 2026", "type": "trail", "region": "vn-bac", "country": "VN",
+      "city": "Đình Lập, Lạng Sơn", "venue": null, "startDate": "2026-12-06", "endDate": null, "raceDay": "2026-12-06",
+      "distances": [8, 13, 20], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": null,
+      "website": "https://www.finishers.com/en/destinations/asia/vietnam", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chỉ có từ một trang tổng hợp; chưa tìm được trang chính thức.",
+      "source": "https://www.finishers.com/en/destinations/asia/vietnam", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "prenn-trail-summit-2026", "name": "Prenn Trail Summit 2026", "type": "trail", "region": "vn-trung", "country": "VN",
+      "city": "Đà Lạt, Lâm Đồng", "venue": null, "startDate": "2026-12-13", "endDate": null, "raceDay": "2026-12-13",
+      "distances": [3, 10, 25, 55, 103, 187, 250], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Unique Events & Media (URS), Sở VHTTDL Lâm Đồng",
+      "website": "https://prenntrailchallenge.vn", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Ngày lấy từ trang bestmarathon.vn; chưa mở được trang chính thức để đối chiếu.",
+      "source": "https://bestmarathon.vn/race-info/prenn-trail-summit-2026/", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "can-tho-heritage-marathon-2026", "name": "Marathon Quốc tế Di sản Cần Thơ 2026", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "Cần Thơ", "venue": "Công viên Sông Hậu", "startDate": "2026-12-20", "endDate": null, "raceDay": "2026-12-20",
+      "distances": [5, 10, 21], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": 450000, "priceTo": 650000, "currency": "VND", "organizer": "DHA Vietnam",
+      "website": "https://canthomarathon.com/ngay-chay-chinh-thuc-giai-marathon-quoc-te-di-san-can-tho-2026-20-12-2026/", "registerUrl": "https://ticket.irace.vn/marathon-quoc-te-di-san-can-tho-2026",
+      "regStatus": "open", "regOpens": null, "regCloses": "2026-11-15", "bibPickup": null,
+      "note": "Giá Early Bird (07/09-15/10): 5K 450.000đ, 10K 550.000đ, 21K 650.000đ. Giai đoạn Late đến 15/11. Xuất phát 05:00.",
+      "source": "https://canthomarathon.com/ngay-chay-chinh-thuc-giai-marathon-quoc-te-di-san-can-tho-2026-20-12-2026/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "cuc-phuong-jungle-paths-2026", "name": "Cuc Phuong Jungle Paths 2026", "type": "trail", "region": "vn-bac", "country": "VN",
+      "city": "Vườn quốc gia Cúc Phương", "venue": "Ninh Bình - Thanh Hóa - Phú Thọ", "startDate": "2026-12-26", "endDate": "2026-12-27", "raceDay": null,
+      "distances": [10, 25, 42, 75, 100], "format": null, "elevation": null, "tags": ["Asia Trail Master"],
+      "priceFrom": 1232000, "priceTo": 3960000, "currency": "VND", "organizer": "Race Jungle",
+      "website": "https://racejungle.com/products/cuc-phuong-jungle-paths-2026", "registerUrl": "https://racejungle.com/products/cuc-phuong-jungle-paths-2026",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá đang giảm 12% trên trang: 10K 1.232.000đ, 100K 3.960.000đ. Giải đã dời sang cuối tháng 12/2026. Độ cao ước tính trên trang: 10K ~200m, 25K ~700m, 42K ~1.200m, 75K ~2.500m, 100K ~3.500m.",
+      "source": "https://racejungle.com/products/cuc-phuong-jungle-paths-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vnexpress-hai-phong-2026", "name": "VnExpress Marathon Hải Phòng 2026", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Hải Phòng", "venue": null, "startDate": "2026-12-27", "endDate": null, "raceDay": "2026-12-27",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 400000, "priceTo": 1600000, "currency": "VND", "organizer": "VnExpress, FPT Online",
+      "website": "https://vm.vnexpress.net/hai-phong-2026", "registerUrl": "https://vm.vnexpress.net/hai-phong-2026/dang-ky-ca-nhan",
+      "regStatus": "open", "regOpens": "2026-08-28", "regCloses": "2026-12-16", "bibPickup": null,
+      "note": "Super Early Bird đến 08/10, Early Bird 09-28/10, Regular 29/10-02/12, Late 03-16/12. Giá 5K 400.000-850.000đ; 42K 880.000-1.600.000đ.",
+      "source": "https://vm.vnexpress.net/hai-phong-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vietnam-highlands-trail-utmb-2027", "name": "Vietnam Highlands Trail by UTMB 2027", "type": "trail", "region": "vn-trung", "country": "VN",
+      "city": "Đà Lạt, Lâm Đồng", "venue": "Langbiang, Bidoup, Pinhatt, Elephant Mountain", "startDate": "2027-01-08", "endDate": "2027-01-10", "raceDay": "2027-01-09",
+      "distances": [5, 10, 20, 50, 100], "format": null, "elevation": null, "tags": ["UTMB World Series"],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "UTMB World Series",
+      "website": "https://vietnamhighlands.utmb.world/", "registerUrl": "https://vietnamhighlands.utmb.world/",
+      "regStatus": "open", "regOpens": "2026-06-04", "regCloses": null, "bibPickup": null,
+      "note": "100K LangBiang (104,2 km), 50K Elephant (56,4 km, đã đóng đăng ký), 20K Pinhatt (24,1 km), 10K Tuyen Lam (11,3 km). Độ cao và điểm UTMB: xem trang giải.",
+      "source": "https://vietnamhighlands.utmb.world/overview", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vietnam-trail-marathon-2027", "name": "Vietnam Trail Marathon 2027", "type": "trail", "region": "vn-bac", "country": "VN",
+      "city": "Mộc Châu, Sơn La", "venue": null, "startDate": "2027-01-16", "endDate": null, "raceDay": "2027-01-16",
+      "distances": [5, 10, 21, 50, 70], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Vietnam Trail Series (Topas Travel)",
+      "website": "https://vietnamtrailseries.com/trail-marathon/", "registerUrl": "https://vietnamtrailseries.com/trail-marathon/vtm-book-now/",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Mở đăng ký cá nhân và nhóm từ 2 người; bảng phí trên trang giải.",
+      "source": "https://vietnamtrailseries.com/trail-marathon/vtm-book-now/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "hcmc-marathon-2027", "name": "HCMC Marathon 2027", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "TP. Hồ Chí Minh", "venue": "Công viên 30/4, đường Lê Duẩn", "startDate": "2027-01-17", "endDate": null, "raceDay": "2027-01-17",
+      "distances": [10, 21.1, 42.2], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "Pulse Active",
+      "website": "https://hcmcmarathon.com/", "registerUrl": "https://hcmcmarathon.com/register/",
+      "regStatus": "soon", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Mùa thứ 14. Xuất phát 03:00. Trang giải ghi sắp cập nhật thông tin đăng ký. Khác với Techcombank HCMC International Marathon (06/12/2026).",
+      "source": "https://hcmcmarathon.com/race-info/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "dat-thep-city-trail-2027", "name": "Đất Thép City Trail 2027", "type": "trail", "region": "vn-nam", "country": "VN",
+      "city": "TP. Hồ Chí Minh", "venue": "Trung tâm phục vụ hành chính công xã Tân An Hội", "startDate": "2027-01-23", "endDate": "2027-01-24", "raceDay": null,
+      "distances": [7, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 550000, "priceTo": 900000, "currency": "VND", "organizer": "iRace",
+      "website": "https://ticket.irace.vn/dat-thep-city-trail-2027", "registerUrl": "https://ticket.irace.vn/dat-thep-city-trail-2027",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá early bird đến 31/10: 7K 550.000đ, 10K 650.000đ, 21K 750.000đ, 42K 900.000đ. Phí không hoàn trong mọi trường hợp.",
+      "source": "https://ticket.irace.vn/dat-thep-city-trail-2027", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "mang-den-lala-trail-2027", "name": "Măng Đen LaLa Trail 2027", "type": "trail", "region": "vn-trung", "country": "VN",
+      "city": "Măng Đen, Quảng Ngãi", "venue": null, "startDate": "2027-03-05", "endDate": "2027-03-07", "raceDay": null,
+      "distances": [5, 10, 25, 50], "format": null, "elevation": null, "tags": [],
+      "priceFrom": 568000, "priceTo": 1368000, "currency": "VND", "organizer": "iRace",
+      "website": "https://ticket.irace.vn/mang-den-lala-trail-2027", "registerUrl": "https://ticket.irace.vn/mang-den-lala-trail-2027",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giá ưu tiên: 5K 568.000đ, 10K 768.000đ, 25K 968.000đ, 50K 1.068.000đ (cut-off 9 giờ) hoặc 1.368.000đ (cut-off 15 giờ). Đổi thông tin đến 15/02/2027.",
+      "source": "https://ticket.irace.vn/mang-den-lala-trail-2027", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "da-nang-international-marathon-2027", "name": "Da Nang International Marathon 2027", "type": "road", "region": "vn-trung", "country": "VN",
+      "city": "Đà Nẵng", "venue": "Công viên Biển Đông", "startDate": "2027-03-21", "endDate": null, "raceDay": "2027-03-21",
+      "distances": [5, 21.1, 42.2], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": null,
+      "website": "https://www.ahotu.com/event/danang-international-marathon", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Thông tin từ trang tổng hợp (ahotu, Finishers); chưa tìm được trang chính thức.",
+      "source": "https://www.ahotu.com/event/danang-international-marathon", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vietnam-festrival-5-2027", "name": "Vietnam FesTRIval 5 (2027)", "type": "tri", "region": "vn-trung", "country": "VN",
+      "city": "Bàu Trắng, Lâm Đồng", "venue": null, "startDate": "2027-03-21", "endDate": null, "raceDay": "2027-03-21",
+      "distances": [], "format": "70.3", "elevation": null, "tags": [],
+      "priceFrom": 3130000, "priceTo": null, "currency": "VND", "organizer": null,
+      "website": "https://irace.vn/su-kien/vietnam-festrival/", "registerUrl": "https://irace.vn/su-kien/vietnam-festrival/",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Ba cự ly: Sprint, 56.5 (nửa 70.3) và 70.3. Vé từ 3.130.000đ theo Ticket.iRace.",
+      "source": "https://irace.vn/su-kien/vietnam-festrival/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "tien-phong-marathon-2027", "name": "Tiền Phong Marathon 2027 - Giải Vô địch Quốc gia Marathon và cự ly dài", "type": "road", "region": "vn-bac", "country": "VN",
+      "city": "Bắc Ninh", "venue": "Quảng trường 3/2, phường Bắc Giang", "startDate": "2027-03-20", "endDate": "2027-03-21", "raceDay": "2027-03-21",
+      "distances": [], "format": null, "elevation": null, "tags": ["Vô địch Quốc gia"],
+      "priceFrom": null, "priceTo": null, "currency": "VND", "organizer": "Báo Tiền Phong",
+      "website": "https://tienphong.vn/bac-ninh-chuan-bi-chuoi-su-kien-lon-cho-tien-phong-marathon-2027-post1845401.tpo", "registerUrl": null,
+      "regStatus": "soon", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Giải thứ 68, dự kiến hơn 12.000 vận động viên. Đăng ký dự kiến qua iRace, chưa mở. Cự ly chưa công bố trong nguồn đã đọc.",
+      "source": "https://tienphong.vn/bac-ninh-chuan-bi-chuoi-su-kien-lon-cho-tien-phong-marathon-2027-post1845401.tpo", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "aqua-warriors-ha-long-2027", "name": "Aqua Warriors Halong Bay 2027", "type": "tri", "region": "vn-bac", "country": "VN",
+      "city": "Hạ Long, Quảng Ninh", "venue": null, "startDate": "2027-04-03", "endDate": "2027-04-04", "raceDay": null,
+      "distances": [], "format": "multi", "elevation": null, "tags": [],
+      "priceFrom": 529000, "priceTo": 4869000, "currency": "VND", "organizer": "iRace",
+      "website": "https://ticket.irace.vn/aqua-warriors-halong-bay-2027", "registerUrl": "https://ticket.irace.vn/aqua-warriors-halong-bay-2027",
+      "regStatus": "open", "regOpens": "2026-09-29", "regCloses": null, "bibPickup": null,
+      "note": "Duathlon (chạy 10K, đạp 40K, chạy 5K), Triathlon Olympic, T103 Enduro, Aquathlon, các hạng thiếu nhi. Super Early Bird 29/09-29/10.",
+      "source": "https://ticket.irace.vn/aqua-warriors-halong-bay-2027", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "ironman-703-vietnam-2027", "name": "IRONMAN 70.3 Vietnam (Đà Nẵng) 2027", "type": "tri", "region": "vn-trung", "country": "VN",
+      "city": "Đà Nẵng", "venue": null, "startDate": "2027-05-09", "endDate": null, "raceDay": "2027-05-09",
+      "distances": [], "format": "70.3", "elevation": null, "tags": ["IRONMAN"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "IRONMAN",
+      "website": "https://www.ironman.com/im703-vietnam", "registerUrl": "https://www.ironman.com/im703-vietnam",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Bơi 1,9 km, đạp 90 km, chạy 21,1 km. Trang Finishers ghi đầu tháng 5/2027; ngày 09/05 từ kết quả tìm kiếm, chưa mở được trang IRONMAN để đối chiếu.",
+      "source": "https://www.finishers.com/en/event/ironman-70-3-vietnam", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vmm-2026", "name": "Vietnam Mountain Marathon 2026", "type": "trail", "region": "vn-bac", "country": "VN",
+      "city": "Sa Pa, Lào Cai", "venue": null, "startDate": "2026-09-17", "endDate": "2026-09-20", "raceDay": null,
+      "distances": [10, 21, 50, 70, 100, 161], "format": null, "elevation": null, "tags": ["UTMB Index"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "Vietnam Trail Series (Topas Travel)",
+      "website": "https://vietnamtrailseries.com/mountain-marathon/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Đã diễn ra (lịch sử). Mùa 2027: trang Finishers ghi tháng 9/2027, chưa có ngày chính thức.",
+      "source": "https://news.laodong.vn/the-thao/gan-5500-van-dong-vien-tu-54-quoc-gia-doi-mua-chinh-phuc-nui-sa-pa-1769026.ldo", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vnexpress-grand-tour-nghe-an-2026", "name": "VnExpress Marathon Grand Tour Nghệ An 2026", "type": "road", "region": "vn-trung", "country": "VN",
+      "city": "Vinh, Nghệ An", "venue": null, "startDate": "2026-09-27", "endDate": null, "raceDay": "2026-09-27",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "VnExpress, FPT Online",
+      "website": "https://vm.vnexpress.net/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Đã diễn ra (lịch sử).",
+      "source": "https://vm.vnexpress.net/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vnexpress-vung-tau-2026", "name": "VnExpress Vung Tau International Half Marathon Herbalife Cup 2026", "type": "road", "region": "vn-nam", "country": "VN",
+      "city": "Vũng Tàu", "venue": null, "startDate": "2026-08-30", "endDate": null, "raceDay": "2026-08-30",
+      "distances": [5, 10, 21], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "VnExpress, FPT Online",
+      "website": "https://vm.vnexpress.net/vung-tau-2026", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Đã diễn ra (lịch sử).",
+      "source": "https://vm.vnexpress.net/vung-tau-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "vnexpress-nha-trang-2026", "name": "VnExpress Marathon Nha Trang 2026", "type": "road", "region": "vn-trung", "country": "VN",
+      "city": "Nha Trang", "venue": null, "startDate": "2026-08-09", "endDate": null, "raceDay": "2026-08-09",
+      "distances": [5, 10, 21, 42], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "VnExpress, FPT Online",
+      "website": "https://vm.vnexpress.net/nha-trang-2026", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Đã diễn ra (lịch sử).",
+      "source": "https://vm.vnexpress.net/nha-trang-2026", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "chicago-marathon-2026", "name": "Bank of America Chicago Marathon 2026", "type": "road", "region": "world", "country": "US",
+      "city": "Chicago, Hoa Kỳ", "venue": null, "startDate": "2026-10-11", "endDate": null, "raceDay": "2026-10-11",
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["World Marathon Majors"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "Chicago Marathon",
+      "website": "https://www.chicagomarathon.com/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Bản 2027 diễn ra Chủ nhật 10/10/2027 (ngày đăng ký xem trang giải).",
+      "source": "https://www.chicagomarathon.com/about/future-event-dates/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "ironman-world-championship-kona-2026", "name": "IRONMAN World Championship 2026 (Kona)", "type": "tri", "region": "world", "country": "US",
+      "city": "Kailua-Kona, Hawaii, Hoa Kỳ", "venue": null, "startDate": "2026-10-10", "endDate": null, "raceDay": "2026-10-10",
+      "distances": [], "format": "full", "elevation": null, "tags": ["IRONMAN"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "IRONMAN",
+      "website": "https://www.ironman.com/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Vô địch thế giới IRONMAN, chỉ vận động viên đủ điều kiện. Phát sóng trực tiếp trên YouTube, DAZN và ironman.com.",
+      "source": "https://www.triathlete.com/culture/news/ironman-world-championship-kona-2026-start-lists-how-to-watch/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "nyc-marathon-2026", "name": "TCS New York City Marathon 2026", "type": "road", "region": "world", "country": "US",
+      "city": "New York, Hoa Kỳ", "venue": null, "startDate": "2026-11-01", "endDate": null, "raceDay": "2026-11-01",
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["World Marathon Majors"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "New York Road Runners",
+      "website": "https://www.tcsnycmarathon.org/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Kỷ niệm 50 năm cung đường năm quận.",
+      "source": "https://www.worldmarathonmajors.com/races", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "bangkok-marathon-2026", "name": "Bangkok Marathon 2026", "type": "road", "region": "sea", "country": "TH",
+      "city": "Bangkok, Thái Lan", "venue": "Đường Sanamchai", "startDate": "2026-11-08", "endDate": null, "raceDay": "2026-11-08",
+      "distances": [5, 10, 21.1, 42.2], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://www.timeout.com/bangkok/news/bangkok-marathon-051326", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": "2026-06-01", "regCloses": null, "bibPickup": null,
+      "note": "Chạy đêm: marathon xuất phát 00:00, half 03:00. Đăng ký mở từ tháng 6/2026 qua bkkmarathon.com (theo Time Out).",
+      "source": "https://www.timeout.com/bangkok/news/bangkok-marathon-051326", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "ironman-malaysia-langkawi-2026", "name": "IRONMAN Malaysia (Langkawi) 2026", "type": "tri", "region": "sea", "country": "MY",
+      "city": "Langkawi, Malaysia", "venue": null, "startDate": "2026-11-21", "endDate": null, "raceDay": "2026-11-21",
+      "distances": [], "format": "full", "elevation": null, "tags": ["IRONMAN"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "IRONMAN",
+      "website": "https://www.finishers.com/en/event/ironman-malaysia", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Bơi 3,8 km, đạp 180 km, chạy 42,195 km.",
+      "source": "https://www.finishers.com/en/event/ironman-malaysia", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "amazing-thailand-marathon-bangkok-2026", "name": "Amazing Thailand Marathon Bangkok 2026", "type": "road", "region": "sea", "country": "TH",
+      "city": "Bangkok, Thái Lan", "venue": null, "startDate": "2026-11-29", "endDate": null, "raceDay": "2026-11-29",
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://aims-worldrunning.org/races/10342.html", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Ngày 29/11/2026 chỉ có từ một kết quả tìm kiếm, cần kiểm chứng.",
+      "source": "https://aims-worldrunning.org/races/10342.html", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "chiang-mai-utmb-2026", "name": "HOKA Chiang Mai Thailand by UTMB 2026", "type": "trail", "region": "sea", "country": "TH",
+      "city": "Chiang Mai, Thái Lan", "venue": "Doi Inthanon, Chiang Dao, PAO Park", "startDate": "2026-11-27", "endDate": "2026-12-06", "raceDay": null,
+      "distances": [20, 50, 100, 160], "format": null, "elevation": null, "tags": ["UTMB World Series"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "UTMB World Series",
+      "website": "https://chiangmai.utmb.world/races", "registerUrl": "https://chiangmai.utmb.world/races-runners/runners/registration",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Các cự ly: Pagoda 50, Inthanon 20, Elephant 100, Chiang Dao 160, Hmong 50, Suthep 20, Chedi 20. Ngày xuất phát từng cự ly xem trang giải.",
+      "source": "https://chiangmai.utmb.world/races", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "ironman-western-australia-2026", "name": "IRONMAN Western Australia 2026", "type": "tri", "region": "world", "country": "AU",
+      "city": "Busselton, Úc", "venue": "Busselton Jetty", "startDate": "2026-11-25", "endDate": "2026-12-06", "raceDay": "2026-12-06",
+      "distances": [], "format": "full", "elevation": null, "tags": ["IRONMAN"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "IRONMAN",
+      "website": "https://www.triathlon.org.au/events/2026-ironman-western-australia-ironman-70-3-western-australia-ironkids/", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chuỗi sự kiện 25/11 - 06/12; IRONMAN Western Australia (bơi 3,8 km, đạp 180 km, chạy 42,2 km) vào 06/12 theo trang tổng hợp, kèm IRONMAN 70.3 và IRONKIDS.",
+      "source": "https://www.triathlon.org.au/events/2026-ironman-western-australia-ironman-70-3-western-australia-ironkids/", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "taipei-marathon-2026", "name": "Taipei Marathon 2026", "type": "road", "region": "asia", "country": "TW",
+      "city": "Đài Bắc, Đài Loan", "venue": null, "startDate": "2026-12-20", "endDate": null, "raceDay": "2026-12-20",
+      "distances": [42.2], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://www.travel.taipei/en/event-calendar/details/66771", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chưa mở được trang chính thức để đối chiếu.",
+      "source": "https://www.travel.taipei/en/event-calendar/details/66771", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "hong-kong-marathon-2027", "name": "Standard Chartered Hong Kong Marathon 2027", "type": "road", "region": "asia", "country": "HK",
+      "city": "Hồng Kông", "venue": null, "startDate": "2027-01-17", "endDate": null, "raceDay": "2027-01-17",
+      "distances": [10, 21.1, 42.2], "format": null, "elevation": null, "tags": ["AIMS"],
+      "priceFrom": 600, "priceTo": null, "currency": "HKD", "organizer": "Hong Kong Amateur Athletic Association",
+      "website": "https://www.hkmarathon.com/race-information", "registerUrl": "https://www.hkmarathon.com/race-information",
+      "regStatus": "closed", "regOpens": "2026-09-11", "regCloses": "2026-09-20", "bibPickup": null,
+      "note": "Phí 600 HKD (cư dân HK) hoặc 90 USD (người nước ngoài). Đợt bốc thăm đã đóng 20/09; ban tổ chức đã thêm 4.000 suất half marathon, xem trang giải.",
+      "source": "https://www.hkmarathon.com/race-information", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "anta-hong-kong-100-2027", "name": "Anta Guanjun Hong Kong 100 Ultra Marathon 2027", "type": "trail", "region": "asia", "country": "HK",
+      "city": "Hồng Kông", "venue": null, "startDate": "2027-01-21", "endDate": "2027-01-23", "raceDay": null,
+      "distances": [100], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://raceresults.com.hk/event/476", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chỉ có từ trang kết quả của đơn vị bấm giờ; cần kiểm chứng.",
+      "source": "https://raceresults.com.hk/event/476", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "osaka-marathon-2027", "name": "Osaka Marathon 2027", "type": "road", "region": "asia", "country": "JP",
+      "city": "Osaka, Nhật Bản", "venue": null, "startDate": "2027-02-28", "endDate": null, "raceDay": "2027-02-28",
+      "distances": [42.2], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://rundida.com/marathon/osaka/", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chỉ có từ trang tổng hợp; cần kiểm chứng.",
+      "source": "https://rundida.com/marathon/osaka/", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "tokyo-marathon-2027", "name": "Tokyo Marathon 2027", "type": "road", "region": "asia", "country": "JP",
+      "city": "Tokyo, Nhật Bản", "venue": null, "startDate": "2027-03-07", "endDate": null, "raceDay": "2027-03-07",
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["World Marathon Majors"],
+      "priceFrom": 230, "priceTo": null, "currency": "USD", "organizer": "Tokyo Marathon Foundation",
+      "website": "https://www.marathon.tokyo/en/", "registerUrl": "https://www.marathon.tokyo/en/",
+      "regStatus": "closed", "regOpens": "2026-06-24", "regCloses": "2026-08-13", "bibPickup": { "start": "2027-03-04", "end": "2027-03-06" },
+      "note": "Kỷ niệm 20 năm, 40.000 vận động viên. Phí 19.800 JPY (cư dân Nhật) hoặc 230 USD (nước ngoài). Đợt đăng ký chung kết thúc 13/08/2026. Expo và nhận BIB 04-06/03.",
+      "source": "https://www.marathon.tokyo/en/media/press-release/pdf/9f6bae5d079bc34a72e854e6ceaf2f1870649a39.pdf", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "north-face-100-hong-kong-2027", "name": "The North Face 100 Hong Kong 2027", "type": "trail", "region": "asia", "country": "HK",
+      "city": "Hồng Kông", "venue": null, "startDate": "2027-03-19", "endDate": "2027-03-21", "raceDay": null,
+      "distances": [], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://raceresults.com.hk/event/482", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chỉ có từ trang kết quả của đơn vị bấm giờ; cự ly chưa rõ; cần kiểm chứng.",
+      "source": "https://raceresults.com.hk/event/482", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "seoul-marathon-2027", "name": "Seoul Marathon 2027", "type": "road", "region": "asia", "country": "KR",
+      "city": "Seoul, Hàn Quốc", "venue": null, "startDate": "2027-03-21", "endDate": null, "raceDay": "2027-03-21",
+      "distances": [42.2], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://www.ahotu.com/event/seoul-marathon", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chỉ có từ trang tổng hợp (ahotu, rundida); cần kiểm chứng.",
+      "source": "https://www.ahotu.com/event/seoul-marathon", "verified": false, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "boston-marathon-2027", "name": "Boston Marathon 2027", "type": "road", "region": "world", "country": "US",
+      "city": "Boston, Hoa Kỳ", "venue": null, "startDate": "2027-04-19", "endDate": null, "raceDay": "2027-04-19",
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["World Marathon Majors"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "Boston Athletic Association",
+      "website": "https://www.baa.org/", "registerUrl": "https://www.baa.org/",
+      "regStatus": "closed", "regOpens": "2026-09-14", "regCloses": "2026-09-18", "bibPickup": null,
+      "note": "Đăng ký của vận động viên đạt chuẩn 14-18/09/2026. Chỉ chạy theo chuẩn thành tích hoặc từ thiện.",
+      "source": "https://www.baa.org/news/registration-updates-and-information-announced-for-2027-boston-marathon-presented-by-bank-of-america/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "london-marathon-2027", "name": "TCS London Marathon 2027 (hai ngày)", "type": "road", "region": "world", "country": "GB",
+      "city": "London, Anh", "venue": "Greenwich - Westminster", "startDate": "2027-04-24", "endDate": "2027-04-25", "raceDay": null,
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["World Marathon Majors"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "London Marathon Events",
+      "website": "https://www.londonmarathonevents.co.uk/london-marathon", "registerUrl": null,
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Bản đặc biệt một lần: chạy 2 ngày 24-25/04/2027 với 100.000 người; ngày 24 là elite nam, ngày 25 là elite nữ.",
+      "source": "https://www.skysports.com/more-sports/athletics/news/13593689/london-marathon-2027-dates-confirmed-as-rock-paper-scissors-contest-between-past-champions-decides-event-schedule", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "mt-fuji-100-2027", "name": "Mt. FUJI 100 2027 (UTMB World Series)", "type": "trail", "region": "asia", "country": "JP",
+      "city": "Chân núi Phú Sĩ, Nhật Bản", "venue": null, "startDate": "2027-04-23", "endDate": "2027-04-25", "raceDay": null,
+      "distances": [], "format": null, "elevation": null, "tags": ["UTMB World Series"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://en.mtfuji100.com/", "registerUrl": "https://en.mtfuji100.com/",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Lần thứ 15. Cự ly 2027 chưa thấy rõ trên trang đã đọc.",
+      "source": "https://en.mtfuji100.com/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "utmb-mont-blanc-2027", "name": "HOKA UTMB Mont-Blanc 2027", "type": "trail", "region": "world", "country": "FR",
+      "city": "Chamonix, Pháp", "venue": null, "startDate": "2027-08-24", "endDate": "2027-08-30", "raceDay": null,
+      "distances": [15, 40, 60, 108, 145, 174, 300], "format": null, "elevation": 9700, "tags": ["UTMB World Series", "Finals"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "UTMB Group",
+      "website": "https://montblanc.utmb.world/", "registerUrl": "https://montblanc.utmb.world/raceselection",
+      "regStatus": "unknown", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Chung kết UTMB World Series. UTMB 174 km, 9.700 m D+; CCC 108 km, 6.200 m; OCC 60 km, 3.500 m; TDS 145 km, 9.500 m; MCC 40 km; ETC/YCC 15 km; PTL 300 km. Độ cao ghi ở ô này là của cự ly UTMB.",
+      "source": "https://montblanc.utmb.world/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "sydney-marathon-2027", "name": "TCS Sydney Marathon 2027", "type": "road", "region": "world", "country": "AU",
+      "city": "Sydney, Úc", "venue": "North Sydney - Nhà hát Opera", "startDate": "2027-08-29", "endDate": null, "raceDay": "2027-08-29",
+      "distances": [42.2], "format": null, "elevation": 313, "tags": ["World Marathon Majors"],
+      "priceFrom": 285, "priceTo": 340, "currency": "AUD", "organizer": "TCS Sydney Marathon",
+      "website": "https://www.tcssydneymarathon.com/marathon", "registerUrl": "https://www.tcssydneymarathon.com/marathon",
+      "regStatus": "open", "regOpens": "2026-09-29", "regCloses": "2026-10-19", "bibPickup": null,
+      "note": "Bốc thăm miễn phí đăng ký 29/09 - 19/10/2026; chỉ thu phí nếu trúng: 285 AUD (Úc/NZ), 340 AUD (quốc tế), chưa gồm phụ phí. Cut-off 7 giờ.",
+      "source": "https://www.tcssydneymarathon.com/marathon", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "berlin-marathon-2027", "name": "Generali Berlin Marathon 2027", "type": "road", "region": "world", "country": "DE",
+      "city": "Berlin, Đức", "venue": null, "startDate": "2027-09-26", "endDate": null, "raceDay": "2027-09-26",
+      "distances": [42.2], "format": null, "elevation": null, "tags": ["World Marathon Majors"],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": "SCC Events",
+      "website": "https://www.bmw-berlin-marathon.com/en/", "registerUrl": "https://www.bmw-berlin-marathon.com/en/",
+      "regStatus": "open", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Đăng ký bốc thăm đã mở theo trang giải (trang ghi tên cũ BMW Berlin-Marathon).",
+      "source": "https://www.bmw-berlin-marathon.com/en/", "verified": true, "updatedAt": "2026-10-04"
+    },
+    {
+      "id": "kl-marathon-2026", "name": "Kuala Lumpur Standard Chartered Marathon 2026", "type": "road", "region": "sea", "country": "MY",
+      "city": "Kuala Lumpur, Malaysia", "venue": null, "startDate": "2026-10-03", "endDate": "2026-10-04", "raceDay": "2026-10-04",
+      "distances": [], "format": null, "elevation": null, "tags": [],
+      "priceFrom": null, "priceTo": null, "currency": null, "organizer": null,
+      "website": "https://www.kl-marathon.com/race-info/race-weekend-schedule/", "registerUrl": null,
+      "regStatus": "closed", "regOpens": null, "regCloses": null, "bibPickup": null,
+      "note": "Marathon xuất phát 03:30 sáng 04/10/2026 (lịch sử gần).",
+      "source": "https://www.ahotu.com/event/kuala-lumpur-standard-chartered-marathon", "verified": false, "updatedAt": "2026-10-04"
+    }
+  ]
+}

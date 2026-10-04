@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141210" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Lịch giải chạy bộ, trail, triathlon và Ironman: giải trong nước, khu vực và thế giới, có link đăng ký chính thức.">
+<title>9race — Lịch giải chạy</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="9race">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua tới nội dung</a>
+
+<header class="top">
+  <div class="top-row">
+    <a class="home" href="https://9app.tech/" aria-label="Về 9app">&#8249; 9app</a>
+    <a class="brand" href="#/" aria-label="9race, về trang lịch giải">9race</a>
+  </div>
+  <nav class="tabs" aria-label="Điều hướng chính">
+    <a href="#/" data-nav="list">Lịch giải</a>
+    <a href="#/mine" data-nav="mine">Giải của tôi <span class="count" id="mine-count" hidden></span></a>
+    <a href="#/about" data-nav="about">Về dữ liệu</a>
+  </nav>
+</header>
+
+<div id="update" class="banner" role="status" hidden>
+  <span>Có bản mới của 9race.</span>
+  <button type="button" id="update-btn" class="btn small">Tải lại</button>
+</div>
+
+<main id="main" tabindex="-1" aria-live="polite">
+  <p class="loading">Đang tải dữ liệu giải…</p>
+</main>
+
+<noscript><p class="loading">9race cần bật JavaScript để hiển thị lịch giải.</p></noscript>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<footer class="foot">
+  <p>Thông tin chỉ mang tính tham khảo. Hãy kiểm tra trang chính thức của giải trước khi đăng ký.</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
