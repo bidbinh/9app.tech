@@ -1,0 +1,20 @@
+{
+  "name": "9unit - Tiện ích hằng ngày",
+  "short_name": "9unit",
+  "description": "Máy tính nói tiếng Việt, đổi chỉ vàng và sào đất, ngày âm dương, vay lãi, chia tiền. Chạy trên máy, không thu thập dữ liệu.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f5fb",
+  "theme_color": "#5b5bd6",
+  "categories": ["utilities", "productivity", "finance"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
