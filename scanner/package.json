@@ -1,0 +1,12 @@
+{
+  "name": "9scanner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9scanner — quét tài liệu bằng camera, xử lý hoàn toàn trên máy.",
+  "scripts": {
+    "test": "node --test tests/",
+    "e2e": "node scripts/e2e.js",
+    "serve": "node scripts/serve.js"
+  }
+}

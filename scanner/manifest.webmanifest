@@ -1,0 +1,44 @@
+{
+  "name": "9scanner — Quét tài liệu trên máy bạn",
+  "short_name": "9scanner",
+  "description": "Quét giấy tờ bằng camera: tự cắt, nắn phẳng, lọc nền trắng, ghép PDF, đọc chữ tiếng Việt, ký tay. Xử lý hoàn toàn trên máy.",
+  "lang": "vi",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f5fb",
+  "theme_color": "#7c3aed",
+  "categories": [
+    "productivity",
+    "utilities",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
