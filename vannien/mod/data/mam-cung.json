@@ -1,0 +1,672 @@
+{
+  "meta": {
+    "version": 1,
+    "priceNote": "Đơn giá mặc định chỉ là mức tham khảo ước lệ để bạn có con số bắt đầu, không phải giá thị trường hiện tại. Giá thay đổi theo vùng, mùa và nơi mua. Bạn nên sửa đơn giá theo chợ nơi bạn mua; đơn giá bạn sửa được nhớ trên máy này.",
+    "disclaimer": "Danh sách mâm cúng mang tính tham khảo theo phong tục phổ biến. Tên món và số lượng khác nhau theo vùng miền và gia đình. Bạn có thể bớt hoặc thêm cho vừa với nhà mình.",
+    "groups": [
+      { "id": "thit-ca", "label": "Thịt, cá, trứng" },
+      { "id": "rau-cu", "label": "Rau củ, nấm" },
+      { "id": "do-kho", "label": "Gạo nếp, đồ khô" },
+      { "id": "gia-vi", "label": "Gia vị" },
+      { "id": "hoa-qua", "label": "Hoa quả" },
+      { "id": "do-uong", "label": "Rượu, nước, trà" },
+      { "id": "do-le", "label": "Hương hoa, đồ lễ" },
+      { "id": "vang-ma", "label": "Vàng mã, đồ hóa" }
+    ],
+    "catalog": {
+      "huong": { "name": "Hương (nhang), nến", "group": "do-le", "unit": "bộ", "price": 20000 },
+      "hoa": { "name": "Hoa tươi (cúc, huệ, sen...)", "group": "do-le", "unit": "bó", "price": 80000 },
+      "trau-cau": { "name": "Trầu cau", "group": "do-le", "unit": "bộ", "price": 20000 },
+      "banh-keo": { "name": "Bánh kẹo", "group": "do-le", "unit": "gói", "price": 50000 },
+      "che": { "name": "Chè hoặc bánh ngọt (chén nhỏ)", "group": "do-le", "unit": "chén", "price": 10000 },
+      "mut": { "name": "Mứt Tết", "group": "do-le", "unit": "kg", "price": 120000 },
+      "bong-gao": { "name": "Bỏng gạo", "group": "do-le", "unit": "gói", "price": 20000 },
+      "muoi-gao": { "name": "Muối, gạo (chén lễ)", "group": "do-le", "unit": "bộ", "price": 20000 },
+      "bo-do-boc": { "name": "Bộ đồ cho bé bốc (bút, sách, tiền mới, đồ chơi...)", "group": "do-le", "unit": "bộ", "price": 100000 },
+      "gao-muoi-nha-moi": { "name": "Gạo, muối, đường mang vào nhà mới", "group": "do-le", "unit": "bộ", "price": 50000 },
+      "dung-cu-ve-sinh": { "name": "Dụng cụ dọn mộ (chổi, liềm, găng tay, túi rác)", "group": "do-le", "unit": "bộ", "price": 80000 },
+      "ngu-qua": { "name": "Mâm ngũ quả (năm loại trái cây)", "group": "hoa-qua", "unit": "mâm", "price": 200000 },
+      "trai-cay": { "name": "Trái cây tươi", "group": "hoa-qua", "unit": "kg", "price": 50000 },
+      "dua-tuoi": { "name": "Dừa tươi (lấy nước kho thịt)", "group": "hoa-qua", "unit": "trái", "price": 25000 },
+      "ruou": { "name": "Rượu", "group": "do-uong", "unit": "chai", "price": 60000 },
+      "nuoc-tra": { "name": "Nước, trà", "group": "do-uong", "unit": "bộ", "price": 30000 },
+      "vang-ma": { "name": "Vàng mã", "group": "vang-ma", "unit": "bộ", "price": 50000 },
+      "mu-ao-tao-quan": { "name": "Bộ mũ áo Táo quân (hai mũ ông, một mũ bà)", "group": "vang-ma", "unit": "bộ", "price": 35000 },
+      "quan-ao-co-hon": { "name": "Quần áo giấy, tiền vàng cho cô hồn", "group": "vang-ma", "unit": "bộ", "price": 70000 },
+      "ao-mu": { "name": "Quần áo giấy cho các bà Mụ", "group": "vang-ma", "unit": "bộ", "price": 30000 },
+      "ga": { "name": "Gà ta luộc nguyên con", "group": "thit-ca", "unit": "con", "price": 250000 },
+      "heo-quay": { "name": "Heo quay", "group": "thit-ca", "unit": "kg", "price": 220000 },
+      "gio-lua": { "name": "Giò lụa", "group": "thit-ca", "unit": "kg", "price": 160000 },
+      "cha": { "name": "Chả (chả quế, chả rán)", "group": "thit-ca", "unit": "kg", "price": 150000 },
+      "nac-vai": { "name": "Thịt nạc vai (xay)", "group": "thit-ca", "unit": "kg", "price": 120000 },
+      "ba-chi": { "name": "Thịt ba chỉ", "group": "thit-ca", "unit": "kg", "price": 130000 },
+      "mong-gio": { "name": "Móng giò", "group": "thit-ca", "unit": "kg", "price": 110000 },
+      "trung-ga": { "name": "Trứng gà", "group": "thit-ca", "unit": "quả", "price": 3500 },
+      "trung-vit": { "name": "Trứng vịt", "group": "thit-ca", "unit": "quả", "price": 4000 },
+      "ca-chep": { "name": "Cá chép sống (thả sau khi cúng)", "group": "thit-ca", "unit": "con", "price": 30000 },
+      "gao-nep": { "name": "Gạo nếp", "group": "do-kho", "unit": "kg", "price": 40000 },
+      "gao-te": { "name": "Gạo tẻ", "group": "do-kho", "unit": "kg", "price": 25000 },
+      "mang-kho": { "name": "Măng khô", "group": "do-kho", "unit": "kg", "price": 250000 },
+      "mien": { "name": "Miến dong", "group": "do-kho", "unit": "kg", "price": 90000 },
+      "nam-mocnhi": { "name": "Nấm hương, mộc nhĩ khô", "group": "do-kho", "unit": "kg", "price": 350000 },
+      "banh-chung": { "name": "Bánh chưng", "group": "do-kho", "unit": "cái", "price": 100000 },
+      "banh-tet": { "name": "Bánh tét", "group": "do-kho", "unit": "đòn", "price": 120000 },
+      "gac": { "name": "Gấc (nấu xôi gấc)", "group": "rau-cu", "unit": "quả", "price": 40000 },
+      "rau-xao": { "name": "Rau củ xào, luộc (su su, bắp cải, cải...)", "group": "rau-cu", "unit": "kg", "price": 30000 },
+      "rau-thom": { "name": "Rau thơm, rau sống", "group": "rau-cu", "unit": "kg", "price": 40000 },
+      "cu-kieu": { "name": "Củ kiệu, dưa hành", "group": "rau-cu", "unit": "kg", "price": 60000 },
+      "dua-gia": { "name": "Dưa giá", "group": "rau-cu", "unit": "kg", "price": 40000 },
+      "kho-qua": { "name": "Khổ qua (mướp đắng)", "group": "rau-cu", "unit": "kg", "price": 40000 },
+      "ngo-khoai": { "name": "Ngô, khoai luộc", "group": "rau-cu", "unit": "kg", "price": 30000 },
+      "gia-vi": { "name": "Gia vị (nước mắm, hạt nêm, tiêu, hành, dầu ăn)", "group": "gia-vi", "unit": "bộ", "price": 60000 }
+    }
+  },
+  "items": [
+    {
+      "id": "mam-ram-mung-1",
+      "name": "Mâm cúng Rằm, mùng Một",
+      "short": "Mâm lễ gọn cho bàn thờ gia tiên mỗi tháng. Có thể cúng chay, hoặc thêm gà luộc nếu cúng mặn.",
+      "occasion": "Mùng Một và Rằm hằng tháng.",
+      "vanKhanId": "ram-mung-1",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "trai-cay", "qty": 1.5, "basis": "mam", "note": "Có thể thay bằng mâm ngũ quả" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "fixed", "note": "Hoặc thay bằng nước trong, trà" },
+        { "ref": "gao-nep", "qty": 0.3, "basis": "mam", "note": "Nấu xôi" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam", "defaultOff": true, "note": "Chỉ khi cúng mặn" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true, "note": "Tùy gia đình" }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": [
+        "Đồ cúng nên tươi, sạch; thông thường không nếm trước khi cúng.",
+        "Có nhà cúng chay vào mùng Một và Rằm; đó là thói quen phổ biến."
+      ]
+    },
+    {
+      "id": "mam-chay",
+      "name": "Mâm cúng chay, lễ chùa",
+      "short": "Lễ chay cho ngày Rằm, mùng Một hoặc khi đi chùa: hoa, quả, bánh chay.",
+      "occasion": "Rằm, mùng Một, lễ chùa, dịp Phật đản, Vu Lan.",
+      "vanKhanId": "le-chua",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "trai-cay", "qty": 2, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam", "note": "Chọn loại chay" },
+        { "ref": "gao-nep", "qty": 0.3, "basis": "mam", "note": "Xôi chay hoặc chè chay", "defaultOff": true },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" }
+      ],
+      "recipes": ["xoi-gac"],
+      "notes": [
+        "Lễ vật mang đến chùa nên là đồ chay, không mang thịt cá vào chính điện.",
+        "Bạn nên làm theo hướng dẫn của chùa về cách dâng lễ."
+      ]
+    },
+    {
+      "id": "co-gio",
+      "name": "Cỗ giỗ (miền Bắc)",
+      "short": "Mâm cỗ giỗ truyền thống: xôi, gà luộc, giò chả, canh măng, nem rán, rau xào. Tính theo số người và số mâm.",
+      "occasion": "Giỗ ông bà, cha mẹ, người thân.",
+      "vanKhanId": "gio",
+      "region": "bac",
+      "scale": { "people": true, "mam": true },
+      "peoplePerMam": 6,
+      "defaults": { "people": 12, "mam": 2 },
+      "ingredients": [
+        { "ref": "ga", "qty": 1, "basis": "mam", "note": "Một con cho mỗi mâm" },
+        { "ref": "gao-nep", "qty": 0.1, "basis": "person", "note": "Xôi" },
+        { "ref": "gao-te", "qty": 0.1, "basis": "person", "note": "Cơm" },
+        { "ref": "gio-lua", "qty": 0.3, "basis": "mam" },
+        { "ref": "cha", "qty": 0.3, "basis": "mam" },
+        { "ref": "nac-vai", "qty": 0.3, "basis": "mam", "note": "Làm nem rán, các món thịt" },
+        { "ref": "mong-gio", "qty": 0.5, "basis": "mam", "note": "Nấu canh măng" },
+        { "ref": "mang-kho", "qty": 0.1, "basis": "mam" },
+        { "ref": "trung-ga", "qty": 3, "basis": "mam" },
+        { "ref": "mien", "qty": 0.08, "basis": "mam", "note": "Nem rán, miến xào" },
+        { "ref": "nam-mocnhi", "qty": 0.03, "basis": "mam" },
+        { "ref": "rau-xao", "qty": 0.4, "basis": "mam" },
+        { "ref": "rau-thom", "qty": 0.15, "basis": "mam" },
+        { "ref": "gia-vi", "qty": 0.5, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "fixed" },
+        { "ref": "hoa", "qty": 1, "basis": "fixed" },
+        { "ref": "huong", "qty": 1, "basis": "fixed" },
+        { "ref": "trau-cau", "qty": 1, "basis": "fixed" },
+        { "ref": "ruou", "qty": 1, "basis": "fixed" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "fixed" },
+        { "ref": "vang-ma", "qty": 1, "basis": "fixed", "defaultOff": true, "note": "Tùy gia đình" }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac", "gio-lua", "nem-ran", "canh-mang-mong-gio"],
+      "notes": [
+        "Số lượng chỉ là gợi ý; nhà có truyền thống riêng nên theo món quen của dòng họ.",
+        "Gà cúng thường luộc nguyên con, đặt ngay ngắn; không dùng món đã ăn dở."
+      ]
+    },
+    {
+      "id": "cung-tet-bac",
+      "name": "Mâm cúng Tết, tất niên (miền Bắc)",
+      "short": "Bánh chưng, giò, nem, gà luộc, xôi gấc, canh măng, củ kiệu. Dùng cho tất niên, mùng Một.",
+      "occasion": "Tất niên, giao thừa, sáng mùng Một Tết.",
+      "vanKhanId": "tat-nien",
+      "region": "bac",
+      "scale": { "people": true, "mam": true },
+      "peoplePerMam": 6,
+      "defaults": { "people": 6, "mam": 1 },
+      "ingredients": [
+        { "ref": "banh-chung", "qty": 1, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "gio-lua", "qty": 0.3, "basis": "mam" },
+        { "ref": "cha", "qty": 0.3, "basis": "mam" },
+        { "ref": "nac-vai", "qty": 0.3, "basis": "mam", "note": "Làm nem rán" },
+        { "ref": "gao-nep", "qty": 0.5, "basis": "mam", "note": "Xôi gấc" },
+        { "ref": "gac", "qty": 0.5, "basis": "mam" },
+        { "ref": "mong-gio", "qty": 0.5, "basis": "mam", "note": "Nấu canh măng" },
+        { "ref": "mang-kho", "qty": 0.1, "basis": "mam" },
+        { "ref": "cu-kieu", "qty": 0.2, "basis": "mam" },
+        { "ref": "rau-xao", "qty": 0.3, "basis": "mam" },
+        { "ref": "gao-te", "qty": 0.1, "basis": "person" },
+        { "ref": "gia-vi", "qty": 0.5, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "fixed" },
+        { "ref": "mut", "qty": 0.5, "basis": "fixed" },
+        { "ref": "hoa", "qty": 1, "basis": "fixed" },
+        { "ref": "huong", "qty": 1, "basis": "fixed" },
+        { "ref": "trau-cau", "qty": 1, "basis": "fixed" },
+        { "ref": "ruou", "qty": 1, "basis": "fixed" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "fixed" },
+        { "ref": "vang-ma", "qty": 1, "basis": "fixed", "defaultOff": true }
+      ],
+      "recipes": ["banh-chung", "ga-luoc", "xoi-gac", "gio-lua", "nem-ran", "canh-mang-mong-gio"],
+      "notes": [
+        "Các món cổ truyền Tết miền Bắc: bánh chưng, giò, canh măng, nem rán, xôi gấc. Mỗi gia đình thêm bớt theo thói quen.",
+        "Nhiều nhà gói bánh chưng trước Tết vài ngày để kịp luộc."
+      ]
+    },
+    {
+      "id": "cung-tet-nam",
+      "name": "Mâm cúng Tết, tất niên (miền Nam)",
+      "short": "Thịt kho trứng, canh khổ qua nhồi thịt, bánh tét, dưa giá, củ kiệu, gà luộc.",
+      "occasion": "Tất niên, giao thừa, sáng mùng Một Tết.",
+      "vanKhanId": "tat-nien",
+      "region": "nam",
+      "scale": { "people": true, "mam": true },
+      "peoplePerMam": 6,
+      "defaults": { "people": 6, "mam": 1 },
+      "ingredients": [
+        { "ref": "banh-tet", "qty": 1, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "ba-chi", "qty": 0.6, "basis": "mam", "note": "Thịt kho nước dừa" },
+        { "ref": "trung-vit", "qty": 6, "basis": "mam", "note": "Kho cùng thịt" },
+        { "ref": "dua-tuoi", "qty": 1, "basis": "mam" },
+        { "ref": "kho-qua", "qty": 0.4, "basis": "mam", "note": "Canh khổ qua nhồi thịt" },
+        { "ref": "nac-vai", "qty": 0.2, "basis": "mam", "note": "Thịt xay nhồi khổ qua" },
+        { "ref": "nam-mocnhi", "qty": 0.03, "basis": "mam" },
+        { "ref": "gio-lua", "qty": 0.3, "basis": "mam" },
+        { "ref": "dua-gia", "qty": 0.3, "basis": "mam" },
+        { "ref": "cu-kieu", "qty": 0.2, "basis": "mam" },
+        { "ref": "gao-te", "qty": 0.1, "basis": "person" },
+        { "ref": "gia-vi", "qty": 0.5, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "fixed" },
+        { "ref": "mut", "qty": 0.5, "basis": "fixed" },
+        { "ref": "hoa", "qty": 1, "basis": "fixed" },
+        { "ref": "huong", "qty": 1, "basis": "fixed" },
+        { "ref": "trau-cau", "qty": 1, "basis": "fixed" },
+        { "ref": "ruou", "qty": 1, "basis": "fixed" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "fixed" },
+        { "ref": "vang-ma", "qty": 1, "basis": "fixed", "defaultOff": true }
+      ],
+      "recipes": ["thit-kho-trung", "canh-kho-qua", "ga-luoc"],
+      "notes": [
+        "Món điển hình ngày Tết miền Nam: thịt kho nước dừa với trứng, canh khổ qua, bánh tét, dưa giá, củ kiệu.",
+        "Canh khổ qua mang ý nghĩa mong mọi nỗi khổ qua đi, được nhắc phổ biến."
+      ]
+    },
+    {
+      "id": "mam-giao-thua",
+      "name": "Mâm cúng giao thừa",
+      "short": "Mâm lễ đêm giao thừa, trong nhà hoặc ngoài trời.",
+      "occasion": "Đêm giao thừa.",
+      "vanKhanId": "giao-thua-trong-nha",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "mam" },
+        { "ref": "banh-chung", "qty": 1, "basis": "mam" },
+        { "ref": "gio-lua", "qty": 0.3, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "gao-nep", "qty": 0.5, "basis": "mam", "note": "Xôi" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam", "note": "Cùng mứt Tết" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac", "banh-chung"],
+      "notes": ["Có nhà cúng chay hoặc mặn nhẹ; có nhà bày cả hai kiểu (trong nhà và ngoài trời)."]
+    },
+    {
+      "id": "ong-cong-ong-tao",
+      "name": "Mâm cúng ông Công, ông Táo",
+      "short": "Mũ áo Táo quân, cá chép, xôi, gà luộc hoặc mâm cơm, hương hoa quả.",
+      "occasion": "Ngày 23 tháng Chạp.",
+      "vanKhanId": "ong-cong-ong-tao",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "mu-ao-tao-quan", "qty": 1, "basis": "mam" },
+        { "ref": "ca-chep", "qty": 3, "basis": "mam", "note": "Ba con, thả sau khi cúng" },
+        { "ref": "ga", "qty": 1, "basis": "mam", "note": "Hoặc thay bằng mâm cơm gia đình" },
+        { "ref": "gao-nep", "qty": 0.5, "basis": "mam" },
+        { "ref": "che", "qty": 3, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam" }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": [
+        "Cá chép thả ở nơi có nước sạch, nhớ gỡ túi nilon và đừng vứt túi xuống nước.",
+        "Nhiều nhà cúng mâm cơm gia đình thay cho gà luộc."
+      ]
+    },
+    {
+      "id": "co-day-thang",
+      "name": "Cỗ đầy tháng cho bé",
+      "short": "Lễ cúng mụ và mâm cỗ mời họ hàng khi bé tròn một tháng.",
+      "occasion": "Bé tròn một tháng tuổi.",
+      "vanKhanId": "day-thang",
+      "scale": { "people": true, "mam": true },
+      "peoplePerMam": 6,
+      "defaults": { "people": 18, "mam": 3 },
+      "ingredients": [
+        { "ref": "gao-nep", "qty": 0.1, "basis": "person", "note": "Xôi" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "gio-lua", "qty": 0.3, "basis": "mam" },
+        { "ref": "nac-vai", "qty": 0.3, "basis": "mam" },
+        { "ref": "rau-xao", "qty": 0.4, "basis": "mam" },
+        { "ref": "gia-vi", "qty": 0.5, "basis": "mam" },
+        { "ref": "che", "qty": 12, "basis": "fixed", "note": "Mười hai chén để cúng mụ" },
+        { "ref": "trai-cay", "qty": 2, "basis": "fixed" },
+        { "ref": "banh-keo", "qty": 1, "basis": "fixed" },
+        { "ref": "hoa", "qty": 1, "basis": "fixed" },
+        { "ref": "huong", "qty": 1, "basis": "fixed" },
+        { "ref": "trau-cau", "qty": 1, "basis": "fixed" },
+        { "ref": "ruou", "qty": 1, "basis": "fixed" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "fixed" },
+        { "ref": "ao-mu", "qty": 1, "basis": "fixed", "defaultOff": true, "note": "Tùy vùng" }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": ["Số chén chè và các món cúng mụ khác nhau theo vùng; mười hai là con số được nhắc phổ biến."]
+    },
+    {
+      "id": "co-thoi-noi",
+      "name": "Cỗ thôi nôi (bé một tuổi)",
+      "short": "Mâm cúng và tiệc mời khách khi bé tròn một tuổi, có thể kèm mâm bốc đồ.",
+      "occasion": "Bé tròn một tuổi.",
+      "vanKhanId": "thoi-noi",
+      "scale": { "people": true, "mam": true },
+      "peoplePerMam": 6,
+      "defaults": { "people": 24, "mam": 4 },
+      "ingredients": [
+        { "ref": "gao-nep", "qty": 0.1, "basis": "person", "note": "Xôi" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "gio-lua", "qty": 0.3, "basis": "mam" },
+        { "ref": "nac-vai", "qty": 0.3, "basis": "mam" },
+        { "ref": "rau-xao", "qty": 0.4, "basis": "mam" },
+        { "ref": "gia-vi", "qty": 0.5, "basis": "mam" },
+        { "ref": "che", "qty": 12, "basis": "fixed" },
+        { "ref": "trai-cay", "qty": 3, "basis": "fixed" },
+        { "ref": "banh-keo", "qty": 2, "basis": "fixed" },
+        { "ref": "bo-do-boc", "qty": 1, "basis": "fixed" },
+        { "ref": "hoa", "qty": 1, "basis": "fixed" },
+        { "ref": "huong", "qty": 1, "basis": "fixed" },
+        { "ref": "trau-cau", "qty": 1, "basis": "fixed" },
+        { "ref": "ruou", "qty": 1, "basis": "fixed" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "fixed" }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": ["Trò bốc đồ chỉ mang ý vui, không có ý bói toán."]
+    },
+    {
+      "id": "mam-than-tai",
+      "name": "Mâm cúng Thần Tài, Thổ Địa",
+      "short": "Lễ gọn để cúng hằng ngày, mùng Một, Rằm hoặc ngày vía Thần Tài.",
+      "occasion": "Hằng ngày, mùng Một, Rằm, vía Thần Tài (mùng 10 tháng Giêng).",
+      "vanKhanId": "than-tai-tho-dia",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "trai-cay", "qty": 1, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam", "defaultOff": true, "note": "Ngày vía hoặc dịp lớn" },
+        { "ref": "heo-quay", "qty": 0.5, "basis": "mam", "defaultOff": true, "note": "Ngày vía, thay cho gà" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": ["ga-luoc"],
+      "notes": ["Ngày thường nhiều nhà chỉ dâng nước, hương, hoa quả, bánh kẹo."]
+    },
+    {
+      "id": "mam-tan-gia",
+      "name": "Mâm cúng nhập trạch, tân gia",
+      "short": "Lễ vật cho ngày dọn về nhà mới.",
+      "occasion": "Dọn về nhà mới.",
+      "vanKhanId": "tan-gia",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "mam" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "gao-nep", "qty": 0.5, "basis": "mam", "note": "Xôi" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "gao-muoi-nha-moi", "qty": 1, "basis": "mam" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": ["Nhiều nhà mang gạo, muối, nước vào nhà mới trước tiên; tục này khác nhau theo vùng."]
+    },
+    {
+      "id": "mam-khai-truong",
+      "name": "Mâm cúng khai trương",
+      "short": "Lễ vật cầu buôn bán thuận lợi, thường có heo quay hoặc gà luộc.",
+      "occasion": "Ngày khai trương cửa hàng, công ty.",
+      "vanKhanId": "khai-truong",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "mam" },
+        { "ref": "heo-quay", "qty": 1, "basis": "mam", "note": "Có thể thay bằng gà luộc" },
+        { "ref": "ga", "qty": 1, "basis": "mam", "defaultOff": true },
+        { "ref": "gao-nep", "qty": 0.5, "basis": "mam", "note": "Xôi" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": []
+    },
+    {
+      "id": "mam-dong-tho",
+      "name": "Mâm cúng động thổ",
+      "short": "Lễ vật xin phép thần linh khi khởi công xây nhà.",
+      "occasion": "Trước khi đào móng, xây dựng.",
+      "vanKhanId": "dong-tho",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "ngu-qua", "qty": 1, "basis": "mam" },
+        { "ref": "trau-cau", "qty": 1, "basis": "mam" },
+        { "ref": "ga", "qty": 1, "basis": "mam" },
+        { "ref": "gao-nep", "qty": 0.5, "basis": "mam", "note": "Xôi" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": ["ga-luoc", "xoi-gac"],
+      "notes": []
+    },
+    {
+      "id": "mam-cung-xe",
+      "name": "Mâm cúng xe mới",
+      "short": "Lễ gọn đặt trước đầu xe khi nhận xe.",
+      "occasion": "Nhận xe mới.",
+      "vanKhanId": "cung-xe",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "trai-cay", "qty": 1, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "ruou", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "gao-nep", "qty": 0.3, "basis": "mam", "defaultOff": true, "note": "Xôi, nếu cúng mặn" },
+        { "ref": "ga", "qty": 1, "basis": "mam", "defaultOff": true },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": ["ga-luoc"],
+      "notes": []
+    },
+    {
+      "id": "mam-co-hon",
+      "name": "Mâm cúng chúng sinh, cô hồn (rằm tháng Bảy)",
+      "short": "Cháo loãng, bỏng gạo, ngô khoai, muối gạo, bánh kẹo, quần áo giấy. Cúng ngoài sân.",
+      "occasion": "Rằm tháng Bảy.",
+      "vanKhanId": "co-hon",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "gao-te", "qty": 0.2, "basis": "mam", "note": "Nấu cháo loãng" },
+        { "ref": "bong-gao", "qty": 1, "basis": "mam" },
+        { "ref": "ngo-khoai", "qty": 1, "basis": "mam" },
+        { "ref": "muoi-gao", "qty": 1, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "trai-cay", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "quan-ao-co-hon", "qty": 1, "basis": "mam" }
+      ],
+      "recipes": [],
+      "notes": [
+        "Lễ cô hồn thường đặt ngoài sân hoặc trước cửa, không bày chung trên bàn thờ gia tiên.",
+        "Nhiều nhà cúng vào buổi chiều, sau khi đã cúng gia tiên."
+      ]
+    },
+    {
+      "id": "mam-tao-mo",
+      "name": "Lễ vật tảo mộ, thăm mộ",
+      "short": "Hương hoa, trái cây, bánh kẹo và dụng cụ dọn mộ.",
+      "occasion": "Thanh minh, cuối năm, ngày giỗ.",
+      "vanKhanId": "tao-mo",
+      "scale": { "people": false, "mam": true },
+      "defaults": { "people": 4, "mam": 1 },
+      "ingredients": [
+        { "ref": "huong", "qty": 1, "basis": "mam" },
+        { "ref": "hoa", "qty": 1, "basis": "mam" },
+        { "ref": "trai-cay", "qty": 1, "basis": "mam" },
+        { "ref": "banh-keo", "qty": 1, "basis": "mam" },
+        { "ref": "nuoc-tra", "qty": 1, "basis": "mam" },
+        { "ref": "dung-cu-ve-sinh", "qty": 1, "basis": "fixed", "defaultOff": true },
+        { "ref": "gao-nep", "qty": 0.3, "basis": "mam", "defaultOff": true, "note": "Xôi" },
+        { "ref": "ga", "qty": 1, "basis": "mam", "defaultOff": true },
+        { "ref": "vang-ma", "qty": 1, "basis": "mam", "defaultOff": true }
+      ],
+      "recipes": [],
+      "notes": ["Nghĩa trang hiện đại có quy định riêng về hương, vàng mã và rác; nên làm theo quy định."]
+    }
+  ],
+  "nguQua": {
+    "intro": "Mâm ngũ quả là mâm trái cây năm loại bày trên bàn thờ ngày Tết và các dịp lớn. Cách chọn quả khác nhau theo miền; bên dưới là cách bày phổ biến.",
+    "regions": [
+      {
+        "id": "bac",
+        "name": "Miền Bắc",
+        "fruits": [
+          { "name": "Chuối xanh (nải)", "meaning": "Nải chuối ôm ấp các quả như che chở, đùm bọc." },
+          { "name": "Bưởi", "meaning": "Quả tròn đầy, gợi ý sung túc." },
+          { "name": "Hồng hoặc cam", "meaning": "Màu đỏ cam, mang ý may mắn." },
+          { "name": "Quýt hoặc cam", "meaning": "Màu vàng cam, gợi ý đầy đủ." },
+          { "name": "Táo, lê hoặc quả theo mùa", "meaning": "Thường thêm quả thứ năm tùy mùa." }
+        ],
+        "note": "Hay gặp: chuối, bưởi, hồng, quýt, và một quả theo mùa. Quan niệm ngũ quả tượng trưng cho ngũ hành hoặc năm điều phúc được nhắc phổ biến."
+      },
+      {
+        "id": "trung",
+        "name": "Miền Trung",
+        "fruits": [
+          { "name": "Chuối", "meaning": "Quả quen thuộc trên mâm cúng." },
+          { "name": "Bưởi hoặc quýt", "meaning": "Trái cây theo mùa của địa phương." },
+          { "name": "Mãng cầu hoặc hồng", "meaning": "Tùy nơi." },
+          { "name": "Trái cây theo mùa khác", "meaning": "Nhiều nhà chọn quả tươi ngon, nguyên vẹn trong vụ." }
+        ],
+        "note": "Miền Trung không có bộ năm quả cố định như hai miền kia; nhiều nhà bày trái cây theo vụ ở địa phương. Hãy chọn theo thói quen của gia đình bạn."
+      },
+      {
+        "id": "nam",
+        "name": "Miền Nam",
+        "fruits": [
+          { "name": "Mãng cầu", "meaning": "Đọc là cầu, gợi ý cầu mong." },
+          { "name": "Dừa", "meaning": "Đọc là vừa (dừa), gợi ý vừa đủ." },
+          { "name": "Đu đủ", "meaning": "Đọc là đủ, gợi ý đầy đủ." },
+          { "name": "Xoài", "meaning": "Đọc là xài, gợi ý đủ xài." },
+          { "name": "Sung", "meaning": "Gợi ý sung túc." }
+        ],
+        "note": "Cách chơi chữ quen thuộc: cầu (mãng cầu), vừa (dừa), đủ (đu đủ), xài (xoài), sung, ý nói cầu vừa đủ xài, sung túc."
+      }
+    ],
+    "dos": [
+      "Chọn quả tươi, nguyên vẹn, rửa sạch, bày gọn gàng.",
+      "Bày quả to ở giữa hoặc phía sau, quả nhỏ ở trước cho cân đối."
+    ],
+    "donts": [
+      "Tránh quả dập nát, úng hoặc đã bị cắn dở.",
+      "Nhiều nhà tránh dùng quả có mùi quá nồng như sầu riêng, mít trên bàn thờ."
+    ]
+  },
+  "recipes": [
+    {
+      "id": "ga-luoc",
+      "name": "Gà luộc cúng",
+      "serves": "1 con gà ta khoảng 1,5 đến 2 kg",
+      "time": "Khoảng 45 phút",
+      "ingredients": ["1 con gà ta (đã làm sạch)", "1 củ gừng nhỏ, 1 ít muối", "Hành, nghệ (nếu muốn da vàng)", "Đá lạnh hoặc nước lạnh để ngâm"],
+      "steps": [
+        "Xát muối và gừng giã nhỏ lên gà, rửa sạch.",
+        "Đun nồi nước ngập gà cùng gừng, hành. Khi nước sôi, thả gà vào cả con.",
+        "Khi nước sôi lại, vặn nhỏ lửa, luộc khoảng 20 đến 25 phút tùy con gà. Chọc đùi không còn nước hồng là chín.",
+        "Vớt gà ra, ngâm nhanh trong nước lạnh có đá để da giòn và đẹp, vớt để ráo.",
+        "Phết ít nước nghệ pha dầu cho da vàng; tạo dáng gà nằm ngay ngắn, bày lên đĩa."
+      ],
+      "tips": ["Không luộc quá lâu và không để nước sôi sùng sục để da không bị nứt."]
+    },
+    {
+      "id": "xoi-gac",
+      "name": "Xôi gấc",
+      "serves": "4 đến 6 người",
+      "time": "Khoảng 1 giờ, chưa tính ngâm nếp",
+      "ingredients": ["500 g gạo nếp", "Nửa đến 1 quả gấc", "1 thìa rượu trắng, ít muối", "1 thìa dầu ăn"],
+      "steps": [
+        "Ngâm nếp 6 đến 8 giờ hoặc qua đêm, vo sạch, để ráo.",
+        "Lấy phần ruột gấc, trộn với rượu trắng và muối cho tan đều.",
+        "Trộn gấc với nếp và dầu ăn cho đều màu.",
+        "Cho vào xửng, đồ lửa vừa khoảng 30 đến 40 phút, đảo nếp giữa chừng.",
+        "Xới tơi, cho ra đĩa hoặc nén khuôn."
+      ],
+      "tips": ["Xôi trắng, xôi đỗ xanh làm tương tự, bỏ gấc."]
+    },
+    {
+      "id": "gio-lua",
+      "name": "Giò lụa (làm tại nhà)",
+      "serves": "Khoảng 1 kg thịt, cho 2 đến 3 cây nhỏ",
+      "time": "Khoảng 2 giờ",
+      "ingredients": ["1 kg thịt nạc mông còn tươi", "3 đến 4 thìa nước mắm ngon", "Tiêu, ít bột năng", "Lá chuối, dây lạt", "Đá bào hoặc nước đá lạnh"],
+      "steps": [
+        "Thịt cắt nhỏ, giã hoặc xay thật nhuyễn, vừa làm vừa cho đá lạnh để giữ độ dai.",
+        "Nêm nước mắm, tiêu và bột năng, trộn cho thịt dẻo quánh.",
+        "Cho thịt lên lá chuối, nén chặt, cuộn thành cây, buộc lạt.",
+        "Luộc nhỏ lửa khoảng 40 đến 50 phút, vớt ra ngâm nước lạnh cho giò săn."
+      ],
+      "tips": ["Món này khá công phu; nhiều gia đình mua giò chả ở cửa hàng quen thay vì tự làm.", "Nên chọn thịt tươi trong ngày."]
+    },
+    {
+      "id": "nem-ran",
+      "name": "Nem rán",
+      "serves": "4 đến 6 người",
+      "time": "Khoảng 1 giờ 30 phút",
+      "ingredients": ["300 g thịt nạc vai xay", "50 g miến, mộc nhĩ, nấm hương", "Cà rốt, hành, 1 quả trứng", "Tiêu, nước mắm, bánh đa nem", "Dầu ăn để chiên"],
+      "steps": [
+        "Ngâm miến, mộc nhĩ, nấm cho nở, cắt nhỏ. Cà rốt bào sợi.",
+        "Trộn thịt với miến, nấm, cà rốt, hành, trứng, nêm nước mắm, tiêu.",
+        "Cuốn nhân vào bánh đa nem, cuộn chặt tay.",
+        "Chiên ngập dầu, lửa vừa cho chín, vớt ra rồi chiên lại lửa to một lúc cho vàng giòn."
+      ],
+      "tips": ["Để nem ráo dầu, bày lên đĩa lót giấy thấm dầu."]
+    },
+    {
+      "id": "canh-mang-mong-gio",
+      "name": "Canh măng móng giò",
+      "serves": "4 đến 6 người",
+      "time": "Khoảng 2 giờ, chưa tính ngâm măng",
+      "ingredients": ["500 g móng giò", "100 g măng khô", "Nấm hương, hành khô", "Nước mắm, muối, hạt tiêu, ngò rí"],
+      "steps": [
+        "Ngâm măng khô 12 đến 24 giờ, thay nước vài lần; luộc, rửa kỹ, cắt miếng vừa.",
+        "Móng giò chặt miếng, trụng sơ, rửa sạch.",
+        "Phi hành khô, xào qua móng giò, thêm nước hầm khoảng 1 đến 1,5 giờ cho mềm.",
+        "Cho măng, nấm vào nấu thêm 20 đến 30 phút, nêm gia vị.",
+        "Rắc hành ngò, tiêu rồi dọn."
+      ],
+      "tips": ["Hớt bọt thường xuyên để nước trong."]
+    },
+    {
+      "id": "banh-chung",
+      "name": "Bánh chưng",
+      "serves": "1 chiếc cỡ vừa, khoảng 6 đến 8 người ăn",
+      "time": "8 đến 10 giờ luộc, chưa tính ngâm",
+      "ingredients": ["500 g gạo nếp", "200 g đậu xanh tách vỏ", "200 đến 250 g thịt ba chỉ", "Lá dong (khoảng 6 đến 8 lá), lạt", "Hành khô, tiêu, muối"],
+      "steps": [
+        "Ngâm nếp 8 đến 10 giờ; ngâm đậu 4 đến 6 giờ, đồ chín rồi tán nhuyễn.",
+        "Thịt cắt miếng, ướp muối, tiêu, hành.",
+        "Lót lá dong vào khuôn, cho nếp, đậu xanh, thịt, đậu xanh, rồi nếp phủ kín. Gói chặt, buộc lạt.",
+        "Xếp bánh vào nồi, đổ nước ngập, luộc 8 đến 10 giờ, thỉnh thoảng thêm nước sôi.",
+        "Vớt ra, ép nhẹ qua đêm cho bánh chắc."
+      ],
+      "tips": ["Giữ nước luôn ngập bánh trong lúc luộc.", "Bánh nhỏ có thể luộc ít giờ hơn."]
+    },
+    {
+      "id": "thit-kho-trung",
+      "name": "Thịt kho trứng (nước dừa)",
+      "serves": "4 đến 6 người",
+      "time": "Khoảng 1 giờ 30 phút",
+      "ingredients": ["500 g thịt ba chỉ", "6 quả trứng vịt hoặc gà", "1 trái dừa tươi (lấy nước)", "Nước mắm, đường, hành tỏi băm, tiêu"],
+      "steps": [
+        "Thịt cắt khối vuông, ướp hành tỏi, nước mắm, tiêu khoảng 20 phút. Trứng luộc chín, bóc vỏ.",
+        "Thắng đường thành nước màu cánh gián, cho thịt vào đảo cho thấm màu.",
+        "Đổ nước dừa ngập thịt, đun sôi, hớt bọt, vặn lửa nhỏ liu riu.",
+        "Sau khoảng 40 đến 50 phút, cho trứng vào kho thêm 20 đến 30 phút cho nước sánh lại.",
+        "Nêm vừa miệng, tắt bếp."
+      ],
+      "tips": ["Kho lửa nhỏ để thịt mềm và nước trong."]
+    },
+    {
+      "id": "canh-kho-qua",
+      "name": "Canh khổ qua nhồi thịt",
+      "serves": "4 đến 6 người",
+      "time": "Khoảng 1 giờ",
+      "ingredients": ["2 đến 3 trái khổ qua (mướp đắng)", "200 g thịt nạc xay", "Mộc nhĩ, nấm hương, hành", "Nước mắm, tiêu, muối"],
+      "steps": [
+        "Khổ qua cắt khúc, bỏ ruột, ngâm nước muối để bớt đắng.",
+        "Trộn thịt xay với mộc nhĩ, nấm, hành, tiêu, nước mắm.",
+        "Nhồi nhân vào từng khúc khổ qua.",
+        "Đun nước sôi, thả khổ qua nhồi vào, vặn nhỏ lửa hầm 30 đến 40 phút.",
+        "Nêm nếm, rắc hành ngò."
+      ],
+      "tips": ["Hầm lửa nhỏ để nước trong và khổ qua mềm."]
+    }
+  ]
+}
