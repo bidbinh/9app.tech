@@ -1,0 +1,384 @@
+[
+ {
+  "name": "Máy tính giọng nói",
+  "keywords": [
+   "máy tính",
+   "calculator",
+   "nói để tính",
+   "cộng trừ nhân chia",
+   "căn bậc hai",
+   "bình phương",
+   "phần trăm"
+  ],
+  "path": "#/may-tinh",
+  "blurb": "Bàn phím số và nói tiếng Việt: \"ba triệu cộng hai trăm nghìn\"."
+ },
+ {
+  "name": "Đổi đơn vị",
+  "keywords": [
+   "đổi đơn vị",
+   "quy đổi",
+   "chỉ vàng",
+   "cây vàng",
+   "lượng vàng",
+   "sào",
+   "công",
+   "héc-ta",
+   "độ C độ F",
+   "kg lb",
+   "dặm",
+   "gallon"
+  ],
+  "path": "#/doi-don-vi",
+  "blurb": "Chỉ, cây, lượng vàng; sào, công, héc-ta; độ C/F; kg/lb; dặm; gallon."
+ },
+ {
+  "name": "Đổi đơn vị: Khối lượng và vàng",
+  "keywords": [
+   "chỉ vàng",
+   "đổi chỉ vàng",
+   "cây vàng",
+   "lượng vàng",
+   "gram",
+   "kg",
+   "tấn",
+   "tạ",
+   "yến",
+   "pound",
+   "ounce",
+   "khối lượng"
+  ],
+  "path": "#/doi-don-vi/khoiluong",
+  "blurb": "1 lượng (cây) = 10 chỉ = 37,5 g. Đổi chỉ, lượng, gam, kg, pound."
+ },
+ {
+  "name": "Đổi đơn vị: Diện tích đất",
+  "keywords": [
+   "diện tích",
+   "sào",
+   "sào bắc bộ",
+   "sào trung bộ",
+   "công đất",
+   "mẫu",
+   "héc-ta",
+   "ha",
+   "mét vuông",
+   "m2",
+   "acre",
+   "đất"
+  ],
+  "path": "#/doi-don-vi/dientich",
+  "blurb": "Đổi sào, công, mẫu, héc-ta, mét vuông, acre."
+ },
+ {
+  "name": "Đổi đơn vị: Độ dài",
+  "keywords": [
+   "độ dài",
+   "km",
+   "mét",
+   "dặm",
+   "mile",
+   "inch",
+   "feet",
+   "hải lý",
+   "cây số"
+  ],
+  "path": "#/doi-don-vi/dodai",
+  "blurb": "Đổi km, mét, dặm, inch, feet, hải lý."
+ },
+ {
+  "name": "Đổi đơn vị: Nhiệt độ",
+  "keywords": [
+   "nhiệt độ",
+   "độ C",
+   "độ F",
+   "kelvin",
+   "đổi độ C sang độ F"
+  ],
+  "path": "#/doi-don-vi/nhietdo",
+  "blurb": "Đổi độ C, độ F, kelvin."
+ },
+ {
+  "name": "Đổi đơn vị: Thể tích",
+  "keywords": [
+   "thể tích",
+   "lít",
+   "gallon",
+   "ml",
+   "mét khối"
+  ],
+  "path": "#/doi-don-vi/thetich",
+  "blurb": "Đổi lít, gallon, ml, mét khối."
+ },
+ {
+  "name": "Đổi đơn vị: Tốc độ",
+  "keywords": [
+   "tốc độ",
+   "km/h",
+   "m/s",
+   "mph",
+   "knot"
+  ],
+  "path": "#/doi-don-vi/tocdo",
+  "blurb": "Đổi km/h, m/s, mph, knot."
+ },
+ {
+  "name": "Ngày tháng",
+  "keywords": [
+   "ngày tháng",
+   "tính ngày",
+   "lịch",
+   "đổi ngày"
+  ],
+  "path": "#/ngay-thang",
+  "blurb": "Cộng trừ ngày, ngày làm việc, tuổi, tuần thai, đổi dương sang âm lịch."
+ },
+ {
+  "name": "Ngày tháng: Cộng/trừ ngày",
+  "keywords": [
+   "cộng ngày",
+   "trừ ngày",
+   "sau bao nhiêu ngày",
+   "100 ngày sau",
+   "cộng trừ ngày tháng"
+  ],
+  "path": "#/ngay-thang/cong-ngay",
+  "blurb": "Cộng hoặc trừ năm, tháng, tuần, ngày vào một ngày bất kỳ."
+ },
+ {
+  "name": "Ngày tháng: Khoảng cách hai ngày",
+  "keywords": [
+   "khoảng cách ngày",
+   "từ ngày đến ngày",
+   "bao nhiêu ngày",
+   "đếm ngày"
+  ],
+  "path": "#/ngay-thang/khoang-cach",
+  "blurb": "Hai ngày cách nhau bao nhiêu ngày, tuần, tháng."
+ },
+ {
+  "name": "Ngày tháng: Ngày làm việc",
+  "keywords": [
+   "ngày làm việc",
+   "trừ cuối tuần",
+   "trừ ngày lễ",
+   "ngày công"
+  ],
+  "path": "#/ngay-thang/ngay-lam-viec",
+  "blurb": "Đếm số ngày làm việc, bỏ thứ bảy chủ nhật và ngày lễ."
+ },
+ {
+  "name": "Ngày tháng: Tính tuổi",
+  "keywords": [
+   "tính tuổi",
+   "tuổi",
+   "sinh nhật",
+   "con giáp",
+   "can chi",
+   "bao nhiêu tuổi"
+  ],
+  "path": "#/ngay-thang/tuoi",
+  "blurb": "Tính tuổi chính xác từ ngày sinh."
+ },
+ {
+  "name": "Ngày tháng: Tuần thai",
+  "keywords": [
+   "tuần thai",
+   "ngày dự sinh",
+   "mang thai",
+   "bầu",
+   "thai kỳ"
+  ],
+  "path": "#/ngay-thang/tuan-thai",
+  "blurb": "Tính tuần thai và ngày dự sinh."
+ },
+ {
+  "name": "Ngày tháng: Đổi âm dương",
+  "keywords": [
+   "đổi âm dương",
+   "dương sang âm",
+   "âm sang dương",
+   "âm lịch",
+   "dương lịch",
+   "đổi ngày âm"
+  ],
+  "path": "#/ngay-thang/am-duong",
+  "blurb": "Đổi ngày dương lịch sang âm lịch và ngược lại."
+ },
+ {
+  "name": "Vay, gửi, lãi",
+  "keywords": [
+   "vay",
+   "lãi",
+   "lãi suất",
+   "tiết kiệm",
+   "trả góp"
+  ],
+  "path": "#/vay-lai",
+  "blurb": "Trả góp có bảng trả nợ, gửi tiết kiệm, lãi kép, so sánh hai khoản vay."
+ },
+ {
+  "name": "Vay trả góp",
+  "keywords": [
+   "vay trả góp",
+   "bảng trả nợ",
+   "tính lãi vay",
+   "vay ngân hàng",
+   "vay mua nhà",
+   "vay mua xe",
+   "niên kim",
+   "gốc đều"
+  ],
+  "path": "#/vay-lai/tra-gop",
+  "blurb": "Tính tiền trả mỗi tháng và bảng trả nợ theo gốc đều hoặc niên kim."
+ },
+ {
+  "name": "Gửi tiết kiệm",
+  "keywords": [
+   "gửi tiết kiệm",
+   "lãi suất tiết kiệm",
+   "sổ tiết kiệm",
+   "kỳ hạn"
+  ],
+  "path": "#/vay-lai/tiet-kiem",
+  "blurb": "Tính tiền lãi khi gửi tiết kiệm theo kỳ hạn."
+ },
+ {
+  "name": "Lãi kép",
+  "keywords": [
+   "lãi kép",
+   "đầu tư",
+   "góp hàng tháng"
+  ],
+  "path": "#/vay-lai/lai-kep",
+  "blurb": "Tiền tăng bao nhiêu khi lãi nhập vốn, có góp thêm mỗi tháng."
+ },
+ {
+  "name": "So sánh hai khoản vay",
+  "keywords": [
+   "so sánh vay",
+   "hai khoản vay",
+   "vay nào lợi hơn"
+  ],
+  "path": "#/vay-lai/so-sanh",
+  "blurb": "Đặt hai phương án vay cạnh nhau để so tổng lãi."
+ },
+ {
+  "name": "Chia tiền, phần trăm",
+  "keywords": [
+   "chia tiền",
+   "tính phần trăm",
+   "giảm giá",
+   "vat",
+   "tip"
+  ],
+  "path": "#/chia-tien",
+  "blurb": "Chia đều, chia theo món, tính phần trăm, giảm giá, VAT, tip."
+ },
+ {
+  "name": "Chia tiền đều",
+  "keywords": [
+   "chia tiền đều",
+   "chia hóa đơn",
+   "ăn nhau",
+   "mỗi người bao nhiêu"
+  ],
+  "path": "#/chia-tien/chia-deu",
+  "blurb": "Chia đều hóa đơn cho cả nhóm."
+ },
+ {
+  "name": "Chia tiền theo món",
+  "keywords": [
+   "chia theo món",
+   "mỗi người một phần",
+   "phí phục vụ"
+  ],
+  "path": "#/chia-tien/chia-mon",
+  "blurb": "Mỗi người trả theo món mình gọi, chia phí phục vụ."
+ },
+ {
+  "name": "Tính phần trăm",
+  "keywords": [
+   "phần trăm",
+   "tính phần trăm",
+   "%",
+   "tăng giảm bao nhiêu phần trăm"
+  ],
+  "path": "#/chia-tien/phan-tram",
+  "blurb": "A là bao nhiêu phần trăm của B, tăng giảm bao nhiêu phần trăm."
+ },
+ {
+  "name": "Tính giảm giá",
+  "keywords": [
+   "giảm giá",
+   "khuyến mãi",
+   "sale",
+   "tiết kiệm được bao nhiêu"
+  ],
+  "path": "#/chia-tien/giam-gia",
+  "blurb": "Giá sau giảm và số tiền tiết kiệm được."
+ },
+ {
+  "name": "Tính VAT",
+  "keywords": [
+   "vat",
+   "thuế giá trị gia tăng",
+   "thuế 8%",
+   "thuế 10%",
+   "hóa đơn đỏ"
+  ],
+  "path": "#/chia-tien/vat",
+  "blurb": "Tách hoặc cộng VAT 8%, 10% vào giá."
+ },
+ {
+  "name": "Tính tiền tip",
+  "keywords": [
+   "tip",
+   "bo tiền",
+   "tiền phục vụ"
+  ],
+  "path": "#/chia-tien/tip",
+  "blurb": "Tính tiền tip theo phần trăm hóa đơn."
+ },
+ {
+  "name": "Đếm ngược ngày",
+  "keywords": [
+   "đếm ngược",
+   "còn bao nhiêu ngày",
+   "kỷ niệm",
+   "hạn thẻ",
+   "hết hạn",
+   "visa",
+   "tết",
+   "nhắc ngày"
+  ],
+  "path": "#/dem-nguoc",
+  "blurb": "Còn bao nhiêu ngày tới kỷ niệm, hạn thẻ, Tết."
+ },
+ {
+  "name": "Đọc số thành chữ",
+  "keywords": [
+   "đọc số",
+   "số thành chữ",
+   "bằng chữ",
+   "viết số tiền bằng chữ",
+   "séc",
+   "hợp đồng"
+  ],
+  "path": "#/doc-so/doc-so",
+  "blurb": "Đổi số tiền sang chữ tiếng Việt cho séc, hợp đồng."
+ },
+ {
+  "name": "Bỏ dấu tiếng Việt",
+  "keywords": [
+   "bỏ dấu",
+   "không dấu",
+   "viết hoa",
+   "viết thường",
+   "slug",
+   "đếm chữ"
+  ],
+  "path": "#/doc-so/bo-dau",
+  "blurb": "Bỏ dấu tiếng Việt, đổi hoa thường, tạo slug, đếm chữ."
+ }
+]

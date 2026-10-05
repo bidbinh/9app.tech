@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<base href="__BASE__">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12132a" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<title>Osin - Trợ lý AI của 9app</title>
+<meta name="description" content="Hỏi bằng chữ hoặc giọng nói, Osin tra cứu và làm giúp bạn trong các app 9app.">
+<!--META-->
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="root" class="app">
+  <header class="bar">
+    <a class="back" href="__HOME__" aria-label="Về trang 9app"><span aria-hidden="true">‹</span> 9app</a>
+    <div class="who"><img class="logo" src="icon.svg" alt="" width="32" height="32"><div class="who-t"><strong>Osin</strong><span id="sub">Trợ lý của 9app</span></div></div>
+    <button id="btn-menu" class="icon-btn" type="button" aria-label="Cài đặt và quyền riêng tư"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+  <main id="list" class="list" role="log" aria-live="polite" aria-label="Cuộc trò chuyện với Osin" tabindex="-1"></main>
+  <div id="chips" class="chips" aria-label="Gợi ý nhanh"></div>
+  <form id="composer" class="composer" autocomplete="off">
+    <button id="btn-mic" class="mic" type="button" aria-label="Nhập bằng giọng nói" aria-pressed="false"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <textarea id="input" rows="1" maxlength="4000" placeholder="Hỏi hoặc nhờ Osin…" aria-label="Tin nhắn gửi Osin" enterkeyhint="send"></textarea>
+    <button id="btn-send" class="send" type="submit" aria-label="Gửi"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6l.1 6.5L14 12 3.5 13.9z"/></svg></button>
+  </form>
+  <p id="foot" class="foot">Osin có thể nhầm, hãy kiểm tra lại việc quan trọng. Đừng nhập mật khẩu hay mã OTP.</p>
+</div>
+<div id="sheet-root"></div>
+<div id="toast" class="toast" role="status" hidden></div>
+<noscript><p class="noscript">Osin cần bật JavaScript để chạy.</p></noscript>
+<script src="ui.js"></script>
+<script src="voice.js"></script>
+<script src="chat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

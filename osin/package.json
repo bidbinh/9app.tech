@@ -1,0 +1,24 @@
+{
+  "name": "osin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Osin: trợ lý AI trò chuyện của hệ 9app, gọi công cụ của các app qua giao thức HMAC, hành động ghi cần người dùng xác nhận.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node scripts/dev.js",
+    "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js",
+    "sync-search": "node scripts/sync-search.js",
+    "integration": "node test/integration/run.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^18.4.0-beta.17"
+  }
+}

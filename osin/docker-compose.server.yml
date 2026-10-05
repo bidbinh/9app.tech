@@ -1,0 +1,36 @@
+# Triển khai Osin lên máy chủ dùng chung ở tên miền riêng osin.9app.tech. Dùng lại PostgreSQL của 9Ship (container 9ship-db) với CSDL "osin" và vai trò riêng.
+# Chuẩn bị một lần: tạo vai trò + CSDL (xem README), rồi:
+#   cp .env.example .env && cp apps.example.json apps.json   (điền bí mật thật, KHÔNG đưa vào git)
+#   docker compose -f docker-compose.server.yml up -d --build
+name: osin
+services:
+  osin:
+    build: .
+    image: osin:latest
+    container_name: 9osin
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      OSIN_APPS_FILE: /run/osin/apps.json
+    volumes:
+      - ./apps.json:/run/osin/apps.json:ro
+    mem_limit: 192m
+    # gia cố: hệ tệp chỉ đọc (chỉ /tmp ghi được, trong bộ nhớ), bỏ mọi quyền Linux, không leo thang đặc quyền
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    # không publish cổng: chỉ nginx được gọi; Osin gọi các app và 9id qua mạng docker nội bộ.
+    # Osin chạy MỘT bản duy nhất (khóa lượt đồng thời, đệm manifest và bộ đếm nằm trong bộ nhớ).
+    networks: [shipdb, tms]
+networks:
+  shipdb:
+    external: true
+    name: 9ship_internal
+  tms:
+    external: true
+    name: ops_tms-network

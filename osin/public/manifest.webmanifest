@@ -1,0 +1,15 @@
+{
+  "name": "Osin - Trợ lý AI của 9app",
+  "short_name": "Osin",
+  "description": "Hỏi bằng chữ hoặc giọng nói, Osin tra cứu và làm giúp bạn trong các app 9app.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#4f46e5",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
