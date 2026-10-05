@@ -14,7 +14,7 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 
 ## A. Đang dở, cần chốt (ưu tiên cao nhất)
 
-- [ ] **A1. Commit** ~220 thay đổi trên `feat/new-apps`, tách theo app (9family, tutor, 9id, osin, 9admin, license, speed, launcher...). Kiểm 9id, osin đã nằm trong git chưa.
+- [x] **A1. Commit** xong 05/10/2026 (12 commit trên `feat/new-apps`, chưa push, chưa merge vào main). Ảnh chụp (`shots/`), `9app-site.tar`, bản sao lưu và `js/apps.js.local` được bỏ qua trong `.gitignore`.
 - [ ] **A2. 9id lên server:** role + DB trong `9ship-db`, nginx `/id/`, cổng OTP eSMS. Chốt câu hỏi mở mục 13 của spec (ngưỡng 2000 SMS/ngày, chi phí).
 - [ ] **A3. 9family chuyển sang 9id** (có dữ liệu thật; sao lưu `/home/tms/backups-9app/family-20261004-1647.dump`). Làm theo `9family/docs/CUTOVER-9ID.md`: dry-run, thử trên bản sao, sao lưu trước. Bản xem thử công khai không dùng tên thật của con.
 - [ ] **A4. Osin lên `osin.9app.tech`:** DNS + chứng chỉ, nginx, `apps.json` (`secret` + `receiptSecret`), `INTERNAL_KEYS` ở 9id, ô Osin ở launcher, gắn SDK vào từng app. Còn khóa Gemini, điều khoản dữ liệu, ý kiến luật sư.
