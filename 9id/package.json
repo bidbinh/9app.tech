@@ -1,0 +1,16 @@
+{
+  "name": "9id",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9id — tài khoản 9app dùng chung (số điện thoại + mật khẩu) và hồ sơ gia đình cho mọi app 9app.tech.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node scripts/dev.js",
+    "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "^8.13.0" },
+  "devDependencies": { "embedded-postgres": "^18.4.0-beta.17" }
+}
