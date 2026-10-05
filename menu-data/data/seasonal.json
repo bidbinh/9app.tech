@@ -1,0 +1,2013 @@
+{
+ "version": 1,
+ "region": "bac",
+ "seasonMonths": {
+  "xuan": [
+   2,
+   3,
+   4
+  ],
+  "ha": [
+   5,
+   6,
+   7
+  ],
+  "thu": [
+   8,
+   9,
+   10
+  ],
+  "dong": [
+   11,
+   12,
+   1
+  ]
+ },
+ "basis": "Ước lượng từ lịch gieo trồng rau miền Bắc và lịch trái cây theo mùa (xem sources); không phải số liệu thống kê. Nhiều loại hiện có quanh năm nhờ nhà kính/nhập vùng cao.",
+ "sources": [
+  {
+   "name": "Hạt giống tốt - Lịch trồng rau ở miền Bắc theo mùa xuân - hạ - thu - đông",
+   "url": "https://hatgiongtot.net/lich-trong-rau-o-mien-bac.html"
+  },
+  {
+   "name": "Sinh học AQ - Lịch trồng rau miền Bắc theo từng tháng",
+   "url": "https://nguyenlieusinhhoc.com/lich-trong-rau-mien-bac/"
+  },
+  {
+   "name": "Kingbio - Lịch trồng rau miền Bắc theo tháng",
+   "url": "https://kingbio.vn/lich-trong-rau-mien-bac-theo-thang"
+  },
+  {
+   "name": "Hachi - Lịch trồng rau miền Bắc theo tháng dương lịch",
+   "url": "https://hachi.com.vn/lich-trong-rau-mien-bac/"
+  },
+  {
+   "name": "Vườn Xanh Của Bạn - Lịch trồng rau miền Bắc",
+   "url": "https://vuonxanhcuaban.com/detail/lich-trong-rau-mien-bac.html"
+  },
+  {
+   "name": "Shophoaqua - Gợi ý trái cây miền Bắc theo mùa",
+   "url": "https://shophoaqua.vn/goi-y-trai-cay-mien-bac-theo-mua-phu-hop-theo-so-thich-va-nhu-cau/ar114.html"
+  },
+  {
+   "name": "Shophoaqua - Trái cây vào mùa từ tháng 1-12",
+   "url": "https://shophoaqua.vn/lich-trai-cay-vao-mua-tai-viet-nam-tu-thang-1-den-thang-12/ar125.html"
+  },
+  {
+   "name": "Sở Y tế Nghệ An - 7 loại rau củ mùa đông tốt nhất cho sức khỏe",
+   "url": "https://yte.nghean.gov.vn/cam-nang-suc-khoe/7-loai-rau-cu-mua-dong-tot-nhat-cho-suc-khoe-703907"
+  }
+ ],
+ "items": [
+  {
+   "ingredientId": "rau-muong",
+   "type": "rau",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "note": "chịu nóng, rộ mùa hè"
+  },
+  {
+   "ingredientId": "mong-toi",
+   "type": "rau",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "chịu nóng"
+  },
+  {
+   "ingredientId": "rau-ngot",
+   "type": "rau",
+   "peakMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "note": "ra nhiều từ xuân đến thu"
+  },
+  {
+   "ingredientId": "rau-day",
+   "type": "rau",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "note": "chịu nóng, vụ hè"
+  },
+  {
+   "ingredientId": "rau-den",
+   "type": "rau",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "note": "vụ hè"
+  },
+  {
+   "ingredientId": "rau-lang",
+   "type": "rau",
+   "peakMonths": [
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm, rộ thu-đông"
+  },
+  {
+   "ingredientId": "ngon-bi",
+   "type": "rau",
+   "peakMonths": [
+    8,
+    9,
+    10,
+    11
+   ],
+   "availableMonths": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "cuối hè-thu"
+  },
+  {
+   "ingredientId": "cai-xanh",
+   "type": "rau",
+   "peakMonths": [
+    10,
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "rau ưa lạnh"
+  },
+  {
+   "ingredientId": "cai-ngot",
+   "type": "rau",
+   "peakMonths": [
+    9,
+    10,
+    11
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm"
+  },
+  {
+   "ingredientId": "cai-thia",
+   "type": "rau",
+   "peakMonths": [
+    10,
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "rau ưa lạnh"
+  },
+  {
+   "ingredientId": "cai-cuc",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    10,
+    11,
+    12
+   ],
+   "note": "rau ưa lạnh, ngon dịp Tết"
+  },
+  {
+   "ingredientId": "cai-thao",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ đông-xuân"
+  },
+  {
+   "ingredientId": "bap-cai",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ đông"
+  },
+  {
+   "ingredientId": "cai-xoong",
+   "type": "rau",
+   "peakMonths": [
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    11,
+    12
+   ],
+   "note": "ưa lạnh"
+  },
+  {
+   "ingredientId": "rau-bina",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    10,
+    11,
+    12
+   ],
+   "note": "ưa lạnh"
+  },
+  {
+   "ingredientId": "xa-lach",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm (Đà Lạt, nhà kính), rộ mùa lạnh"
+  },
+  {
+   "ingredientId": "rau-thom",
+   "type": "rau",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "rau gia vị quanh năm"
+  },
+  {
+   "ingredientId": "su-hao",
+   "type": "cu",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ đông"
+  },
+  {
+   "ingredientId": "su-su",
+   "type": "qua",
+   "peakMonths": [
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ thu-đông"
+  },
+  {
+   "ingredientId": "bi-dao",
+   "type": "qua",
+   "peakMonths": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "vụ hè"
+  },
+  {
+   "ingredientId": "bi-do",
+   "type": "qua",
+   "peakMonths": [
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "thu-đông"
+  },
+  {
+   "ingredientId": "bau",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "note": "vụ hè"
+  },
+  {
+   "ingredientId": "muop",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "vụ hè"
+  },
+  {
+   "ingredientId": "muop-dang",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "note": "vụ hè"
+  },
+  {
+   "ingredientId": "dua-chuot",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm, rộ vụ hè"
+  },
+  {
+   "ingredientId": "ca-chua",
+   "type": "qua",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm"
+  },
+  {
+   "ingredientId": "ca-rot",
+   "type": "cu",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm, rộ mùa lạnh"
+  },
+  {
+   "ingredientId": "cu-cai",
+   "type": "cu",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ đông"
+  },
+  {
+   "ingredientId": "khoai-so",
+   "type": "cu",
+   "peakMonths": [
+    9,
+    10,
+    11,
+    12,
+    1
+   ],
+   "availableMonths": [
+    1,
+    2,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "thu-đông"
+  },
+  {
+   "ingredientId": "khoai-lang",
+   "type": "cu",
+   "peakMonths": [
+    10,
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "thu-đông"
+  },
+  {
+   "ingredientId": "khoai-tay",
+   "type": "cu",
+   "peakMonths": [
+    12,
+    1,
+    2,
+    3,
+    4
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "có quanh năm, thu hoạch rộ đông-xuân"
+  },
+  {
+   "ingredientId": "hanh-tay",
+   "type": "cu",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "quanh năm"
+  },
+  {
+   "ingredientId": "dau-dua",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "vụ hè"
+  },
+  {
+   "ingredientId": "dau-co-ve",
+   "type": "qua",
+   "peakMonths": [
+    4,
+    5,
+    6
+   ],
+   "availableMonths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "note": "xuân, thu"
+  },
+  {
+   "ingredientId": "ca-phao",
+   "type": "qua",
+   "peakMonths": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "hè-thu"
+  },
+  {
+   "ingredientId": "ca-tim",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "hè-thu"
+  },
+  {
+   "ingredientId": "bong-cai",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ đông"
+  },
+  {
+   "ingredientId": "sup-lo-trang",
+   "type": "rau",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    10,
+    11,
+    12
+   ],
+   "note": "vụ đông"
+  },
+  {
+   "ingredientId": "bap-ngo",
+   "type": "qua",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "hè-thu"
+  },
+  {
+   "ingredientId": "mang-tuoi",
+   "type": "rau",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "măng nứa mùa mưa"
+  },
+  {
+   "ingredientId": "dau-ha-lan",
+   "type": "rau",
+   "peakMonths": [
+    12,
+    1,
+    2,
+    3
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    11,
+    12
+   ],
+   "note": "đậu Hà Lan vụ đông-xuân"
+  },
+  {
+   "ingredientId": "hoa-chuoi",
+   "type": "rau",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "quanh năm"
+  },
+  {
+   "ingredientId": "doc-mung",
+   "type": "rau",
+   "peakMonths": [
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "availableMonths": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "note": "hè-thu"
+  },
+  {
+   "ingredientId": "du-du-xanh",
+   "type": "qua",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "quanh năm"
+  },
+  {
+   "ingredientId": "xoai-xanh",
+   "type": "qua",
+   "peakMonths": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "availableMonths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "note": "vụ xoài"
+  },
+  {
+   "ingredientId": "nam-rom",
+   "type": "nam",
+   "peakMonths": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": "mùa nóng ẩm"
+  },
+  {
+   "ingredientId": "gac",
+   "type": "qua",
+   "peakMonths": [
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    10,
+    11,
+    12
+   ],
+   "note": "gấc chín cuối thu đến Tết"
+  },
+  {
+   "ingredientId": "hat-sen",
+   "type": "hat",
+   "peakMonths": [
+    6,
+    7,
+    8
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "tươi mùa hè, khô quanh năm"
+  },
+  {
+   "ingredientId": "vai",
+   "type": "trai_cay",
+   "peakMonths": [
+    5,
+    6
+   ],
+   "availableMonths": [
+    5,
+    6
+   ],
+   "note": "vải thiều Bắc Giang/Lục Ngạn"
+  },
+  {
+   "ingredientId": "nhan",
+   "type": "trai_cay",
+   "peakMonths": [
+    7,
+    8
+   ],
+   "availableMonths": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "note": "nhãn lồng Hưng Yên"
+  },
+  {
+   "ingredientId": "xoai",
+   "type": "trai_cay",
+   "peakMonths": [
+    5,
+    6,
+    7
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "note": ""
+  },
+  {
+   "ingredientId": "dua-hau",
+   "type": "trai_cay",
+   "peakMonths": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "availableMonths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "note": ""
+  },
+  {
+   "ingredientId": "man",
+   "type": "trai_cay",
+   "peakMonths": [
+    4,
+    5,
+    6
+   ],
+   "availableMonths": [
+    4,
+    5,
+    6
+   ],
+   "note": "mận hậu Mộc Châu"
+  },
+  {
+   "ingredientId": "buoi",
+   "type": "trai_cay",
+   "peakMonths": [
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "bưởi Diễn, Đoan Hùng"
+  },
+  {
+   "ingredientId": "cam",
+   "type": "trai_cay",
+   "peakMonths": [
+    10,
+    11,
+    12,
+    1,
+    2
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "cam Cao Phong, cam canh"
+  },
+  {
+   "ingredientId": "quyt",
+   "type": "trai_cay",
+   "peakMonths": [
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    10,
+    11,
+    12
+   ],
+   "note": ""
+  },
+  {
+   "ingredientId": "hong",
+   "type": "trai_cay",
+   "peakMonths": [
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "hồng giòn"
+  },
+  {
+   "ingredientId": "na",
+   "type": "trai_cay",
+   "peakMonths": [
+    8,
+    9
+   ],
+   "availableMonths": [
+    7,
+    8,
+    9,
+    10
+   ],
+   "note": ""
+  },
+  {
+   "ingredientId": "thanh-long",
+   "type": "trai_cay",
+   "peakMonths": [
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "availableMonths": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "note": ""
+  },
+  {
+   "ingredientId": "thom",
+   "type": "trai_cay",
+   "peakMonths": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "availableMonths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "note": "dứa"
+  },
+  {
+   "ingredientId": "le",
+   "type": "trai_cay",
+   "peakMonths": [
+    9,
+    10,
+    11,
+    12,
+    1
+   ],
+   "availableMonths": [
+    1,
+    2,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": ""
+  },
+  {
+   "ingredientId": "oi",
+   "type": "trai_cay",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "quanh năm"
+  },
+  {
+   "ingredientId": "chuoi",
+   "type": "trai_cay",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "quanh năm"
+  },
+  {
+   "ingredientId": "du-du",
+   "type": "trai_cay",
+   "peakMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "availableMonths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "note": "quanh năm"
+  }
+ ],
+ "months": {
+  "1": {
+   "peak": [
+    "cai-xanh",
+    "cai-thia",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "cai-xoong",
+    "rau-bina",
+    "xa-lach",
+    "rau-thom",
+    "su-hao",
+    "ca-chua",
+    "ca-rot",
+    "cu-cai",
+    "khoai-so",
+    "khoai-lang",
+    "khoai-tay",
+    "hanh-tay",
+    "bong-cai",
+    "sup-lo-trang",
+    "dau-ha-lan",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "gac",
+    "cam",
+    "le",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-lang",
+    "cai-ngot",
+    "su-su",
+    "bi-do",
+    "dua-chuot",
+    "hat-sen",
+    "buoi",
+    "quyt",
+    "hong"
+   ]
+  },
+  "2": {
+   "peak": [
+    "cai-xanh",
+    "cai-thia",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "cai-xoong",
+    "rau-bina",
+    "xa-lach",
+    "rau-thom",
+    "su-hao",
+    "ca-chua",
+    "ca-rot",
+    "cu-cai",
+    "khoai-lang",
+    "khoai-tay",
+    "hanh-tay",
+    "bong-cai",
+    "sup-lo-trang",
+    "dau-ha-lan",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "gac",
+    "cam",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-lang",
+    "cai-ngot",
+    "dua-chuot",
+    "khoai-so",
+    "hat-sen",
+    "buoi",
+    "le"
+   ]
+  },
+  "3": {
+   "peak": [
+    "cai-xanh",
+    "cai-thia",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "cai-xoong",
+    "xa-lach",
+    "rau-thom",
+    "ca-chua",
+    "ca-rot",
+    "khoai-tay",
+    "hanh-tay",
+    "dau-ha-lan",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-muong",
+    "rau-ngot",
+    "rau-lang",
+    "cai-ngot",
+    "rau-bina",
+    "su-hao",
+    "dua-chuot",
+    "cu-cai",
+    "khoai-lang",
+    "dau-co-ve",
+    "bong-cai",
+    "sup-lo-trang",
+    "xoai-xanh",
+    "hat-sen",
+    "dua-hau",
+    "cam",
+    "thom"
+   ]
+  },
+  "4": {
+   "peak": [
+    "rau-ngot",
+    "rau-thom",
+    "khoai-tay",
+    "hanh-tay",
+    "dau-co-ve",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "xoai-xanh",
+    "dua-hau",
+    "man",
+    "thom",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-muong",
+    "mong-toi",
+    "rau-den",
+    "rau-lang",
+    "cai-xanh",
+    "cai-ngot",
+    "cai-thia",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "cai-xoong",
+    "xa-lach",
+    "bau",
+    "muop",
+    "muop-dang",
+    "dua-chuot",
+    "ca-chua",
+    "ca-rot",
+    "dau-dua",
+    "ca-tim",
+    "bap-ngo",
+    "mang-tuoi",
+    "dau-ha-lan",
+    "nam-rom",
+    "hat-sen",
+    "xoai"
+   ]
+  },
+  "5": {
+   "peak": [
+    "rau-muong",
+    "mong-toi",
+    "rau-ngot",
+    "rau-day",
+    "rau-den",
+    "rau-thom",
+    "bau",
+    "muop",
+    "muop-dang",
+    "dua-chuot",
+    "hanh-tay",
+    "dau-dua",
+    "dau-co-ve",
+    "ca-tim",
+    "bap-ngo",
+    "mang-tuoi",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "xoai-xanh",
+    "nam-rom",
+    "vai",
+    "xoai",
+    "dua-hau",
+    "man",
+    "thom",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-lang",
+    "cai-ngot",
+    "xa-lach",
+    "bi-dao",
+    "ca-chua",
+    "ca-rot",
+    "khoai-tay",
+    "ca-phao",
+    "doc-mung",
+    "hat-sen",
+    "thanh-long"
+   ]
+  },
+  "6": {
+   "peak": [
+    "rau-muong",
+    "mong-toi",
+    "rau-ngot",
+    "rau-day",
+    "rau-den",
+    "rau-thom",
+    "bi-dao",
+    "bau",
+    "muop",
+    "muop-dang",
+    "dua-chuot",
+    "hanh-tay",
+    "dau-dua",
+    "dau-co-ve",
+    "ca-phao",
+    "ca-tim",
+    "bap-ngo",
+    "mang-tuoi",
+    "hoa-chuoi",
+    "doc-mung",
+    "du-du-xanh",
+    "xoai-xanh",
+    "nam-rom",
+    "hat-sen",
+    "vai",
+    "xoai",
+    "dua-hau",
+    "man",
+    "thanh-long",
+    "thom",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-lang",
+    "cai-ngot",
+    "xa-lach",
+    "ca-chua",
+    "ca-rot",
+    "khoai-tay",
+    "nhan"
+   ]
+  },
+  "7": {
+   "peak": [
+    "rau-muong",
+    "mong-toi",
+    "rau-ngot",
+    "rau-day",
+    "rau-den",
+    "rau-thom",
+    "bi-dao",
+    "bau",
+    "muop",
+    "muop-dang",
+    "dua-chuot",
+    "hanh-tay",
+    "dau-dua",
+    "ca-phao",
+    "ca-tim",
+    "bap-ngo",
+    "mang-tuoi",
+    "hoa-chuoi",
+    "doc-mung",
+    "du-du-xanh",
+    "xoai-xanh",
+    "nam-rom",
+    "hat-sen",
+    "nhan",
+    "xoai",
+    "dua-hau",
+    "thanh-long",
+    "thom",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-lang",
+    "ngon-bi",
+    "cai-ngot",
+    "xa-lach",
+    "bi-do",
+    "ca-chua",
+    "ca-rot",
+    "khoai-tay",
+    "dau-co-ve",
+    "na"
+   ]
+  },
+  "8": {
+   "peak": [
+    "rau-muong",
+    "mong-toi",
+    "rau-ngot",
+    "rau-day",
+    "rau-den",
+    "ngon-bi",
+    "rau-thom",
+    "bi-dao",
+    "bi-do",
+    "bau",
+    "muop",
+    "muop-dang",
+    "dua-chuot",
+    "hanh-tay",
+    "dau-dua",
+    "ca-phao",
+    "ca-tim",
+    "bap-ngo",
+    "mang-tuoi",
+    "hoa-chuoi",
+    "doc-mung",
+    "du-du-xanh",
+    "nam-rom",
+    "hat-sen",
+    "nhan",
+    "na",
+    "thanh-long",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-lang",
+    "cai-ngot",
+    "xa-lach",
+    "ca-chua",
+    "ca-rot",
+    "khoai-so",
+    "khoai-tay",
+    "dau-co-ve",
+    "xoai-xanh",
+    "xoai",
+    "dua-hau",
+    "buoi",
+    "thom"
+   ]
+  },
+  "9": {
+   "peak": [
+    "rau-muong",
+    "rau-ngot",
+    "rau-lang",
+    "ngon-bi",
+    "cai-ngot",
+    "rau-thom",
+    "bi-dao",
+    "bi-do",
+    "muop",
+    "khoai-so",
+    "hanh-tay",
+    "dau-dua",
+    "ca-phao",
+    "ca-tim",
+    "bap-ngo",
+    "mang-tuoi",
+    "hoa-chuoi",
+    "doc-mung",
+    "du-du-xanh",
+    "nam-rom",
+    "buoi",
+    "hong",
+    "na",
+    "thanh-long",
+    "le",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "mong-toi",
+    "rau-day",
+    "rau-den",
+    "cai-xanh",
+    "cai-thia",
+    "xa-lach",
+    "su-su",
+    "bau",
+    "muop-dang",
+    "dua-chuot",
+    "ca-chua",
+    "ca-rot",
+    "khoai-lang",
+    "khoai-tay",
+    "dau-co-ve",
+    "hat-sen",
+    "nhan",
+    "cam",
+    "thom"
+   ]
+  },
+  "10": {
+   "peak": [
+    "rau-lang",
+    "ngon-bi",
+    "cai-xanh",
+    "cai-ngot",
+    "cai-thia",
+    "rau-thom",
+    "su-su",
+    "bi-do",
+    "khoai-so",
+    "khoai-lang",
+    "hanh-tay",
+    "hoa-chuoi",
+    "doc-mung",
+    "du-du-xanh",
+    "buoi",
+    "cam",
+    "quyt",
+    "hong",
+    "thanh-long",
+    "le",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-muong",
+    "mong-toi",
+    "rau-ngot",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "rau-bina",
+    "xa-lach",
+    "su-hao",
+    "bi-dao",
+    "muop",
+    "dua-chuot",
+    "ca-chua",
+    "ca-rot",
+    "cu-cai",
+    "khoai-tay",
+    "dau-dua",
+    "dau-co-ve",
+    "ca-phao",
+    "ca-tim",
+    "bong-cai",
+    "sup-lo-trang",
+    "bap-ngo",
+    "mang-tuoi",
+    "nam-rom",
+    "gac",
+    "hat-sen",
+    "na"
+   ]
+  },
+  "11": {
+   "peak": [
+    "rau-lang",
+    "ngon-bi",
+    "cai-xanh",
+    "cai-ngot",
+    "cai-thia",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "rau-bina",
+    "xa-lach",
+    "rau-thom",
+    "su-hao",
+    "su-su",
+    "bi-do",
+    "ca-chua",
+    "ca-rot",
+    "cu-cai",
+    "khoai-so",
+    "khoai-lang",
+    "hanh-tay",
+    "bong-cai",
+    "sup-lo-trang",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "gac",
+    "buoi",
+    "cam",
+    "quyt",
+    "hong",
+    "le",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "rau-muong",
+    "rau-ngot",
+    "cai-xoong",
+    "dua-chuot",
+    "khoai-tay",
+    "dau-co-ve",
+    "dau-ha-lan",
+    "doc-mung",
+    "hat-sen",
+    "thanh-long"
+   ]
+  },
+  "12": {
+   "peak": [
+    "rau-lang",
+    "cai-xanh",
+    "cai-thia",
+    "cai-cuc",
+    "cai-thao",
+    "bap-cai",
+    "cai-xoong",
+    "rau-bina",
+    "xa-lach",
+    "rau-thom",
+    "su-hao",
+    "su-su",
+    "bi-do",
+    "ca-chua",
+    "ca-rot",
+    "cu-cai",
+    "khoai-so",
+    "khoai-lang",
+    "khoai-tay",
+    "hanh-tay",
+    "bong-cai",
+    "sup-lo-trang",
+    "dau-ha-lan",
+    "hoa-chuoi",
+    "du-du-xanh",
+    "gac",
+    "buoi",
+    "cam",
+    "quyt",
+    "hong",
+    "le",
+    "oi",
+    "chuoi",
+    "du-du"
+   ],
+   "available": [
+    "ngon-bi",
+    "cai-ngot",
+    "dua-chuot",
+    "hat-sen"
+   ]
+  }
+ }
+}

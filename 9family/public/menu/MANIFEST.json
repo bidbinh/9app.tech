@@ -1,0 +1,12 @@
+{
+  "source": "menu-data",
+  "sourceHash": "961bd1ba4a7dead41f57d87c74c3b9f4c7b4c0759111672fc2acbd312d24a383",
+  "dishes": 277,
+  "dataVersion": 1,
+  "region": "bac",
+  "files": {
+    "common.js": "d707c1fd1bbdfeec1d96c46207dc5a90ab22a30dffb533b6eb4e90a6644098cd",
+    "normalize.js": "44f5d5993cc918658de2cec4b7ad277467981f2c2fe35ecdd7bbb056c9d1ccfb",
+    "ingredients.json": "976183e3b32638d3335080a9ff0ffd7d6d0ce96e8659d0c7e6aca2f80dbb609c"
+  }
+}

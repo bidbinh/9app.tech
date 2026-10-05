@@ -1,0 +1,16 @@
+{
+  "name": "menu-data",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Kho món ăn miền Bắc + gợi ý thực đơn tuần + gộp danh sách đi chợ (9family, Osin)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node tools/build.js",
+    "test": "node --test test/",
+    "stats": "node tools/stats.js",
+    "docs": "node tools/gen-nguon.js"
+  }
+}

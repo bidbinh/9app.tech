@@ -1,0 +1,25 @@
+/* 9family: Tiền gia đình. Dùng token của style.css. Không style nội tuyến (CSP). */
+.quick .qrow { gap: var(--s2); align-items: center; }
+.qprev { margin-top: var(--s2); min-height: 24px; font-size: var(--t-s); overflow-wrap: anywhere; }
+.qline b { font-size: var(--t-l); }
+.qbad { color: var(--warn); font-weight: 700; }
+.qcats { margin-top: var(--s2); overflow-x: auto; }
+.quick .btn-row .btn { flex: 1 1 100%; }
+.mnav { gap: var(--s2); }
+.bigsum { text-align: center; padding: var(--s3) 0; }
+.bigsum .amt { font-size: var(--t-xxl); font-weight: 800; letter-spacing: -.4px; font-variant-numeric: tabular-nums; }
+.sec2 { font-size: var(--t-xs); font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .6px; margin: var(--s4) 0 var(--s2); }
+.budget { margin-top: var(--s2); }
+.budget .chart { margin-bottom: 6px; }
+.budget.over .small, .budget.near .small { color: var(--warn); font-weight: 700; }
+.catlist { display: flex; flex-direction: column; gap: var(--s3); }
+.catrow .row { gap: var(--s2); }
+.catrow .chart { margin-top: 4px; }
+.cdot { display: inline-block; width: 14px; height: 14px; border-radius: 7px; background: var(--brand); flex: none; }
+.cdot.k2 { background: var(--c-cam); } .cdot.k3 { background: var(--c-tim); } .cdot.k4 { background: var(--c-luc); } .cdot.k5 { background: var(--c-do); } .cdot.k6 { background: var(--c-nau); }
+.cpct { min-width: 40px; text-align: right; }
+.daytag { display: flex; justify-content: space-between; font-size: var(--t-s); font-weight: 800; color: var(--mute); margin: var(--s3) 2px 4px; }
+.goal { margin-top: var(--s3); }
+.neg { color: var(--bad); } .pos { color: var(--ok); }
+.given { display: flex; align-items: center; min-height: 48px; }
+.hdue .chips { margin-top: 4px; }

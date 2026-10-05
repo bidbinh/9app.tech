@@ -66,4 +66,26 @@ export function uuidList(v, { max = 20, field = 'Danh sách' } = {}) {
   for (const x of v) { if (!UUID_RE.test(String(x))) throw bad(field); const id = String(x).toLowerCase(); if (!out.includes(id)) out.push(id); }
   return out;
 }
+// Chuẩn hóa IP làm khóa giới hạn tần suất: IPv4-mapped về IPv4, IPv6 gom theo /64
+export function normIp(ip) {
+  let s = String(ip || '').trim().toLowerCase();
+  const m4 = s.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+  if (m4) return m4[1];
+  if (!s.includes(':')) return s.slice(0, 45);
+  s = s.replace(/%.*$/, '');
+  const [head, tail] = s.split('::');
+  const h = head ? head.split(':') : [];
+  const t = tail !== undefined && tail ? tail.split(':') : [];
+  const full = tail === undefined ? h : [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t];
+  return full.slice(0, 4).map((x) => (x || '0').replace(/^0+(?=.)/, '')).join(':') + '::/64';
+}
+// Mã khôi phục của chủ gia đình: 20 ký tự (~100 bit), hiển thị một lần, chỉ lưu băm
+const RC_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export function newRecoveryCode() {
+  const b = crypto.randomBytes(20); let s = '';
+  for (let i = 0; i < 20; i++) s += RC_ALPHABET[b[i] & 31];
+  return s.match(/.{5}/g).join('-');
+}
+export const normRecovery = (v) => String(v ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+export const RECOVERY_RE = /^[A-HJ-NP-Z2-9]{20}$/;
 export const iso = (d) => (d ? new Date(d).toISOString() : null);

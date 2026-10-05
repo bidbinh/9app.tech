@@ -1,7 +1,7 @@
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { boot, shutdown, makeFamily, addChild, ok, Client, clock, scheduler, db, at, config } from './helper.js';
+import { boot, shutdown, makeFamily, addChild, newUser, ok, Client, clock, scheduler, db, at, config } from './helper.js';
 import { solarToLunar, lunarToSolar } from '../src/lunar.js';
 
 before(async () => { await boot(); });
@@ -9,6 +9,7 @@ after(shutdown);
 beforeEach(async () => { clock.set(null); await db.resetForTests(); });
 
 const status = async (p) => (await p).status;
+const vnToday = () => new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10);
 const inbox = async (fam, n) => (await ok(fam.by[n].get(`${fam.F}/notifications`))).items.filter((i) => i.type !== 'family').map((i) => i.title).reverse();
 const tickAt = (ms) => { clock.set(ms); return scheduler.tick(ms); };
 const cal = async (fam, from, to, extra = '') => (await ok(fam.owner.get(`${fam.F}/calendar?from=${from}&to=${to}${extra}`))).events;
@@ -205,13 +206,13 @@ test('việc chung: giao việc, nhắc đến hạn một lần, hoàn thành, 
 test('danh sách mua sắm dùng chung', async () => {
   const fam = await makeFamily(['Mẹ', 'Bố']);
   const r = await ok(fam.owner.post(`${fam.F}/shopping`, { text: 'Sữa tươi, trứng gà\nBánh mì 🥖' }));
-  assert.deepEqual(r.items.map((i) => i.text), ['Sữa tươi', 'trứng gà', 'Bánh mì 🥖']);
+  assert.deepEqual(r.items.map((i) => i.text), ['Sữa tươi', 'Trứng gà', 'Bánh mì 🥖']);
   assert.equal(await status(fam.owner.post(`${fam.F}/shopping`, { text: '  ,\n ' })), 400);
   const [a, b] = r.items;
   assert.equal((await ok(fam.by['Bố'].post(`${fam.F}/shopping/${a.id}/bought`))).already, false);
   assert.equal((await ok(fam.owner.post(`${fam.F}/shopping/${a.id}/bought`))).already, true, 'hai người tích cùng lúc');
   const lists = await ok(fam.owner.get(`${fam.F}/lists`));
-  assert.deepEqual(lists.shopping.map((s) => [s.text, s.bought, s.boughtBy]), [['trứng gà', false, ''], ['Bánh mì 🥖', false, ''], ['Sữa tươi', true, 'Bố']]);
+  assert.deepEqual(lists.shopping.map((s) => [s.text, s.bought, s.boughtBy]), [['Trứng gà', false, ''], ['Bánh mì 🥖', false, ''], ['Sữa tươi', true, 'Bố']]);
   assert.equal(await status(fam.by['Bố'].del(`${fam.F}/shopping/${b.id}`)), 403, 'người khác thêm thì không xóa');
   await ok(fam.owner.del(`${fam.F}/shopping/${a.id}`));
   await ok(fam.by['Bố'].post(`${fam.F}/shopping/${b.id}/bought`));
@@ -222,8 +223,12 @@ test('danh sách mua sắm dùng chung', async () => {
 test('hộp thông báo: chỉ của mình, đánh dấu đã đọc, chấm đỏ', async () => {
   const fam = await makeFamily(['Mẹ', 'Bố']);
   await ok(fam.owner.post(`${fam.F}/tasks`, { title: 'Mua gạo', assigneeId: fam.ids['Bố'] }));
-  const meBase = (await ok(fam.owner.get(`${fam.F}/pulse`))).unread; // Mẹ đã nhận tin "Bố vào gia đình"
-  assert.equal(meBase, 1);
+  const meBase = (await ok(fam.owner.get(`${fam.F}/pulse`))).unread; // lần đồng bộ đầu tiên của gia đình không báo "đã vào gia đình"
+  assert.equal(meBase, 0);
+  // người vào sau đó thì chủ được báo
+  const late = newUser('Chú Út'); fam.fake.addMember(fam.fid, late.userId, 'thanh_vien'); await ok(fam.owner.get(fam.F));
+  assert.equal((await ok(fam.owner.get(`${fam.F}/pulse`))).unread, 1);
+  await ok(fam.owner.post(`${fam.F}/notifications/read`));
   assert.equal((await ok(fam.by['Bố'].get(`${fam.F}/pulse`))).unread, 1);
   assert.equal((await ok(fam.by['Bố'].get(`${fam.F}/today`))).unread, 1);
   const items = (await ok(fam.by['Bố'].get(`${fam.F}/notifications`))).items;
@@ -265,8 +270,10 @@ test('thời khóa biểu bằng lưới: sinh sự kiện lặp tuần, thay th
   assert.equal(await bad({ cells: [{ weekday: 8, period: 1, subject: 'x' }] }), 400);
   assert.equal(await bad({ untilDate: '2026-01-01' }), 400);
   assert.equal(await status(fam.owner.post(`${fam.F}/timetable`, { childId: '00000000-0000-4000-8000-000000000000', ...GRID })), 404);
-  // xóa con thì xóa cả thời khóa biểu của con
-  await ok(fam.owner.del(`${fam.F}/children/${kid.id}`));
+  // con lưu trữ ở 9id: ẩn ngay; sau 7 ngày mới dọn thời khóa biểu (khôi phục trong 7 ngày thì còn nguyên)
+  fam.fake.archiveChild(fam.fid, kid.id); await fam.sync();
+  assert.ok((await db.query("SELECT count(*)::int n FROM events WHERE source='tkb'"))[0].n > 0);
+  clock.set(Date.now() + 8 * 86400_000); await fam.sync(); clock.set(null);
   assert.equal((await db.query("SELECT count(*)::int n FROM events WHERE source='tkb'"))[0].n, 0);
   assert.equal((await db.query('SELECT count(*)::int n FROM timetables'))[0].n, 0);
   // sửa tay một môn thì tách khỏi thời khóa biểu
@@ -323,7 +330,7 @@ test('AI đọc ảnh thời khóa biểu: gọi Gemini, kiểm tra nghiêm, kh�
     const bad = await fam.owner.post(`${fam.F}/timetable/scan`, { image: img });
     assert.equal(bad.status, 502); assert.equal(bad.json.error.code, 'ai_bad_output');
     // hạn mức theo ngày
-    await db.query('UPDATE ai_usage SET n = $1', [config.aiPerFamilyPerDay]);
+    await db.query("INSERT INTO ai_quota(scope, day, n) VALUES('f:' || $1, $2, $3) ON CONFLICT (scope, day) DO UPDATE SET n = $3", [fam.fid, vnToday(), config.aiPerFamilyPerDay]);
     assert.equal(await status(fam.owner.post(`${fam.F}/timetable/scan`, { image: img })), 429);
     // tắt khóa AI thì ẩn tính năng
     config.aiKey = '';
@@ -372,6 +379,6 @@ test('xuất lịch ICS: token riêng, nội dung hợp lệ, đổi token, ngư
   // token sai
   for (const p of ['/ics/abc.ics', '/ics/' + 'A'.repeat(43) + '.ics', '/ics/' + 'A'.repeat(43), '/ics/../x']) assert.equal((await anon.req('GET', p, undefined, { raw: true })).status, 404, p);
   // rời gia đình thì token chết
-  await ok(fam.by['Bố'].post(`${fam.F}/leave`));
+  await fam.leave('Bố');
   assert.equal((await anon.req('GET', np.replace('/9family', ''), undefined, { raw: true })).status, 404);
 });

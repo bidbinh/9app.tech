@@ -46,6 +46,21 @@
     phone: ['M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z'],
     image: ['M3 5h18v14H3z', 'M3 16l5-5 4 4 3-3 6 6', 'M8.5 9h.01'],
     home: ['M3 11l9-8 9 8', 'M5 10v10h5v-6h4v6h5V10'],
+    grid: ['M4 4h7v7H4z', 'M13 4h7v7h-7z', 'M4 13h7v7H4z', 'M13 13h7v7h-7z'],
+    heart: ['M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z'],
+    wallet: ['M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z', 'M3 7l2-3h12v3', 'M16 13.5h.01'],
+    cart: ['M3 4h2l2.4 10.5a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L19 8H6', 'M9 20h.01', 'M17 20h.01'],
+    sparkle: ['M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z', 'M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z'],
+    mic: ['M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0', 'M12 18v3'],
+    send: ['M22 2 11 13', 'M22 2l-7 20-4-9-9-4z'],
+    pin: ['M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z', 'M12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z'],
+    chevd: ['M6 9l6 6 6-6'], chevu: ['M6 15l6-6 6 6'],
+    undo: ['M9 14 4 9l5-5', 'M4 9h10a6 6 0 0 1 0 12h-3'],
+    utensils: ['M7 3v8', 'M5 3v5a2 2 0 0 0 4 0V3', 'M7 11v10', 'M17 3c-2 1.5-3 4-3 7 0 2 1 3 3 3v8'],
+    arrow: ['M5 12h14', 'M13 6l6 6-6 6'],
+    cake: ['M4 20h16v-7H4z', 'M4 16c2 1.5 4-1.500 6 0s4 1.500 6 0 3 .5 4 0', 'M12 13V9', 'M12 4v2'],
+    flag: ['M5 21V4', 'M5 4h12l-2 4 2 4H5'],
+    pause: ['M8 5v14', 'M16 5v14'],
   };
   F9.ico = function (name, size, stroke) {
     var NS = 'http://www.w3.org/2000/svg';
@@ -172,6 +187,7 @@
           var e = (j && j.error) || {};
           var err = new Error(e.message || 'Có lỗi xảy ra, thử lại nhé');
           err.status = r.status; err.code = e.code; err.details = e.details;
+          if (r.status === 401 && e.code === 'unauthenticated' && !opts.noRedirect) { F9.toLogin(); err.login = true; }
           if (r.status < 500 && opts.idem) F9.idemDone(opts.idem);
           throw err;
         });
@@ -188,6 +204,40 @@
   F9.del = function (p) { return F9.api('DELETE', p); };
   F9.fam = function (fid, p) { return 'api/families/' + fid + (p || ''); };
 
+  // ---------- tài khoản 9app (9id) ----------
+  // Đăng nhập, đăng ký, gia đình, lời mời nằm ở 9id, cùng nguồn gốc (9app.tech/id/). 9family chỉ dẫn sang đó rồi đọc lại.
+  F9.idBase = '/id/';
+  F9.idUrl = function (hash) { return F9.idBase + (hash || ''); };
+  F9.loginUrl = function (mode) {
+    var next = location.pathname + location.search + location.hash;
+    return F9.idBase + '?next=' + encodeURIComponent(next) + '#/' + (mode === 'register' ? 'dang-ky' : 'dang-nhap');
+  };
+  var redirecting = false;
+  F9.toLogin = function (mode) {
+    if (redirecting) return; redirecting = true;
+    location.assign(F9.loginUrl(mode));
+  };
+  // nút/liên kết sang 9id (mở cùng tab; quay lại 9family bằng nút Back hoặc ‹ 9app)
+  F9.idLink = function (hash, attrs, kids) { return h('a', Object.assign({ href: F9.idUrl(hash) }, attrs || {}), kids); };
+  // Gọi API cookie của 9id (cùng nguồn gốc, đã có nine_sid). Trả JSON hoặc ném lỗi có .status/.code
+  F9.idApi = function (method, path, body, idem) {
+    var headers = { 'X-Requested-With': '9id' };
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (idem) headers['Idempotency-Key'] = F9.idem(idem);
+    return fetch(F9.idBase + 'api' + path, { method: method, headers: headers, body: body === undefined ? undefined : JSON.stringify(body), credentials: 'same-origin' }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { /* không phải JSON */ }
+        if (r.ok) { if (idem) F9.idemDone(idem); return j; }
+        var e = (j && j.error) || {};
+        var err = new Error(e.message || 'Có lỗi xảy ra, thử lại nhé');
+        err.status = r.status; err.code = e.code; err.details = e.details;
+        if (r.status < 500 && idem) F9.idemDone(idem);
+        if (r.status === 401) { F9.toLogin(); err.login = true; }
+        throw err;
+      });
+    }, function () { var err = new Error('Không kết nối được mạng. Dữ liệu bạn nhập vẫn còn, bấm lại khi có mạng.'); err.offline = true; throw err; });
+  };
+
   F9.online = true;
   F9.setOnline = function (on) {
     if (F9.online === on) return;
@@ -200,13 +250,20 @@
 
   // ---------- toast ----------
   var toastTimer = null;
-  F9.toast = function (msg, kind) {
+  // opts.undo: hàm hoàn tác (hiện nút "Hoàn tác" 7 giây); trả về Promise thì báo lỗi nếu hoàn tác thất bại
+  F9.toast = function (msg, kind, opts) {
     var t = F9.$('toast');
     F9.clear(t);
     t.className = 'toast ' + (kind || '');
-    t.appendChild(document.createTextNode(msg));
+    t.appendChild(h('span', { class: 't-msg', text: msg }));
+    if (opts && opts.undo) {
+      t.appendChild(h('button', { type: 'button', class: 't-undo', onclick: function () {
+        t.className = 'toast hidden'; clearTimeout(toastTimer);
+        Promise.resolve().then(opts.undo).then(function () { F9.toast('Đã hoàn tác'); }, F9.fail);
+      } }, [F9.ico('undo', 18), 'Hoàn tác']));
+    }
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.className = 'toast hidden'; }, kind === 'err' ? 6000 : 3000);
+    toastTimer = setTimeout(function () { t.className = 'toast hidden'; }, kind === 'err' ? 6000 : opts && opts.undo ? 7000 : 3000);
   };
   F9.fail = function (e) {
     if (e && e.status === 404 && e.code === 'not_found' && F9.currentFid && /gia đình/.test(e.message || '')) { F9.go('#/'); return; }
@@ -269,6 +326,7 @@
     var body = h('div', { class: 'sheet-body' });
     var closed = false;
     var panel = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, [
+      h('div', { class: 'sheet-grab', 'aria-hidden': 'true' }),
       h('div', { class: 'sheet-head' }, [
         h('div', { class: 'sheet-title', text: title }),
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Đóng', onclick: function () { close(); } }, [F9.ico('close', 22)]),
@@ -321,11 +379,67 @@
     });
   };
 
+  // Hiện mã khôi phục của chủ gia đình (một lần): chép/chia sẻ, nhắc cất giữ
+  F9.recoverySheet = function (code, title) {
+    F9.sheet(title || 'Mã khôi phục của chủ gia đình', function (body, close) {
+      body.appendChild(h('p', { text: 'Nếu mất hết thiết bị, mã này giúp chủ gia đình vào lại. Hãy chép và cất ở nơi an toàn (ghi vào sổ, lưu trong ghi chú riêng). Mã chỉ hiện một lần; ai có mã đều vào được với tư cách chủ gia đình.' }));
+      body.appendChild(h('div', { class: 'linkbox big', 'data-recovery': '1', text: code }));
+      body.appendChild(h('div', { class: 'btn-row' }, [
+        F9.btn('Sao chép mã', 'ghost', function () { F9.copy(code, 'Đã sao chép mã khôi phục'); }),
+        F9.btn('Tôi đã lưu mã', 'primary', function () { close(); }),
+      ]));
+    });
+  };
+
   // ---------- phần tử dùng lại ----------
   F9.chip = function (text, kind) { return h('span', { class: 'chip ' + (kind || ''), text: text }); };
-  F9.kidChip = function (kid) { return h('span', { class: 'kid-chip c-' + (kid.color || 'xanh') }, [h('i', { class: 'kid-dot' }), kid.name]); };
-  F9.empty = function (title, text, action) {
-    return h('div', { class: 'empty' }, [h('div', { class: 'empty-t', text: title }), text ? h('div', { class: 'muted', text: text }) : null, action || null]);
+  // Avatar chữ cái: con = nền màu nhận diện, người lớn = nền nhạt. Luôn kèm tên ở chỗ khác (aria-hidden) nên không chỉ dựa vào màu.
+  F9.avatar = function (who, size) {
+    who = who || {};
+    var kid = !!who.color;
+    return h('span', { class: 'av' + (size ? ' ' + size : '') + (kid ? ' kid c-' + who.color : ' adult'), 'aria-hidden': 'true', text: F9.initial(who.name) });
+  };
+  F9.avatars = function (list, size) { return h('span', { class: 'avs' }, list.slice(0, 4).map(function (w) { return F9.avatar(w, size); })); };
+  F9.kidChip = function (kid) { return h('span', { class: 'kid-chip' }, [F9.avatar(kid), kid.name]); };
+  F9.empty = function (title, text, action, icon) {
+    return h('div', { class: 'empty' }, [icon ? h('div', { class: 'empty-ico' }, [F9.ico(icon, 30)]) : null, h('div', { class: 'empty-t', text: title }), text ? h('div', { class: 'muted', text: text }) : null, action || null]);
+  };
+  // Thanh chọn một (hoặc nhiều) có avatar, vuốt ngang khi dài: items [{value, label, who?}]
+  F9.fchips = function (items, value, onchange) {
+    var wrap = h('div', { class: 'fchips', role: 'group', 'aria-label': 'Lọc theo con' });
+    items.forEach(function (it) {
+      var on = it.value === value;
+      wrap.appendChild(h('button', { type: 'button', class: 'fchip' + (it.who ? '' : ' all') + (on ? ' on' : ''), 'aria-pressed': on ? 'true' : 'false', onclick: function () { onchange(it.value); } }, [it.who ? F9.avatar(it.who, 's') : null, it.label]));
+    });
+    return wrap;
+  };
+  F9.seg = function (items, value, onchange, label) {
+    return h('div', { class: 'seg', role: 'tablist', 'aria-label': label || null }, items.map(function (m) {
+      return h('button', { type: 'button', role: 'tab', class: value === m[0] ? 'on' : '', 'aria-selected': value === m[0] ? 'true' : 'false', text: m[1], onclick: function () { if (value !== m[0]) onchange(m[0]); } });
+    }));
+  };
+  // Vuốt ngang trên một vùng (trái = tiếp, phải = lùi); bỏ qua khi người dùng đang cuộn dọc hoặc vuốt trong thanh chip
+  F9.swipe = function (el, onNext, onPrev) {
+    var x0 = 0, y0 = 0, t0 = 0, ok = false;
+    el.addEventListener('touchstart', function (e) {
+      var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
+      ok = e.touches.length === 1 && !(e.target.closest && e.target.closest('.fchips, input, textarea, select'));
+    }, { passive: true });
+    el.addEventListener('touchend', function (e) {
+      if (!ok) return; ok = false;
+      var t = e.changedTouches[0]; var dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Date.now() - t0 > 700 || Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+      if (dx < 0) onNext(); else onPrev();
+    }, { passive: true });
+  };
+  F9.isBig = function () { return document.documentElement.classList.contains('big'); };
+  F9.setBig = function (on) { document.documentElement.classList.toggle('big', !!on); F9.store('big', !!on); };
+  // Nút gạt có nhãn (dùng cho "Chữ lớn")
+  F9.switchRow = function (label, sub, on, onchange) {
+    var b = h('button', { type: 'button', class: 'switch', role: 'switch', 'aria-checked': on ? 'true' : 'false', onclick: function () {
+      on = !on; b.setAttribute('aria-checked', on ? 'true' : 'false'); onchange(on);
+    } }, [h('span', { class: 'col' }, [h('span', { class: 'b', text: label }), sub ? h('span', { class: 'muted small block', text: sub }) : null]), h('span', { class: 'sw' })]);
+    return b;
   };
   F9.notice = function (kind, title, text, action) {
     return h('div', { class: 'notice ' + kind, role: kind === 'bad' ? 'alert' : null }, [
@@ -359,17 +473,18 @@
       items.forEach(function (it) {
         var on = sel.indexOf(it[0]) >= 0;
         wrap.appendChild(h('button', {
-          type: 'button', class: 'optchip' + (on ? ' on' : ''), 'aria-pressed': on ? 'true' : 'false', role: opts.single ? 'radio' : null, 'aria-checked': opts.single ? String(on) : null,
+          type: 'button', class: 'optchip' + (on ? ' on' : '') + (it[2] ? ' has-av' : ''), 'aria-pressed': on ? 'true' : 'false', role: opts.single ? 'radio' : null, 'aria-checked': opts.single ? String(on) : null,
           onclick: function () {
             if (opts.single) sel = [it[0]];
             else { var i = sel.indexOf(it[0]); if (i >= 0) sel.splice(i, 1); else sel.push(it[0]); }
             paint(); if (onchange) onchange(sel.slice());
           },
-        }, [it[2] ? h('i', { class: 'kid-dot ' + it[2] }) : null, it[1]]));
+        }, [it[2] ? h('span', { class: 'av s kid ' + it[2], 'aria-hidden': 'true', text: F9.initial(it[1]) }) : null, it[1]]));
       });
     }
     paint();
     wrap.getValue = function () { return sel.slice(); };
+    wrap.setValue = function (v) { sel = v.slice(); paint(); };
     return wrap;
   };
 
@@ -471,23 +586,39 @@
     setTimeout(function () { if (!usesKeyboard(document.activeElement)) document.body.classList.remove('typing'); }, 100);
   });
 
-  // ---------- khung: thanh trên, thanh tab, nút chính dưới ----------
+  // ---------- khung: thanh trên, thanh tab, nút chính dưới, nút nổi ----------
+  // o: { title, sub, back, right[], tabs:{fid,tab}, fam:{name}, fab:{label, onclick} }
   F9.frame = function (o) {
     var bar = F9.$('bar'), barIn = F9.$('bar-in');
     F9.clear(barIn);
     bar.className = 'bar';
-    if (o.back) barIn.appendChild(F9.link(o.back, { class: 'icon-btn', 'aria-label': 'Quay lại' }, [F9.ico('back', 24)]));
-    else barIn.appendChild(h('a', { href: '/', class: 'home9app', 'aria-label': 'Về trang 9app' }, [F9.ico('back', 18), '9app']));
-    barIn.appendChild(h('div', { class: 'ttl', text: o.title || '9family' }));
+    if (o.back) {
+      barIn.appendChild(F9.link(o.back, { class: 'icon-btn', 'aria-label': 'Quay lại' }, [F9.ico('back', 24)]));
+      barIn.appendChild(h('div', { class: 'ttl', text: o.title || '9family' }));
+    } else if (o.fam) {
+      // màn chính: ô nhận diện gia đình (chạm để đổi gia đình) + tên màn hình
+      barIn.appendChild(h('a', { href: '/', class: 'icon-btn bar-home', 'aria-label': 'Về trang 9app' }, [F9.ico('back', 22)]));
+      barIn.appendChild(F9.link('#/pick', { class: 'bar-fam', 'aria-label': 'Gia đình ' + o.fam.name + '. Chạm để chuyển gia đình' }, [
+        h('span', { class: 'av fam', 'aria-hidden': 'true', text: F9.initial(o.fam.name) }),
+        h('div', { class: 'ttl' }, [o.title || '9family', o.sub ? h('span', { class: 'ttl-sub', text: o.sub }) : null]),
+      ]));
+    } else {
+      barIn.appendChild(h('a', { href: '/', class: 'home9app', 'aria-label': 'Về trang 9app' }, [F9.ico('back', 18), '9app']));
+      barIn.appendChild(h('div', { class: 'ttl', text: o.title || '9family' }));
+    }
     (o.right || []).forEach(function (n) { barIn.appendChild(n); });
     F9.setCta(null);
     F9.setTabs(o.tabs || null);
+    F9.setFab(o.fab || null);
   };
   F9.bell = function (fid) {
-    var a = F9.link('#/f/' + fid + '/inbox', { class: 'icon-btn', id: 'bell', 'aria-label': 'Thông báo' }, [F9.ico('bell', 24), h('span', { class: 'dot-badge hidden', 'data-badge': 'inbox', text: '0' })]);
-    return a;
+    return F9.link('#/f/' + fid + '/inbox', { class: 'icon-btn', id: 'bell', 'aria-label': 'Thông báo' }, [F9.ico('bell', 24), h('span', { class: 'dot-badge hidden', 'data-badge': 'inbox', text: '0' })]);
   };
-  var TABS = [['today', 'Hôm nay', 'sun'], ['cal', 'Lịch', 'cal'], ['rides', 'Đưa đón', 'car'], ['tasks', 'Việc chung', 'list'], ['me', 'Gia đình', 'users']];
+  F9.osinBtn = function (fid) {
+    return h('button', { type: 'button', class: 'icon-btn brand', 'aria-label': 'Hỏi Osin, trợ lý của nhà', onclick: function () { F9.osinSheet(fid); } }, [F9.ico('sparkle', 24)]);
+  };
+  // Tối đa 5 mục, nhãn ngắn. "Tiện ích" chứa Việc chung, Đi chợ, Thực đơn, Sức khỏe, Tiền khi ra mắt mà không làm chật thanh dưới.
+  var TABS = [['today', 'Hôm nay', 'sun'], ['cal', 'Lịch', 'cal'], ['rides', 'Đưa đón', 'car'], ['more', 'Tiện ích', 'grid'], ['me', 'Gia đình', 'users']];
   F9.setTabs = function (fidTab) {
     var t = F9.$('tabs'); F9.clear(t);
     if (!fidTab) { t.className = 'tabs hidden'; document.body.classList.remove('has-tabs'); return; }
@@ -495,9 +626,18 @@
     var inner = h('nav', { class: 'tabs-in', 'aria-label': 'Điều hướng chính' });
     TABS.forEach(function (x) {
       var on = fidTab.tab === x[0];
-      inner.appendChild(F9.link('#/f/' + fidTab.fid + '/' + x[0], { class: 'tab' + (on ? ' on' : ''), 'aria-current': on ? 'page' : null }, [F9.ico(x[2], 24), x[1]]));
+      inner.appendChild(F9.link('#/f/' + fidTab.fid + '/' + x[0], { class: 'tab' + (on ? ' on' : ''), 'aria-current': on ? 'page' : null }, [h('span', { class: 'tab-ico' }, [F9.ico(x[2], 24, on ? 2.4 : 2)]), x[1]]));
     });
     t.appendChild(inner);
+  };
+  // Một nút "+ Thêm" nổi duy nhất cho mỗi màn hình (không lặp "Thêm sự kiện" ở nhiều nơi)
+  F9.setFab = function (o) {
+    var old = F9.$('fab'); if (old) old.parentNode.removeChild(old);
+    if (o && (F9.role === 'con' || F9.legacy)) o = null; // tài khoản của con và phiên ẩn danh cũ (đang chờ chuyển sang 9app) chỉ xem
+    document.body.classList.toggle('has-fab', !!o);
+    if (!o) return;
+    var b = h('button', { type: 'button', id: 'fab', class: 'fab', 'aria-label': o.aria || o.label || 'Thêm', onclick: o.onclick }, [F9.ico(o.icon || 'plus', 24, 2.6), o.label || 'Thêm']);
+    document.body.appendChild(b);
   };
   F9.setCta = function (node) {
     var cta = F9.$('cta');
@@ -510,22 +650,47 @@
     var v = F9.$('view');
     var y = window.scrollY;
     F9.clear(v);
+    // phiên ẩn danh cũ trong lúc chuyển sang tài khoản 9app: chỉ xem, nói rõ ngay đầu trang
+    if (F9.legacy) nodes = [F9.notice('warn', 'Đang chỉ xem', 'Gia đình đang chuyển sang tài khoản 9app. Chủ gia đình hãy đăng nhập 9app rồi nhập mã nhận gia đình để ghi lại được.', h('div', { class: 'btn-row' }, [h('a', { class: 'btn ghost sm', href: F9.loginUrl() }, ['Đăng nhập / Đăng ký'])]))].concat(nodes);
     v.appendChild(h('div', { class: 'page' }, nodes));
     window.scrollTo(0, y);
     return y;
   };
-  F9.skeleton = function () {
+  // Khung chờ có hình dạng giống nội dung thật (không nhảy bố cục khi dữ liệu về). kind: 'list' | 'strip' | 'form'
+  F9.skeleton = function (kind) {
+    var n = [];
+    if (kind === 'strip') { n.push(h('div', { class: 'skel line' }), h('div', { class: 'skel strip' }), h('div', { class: 'skel row' }), h('div', { class: 'skel row' }), h('div', { class: 'skel row' })); }
+    else if (kind === 'form') { n.push(h('div', { class: 'skel' }), h('div', { class: 'skel' }), h('div', { class: 'skel short' })); }
+    else { n.push(h('div', { class: 'skel line' }), h('div', { class: 'skel short' }), h('div', { class: 'skel row' }), h('div', { class: 'skel row' }), h('div', { class: 'skel row' }), h('div', { class: 'skel row' })); }
     F9.clear(F9.$('view'));
-    F9.$('view').appendChild(h('div', { class: 'page' }, [h('div', { class: 'skel' }), h('div', { class: 'skel' }), h('div', { class: 'skel short' })]));
+    F9.$('view').appendChild(h('div', { class: 'page', 'aria-busy': 'true' }, n));
   };
   F9.loadError = function (e, retry) {
     F9.setCta(null);
+    F9.setFab(null);
     F9.liveStop();
     var offline = e && e.offline;
     var gone = e && e.status === 404;
     if (gone) F9.setTabs(null);
-    F9.mount([F9.empty(offline ? 'Chưa có mạng' : (gone ? 'Không tìm thấy' : 'Chưa tải được'), gone ? 'Gia đình này không tồn tại, hoặc thiết bị này không còn được liên kết với gia đình. Nếu bạn là thành viên, hãy nhờ chủ gia đình gửi link mời lại.' : ((e && e.message) || 'Thử lại nhé'), h('div', { class: 'btn-row center' }, [
+    F9.mount([F9.empty(offline ? 'Chưa có mạng' : (gone ? 'Không tìm thấy' : 'Chưa tải được'), gone ? 'Gia đình này không tồn tại, hoặc tài khoản 9app của bạn không ở trong gia đình. Hãy nhờ người trong nhà mời bạn bằng số điện thoại ở tài khoản 9app.' : ((e && e.message) || 'Thử lại nhé'), h('div', { class: 'btn-row center' }, [
       e && e.status === 404 ? F9.link('#/', { class: 'btn primary' }, ['Về trang chủ']) : F9.btn('Thử lại', 'primary', retry),
-    ]))]);
+    ]), offline ? 'warn' : gone ? 'users' : 'info')]);
+  };
+
+  // Trợ lý Osin: chừa sẵn chỗ (khung trò chuyện chữ/giọng nói). Chưa gọi AI; ra mắt sau.
+  F9.osinSheet = function () {
+    F9.sheet('Osin, trợ lý của nhà', function (body) {
+      body.appendChild(F9.notice('info', 'Sắp ra mắt', 'Osin sẽ giúp bạn hỏi nhanh lịch của cả nhà, thêm sự kiện và món đi chợ bằng một câu nói.'));
+      body.appendChild(h('div', { class: 'chatdemo', 'aria-hidden': 'true' }, [
+        h('div', { class: 'bubble', text: 'Chào bạn! Mình là Osin. Bạn cần gì cho cả nhà hôm nay?' }),
+        h('div', { class: 'bubble me', text: 'Tối nay ai đón bé?' }),
+      ]));
+      body.appendChild(h('div', { class: 'tpl' }, ['Tối nay ai đón con?', 'Thêm lịch học', 'Lập thực đơn tuần'].map(function (t) { return h('button', { type: 'button', class: 'optchip', disabled: true, text: t }); })));
+      body.appendChild(h('div', { class: 'composer' }, [
+        h('input', { type: 'text', placeholder: 'Nhắn cho Osin…', disabled: true, 'aria-label': 'Nhắn cho Osin' }),
+        h('button', { type: 'button', class: 'icon-btn', disabled: true, 'aria-label': 'Nói với Osin' }, [F9.ico('mic', 24)]),
+        h('button', { type: 'button', class: 'icon-btn', disabled: true, 'aria-label': 'Gửi' }, [F9.ico('send', 22)]),
+      ]));
+    });
   };
 })();

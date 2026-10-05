@@ -9,6 +9,13 @@
     "dev": "node scripts/dev.js",
     "test": "node scripts/test.js",
     "e2e": "node scripts/e2e.js",
+    "e2e:menu": "node scripts/e2e-menu.js",
+    "sync-menu": "node scripts/sync-menu-data.js",
+    "e2e:id": "node scripts/e2e-id.js",
+    "e2e:hm": "node scripts/e2e-hm.js",
+    "e2e:journey": "node scripts/e2e-journey.js",
+    "e2e:cutover": "node scripts/e2e-cutover.js",
+    "docker-sim": "node scripts/docker-sim.mjs",
     "vapid": "node scripts/vapid.js"
   },
   "engines": { "node": ">=20" },

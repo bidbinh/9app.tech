@@ -245,7 +245,7 @@ test('Web Push: chỉ nhận endpoint của dịch vụ đẩy thật (chống S
   assert.ok(checkEndpoint('https://updates.push.services.mozilla.com/wpush/v2/abc'));
   assert.ok(checkEndpoint('https://web.push.apple.com/abc'));
   assert.ok(checkEndpoint('https://wns2-par02p.notify.windows.com/w/?token=abc'));
-  for (const bad of ['http://fcm.googleapis.com/x', 'https://127.0.0.1/x', 'https://localhost/x', 'https://evil.com/fcm.googleapis.com', 'https://fcm.googleapis.com.evil.com/x', 'https://user:pw@fcm.googleapis.com/x', 'file:///etc/passwd', 'abc', 'https://169.254.169.254/']) {
+  for (const bad of ['https://evil.googleapis.com/x', 'https://storage.googleapis.com/x', 'https://notify.windows.com.evil.com/x', 'http://fcm.googleapis.com/x', 'https://127.0.0.1/x', 'https://localhost/x', 'https://evil.com/fcm.googleapis.com', 'https://fcm.googleapis.com.evil.com/x', 'https://user:pw@fcm.googleapis.com/x', 'file:///etc/passwd', 'abc', 'https://169.254.169.254/']) {
     assert.throws(() => checkEndpoint(bad), (e) => e.status === 400, bad);
   }
 });

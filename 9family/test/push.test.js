@@ -46,7 +46,7 @@ function decrypt(d, body) {
 }
 
 async function sub(client, fam, url, d, types) {
-  return ok(client.post(`${fam.F}/push/subscribe`, { endpoint: url, keys: keysOf(d), ...(types ? { types } : {}) }), 'đăng ký đẩy');
+  return ok(client.post(`${fam.F}/push/subscribe`, { endpoint: url, keys: keysOf(d), hide: false, ...(types ? { types } : {}) }), 'đăng ký đẩy');
 }
 const DAY = '2026-10-05';
 
@@ -125,15 +125,15 @@ test('Web Push: kiểm tra đăng ký, huỷ, rời gia đình, thu hồi thiế
     await ok(fam.owner.post(`${fam.F}/push/unsubscribe`, { endpoint: ps.url('a') }));
     assert.equal((await db.query('SELECT count(*)::int n FROM push_subs'))[0].n, 0);
     await ok(fam.owner.post(`${fam.F}/push/unsubscribe`, { endpoint: 'rác' }));
-    // đăng ký theo thiết bị: thu hồi thiết bị thì đăng ký đẩy của thiết bị đó mất theo
-    const link = await ok(fam.by['Bố'].post(`${fam.F}/devices/link`, {}));
-    const phone2 = new (fam.owner.constructor)();
-    await ok(phone2.post(`/api/invites/${link.invite.code}/accept`, {}));
+    // đăng ký đẩy gắn với người dùng 9id và thiết bị (hai máy của cùng một người)
+    const phone2 = new (fam.owner.constructor)().loginAs(fam.fake.login(fam.userIds['Bố']));
     await sub(fam.by['Bố'], fam, ps.url('b1'), device()); await sub(phone2, fam, ps.url('b2'), device());
-    const devs = (await ok(fam.by['Bố'].get(`${fam.F}/devices`))).devices;
-    await ok(fam.by['Bố'].del(`${fam.F}/devices/${devs.find((x) => !x.current).id}`));
+    const rowsB = await db.query('SELECT user_id, sid, endpoint FROM push_subs ORDER BY endpoint');
+    assert.equal(rowsB.length, 2); assert.ok(rowsB.every((r) => r.user_id === fam.userIds['Bố']), 'đăng ký đẩy gắn user_id của 9id');
+    assert.notEqual(rowsB[0].sid, rowsB[1].sid, 'mỗi thiết bị (phiên) một sid riêng');
+    await ok(phone2.post(`${fam.F}/push/unsubscribe`, { endpoint: ps.url('b2') }));
     assert.deepEqual((await db.query('SELECT endpoint FROM push_subs')).map((r) => r.endpoint.split('/').pop()), ['b1']);
-    await ok(fam.by['Bố'].post(`${fam.F}/leave`));
+    await fam.leave('Bố'); // rời gia đình ở 9id: đăng ký đẩy mất theo
     assert.equal((await db.query('SELECT count(*)::int n FROM push_subs'))[0].n, 0);
     // máy chủ chưa cấu hình VAPID
     const keep = config.vapidPrivate; config.vapidPrivate = '';
@@ -166,5 +166,34 @@ test('Web Push: 410 gỡ thuê bao, lỗi tạm thì thử lại, nhiều bản 
     assert.equal(ps.got.filter((g) => g.path === '/push/loi').length, 2);
     assert.equal((await db.query('SELECT count(*)::int n FROM push_outbox WHERE sent_at IS NULL'))[0].n, 0);
     assert.equal(decrypt(dC, ps.got.find((g) => g.path === '/push/tot').body).title, 'Bố giao việc cho bạn');
+  } finally { ps.srv.close(); }
+});
+
+test('L6: mặc định ẩn tên con/địa điểm trong nội dung đẩy; bật hiện chi tiết thì có đủ', async () => {
+  const ps = await fakePushServer();
+  try {
+    const fam = await makeFamily(['Mẹ', 'Bố']);
+    const kid = await addChild(fam, 'Bống Bí Mật');
+    await ok(fam.owner.post(`${fam.F}/rides`, { childId: kid.id, dir: 'don', weekdays: [1], time: '16:30', place: 'Cổng B kín', p0: fam.ids['Mẹ'] }));
+    const d = device();
+    const r = await ok(fam.owner.post(`${fam.F}/push/subscribe`, { endpoint: ps.url('an'), keys: keysOf(d) }));
+    assert.equal(r.hide, true);
+    assert.equal((await ok(fam.owner.post(`${fam.F}/push/status`, { endpoint: ps.url('an') }))).hide, true);
+    const T = at(DAY, '16:30');
+    clock.set(T - 30 * 60_000); await scheduler.tick(T - 30 * 60_000);
+    const m = decrypt(d, ps.got[0].body);
+    assert.deepEqual([m.title, m.body], ['Nhắc đưa đón', 'Mở 9family để xem chi tiết.']);
+    assert.ok(!JSON.stringify(m).includes('Bống') && !JSON.stringify(m).includes('Cổng'));
+    assert.equal(m.url, `#/f/${fam.fid}/rides`);
+    // trong app (hộp thư) vẫn đầy đủ
+    assert.ok((await ok(fam.owner.get(`${fam.F}/notifications`))).items.some((i) => i.title === 'Sắp tới giờ đón Bống Bí Mật'));
+    // bật hiện chi tiết
+    await ok(fam.owner.post(`${fam.F}/push/types`, { endpoint: ps.url('an'), hide: false }));
+    clock.set(T - 5 * 60_000); await scheduler.tick(T - 5 * 60_000);
+    const m2 = decrypt(d, ps.got[1].body);
+    assert.ok(m2.title.includes('Bống Bí Mật'));
+    // đổi loại không làm mất cờ hide
+    await ok(fam.owner.post(`${fam.F}/push/types`, { endpoint: ps.url('an'), types: ['ride'] }));
+    assert.equal((await ok(fam.owner.post(`${fam.F}/push/status`, { endpoint: ps.url('an') }))).hide, false);
   } finally { ps.srv.close(); }
 });

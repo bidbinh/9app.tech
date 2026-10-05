@@ -2,6 +2,7 @@ import { config } from '../config.js';
 import { query, tx } from '../db.js';
 import { ApiError } from '../errors.js';
 import { requireManager, forbidden, isManager } from '../auth.js';
+import { familyContext } from '../id.js';
 import { clock } from '../clock.js';
 import { cleanText, cleanNote, cleanTime, cleanDay, intIn, uuidParam, normKey } from '../util.js';
 import { dayOfMs, addDays, atMs, weekdayISO, daysBetween } from '../vn.js';
@@ -28,15 +29,20 @@ export const rideDayOut = (r) => ({
   skipName: r.skip_name || '', skipReason: r.skip_reason, overrideName: r.override_name || '', overrideReason: r.override_reason,
 });
 
-export async function ridesOfDay(q, fid, day) {
-  return (await q(`${SEL} WHERE rd.family_id = $1 AND rd.day = $2 ORDER BY rd.at_ts, rd.dir, c.created_at`, [fid, day])).map(rideDayOut);
+// Tài khoản của con chỉ thấy ca của chính mình, và không thấy số điện thoại/nhận dạng của người đón hộ
+export const forViewer = (me) => (list) => (me && me.role === 'con'
+  ? list.filter((r) => me.childIds.includes(r.childId)).map((r) => ({ ...r, p0Phone: undefined, p0Note: undefined }))
+  : list);
+
+export async function ridesOfDay(q, fid, day, me) {
+  return forViewer(me)((await q(`${SEL} WHERE rd.family_id = $1 AND rd.day = $2 AND c.archived_at IS NULL ORDER BY rd.at_ts, rd.dir, c.created_at`, [fid, day])).map(rideDayOut));
 }
 
 async function checkPeople(c, fid, ids) {
   const set = ids.filter(Boolean);
   if (new Set(set).size !== set.length) throw new ApiError(400, 'invalid_input', 'Mỗi người chỉ nên giữ một vị trí trong ca (phụ trách, dự phòng 1, dự phòng 2)', { field: 'Người phụ trách' });
   if (!set.length) return;
-  const rows = await c.query('SELECT id FROM members WHERE family_id=$1 AND left_at IS NULL AND (joined_at IS NOT NULL OR external) AND id = ANY($2::uuid[])', [fid, set]);
+  const rows = await c.query('SELECT id FROM members WHERE family_id=$1 AND left_at IS NULL AND (joined_at IS NOT NULL OR external) AND role <> $3 AND id = ANY($2::uuid[])', [fid, set, 'con']);
   if (rows.length !== set.length) throw new ApiError(400, 'invalid_input', 'Có người không còn trong gia đình hoặc chưa vào gia đình', { field: 'Người phụ trách' });
 }
 const personOf = (v) => (v === null || v === undefined || v === '' ? null : uuidParam(v));
@@ -52,10 +58,9 @@ export function rideRoutes(app) {
   const F = famRoutes(app);
 
   // ---------- hồ sơ con ----------
-  function parseChild(b, cur = {}) {
+  // Tên, năm sinh và việc tạo/lưu trữ hồ sơ con nằm ở 9id (tài khoản 9app). Ở đây chỉ giữ phần mở rộng: trường, lớp, màu, ghi chú đưa đón.
+  function parseChild(b) {
     const o = {};
-    if (b.name !== undefined || !cur.id) o.name = cleanText(b.name, { max: 40, min: 1, field: 'Tên gọi của con' });
-    if (b.birthYear !== undefined) o.birth_year = b.birthYear === null || b.birthYear === '' ? null : intIn(b.birthYear, { min: 1990, max: 2100, field: 'Năm sinh' });
     if (b.school !== undefined) o.school = cleanText(b.school, { max: 80, field: 'Trường' });
     if (b.grade !== undefined) o.grade = cleanText(b.grade, { max: 20, field: 'Lớp' });
     if (b.color !== undefined) { if (!COLORS.includes(b.color)) throw new ApiError(400, 'invalid_input', 'Màu không hợp lệ', { field: 'Màu' }); o.color = b.color; }
@@ -63,56 +68,38 @@ export function rideRoutes(app) {
     return o;
   }
 
-  F.post('/children', async (ctx, me, fid) => {
-    requireManager(me, 'Chỉ chủ gia đình hoặc người quản lý mới thêm con');
-    const o = parseChild(ctx.body);
-    return tx(async (c) => {
-      await c.query('SELECT id FROM families WHERE id=$1 FOR UPDATE', [fid]);
-      const kids = await c.query('SELECT name, color FROM children WHERE family_id=$1', [fid]);
-      if (kids.length >= config.maxChildren) throw new ApiError(409, 'limit', `Mỗi gia đình tối đa ${config.maxChildren} con`);
-      if (kids.some((k) => normKey(k.name) === normKey(o.name))) throw new ApiError(409, 'name_taken', 'Đã có con tên này. Thêm chữ đệm để phân biệt nhé.');
-      if (!o.color) o.color = COLORS.find((x) => !kids.some((k) => k.color === x)) || 'xanh';
-      const r = (await c.query('INSERT INTO children(family_id, name, birth_year, school, grade, color, note) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',
-        [fid, o.name, o.birth_year ?? null, o.school ?? '', o.grade ?? '', o.color, o.note ?? '']))[0];
-      return { child: childOut(r) };
-    });
+  F.post('/children', async () => {
+    throw new ApiError(409, 'child_in_id', 'Thêm con ở tài khoản 9app (mục Gia đình), rồi quay lại đây thêm trường, lớp và màu.', { link: config.nineIdPublicPath });
   });
 
   F.post('/children/:cid', async (ctx, me, fid) => {
     requireManager(me, 'Chỉ chủ gia đình hoặc người quản lý mới sửa hồ sơ con');
     const cid = uuidParam(ctx.params.cid);
-    return tx(async (c) => {
-      const cur = (await c.query('SELECT * FROM children WHERE id=$1 AND family_id=$2 FOR UPDATE', [cid, fid]))[0];
-      if (!cur) throw new ApiError(404, 'not_found', 'Không tìm thấy con');
-      const o = parseChild(ctx.body, cur);
-      if (o.name) {
-        const kids = await c.query('SELECT id, name FROM children WHERE family_id=$1', [fid]);
-        if (kids.some((k) => k.id !== cid && normKey(k.name) === normKey(o.name))) throw new ApiError(409, 'name_taken', 'Đã có con tên này');
-      }
-      const keys = Object.keys(o);
-      if (keys.length) await c.query(`UPDATE children SET ${keys.map((k, i) => `${k}=$${i + 2}`).join(', ')} WHERE id=$1`, [cid, ...keys.map((k) => o[k])]);
-      return { child: childOut((await c.query('SELECT * FROM children WHERE id=$1', [cid]))[0]) };
-    });
+    const b = ctx.body;
+    const o = parseChild(b);
+    let cur = (await query('SELECT * FROM children WHERE id=$1 AND family_id=$2 AND archived_at IS NULL', [cid, fid]))[0];
+    if (!cur) { // hồ sơ vừa tạo ở 9id: đọc lại 9id rồi thử lần nữa
+      await familyContext(ctx, fid, { force: true });
+      cur = (await query('SELECT * FROM children WHERE id=$1 AND family_id=$2 AND archived_at IS NULL', [cid, fid]))[0];
+    }
+    if (!cur) throw new ApiError(404, 'not_found', 'Không tìm thấy con');
+    if ((b.name !== undefined && b.name !== cur.name) || (b.birthYear !== undefined && (b.birthYear === '' ? null : b.birthYear) !== cur.birth_year)) {
+      throw new ApiError(409, 'child_in_id', 'Tên và năm sinh của con đổi ở tài khoản 9app (mục Gia đình).', { link: config.nineIdPublicPath });
+    }
+    const keys = Object.keys(o);
+    if (keys.length) await query(`UPDATE children SET ${keys.map((k, i) => `${k}=$${i + 3}`).join(', ')} WHERE id=$1 AND family_id=$2`, [cid, fid, ...keys.map((k) => o[k])]);
+    return { child: childOut((await query('SELECT * FROM children WHERE id=$1', [cid]))[0], me) };
   });
 
-  F.del('/children/:cid', async (ctx, me, fid) => {
-    requireManager(me, 'Chỉ chủ gia đình hoặc người quản lý mới xóa hồ sơ con');
-    const cid = uuidParam(ctx.params.cid);
-    await tx(async (c) => {
-      const cur = (await c.query('SELECT id FROM children WHERE id=$1 AND family_id=$2 FOR UPDATE', [cid, fid]))[0];
-      if (!cur) throw new ApiError(404, 'not_found', 'Không tìm thấy con');
-      await c.query("DELETE FROM events WHERE family_id=$1 AND source='tkb' AND source_child=$2", [fid, cid]);
-      await c.query('UPDATE events SET child_ids = array_remove(child_ids, $2) WHERE family_id=$1 AND $2 = ANY(child_ids)', [fid, cid]);
-      await c.query('DELETE FROM children WHERE id=$1', [cid]);
-    });
-    return { ok: true };
+  F.del('/children/:cid', async () => {
+    throw new ApiError(409, 'child_in_id', 'Lưu trữ hoặc xóa hồ sơ con ở tài khoản 9app (mục Gia đình).', { link: config.nineIdPublicPath });
   });
 
   // ---------- khuôn đưa đón theo tuần ----------
   F.get('/rides', async (ctx, me, fid) => {
-    const rows = await query('SELECT * FROM rides WHERE family_id=$1 ORDER BY child_id, dir, weekday, at_time', [fid]);
+    const rows = (await query('SELECT r.* FROM rides r JOIN children k ON k.id = r.child_id AND k.archived_at IS NULL WHERE r.family_id=$1 ORDER BY r.child_id, r.dir, r.weekday, r.at_time', [fid])).filter((r) => me.role !== 'con' || me.childIds.includes(r.child_id));
     return { rides: rows.map((r) => ({ id: r.id, childId: r.child_id, dir: r.dir, weekday: r.weekday, time: r.at_time, place: r.place, p0: r.p0, p1: r.p1, p2: r.p2 })) };
-  });
+  }, { con: true });
 
   F.post('/rides', async (ctx, me, fid) => {
     requireManager(me, 'Chỉ chủ gia đình hoặc người quản lý mới đặt lịch đưa đón');
@@ -125,7 +112,7 @@ export function rideRoutes(app) {
     if (!days.length) throw new ApiError(400, 'invalid_input', 'Hãy chọn ít nhất một thứ trong tuần', { field: 'Thứ' });
     const ppl = parsePeople(b);
     return tx(async (c) => {
-      if (!(await c.query('SELECT 1 FROM children WHERE id=$1 AND family_id=$2', [childId, fid])).length) throw new ApiError(404, 'not_found', 'Không tìm thấy con');
+      if (!(await c.query('SELECT 1 FROM children WHERE id=$1 AND family_id=$2 AND archived_at IS NULL', [childId, fid])).length) throw new ApiError(404, 'not_found', 'Không tìm thấy con');
       await checkPeople(c, fid, [ppl.p0, ppl.p1, ppl.p2]);
       const n = (await c.query('SELECT count(*)::int n FROM rides WHERE family_id=$1', [fid]))[0].n;
       if (n + days.length > config.maxRides) throw new ApiError(409, 'limit', 'Số ca đưa đón đã đạt giới hạn');
@@ -188,14 +175,14 @@ export function rideRoutes(app) {
     const diff = daysBetween(today, day);
     if (diff < -30 || diff > 30) throw new ApiError(400, 'invalid_input', 'Chỉ xem được các ca trong khoảng 30 ngày quanh hôm nay', { field: 'Ngày' });
     if (diff >= 0) await tx((c) => R.ensureRideDays(c, day, fid));
-    return { day, today, now, rides: await ridesOfDay(query, fid, day) };
-  });
+    return { day, today, now, rides: await ridesOfDay(query, fid, day, me) };
+  }, { con: true });
 
   F.get('/rides/history', async (ctx, me, fid) => {
     const today = dayOfMs(clock.now());
     const rows = await query(`${SEL} WHERE rd.family_id=$1 AND rd.day >= $2 AND (rd.state IN ('xong','bo_qua','khong_ai') OR rd.day < $3) ORDER BY rd.at_ts DESC LIMIT 120`, [fid, addDays(today, -30), today]);
-    return { rides: rows.map(rideDayOut) };
-  });
+    return { rides: forViewer(me)(rows.map(rideDayOut)) };
+  }, { con: true });
 
   async function act(ctx, fid, rdId, fn) {
     const id = uuidParam(rdId);
@@ -210,8 +197,11 @@ export function rideRoutes(app) {
 
   F.post('/ride-days/:id/claim', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => R.claim(c, rd, me, clock.now(), forIdOf(ctx.body))));
   F.post('/ride-days/:id/start', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => R.start(c, rd, me, clock.now())));
-  F.post('/ride-days/:id/done', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => R.finish(c, rd, me, clock.now(), forIdOf(ctx.body))));
-  F.post('/ride-days/:id/skip', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => R.skip(c, rd, me, clock.now(), cleanText(ctx.body.reason ?? '', { max: 100, field: 'Lý do' }))));
+  // người ngoài ca chỉ được "Tôi nhận"; muốn báo xong hoặc bỏ qua phải là người trong ca (phụ trách, dự phòng, người đã nhận) hoặc chủ/quản lý
+  const mayAct = (me, rd) => isManager(me) || [rd.p0, rd.p1, rd.p2, rd.claimed_by].includes(me.id);
+  const needInvolved = (me, rd) => { if (!mayAct(me, rd)) throw forbidden('Chỉ người trong ca này hoặc người quản lý mới báo xong hoặc bỏ qua. Bạn có thể bấm Tôi nhận trước.'); };
+  F.post('/ride-days/:id/done', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => { needInvolved(me, rd); return R.finish(c, rd, me, clock.now(), forIdOf(ctx.body)); }));
+  F.post('/ride-days/:id/skip', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => { needInvolved(me, rd); return R.skip(c, rd, me, clock.now(), cleanText(ctx.body.reason ?? '', { max: 100, field: 'Lý do' })); }));
   F.post('/ride-days/:id/unskip', (ctx, me, fid) => act(ctx, fid, ctx.params.id, (c, rd) => R.unskip(c, rd)));
   F.post('/ride-days/:id/assign', (ctx, me, fid) => act(ctx, fid, ctx.params.id, async (c, rd) => {
     if (!(isManager(me) || [rd.p0, rd.p1, rd.p2, rd.claimed_by].includes(me.id))) throw forbidden('Chỉ người trong ca này hoặc người quản lý mới đổi người phụ trách');

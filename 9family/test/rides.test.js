@@ -344,7 +344,7 @@ test('thành viên rời đi khi đang giữ ca: ca trở về trạng thái ch�
   clock.set(T - 25 * 60_000);
   const [rd] = await board(fam);
   await ok(fam.by['Chú Tư'].post(`${fam.F}/ride-days/${rd.id}/claim`));
-  await ok(fam.by['Chú Tư'].post(`${fam.F}/leave`));
+  await fam.leave('Chú Tư');
   const [now] = await board(fam);
   assert.equal(now.state, 'cho'); assert.equal(now.claimedBy, null);
 });

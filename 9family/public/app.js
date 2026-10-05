@@ -7,11 +7,19 @@
     [/^#\/?$/, function () { F9.home(); }],
     [/^#\/pick$/, function () { F9.pick(); }],
     [/^#\/new$/, function () { F9.createFamily(false); }],
-    [/^#\/join\/([A-Za-z0-9_-]{1,40})$/, function (m) { F9.join(m[1]); }],
     [new RegExp('^#/f/' + ID + '/today$'), function (m) { F9.today(m[1]); }],
     [new RegExp('^#/f/' + ID + '/cal$'), function (m) { F9.cal(m[1]); }],
     [new RegExp('^#/f/' + ID + '/rides$'), function (m) { F9.rides(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/more$'), function (m) { F9.more(m[1]); }],
     [new RegExp('^#/f/' + ID + '/tasks$'), function (m) { F9.tasks(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/health$'), function (m) { F9.health(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/health/' + ID + '$'), function (m) { F9.healthPerson(m[1], m[2]); }],
+    [new RegExp('^#/f/' + ID + '/money$'), function (m) { F9.money(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/shop$'), function (m) { F9.shop(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/shop/go$'), function (m) { F9.shopGo(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/menu/profile$'), function (m) { F9.menuProfile(m[1]); }],
+    [new RegExp('^#/f/' + ID + '/menu(?:/(\\d{4}-\\d{2}-\\d{2}))?$'), function (m) { F9.menu(m[1], m[2]); }],
+    [new RegExp('^#/f/' + ID + '/school$'), function (m) { F9.school(m[1]); }],
     [new RegExp('^#/f/' + ID + '/me$'), function (m) { F9.me(m[1]); }],
     [new RegExp('^#/f/' + ID + '/inbox$'), function (m) { F9.inbox(m[1]); }],
     [new RegExp('^#/f/' + ID + '/event/new(?:/(\\d{4}-\\d{2}-\\d{2}))?$'), function (m) { F9.eventForm(m[1], null, m[2]); }],
@@ -23,9 +31,10 @@
     F9.closeSheets();
     F9.liveStop();
     F9.setCta(null);
+    F9.setFab(null);
     F9.currentFid = null;
     var hash = location.hash || '#/';
-    if (/^#\/f\/[0-9a-fA-F-]{36}\/(today|cal|rides|tasks|me)$/.test(hash)) F9.returnTo = hash;
+    if (/^#\/f\/[0-9a-fA-F-]{36}\/(today|cal|rides|more|tasks|shop|me)$/.test(hash)) F9.returnTo = hash;
     for (var i = 0; i < routes.length; i++) {
       var m = hash.match(routes[i][0]);
       if (m) {
@@ -38,13 +47,6 @@
     }
     F9.go('#/');
   };
-
-  // link mời dạng /9family/m/<mã> hoặc /9family/d/<mã>: chuyển sang màn vào gia đình (mã nằm trong hash để tải lại vẫn đúng)
-  var m = location.pathname.match(/\/[md]\/([A-Za-z0-9_-]{1,40})\/?$/);
-  if (m) {
-    var root = new URL('./', document.baseURI).pathname;
-    history.replaceState(null, '', root + '#/join/' + m[1]);
-  }
 
   window.addEventListener('hashchange', F9.route);
   F9.route();

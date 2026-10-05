@@ -1,30 +1,43 @@
-import crypto from 'node:crypto';
+// Xác thực bằng tài khoản 9app dùng chung (9id). Cookie nine_sid (cùng nguồn gốc 9app.tech) -> 9id verify -> ctx.user.
+// Không còn cookie ẩn danh fsid, link mời, ghép thiết bị, mã khôi phục. (Ngoại lệ có kiểm soát: LEGACY_SESSIONS=1 chỉ cho XEM
+// gia đình cũ chưa được nhận về 9id trong lúc cutover, xem README.)
 import { config } from './config.js';
 import { ApiError } from './errors.js';
 import { query } from './db.js';
 import { sha256hex, UUID_RE } from './util.js';
+import { verifyToken, familyContext, TOKEN_RE } from './id.js';
 
-export const COOKIE = 'fsid';
-const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
+export const COOKIE = 'nine_sid';
+export const LEGACY_COOKIE = 'fsid';
+const LEGACY_TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
-// Đọc cookie phiên ẩn danh; ctx.sid là băm SHA-256 của token (token thật không bao giờ vào CSDL)
+// Mỗi yêu cầu: đọc nine_sid, hỏi 9id (đệm <= 60 giây). ctx.user = { userId, displayName } hoặc null. ctx.sid = băm token (dùng làm khóa giới hạn tốc độ/idempotency/thiết bị đẩy).
 export async function resolveSession(ctx) {
   const t = ctx.cookies[COOKIE];
-  if (t && TOKEN_RE.test(t)) ctx.sid = sha256hex(t);
+  if (t && TOKEN_RE.test(t)) {
+    const user = await verifyToken(t); // 9id lỗi -> ném 503 (không coi là đăng xuất)
+    if (user) { ctx.user = user; ctx.token = t; ctx.sid = sha256hex(t); return null; }
+  }
+  // chế độ tương thích khi cutover: phiên ẩn danh cũ, chỉ đọc
+  const lt = config.legacySessions && ctx.cookies[LEGACY_COOKIE];
+  if (lt && LEGACY_TOKEN_RE.test(lt)) {
+    const h = sha256hex(lt);
+    if ((await query('SELECT 1 FROM sessions WHERE token_hash = $1 LIMIT 1', [h])).length) { ctx.legacy = h; ctx.sid = h; }
+  }
   return null;
 }
 
-// Có cookie thì dùng, chưa có thì cấp mới
-export function ensureSession(ctx) {
-  if (ctx.sid) return ctx.sid;
-  const token = crypto.randomBytes(32).toString('base64url');
-  ctx.setCookie(COOKIE, token, { maxAge: config.sessionDays * 86400 });
-  ctx.sid = sha256hex(token);
-  return ctx.sid;
+export const loginInfo = () => ({ login: config.nineIdPublicPath });
+export function unauthenticated() {
+  return new ApiError(401, 'unauthenticated', 'Bạn chưa đăng nhập tài khoản 9app. Hãy đăng nhập hoặc đăng ký để dùng 9family.', loginInfo());
 }
-
+// Phải đăng nhập 9id (chế độ cũ chỉ-đọc không tính). Chưa đăng nhập: 401 chuẩn để giao diện chuyển sang /id/?next=...
+export function requireUser(ctx) {
+  if (!ctx.user) throw unauthenticated();
+  return ctx.user;
+}
 export function requireSession(ctx) {
-  if (!ctx.sid) throw new ApiError(404, 'not_found', 'Không tìm thấy');
+  if (!ctx.user && !ctx.legacy) throw unauthenticated();
   return ctx.sid;
 }
 
@@ -39,23 +52,44 @@ export function deviceLabel(ua) {
   return 'Thiết bị';
 }
 
-// Thành viên đăng nhập được (còn trong gia đình, không phải người đón hộ) của phiên này ở gia đình `fid`, hoặc null
-export async function memberFor(q, sid, fid) {
-  if (!sid || !UUID_RE.test(String(fid))) return null;
-  const rows = await q(
+// Thành viên cũ (phiên ẩn danh) của gia đình CHƯA được nhận về 9id; chỉ dùng ở chế độ tương thích
+async function legacyMember(sid, fid) {
+  const rows = await query(
     `SELECT m.* FROM members m JOIN sessions s ON s.member_id = m.id
-      WHERE s.token_hash = $1 AND m.family_id = $2 AND m.left_at IS NULL AND m.external = false LIMIT 1`, [sid, fid]);
+      WHERE s.token_hash = $1 AND m.family_id = $2 AND m.left_at IS NULL AND m.external = false AND m.user_id IS NULL
+        AND NOT EXISTS (SELECT 1 FROM members x WHERE x.family_id = m.family_id AND x.user_id IS NOT NULL AND x.left_at IS NULL) LIMIT 1`, [sid, fid]);
   return rows[0] || null;
 }
+export async function legacyFamilies(sid) {
+  return query(
+    `SELECT f.id, f.name, m.id AS member_id, m.name AS my_name, m.role
+       FROM members m JOIN sessions s ON s.member_id = m.id JOIN families f ON f.id = m.family_id
+      WHERE s.token_hash = $1 AND m.left_at IS NULL AND m.external = false AND m.user_id IS NULL
+        AND NOT EXISTS (SELECT 1 FROM members x WHERE x.family_id = m.family_id AND x.user_id IS NOT NULL AND x.left_at IS NULL)
+      ORDER BY m.joined_at DESC NULLS LAST`, [sid]);
+}
 
-// Người ngoài gia đình và gia đình không tồn tại đều nhận 404 như nhau
+// Người ngoài gia đình và gia đình không tồn tại đều nhận 404 như nhau. Tham số q giữ cho tương thích chữ ký cũ (không dùng).
+// Trả hàng members của người gọi (+ userId, memberId, role theo 9id, childIds, isExternal). Đặt ctx.view = bản đọc từ 9id.
 export async function requireMember(q, ctx, fid) {
-  const me = await memberFor(q, ctx.sid, fid);
-  if (!me) throw new ApiError(404, 'not_found', 'Không tìm thấy gia đình này, hoặc bạn không ở trong gia đình');
-  return me;
+  if (!UUID_RE.test(String(fid))) throw new ApiError(404, 'not_found', 'Không tìm thấy gia đình này, hoặc bạn không ở trong gia đình');
+  fid = String(fid).toLowerCase();
+  if (ctx.user) {
+    const { me, view } = await familyContext(ctx, fid);
+    ctx.view = view;
+    return me;
+  }
+  if (ctx.legacy) {
+    const m = await legacyMember(ctx.legacy, fid);
+    if (!m) throw new ApiError(404, 'not_found', 'Không tìm thấy gia đình này, hoặc bạn không ở trong gia đình');
+    if (ctx.req.method !== 'GET') throw new ApiError(423, 'migrating', 'Gia đình đang chuyển sang tài khoản 9app nên tạm thời chỉ xem được. Hãy đăng nhập 9app và nhập mã nhận gia đình để tiếp tục.', loginInfo());
+    return Object.assign(m, { userId: null, memberId: m.id, isExternal: false, childIds: [], legacy: true });
+  }
+  throw unauthenticated();
 }
 
 export const isManager = (m) => m.role === 'chu' || m.role === 'quan_ly';
+export const isChild = (m) => m.role === 'con';
 export const forbidden = (msg = 'Bạn không có quyền làm việc này') => new ApiError(403, 'forbidden', msg);
 export function requireManager(me, msg = 'Chỉ chủ gia đình hoặc người quản lý mới làm được việc này') {
   if (!isManager(me)) throw forbidden(msg);
@@ -63,11 +97,12 @@ export function requireManager(me, msg = 'Chỉ chủ gia đình hoặc người
 export function requireOwner(me, msg = 'Chỉ chủ gia đình mới làm được việc này') {
   if (me.role !== 'chu') throw forbidden(msg);
 }
+// Vai 'con' không làm được việc của người lớn (mời, đặt lịch, xem thông tin nhạy cảm...)
+export function requireAdult(me, msg = 'Việc này dành cho người lớn trong gia đình') {
+  if (me.role === 'con') throw forbidden(msg);
+}
 
 export async function touch(ctx) {
-  if (!ctx.sid) return;
-  await query(
-    `UPDATE members SET last_seen_at = now() WHERE last_seen_at < now() - interval '1 minute'
-      AND id IN (SELECT member_id FROM sessions WHERE token_hash = $1)`, [ctx.sid]);
-  await query(`UPDATE sessions SET last_used_at = now() WHERE token_hash = $1 AND last_used_at < now() - interval '10 minutes'`, [ctx.sid]);
+  if (!ctx.user) return;
+  await query(`UPDATE members SET last_seen_at = now() WHERE user_id = $1 AND last_seen_at < now() - interval '1 minute'`, [ctx.user.userId]);
 }

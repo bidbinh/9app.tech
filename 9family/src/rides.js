@@ -6,7 +6,9 @@ import { DEFAULT_ESC } from './config.js';
 
 export const OPEN_STATES = ['cho', 'da_nhan', 'dang_di', 'khong_ai'];
 export const dirWord = (dir) => (dir === 'dua' ? 'đưa' : 'đón');
-export const STALE_MIN = 90; // quá 90 phút sau giờ ca thì không nhắc nữa
+export const STALE_MIN = 90; // tối thiểu: quá 90 phút sau giờ ca thì không nhắc nữa
+// cửa sổ nhắc kết thúc sau mốc "sau giờ ca" + 10 phút (mốc cài tới 120 phút vẫn phát được)
+export const staleMin = (esc) => Math.max(STALE_MIN, esc.after + 10);
 
 export function normEsc(s) {
   const e = { ...DEFAULT_ESC, ...(s && s.esc ? s.esc : {}) };
@@ -19,7 +21,7 @@ export function stepOffsets(esc) {
 }
 // Các bước đã đến hạn tại thời điểm nowMs (chưa trừ bước đã phát)
 export function dueSteps(atTsMs, nowMs, esc) {
-  if (nowMs > atTsMs + STALE_MIN * 60_000) return [];
+  if (nowMs > atTsMs + staleMin(esc) * 60_000) return [];
   return stepOffsets(esc).filter(([, off]) => atTsMs + off * 60_000 <= nowMs).map(([s]) => s);
 }
 
@@ -29,7 +31,7 @@ export async function ensureRideDays(c, day, familyId = null) {
     `INSERT INTO ride_days(family_id, ride_id, child_id, dir, day, at_time, at_ts, place, p0, p1, p2)
      SELECT r.family_id, r.id, r.child_id, r.dir, $1::date, r.at_time,
             ((($1::date + r.at_time::time) - interval '7 hours') AT TIME ZONE 'UTC'), r.place, r.p0, r.p1, r.p2
-       FROM rides r WHERE r.weekday = $2 AND ($3::uuid IS NULL OR r.family_id = $3)
+       FROM rides r JOIN children k ON k.id = r.child_id AND k.archived_at IS NULL WHERE r.weekday = $2 AND ($3::uuid IS NULL OR r.family_id = $3)
      ON CONFLICT DO NOTHING RETURNING id`, [day, weekdayISO(day), familyId]);
 }
 
@@ -197,7 +199,7 @@ export async function unskip(c, rd) {
 // Ghi đè người phụ trách một ngày. Đặt lại ca về "chờ" để người mới nhận.
 export async function assign(c, rd, actor, nowMs, memberId, reason) {
   if (rd.state === 'xong' || rd.state === 'bo_qua') throw conflict('bad_state', 'Ca này đã kết thúc, không đổi người được');
-  const m = (await c.query('SELECT id, name, external FROM members WHERE id=$1 AND family_id=$2 AND left_at IS NULL', [memberId, rd.family_id]))[0];
+  const m = (await c.query('SELECT id, name, external FROM members WHERE id=$1 AND family_id=$2 AND left_at IS NULL AND (joined_at IS NOT NULL OR external) AND role <> $3', [memberId, rd.family_id, 'con']))[0];
   if (!m) throw new ApiError(400, 'invalid_input', 'Người này không còn trong gia đình');
   const old = rd.p0;
   const slots = takeOver(rd, memberId);

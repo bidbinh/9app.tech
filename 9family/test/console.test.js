@@ -1,7 +1,7 @@
 // API quản trị cho 9app Console: ký HMAC, phản hồi qua bộ kiểm tra chung 9admin/src/contract.js
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { boot, shutdown, makeFamily, addChild, config, base, ok } from './helper.js';
+import { boot, shutdown, makeFamily, addChild, config, base, ok, db } from './helper.js';
 import * as contract from '../../9admin/src/contract.js';
 
 before(async () => { await boot(); });
@@ -52,9 +52,30 @@ test('manifest, health, summary, users, user detail đều qua bộ kiểm tra c
   for (const u of all) { assert.equal(u.phone, ''); assert.ok(u.name); }
   const dr = await call('/users/' + all[0].id); if (dr.status !== 200) console.log('DETAIL', dr.status, dr.text);
   const d = contract.userDetail(dr.json);
-  assert.ok(d.fields.length >= 5);
+  assert.ok(d.fields.length >= 4);
+  assert.ok(all.every((u) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(u.id)), 'id người dùng là user_id của 9id');
+  assert.equal((await call('/users/00000000-0000-4000-8000-000000000000')).status, 404);
   assert.equal((await call('/users/999999')).status, 404);
   assert.equal((await call('/users/abc')).status, 404);
   const everything = JSON.stringify([(await call('/summary')).json, (await call('/users?limit=100')).json, (await call('/users/' + all[0].id)).json]);
   assert.ok(!everything.includes('TênConBíMật') && !everything.includes('0912345678'));
+  assert.ok(!/\+?84\d{8,9}|0\d{9}/.test(everything), 'không có số điện thoại');
+});
+
+test('L4: phát lại cùng một yêu cầu đã ký bị từ chối; /users/:id không trả người chưa vào hoặc đã rời', async () => {
+  config.consoleApiKeyId = KEY; config.consoleApiSecret = SECRET;
+  const ts = Math.floor(Date.now() / 1000) + 40; // dải giờ riêng, không trùng chữ ký của các test khác
+  assert.equal((await call('/manifest', { ts })).status, 200);
+  assert.equal((await call('/manifest', { ts })).status, 401, 'cùng ts + chữ ký thì là phát lại');
+  assert.equal((await call('/manifest', { ts: ts + 1 })).status, 200);
+  const fam = await makeFamily(['Mẹ', 'Bố']);
+  assert.equal((await call('/users/' + fam.userIds['Bố'], { ts: ts + 3 })).status, 200);
+  await fam.leave('Bố');
+  assert.equal((await call('/users/' + fam.userIds['Bố'], { ts: ts + 4 })).status, 404, 'đã rời');
+  // một người ở hai gia đình chỉ là một dòng
+  const fam2 = await makeFamily(['Mẹ']);
+  fam.fake.addMember(fam2.fid, fam.userIds['Mẹ'], 'thanh_vien');
+  await ok(fam.owner.get(fam2.F));
+  const list = (await call('/users?limit=1000', { ts: ts + 5 })).json.items.filter((u) => u.id === fam.userIds['Mẹ']);
+  assert.equal(list.length, 1); assert.equal(list[0].extra.so_gia_dinh, 2);
 });

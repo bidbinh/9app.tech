@@ -1,0 +1,22 @@
+# Triển khai 9family lên máy chủ dùng chung. Dùng lại PostgreSQL của 9Ship (container 9ship-db) với CSDL "family" và vai trò riêng.
+# Chuẩn bị một lần: tạo vai trò + CSDL (xem README), rồi:
+#   cp .env.example .env && docker compose -f docker-compose.server.yml up -d --build
+# Cần 9id chạy trước (container 9id, cùng mạng): xem docs/CUTOVER-9ID.md. Lệnh quản trị: docker exec -it 9family node scripts/export-to-9id.js
+# CHỈ chạy MỘT bản (một bộ lập lịch). Muốn nhiều bản thì vẫn an toàn nhờ khóa CSDL, nhưng không cần.
+name: 9family
+services:
+  family:
+    build: .
+    image: 9family:latest
+    container_name: 9family
+    restart: unless-stopped
+    env_file: .env
+    mem_limit: 160m
+    networks: [shipdb, tms]
+networks:
+  shipdb:
+    external: true
+    name: 9ship_internal
+  tms:
+    external: true
+    name: ops_tms-network

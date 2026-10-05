@@ -1,0 +1,11 @@
+node_modules
+.data
+shots
+test
+scripts/*
+!scripts/export-to-9id.js
+.env
+*.log
+Dockerfile
+docker-compose*.yml
+.dockerignore

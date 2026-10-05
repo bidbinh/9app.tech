@@ -9,7 +9,7 @@ import { ApiError } from './errors.js';
 export const pushEnabled = () => !!(config.vapidPublic && config.vapidPrivate);
 
 // Chỉ nhận endpoint của các dịch vụ đẩy thật (chống SSRF: máy chủ không được gọi vào địa chỉ nội bộ tùy ý)
-const HOSTS = [/(^|\.)googleapis\.com$/, /(^|\.)push\.services\.mozilla\.com$/, /(^|\.)notify\.windows\.com$/, /(^|\.)push\.apple\.com$/, /(^|\.)mozilla\.com$/];
+const HOSTS = [/^fcm\.googleapis\.com$/, /(^|\.)push\.services\.mozilla\.com$/, /\.notify\.windows\.com$/, /(^|\.)push\.apple\.com$/];
 export function checkEndpoint(raw) {
   let u;
   try { u = new URL(String(raw)); } catch { throw new ApiError(400, 'invalid_input', 'Địa chỉ đẩy thông báo không hợp lệ'); }

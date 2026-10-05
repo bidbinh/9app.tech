@@ -4,7 +4,8 @@ import { ApiError } from './errors.js';
 
 const KEY_RE = /^[A-Za-z0-9_-]{8,64}$/;
 
-export function withIdem(handler) {
+// opts.noBody: phản hồi chứa mã bí mật (mã mời, mã khôi phục...) nên KHÔNG lưu vào bảng idem; bấm lại cùng khóa thì báo đã xử lý.
+export function withIdem(handler, opts = {}) {
   return async (ctx) => {
     const raw = ctx.headers['idempotency-key'];
     if (!raw) return handler(ctx);
@@ -15,6 +16,7 @@ export function withIdem(handler) {
     if (!claimed.length) {
       const row = (await query('SELECT status, body FROM idem WHERE scope=$1 AND key=$2', [scope, key]))[0];
       if (!row || row.body === null) throw new ApiError(409, 'in_progress', 'Yêu cầu trước đó vẫn đang xử lý, đợi một chút');
+      if (row.body && row.body.__noreplay) return { __status: 409, body: { error: { code: 'already_done', message: 'Thao tác này đã được thực hiện. Hãy tải lại trang để xem kết quả.' } } };
       return { __status: row.status, body: row.body };
     }
     if (Math.random() < 0.01) query("DELETE FROM idem WHERE created_at < now() - interval '2 days'").catch(() => {});
@@ -25,7 +27,7 @@ export function withIdem(handler) {
     }
     if (out && out.__raw) { await query('DELETE FROM idem WHERE scope=$1 AND key=$2', [scope, key]); return out; }
     const status = out && out.__status ? out.__status : 200;
-    const body = out && out.__status ? out.body : (out ?? { ok: true });
+    const body = opts.noBody ? { __noreplay: true } : (out && out.__status ? out.body : (out ?? { ok: true }));
     await query('UPDATE idem SET status=$3, body=$4 WHERE scope=$1 AND key=$2', [scope, key, status, JSON.stringify(body)]);
     return out;
   };

@@ -1,0 +1,3736 @@
+{
+ "version": 1,
+ "units": {
+  "weight": [
+   "g",
+   "kg"
+  ],
+  "volume": [
+   "ml",
+   "l"
+  ],
+  "count": [
+   "qua",
+   "bo",
+   "cu",
+   "mieng",
+   "hop",
+   "goi",
+   "con",
+   "cay",
+   "tep",
+   "tui",
+   "thia"
+  ]
+ },
+ "aisles": [
+  "thit_ca",
+  "hai_san",
+  "rau_cu",
+  "trai_cay",
+  "trung_dau_phu",
+  "gia_vi",
+  "do_kho_gao_bun",
+  "sua_banh",
+  "do_uong",
+  "khac"
+ ],
+ "items": [
+  {
+   "id": "thit-ba-chi",
+   "name": "Thịt ba chỉ",
+   "aliases": [
+    "thịt ba chỉ",
+    "thit ba chi",
+    "ba chi",
+    "ba roi",
+    "ba rọi",
+    "thit ba roi",
+    "thịt ba rọi"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-nac-vai",
+   "name": "Thịt nạc vai",
+   "aliases": [
+    "thịt nạc vai",
+    "thit nac vai",
+    "thit heo",
+    "thịt heo",
+    "thit lon",
+    "thịt lợn",
+    "thit vai",
+    "thịt vai",
+    "thit nac",
+    "thịt nạc"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-nac-bam",
+   "name": "Thịt nạc băm",
+   "aliases": [
+    "thịt nạc băm",
+    "thit nac bam",
+    "thit bam",
+    "thịt băm",
+    "thit xay",
+    "thịt xay",
+    "thit heo bam",
+    "thịt heo băm",
+    "thit lon bam",
+    "thit bam nho"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-than",
+   "name": "Thịt thăn lợn",
+   "aliases": [
+    "thịt thăn lợn",
+    "thit than lon",
+    "than lon",
+    "thăn lợn",
+    "thit than",
+    "thịt thăn",
+    "thit than heo"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "suon-non",
+   "name": "Sườn non",
+   "aliases": [
+    "sườn non",
+    "suon non",
+    "suon",
+    "sườn",
+    "suon heo",
+    "sườn heo",
+    "suon lon",
+    "sườn lợn"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "xuong-ong-heo",
+   "name": "Xương ống heo",
+   "aliases": [
+    "xương ống heo",
+    "xuong ong heo",
+    "xuong ong",
+    "xương ống",
+    "xuong heo",
+    "xương heo",
+    "xuong lon",
+    "xương lợn"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "chan-gio",
+   "name": "Chân giò",
+   "aliases": [
+    "chân giò",
+    "chan gio",
+    "gio heo",
+    "giò heo",
+    "gio lon",
+    "chan gio lon",
+    "chân giò lợn",
+    "móng giò",
+    "mong gio"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "mo-lon",
+   "name": "Mỡ lợn",
+   "aliases": [
+    "mỡ lợn",
+    "mo lon",
+    "mo heo",
+    "mỡ heo",
+    "mo phen",
+    "mỡ phần",
+    "mo phan"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gan-heo",
+   "name": "Gan heo",
+   "aliases": [
+    "gan heo",
+    "gan lon",
+    "gan lợn",
+    "gan"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "huyet-heo",
+   "name": "Huyết heo",
+   "aliases": [
+    "huyết heo",
+    "huyet heo",
+    "tiet canh",
+    "tiết",
+    "tiet",
+    "huyet",
+    "huyết"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gio-lua",
+   "name": "Giò lụa",
+   "aliases": [
+    "giò lụa",
+    "gio lua",
+    "cha lua",
+    "chả lụa",
+    "gio",
+    "giò"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": true
+  },
+  {
+   "id": "gio-song",
+   "name": "Giò sống",
+   "aliases": [
+    "giò sống",
+    "gio song"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-bo",
+   "name": "Thịt bò",
+   "aliases": [
+    "thịt bò",
+    "thit bo",
+    "thit bo nac",
+    "thịt bò nạc",
+    "bo than",
+    "thăn bò",
+    "than bo",
+    "bắp hoa",
+    "bap hoa"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_bo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-bo-bam",
+   "name": "Thịt bò băm",
+   "aliases": [
+    "thịt bò băm",
+    "thit bo bam",
+    "bo bam",
+    "bò băm",
+    "bo xay",
+    "bò xay",
+    "thit bo xay"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_bo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bap-bo",
+   "name": "Bắp bò",
+   "aliases": [
+    "bắp bò",
+    "bap bo",
+    "gầu bò",
+    "gau bo",
+    "nạm bò",
+    "nam bo"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_bo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "xuong-bo",
+   "name": "Xương bò",
+   "aliases": [
+    "xương bò",
+    "xuong bo",
+    "xuong ong bo",
+    "xương ống bò"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_bo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-ga",
+   "name": "Thịt gà",
+   "aliases": [
+    "thịt gà",
+    "thit ga",
+    "ga",
+    "gà",
+    "dui ga",
+    "đùi gà",
+    "thit ga ta"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "con": 1200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ga-ta",
+   "name": "Gà ta nguyên con",
+   "aliases": [
+    "gà ta nguyên con",
+    "ga ta nguyen con",
+    "ga ta",
+    "gà ta",
+    "con ga",
+    "1 con ga"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "con",
+   "conv": {
+    "con": 1200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "uc-ga",
+   "name": "Ức gà",
+   "aliases": [
+    "ức gà",
+    "uc ga",
+    "phi le ga"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "canh-ga",
+   "name": "Cánh gà",
+   "aliases": [
+    "cánh gà",
+    "canh ga"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "long-ga",
+   "name": "Lòng gà (tim, mề, gan)",
+   "aliases": [
+    "lòng gà (tim, mề, gan)",
+    "long ga (tim, me, gan)",
+    "lòng gà",
+    "long ga",
+    "mề gà",
+    "me ga",
+    "tim gà",
+    "tim ga",
+    "gan ga"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "xuong-ga",
+   "name": "Xương gà",
+   "aliases": [
+    "xương gà",
+    "xuong ga",
+    "khung ga",
+    "khung gà"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thit-vit",
+   "name": "Thịt vịt",
+   "aliases": [
+    "thịt vịt",
+    "thit vit",
+    "vit",
+    "vịt"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "con": 1800
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-ro-dong",
+   "name": "Cá rô đồng",
+   "aliases": [
+    "cá rô đồng",
+    "ca ro dong",
+    "ca ro",
+    "cá rô"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "con": 100
+   },
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-tram",
+   "name": "Cá trắm",
+   "aliases": [
+    "cá trắm",
+    "ca tram",
+    "ca tram den",
+    "cá trắm đen"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-chep",
+   "name": "Cá chép",
+   "aliases": [
+    "cá chép",
+    "ca chep"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "con": 800
+   },
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-thu",
+   "name": "Cá thu",
+   "aliases": [
+    "cá thu",
+    "ca thu"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-nuc",
+   "name": "Cá nục",
+   "aliases": [
+    "cá nục",
+    "ca nuc"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "con": 120
+   },
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-basa",
+   "name": "Cá basa phi lê",
+   "aliases": [
+    "cá basa phi lê",
+    "ca basa phi le",
+    "ca basa",
+    "cá basa",
+    "ca tra",
+    "cá tra",
+    "ca ba sa",
+    "phi le ca"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-hoi",
+   "name": "Cá hồi",
+   "aliases": [
+    "cá hồi",
+    "ca hoi",
+    "phi le ca hoi"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-dieu-hong",
+   "name": "Cá điêu hồng (hoặc rô phi)",
+   "aliases": [
+    "cá điêu hồng (hoặc rô phi)",
+    "ca dieu hong (hoac ro phi)",
+    "cá điêu hồng",
+    "ca dieu hong",
+    "ca ro phi",
+    "cá rô phi"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "con": 600
+   },
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "tom-tuoi",
+   "name": "Tôm tươi",
+   "aliases": [
+    "tôm tươi",
+    "tom tuoi",
+    "tom",
+    "tôm",
+    "tom su",
+    "tôm sú",
+    "tom the",
+    "tôm thẻ"
+   ],
+   "aisle": "hai_san",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "tom-kho",
+   "name": "Tôm khô",
+   "aliases": [
+    "tôm khô",
+    "tom kho",
+    "tom he kho",
+    "tôm he khô"
+   ],
+   "aisle": "hai_san",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": true
+  },
+  {
+   "id": "cua-dong",
+   "name": "Cua đồng",
+   "aliases": [
+    "cua đồng",
+    "cua dong",
+    "cua"
+   ],
+   "aisle": "hai_san",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "oc-nhoi",
+   "name": "Ốc nhồi",
+   "aliases": [
+    "ốc nhồi",
+    "oc nhoi",
+    "oc",
+    "ốc",
+    "oc buou",
+    "ốc bươu"
+   ],
+   "aisle": "hai_san",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ngheu",
+   "name": "Ngao/nghêu",
+   "aliases": [
+    "ngao/nghêu",
+    "ngao/ngheu",
+    "ngao",
+    "nghêu",
+    "ngheu",
+    "ngao hen"
+   ],
+   "aisle": "hai_san",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "muc",
+   "name": "Mực",
+   "aliases": [
+    "mực",
+    "muc",
+    "muc ong",
+    "mực ống"
+   ],
+   "aisle": "hai_san",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ruoc-bong",
+   "name": "Ruốc (chà bông)",
+   "aliases": [
+    "ruốc (chà bông)",
+    "ruoc (cha bong)",
+    "ruốc",
+    "ruoc",
+    "cha bong",
+    "chà bông",
+    "ruoc thit"
+   ],
+   "aisle": "thit_ca",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "thit_heo"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "trung-ga",
+   "name": "Trứng gà",
+   "aliases": [
+    "trứng gà",
+    "trung ga",
+    "trung",
+    "trứng"
+   ],
+   "aisle": "trung_dau_phu",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 55
+   },
+   "pantry": false,
+   "allergens": [
+    "trung"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "trung-vit",
+   "name": "Trứng vịt",
+   "aliases": [
+    "trứng vịt",
+    "trung vit"
+   ],
+   "aisle": "trung_dau_phu",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 70
+   },
+   "pantry": false,
+   "allergens": [
+    "trung"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "trung-cut",
+   "name": "Trứng cút",
+   "aliases": [
+    "trứng cút",
+    "trung cut"
+   ],
+   "aisle": "trung_dau_phu",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 10
+   },
+   "pantry": false,
+   "allergens": [
+    "trung"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-phu",
+   "name": "Đậu phụ",
+   "aliases": [
+    "đậu phụ",
+    "dau phu",
+    "dau hu",
+    "đậu hũ",
+    "dau tuong",
+    "đậu hũ trắng",
+    "dau hu trang"
+   ],
+   "aisle": "trung_dau_phu",
+   "base": "g",
+   "unitDefault": "mieng",
+   "conv": {
+    "mieng": 80
+   },
+   "pantry": false,
+   "allergens": [
+    "dau_nanh"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-phu-non",
+   "name": "Đậu phụ non",
+   "aliases": [
+    "đậu phụ non",
+    "dau phu non",
+    "dau non",
+    "đậu non",
+    "tau hu",
+    "tào phớ",
+    "tao pho"
+   ],
+   "aisle": "trung_dau_phu",
+   "base": "g",
+   "unitDefault": "hop",
+   "conv": {
+    "hop": 300
+   },
+   "pantry": false,
+   "allergens": [
+    "dau_nanh"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nam-rom",
+   "name": "Nấm rơm",
+   "aliases": [
+    "nấm rơm",
+    "nam rom"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nam-kim-cham",
+   "name": "Nấm kim châm",
+   "aliases": [
+    "nấm kim châm",
+    "nam kim cham",
+    "nam kim",
+    "nấm kim"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "goi": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nam-huong",
+   "name": "Nấm hương (khô)",
+   "aliases": [
+    "nấm hương (khô)",
+    "nam huong (kho)",
+    "nấm hương",
+    "nam huong",
+    "nam dong co",
+    "nấm đông cô"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nam-bao-ngu",
+   "name": "Nấm bào ngư",
+   "aliases": [
+    "nấm bào ngư",
+    "nam bao ngu",
+    "nam so",
+    "nấm sò"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "moc-nhi",
+   "name": "Mộc nhĩ (khô)",
+   "aliases": [
+    "mộc nhĩ (khô)",
+    "moc nhi (kho)",
+    "mộc nhĩ",
+    "moc nhi",
+    "nam meo",
+    "nấm mèo"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-muong",
+   "name": "Rau muống",
+   "aliases": [
+    "rau muống",
+    "rau muong",
+    "muong"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 400
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "mong-toi",
+   "name": "Rau mồng tơi",
+   "aliases": [
+    "rau mồng tơi",
+    "rau mong toi",
+    "mong toi",
+    "mồng tơi"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-ngot",
+   "name": "Rau ngót",
+   "aliases": [
+    "rau ngót",
+    "rau ngot",
+    "bo ngot",
+    "bồ ngót"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 250
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-day",
+   "name": "Rau đay",
+   "aliases": [
+    "rau đay",
+    "rau day",
+    "day",
+    "đay"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-den",
+   "name": "Rau dền",
+   "aliases": [
+    "rau dền",
+    "rau den",
+    "den",
+    "dền"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-lang",
+   "name": "Rau lang",
+   "aliases": [
+    "rau lang",
+    "ngon khoai lang",
+    "ngọn khoai lang"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ngon-bi",
+   "name": "Ngọn bí",
+   "aliases": [
+    "ngọn bí",
+    "ngon bi",
+    "rau bi",
+    "rau bí"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cai-xanh",
+   "name": "Cải xanh (cải bẹ xanh)",
+   "aliases": [
+    "cải xanh (cải bẹ xanh)",
+    "cai xanh (cai be xanh)",
+    "cải xanh",
+    "cai xanh",
+    "cai be xanh",
+    "cải bẹ xanh",
+    "cai canh",
+    "cải canh"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cai-ngot",
+   "name": "Cải ngọt",
+   "aliases": [
+    "cải ngọt",
+    "cai ngot"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cai-thia",
+   "name": "Cải thìa (cải chíp)",
+   "aliases": [
+    "cải thìa (cải chíp)",
+    "cai thia (cai chip)",
+    "cải thìa",
+    "cai thia",
+    "cai chip",
+    "cải chíp"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cai-cuc",
+   "name": "Cải cúc (tần ô)",
+   "aliases": [
+    "cải cúc (tần ô)",
+    "cai cuc (tan o)",
+    "cải cúc",
+    "cai cuc",
+    "tan o",
+    "tần ô"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cai-thao",
+   "name": "Cải thảo",
+   "aliases": [
+    "cải thảo",
+    "cai thao"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 800,
+    "qua": 800
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bap-cai",
+   "name": "Bắp cải",
+   "aliases": [
+    "bắp cải",
+    "bap cai",
+    "cai bap",
+    "cải bắp"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 900,
+    "qua": 900
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cai-xoong",
+   "name": "Cải xoong",
+   "aliases": [
+    "cải xoong",
+    "cai xoong",
+    "xa lach xoong"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-bina",
+   "name": "Rau chân vịt",
+   "aliases": [
+    "rau chân vịt",
+    "rau chan vit",
+    "chan vit",
+    "chân vịt",
+    "bina",
+    "rau bina",
+    "cai bo xoi",
+    "rau bó xôi",
+    "rau bo xoi"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 250
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "xa-lach",
+   "name": "Xà lách",
+   "aliases": [
+    "xà lách",
+    "xa lach",
+    "xalach"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 200,
+    "cu": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "su-hao",
+   "name": "Su hào",
+   "aliases": [
+    "su hào",
+    "su hao"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "su-su",
+   "name": "Su su",
+   "aliases": [
+    "su su",
+    "su su qua"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 250,
+    "cu": 250
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bi-dao",
+   "name": "Bí xanh (bí đao)",
+   "aliases": [
+    "bí xanh (bí đao)",
+    "bi xanh (bi dao)",
+    "bí xanh",
+    "bi xanh",
+    "bi dao",
+    "bí đao",
+    "bi dao xanh"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 2000,
+    "mieng": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bi-do",
+   "name": "Bí đỏ (bí ngô)",
+   "aliases": [
+    "bí đỏ (bí ngô)",
+    "bi do (bi ngo)",
+    "bí đỏ",
+    "bi do",
+    "bi ngo",
+    "bí ngô",
+    "bi ngo do"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 2000,
+    "mieng": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bau",
+   "name": "Bầu",
+   "aliases": [
+    "bầu",
+    "bau",
+    "qua bau",
+    "quả bầu"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 600
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "muop",
+   "name": "Mướp hương",
+   "aliases": [
+    "mướp hương",
+    "muop huong",
+    "muop",
+    "mướp",
+    "muop ta"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 250
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "muop-dang",
+   "name": "Mướp đắng (khổ qua)",
+   "aliases": [
+    "mướp đắng (khổ qua)",
+    "muop dang (kho qua)",
+    "mướp đắng",
+    "muop dang",
+    "kho qua",
+    "khổ qua"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dua-chuot",
+   "name": "Dưa chuột",
+   "aliases": [
+    "dưa chuột",
+    "dua chuot",
+    "dua leo",
+    "dưa leo"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-chua",
+   "name": "Cà chua",
+   "aliases": [
+    "cà chua",
+    "ca chua"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-rot",
+   "name": "Cà rốt",
+   "aliases": [
+    "cà rốt",
+    "ca rot"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "khoai-tay",
+   "name": "Khoai tây",
+   "aliases": [
+    "khoai tây",
+    "khoai tay"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "khoai-lang",
+   "name": "Khoai lang",
+   "aliases": [
+    "khoai lang"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "khoai-so",
+   "name": "Khoai sọ",
+   "aliases": [
+    "khoai sọ",
+    "khoai so",
+    "khoai mon",
+    "khoai môn"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cu-cai",
+   "name": "Củ cải trắng",
+   "aliases": [
+    "củ cải trắng",
+    "cu cai trang",
+    "cu cai",
+    "củ cải"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "hanh-tay",
+   "name": "Hành tây",
+   "aliases": [
+    "hành tây",
+    "hanh tay"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "hanh-la",
+   "name": "Hành lá",
+   "aliases": [
+    "hành lá",
+    "hanh la",
+    "hanh hoa",
+    "hành hoa",
+    "hành",
+    "hanh"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 50
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "hanh-kho",
+   "name": "Hành khô (hành tím)",
+   "aliases": [
+    "hành khô (hành tím)",
+    "hanh kho (hanh tim)",
+    "hành khô",
+    "hanh kho",
+    "hanh tim",
+    "hành tím"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 15
+   },
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "toi",
+   "name": "Tỏi",
+   "aliases": [
+    "tỏi",
+    "toi",
+    "toi cu",
+    "tỏi củ"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "tep": 5,
+    "cu": 40
+   },
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gung",
+   "name": "Gừng",
+   "aliases": [
+    "gừng",
+    "gung"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rieng",
+   "name": "Riềng",
+   "aliases": [
+    "riềng",
+    "rieng"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 50
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nghe",
+   "name": "Nghệ tươi",
+   "aliases": [
+    "nghệ tươi",
+    "nghe tuoi",
+    "nghe",
+    "nghệ"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 20
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "sa",
+   "name": "Sả",
+   "aliases": [
+    "sả",
+    "sa",
+    "cay sa",
+    "cây sả"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cay": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ot",
+   "name": "Ớt tươi",
+   "aliases": [
+    "ớt tươi",
+    "ot tuoi",
+    "ot",
+    "ớt",
+    "ot hiem",
+    "ớt hiểm"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 8
+   },
+   "pantry": false,
+   "allergens": [
+    "cay"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ot-chuong",
+   "name": "Ớt chuông",
+   "aliases": [
+    "ớt chuông",
+    "ot chuong",
+    "ot ngot"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-dua",
+   "name": "Đậu đũa",
+   "aliases": [
+    "đậu đũa",
+    "dau dua"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-co-ve",
+   "name": "Đậu cô ve",
+   "aliases": [
+    "đậu cô ve",
+    "dau co ve",
+    "dau que",
+    "đậu que"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-ha-lan",
+   "name": "Đậu Hà Lan",
+   "aliases": [
+    "đậu hà lan",
+    "dau ha lan"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-phao",
+   "name": "Cà pháo",
+   "aliases": [
+    "cà pháo",
+    "ca phao"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 15
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ca-tim",
+   "name": "Cà tím",
+   "aliases": [
+    "cà tím",
+    "ca tim"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 250
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "hoa-chuoi",
+   "name": "Hoa chuối (bắp chuối)",
+   "aliases": [
+    "hoa chuối (bắp chuối)",
+    "hoa chuoi (bap chuoi)",
+    "hoa chuối",
+    "hoa chuoi",
+    "bap chuoi",
+    "bắp chuối"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "mang-tuoi",
+   "name": "Măng tươi (măng nứa, măng tre)",
+   "aliases": [
+    "măng tươi (măng nứa, măng tre)",
+    "mang tuoi (mang nua, mang tre)",
+    "măng tươi",
+    "mang tuoi",
+    "mang nua",
+    "măng nứa",
+    "mang"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "mang-chua",
+   "name": "Măng chua",
+   "aliases": [
+    "măng chua",
+    "mang chua"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "doc-mung",
+   "name": "Dọc mùng (bạc hà)",
+   "aliases": [
+    "dọc mùng (bạc hà)",
+    "doc mung (bac ha)",
+    "dọc mùng",
+    "doc mung",
+    "bac ha",
+    "bạc hà"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bong-cai",
+   "name": "Súp lơ xanh (bông cải xanh)",
+   "aliases": [
+    "súp lơ xanh (bông cải xanh)",
+    "sup lo xanh (bong cai xanh)",
+    "súp lơ xanh",
+    "sup lo xanh",
+    "sup lo",
+    "súp lơ",
+    "bong cai",
+    "bông cải",
+    "bông cải xanh",
+    "bong cai xanh"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 400
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "sup-lo-trang",
+   "name": "Súp lơ trắng",
+   "aliases": [
+    "súp lơ trắng",
+    "sup lo trang",
+    "bong cai trang"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "cu": 500
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bap-ngo",
+   "name": "Ngô ngọt (bắp)",
+   "aliases": [
+    "ngô ngọt (bắp)",
+    "ngo ngot (bap)",
+    "ngô ngọt",
+    "ngo ngot",
+    "ngo",
+    "ngô",
+    "bap ngo",
+    "bắp ngô",
+    "bap",
+    "bắp"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 250
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gia-do",
+   "name": "Giá đỗ",
+   "aliases": [
+    "giá đỗ",
+    "gia do",
+    "gia",
+    "giá"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "can-tay",
+   "name": "Cần tây",
+   "aliases": [
+    "cần tây",
+    "can tay"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-thom",
+   "name": "Rau thơm (mùi, thì là, rau răm...)",
+   "aliases": [
+    "rau thơm (mùi, thì là, rau răm...)",
+    "rau thom (mui, thi la, rau ram...)",
+    "rau thơm",
+    "rau thom",
+    "rau mui",
+    "rau mùi",
+    "ngò rí",
+    "ngo ri"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thi-la",
+   "name": "Thì là",
+   "aliases": [
+    "thì là",
+    "thi la"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "tia-to",
+   "name": "Tía tô",
+   "aliases": [
+    "tía tô",
+    "tia to",
+    "kinh gioi",
+    "kinh giới"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-ram",
+   "name": "Rau răm",
+   "aliases": [
+    "rau răm",
+    "rau ram"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ngo-gai",
+   "name": "Ngò gai",
+   "aliases": [
+    "ngò gai",
+    "ngo gai",
+    "mui tau",
+    "mùi tàu"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-om",
+   "name": "Rau ngổ (ngò om)",
+   "aliases": [
+    "rau ngổ (ngò om)",
+    "rau ngo (ngo om)",
+    "rau ngổ",
+    "rau ngo",
+    "ngo om",
+    "ngò om",
+    "rau om"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 30
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "la-lot",
+   "name": "Lá lốt",
+   "aliases": [
+    "lá lốt",
+    "la lot"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "rau-song",
+   "name": "Rau sống ăn kèm",
+   "aliases": [
+    "rau sống ăn kèm",
+    "rau song an kem",
+    "rau song",
+    "rau sống",
+    "rau an kem",
+    "rau ăn kèm"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "khe",
+   "name": "Khế chua",
+   "aliases": [
+    "khế chua",
+    "khe chua",
+    "khe",
+    "khế"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "chanh",
+   "name": "Chanh",
+   "aliases": [
+    "chanh",
+    "chanh tuoi",
+    "chanh tươi",
+    "chanh xanh"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 60
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "quyt",
+   "name": "Quýt",
+   "aliases": [
+    "quýt",
+    "quyt"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "na",
+   "name": "Na (mãng cầu)",
+   "aliases": [
+    "na (mãng cầu)",
+    "na (mang cau)",
+    "na",
+    "mãng cầu",
+    "mang cau"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "le",
+   "name": "Lê",
+   "aliases": [
+    "lê",
+    "le"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "du-du-xanh",
+   "name": "Đu đủ xanh",
+   "aliases": [
+    "đu đủ xanh",
+    "du du xanh",
+    "du du bao",
+    "đu đủ bào"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 700
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "xoai-xanh",
+   "name": "Xoài xanh",
+   "aliases": [
+    "xoài xanh",
+    "xoai xanh",
+    "xoai song",
+    "xoài sống"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dua-cai-chua",
+   "name": "Dưa cải chua",
+   "aliases": [
+    "dưa cải chua",
+    "dua cai chua",
+    "dua cai",
+    "dưa cải",
+    "dưa chua",
+    "dua chua",
+    "dưa muối",
+    "dua muoi"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thom",
+   "name": "Dứa (thơm)",
+   "aliases": [
+    "dứa (thơm)",
+    "dua (thom)",
+    "dứa",
+    "dua",
+    "thom",
+    "thơm"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 1000
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "me-chua",
+   "name": "Me chua",
+   "aliases": [
+    "me chua",
+    "qua me",
+    "quả me"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gao-te",
+   "name": "Gạo tẻ",
+   "aliases": [
+    "gạo tẻ",
+    "gao te",
+    "gao",
+    "gạo"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gao-nep",
+   "name": "Gạo nếp",
+   "aliases": [
+    "gạo nếp",
+    "gao nep",
+    "nep",
+    "nếp"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nep-cam",
+   "name": "Gạo nếp cẩm",
+   "aliases": [
+    "gạo nếp cẩm",
+    "gao nep cam",
+    "nep cam",
+    "nếp cẩm"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bun-tuoi",
+   "name": "Bún tươi",
+   "aliases": [
+    "bún tươi",
+    "bun tuoi",
+    "bun",
+    "bún",
+    "bun roi",
+    "bún rối"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "banh-pho",
+   "name": "Bánh phở",
+   "aliases": [
+    "bánh phở",
+    "banh pho",
+    "pho",
+    "phở"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "mien-dong",
+   "name": "Miến dong",
+   "aliases": [
+    "miến dong",
+    "mien dong",
+    "mien",
+    "miến"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "goi": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "banh-da",
+   "name": "Bánh đa",
+   "aliases": [
+    "bánh đa",
+    "banh da",
+    "banh da cua",
+    "bánh đa cua"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "banh-trang",
+   "name": "Bánh đa nem (bánh tráng)",
+   "aliases": [
+    "bánh đa nem (bánh tráng)",
+    "banh da nem (banh trang)",
+    "bánh đa nem",
+    "banh da nem",
+    "banh trang",
+    "bánh tráng",
+    "vo nem",
+    "vỏ nem"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "goi",
+   "conv": {
+    "goi": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "banh-mi",
+   "name": "Bánh mì",
+   "aliases": [
+    "bánh mì",
+    "banh mi"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 60
+   },
+   "pantry": false,
+   "allergens": [
+    "gluten"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bot-mi",
+   "name": "Bột mì",
+   "aliases": [
+    "bột mì",
+    "bot mi"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "gluten"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bot-nang",
+   "name": "Bột năng (bột sắn)",
+   "aliases": [
+    "bột năng (bột sắn)",
+    "bot nang (bot san)",
+    "bột năng",
+    "bot nang",
+    "bot san",
+    "bột sắn"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-xanh",
+   "name": "Đậu xanh",
+   "aliases": [
+    "đậu xanh",
+    "dau xanh",
+    "dau xanh cat",
+    "đậu xanh cà",
+    "dau xanh ca"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-den",
+   "name": "Đậu đen",
+   "aliases": [
+    "đậu đen",
+    "dau den"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-do",
+   "name": "Đậu đỏ",
+   "aliases": [
+    "đậu đỏ",
+    "dau do"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-phong",
+   "name": "Lạc (đậu phộng)",
+   "aliases": [
+    "lạc (đậu phộng)",
+    "lac (dau phong)",
+    "lạc",
+    "lac",
+    "dau phong",
+    "đậu phộng",
+    "dau phong rang",
+    "lạc rang",
+    "lac rang"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "dau_phong"
+   ],
+   "minAgeMonths": 48,
+   "salty": false
+  },
+  {
+   "id": "hat-sen",
+   "name": "Hạt sen khô",
+   "aliases": [
+    "hạt sen khô",
+    "hat sen kho",
+    "hat sen",
+    "hạt sen"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "long-nhan",
+   "name": "Long nhãn khô",
+   "aliases": [
+    "long nhãn khô",
+    "long nhan kho",
+    "long nhan",
+    "long nhãn"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "yen-mach",
+   "name": "Yến mạch",
+   "aliases": [
+    "yến mạch",
+    "yen mach"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "gluten"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gao-lut",
+   "name": "Gạo lứt",
+   "aliases": [
+    "gạo lứt",
+    "gao lut"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bot-gao",
+   "name": "Bột gạo",
+   "aliases": [
+    "bột gạo",
+    "bot gao"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-hu-ky",
+   "name": "Phù chúc",
+   "aliases": [
+    "phù chúc",
+    "phu chuc",
+    "tao phu",
+    "váng đậu",
+    "vang dau"
+   ],
+   "aisle": "do_kho_gao_bun",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "dau_nanh"
+   ],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "gac",
+   "name": "Gấc (xôi gấc)",
+   "aliases": [
+    "gấc (xôi gấc)",
+    "gac (xoi gac)",
+    "gấc",
+    "gac",
+    "xoi gac"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "sua-tuoi",
+   "name": "Sữa tươi",
+   "aliases": [
+    "sữa tươi",
+    "sua tuoi",
+    "sua",
+    "sữa",
+    "sua bo",
+    "sữa bò"
+   ],
+   "aisle": "sua_banh",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {
+    "hop": 1000
+   },
+   "pantry": false,
+   "allergens": [
+    "sua"
+   ],
+   "minAgeMonths": 12,
+   "salty": false
+  },
+  {
+   "id": "sua-chua",
+   "name": "Sữa chua",
+   "aliases": [
+    "sữa chua",
+    "sua chua"
+   ],
+   "aisle": "sua_banh",
+   "base": "g",
+   "unitDefault": "hop",
+   "conv": {
+    "hop": 100
+   },
+   "pantry": false,
+   "allergens": [
+    "sua"
+   ],
+   "minAgeMonths": 12,
+   "salty": false
+  },
+  {
+   "id": "pho-mai",
+   "name": "Phô mai",
+   "aliases": [
+    "phô mai",
+    "pho mai",
+    "pho mai que"
+   ],
+   "aisle": "sua_banh",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "sua"
+   ],
+   "minAgeMonths": 12,
+   "salty": false
+  },
+  {
+   "id": "bo-nhat",
+   "name": "Bơ (nhạt)",
+   "aliases": [
+    "bơ (nhạt)",
+    "bo (nhat)",
+    "bơ",
+    "bo",
+    "bo nhat",
+    "bơ nhạt"
+   ],
+   "aisle": "sua_banh",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "sua"
+   ],
+   "minAgeMonths": 12,
+   "salty": false
+  },
+  {
+   "id": "nuoc-cot-dua",
+   "name": "Nước cốt dừa",
+   "aliases": [
+    "nước cốt dừa",
+    "nuoc cot dua",
+    "cot dua",
+    "cốt dừa"
+   ],
+   "aisle": "sua_banh",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {
+    "hop": 400
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nuoc-dua",
+   "name": "Nước dừa tươi",
+   "aliases": [
+    "nước dừa tươi",
+    "nuoc dua tuoi",
+    "nuoc dua",
+    "nước dừa"
+   ],
+   "aisle": "do_uong",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {
+    "qua": 400
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "muoi",
+   "name": "Muối",
+   "aliases": [
+    "muối",
+    "muoi",
+    "muoi an",
+    "muối ăn",
+    "muoi hat",
+    "muối hạt"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": true
+  },
+  {
+   "id": "duong",
+   "name": "Đường",
+   "aliases": [
+    "đường",
+    "duong",
+    "duong cat",
+    "đường cát",
+    "duong trang",
+    "đường trắng"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "duong-phen",
+   "name": "Đường phèn",
+   "aliases": [
+    "đường phèn",
+    "duong phen"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nuoc-mam",
+   "name": "Nước mắm",
+   "aliases": [
+    "nước mắm",
+    "nuoc mam",
+    "mam",
+    "mắm"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 12,
+   "salty": true
+  },
+  {
+   "id": "dau-an",
+   "name": "Dầu ăn",
+   "aliases": [
+    "dầu ăn",
+    "dau an",
+    "dầu thực vật",
+    "dau thuc vat"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-me",
+   "name": "Dầu mè",
+   "aliases": [
+    "dầu mè",
+    "dau me",
+    "dau vung",
+    "dầu vừng"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dau-dieu",
+   "name": "Dầu điều",
+   "aliases": [
+    "dầu điều",
+    "dau dieu",
+    "mau dieu",
+    "màu điều"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "tieu",
+   "name": "Tiêu",
+   "aliases": [
+    "tiêu",
+    "tieu",
+    "tieu xay",
+    "tiêu xay",
+    "hat tieu",
+    "hạt tiêu",
+    "tieu den",
+    "tiêu đen"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "hat-nem",
+   "name": "Hạt nêm",
+   "aliases": [
+    "hạt nêm",
+    "hat nem",
+    "bot ngot",
+    "bột ngọt",
+    "mi chinh",
+    "mì chính"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 12,
+   "salty": true
+  },
+  {
+   "id": "bot-canh",
+   "name": "Bột canh",
+   "aliases": [
+    "bột canh",
+    "bot canh"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 12,
+   "salty": true
+  },
+  {
+   "id": "giam",
+   "name": "Giấm",
+   "aliases": [
+    "giấm",
+    "giam",
+    "dam",
+    "dấm",
+    "giam gao",
+    "giấm gạo"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nuoc-mau",
+   "name": "Nước màu (nước hàng)",
+   "aliases": [
+    "nước màu (nước hàng)",
+    "nuoc mau (nuoc hang)",
+    "nước màu",
+    "nuoc mau",
+    "nuoc hang",
+    "nước hàng"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "bot-nghe",
+   "name": "Bột nghệ",
+   "aliases": [
+    "bột nghệ",
+    "bot nghe"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nuoc-tuong",
+   "name": "Nước tương (xì dầu)",
+   "aliases": [
+    "nước tương (xì dầu)",
+    "nuoc tuong (xi dau)",
+    "nước tương",
+    "nuoc tuong",
+    "xi dau",
+    "xì dầu"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [
+    "gluten",
+    "dau_nanh"
+   ],
+   "minAgeMonths": 12,
+   "salty": true
+  },
+  {
+   "id": "dau-hao",
+   "name": "Dầu hào",
+   "aliases": [
+    "dầu hào",
+    "dau hao"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 12,
+   "salty": true
+  },
+  {
+   "id": "mam-tom",
+   "name": "Mắm tôm",
+   "aliases": [
+    "mắm tôm",
+    "mam tom"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": false,
+   "allergens": [
+    "hai_san"
+   ],
+   "minAgeMonths": 24,
+   "salty": true
+  },
+  {
+   "id": "tuong-ot",
+   "name": "Tương ớt",
+   "aliases": [
+    "tương ớt",
+    "tuong ot"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [
+    "cay"
+   ],
+   "minAgeMonths": 24,
+   "salty": true
+  },
+  {
+   "id": "tuong-ca",
+   "name": "Tương cà",
+   "aliases": [
+    "tương cà",
+    "tuong ca"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 12,
+   "salty": true
+  },
+  {
+   "id": "gia-vi-pho",
+   "name": "Gia vị phở (hồi, quế, thảo quả)",
+   "aliases": [
+    "gia vị phở (hồi, quế, thảo quả)",
+    "gia vi pho (hoi, que, thao qua)",
+    "gia vị phở",
+    "gia vi pho",
+    "hoi",
+    "hồi",
+    "que",
+    "quế",
+    "thao qua",
+    "thảo quả"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "goi",
+   "conv": {
+    "goi": 20
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "mat-ong",
+   "name": "Mật ong",
+   "aliases": [
+    "mật ong",
+    "mat ong"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 12,
+   "salty": false
+  },
+  {
+   "id": "rau-cau",
+   "name": "Bột rau câu",
+   "aliases": [
+    "bột rau câu",
+    "bot rau cau",
+    "thach",
+    "thạch"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "ruou-trang",
+   "name": "Rượu trắng (khử mùi)",
+   "aliases": [
+    "rượu trắng (khử mùi)",
+    "ruou trang (khu mui)",
+    "rượu trắng",
+    "ruou trang",
+    "ruou",
+    "rượu"
+   ],
+   "aisle": "gia_vi",
+   "base": "ml",
+   "unitDefault": "ml",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 216,
+   "salty": false
+  },
+  {
+   "id": "me-trang",
+   "name": "Vừng (mè) trắng",
+   "aliases": [
+    "vừng (mè) trắng",
+    "vung (me) trang",
+    "vừng trắng",
+    "vung trang",
+    "vung",
+    "vừng",
+    "mè",
+    "me",
+    "me trang",
+    "mè trắng"
+   ],
+   "aisle": "gia_vi",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": true,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "chuoi",
+   "name": "Chuối",
+   "aliases": [
+    "chuối",
+    "chuoi",
+    "chuoi tieu",
+    "chuối tiêu"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 100
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "cam",
+   "name": "Cam",
+   "aliases": [
+    "cam",
+    "cam sanh",
+    "cam canh",
+    "cam cao phong"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "qua",
+   "conv": {
+    "qua": 200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "buoi",
+   "name": "Bưởi",
+   "aliases": [
+    "bưởi",
+    "buoi",
+    "buoi dien",
+    "bưởi diễn"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 1200
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "du-du",
+   "name": "Đu đủ chín",
+   "aliases": [
+    "đu đủ chín",
+    "du du chin",
+    "du du",
+    "đu đủ"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 800
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "dua-hau",
+   "name": "Dưa hấu",
+   "aliases": [
+    "dưa hấu",
+    "dua hau"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 3000
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "vai",
+   "name": "Vải thiều",
+   "aliases": [
+    "vải thiều",
+    "vai thieu",
+    "vai",
+    "vải"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "nhan",
+   "name": "Nhãn",
+   "aliases": [
+    "nhãn",
+    "nhan"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "xoai",
+   "name": "Xoài chín",
+   "aliases": [
+    "xoài chín",
+    "xoai chin",
+    "xoai",
+    "xoài"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 300
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "hong",
+   "name": "Hồng",
+   "aliases": [
+    "hồng",
+    "hong",
+    "hong gion",
+    "hồng giòn"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "man",
+   "name": "Mận",
+   "aliases": [
+    "mận",
+    "man",
+    "man hau",
+    "mận hậu"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {},
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "oi",
+   "name": "Ổi",
+   "aliases": [
+    "ổi",
+    "oi"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 150
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "thanh-long",
+   "name": "Thanh long",
+   "aliases": [
+    "thanh long"
+   ],
+   "aisle": "trai_cay",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "qua": 400
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  },
+  {
+   "id": "la-chanh",
+   "name": "Lá chanh",
+   "aliases": [
+    "lá chanh",
+    "la chanh"
+   ],
+   "aisle": "rau_cu",
+   "base": "g",
+   "unitDefault": "g",
+   "conv": {
+    "bo": 20
+   },
+   "pantry": false,
+   "allergens": [],
+   "minAgeMonths": 0,
+   "salty": false
+  }
+ ]
+}

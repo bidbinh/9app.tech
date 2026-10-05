@@ -6,17 +6,20 @@ import { query, tx } from './db.js';
 import { clock } from './clock.js';
 import { dayOfMs, addDays, atMs, hhmmOfMs } from './vn.js';
 import { expand, makeLunarCache, occStartMs } from './recur.js';
-import { notifyMembers, activeMemberIds } from './notify.js';
-import { ensureRideDays, fireRideDay, OPEN_STATES, STALE_MIN } from './rides.js';
+import { notifyMembers, activeMemberIds, childMemberIds } from './notify.js';
+import { ensureRideDays, fireRideDay, OPEN_STATES } from './rides.js';
 import { drainOutbox } from './push.js';
 import { solarToLunar } from './lunar.js';
+import { shopReminderStage } from './routes/menu-shop.js';
+import { healthStage } from './health/reminders.js';
+import { dueStage } from './money/reminders.js';
 
 const EVENT_LATE_MS = 30 * 60_000;
 
 async function rideStage(nowMs) {
   const today = dayOfMs(nowMs);
   await tx(async (c) => { await ensureRideDays(c, today); await ensureRideDays(c, addDays(today, 1)); });
-  const lo = new Date(nowMs - (STALE_MIN + 5) * 60_000).toISOString();
+  const lo = new Date(nowMs - (130 + 5) * 60_000).toISOString();
   const hi = new Date(nowMs + 4 * 3600_000).toISOString();
   const rows = await query(`SELECT id FROM ride_days WHERE state = ANY($1::text[]) AND at_ts BETWEEN $2 AND $3 ORDER BY at_ts`, [OPEN_STATES, lo, hi]);
   let fired = 0;
@@ -43,14 +46,16 @@ async function eventStage(nowMs) {
       const startMs = occStartMs(occ);
       for (const off of ev.notify_offsets) {
         const fireAt = startMs - off * 60_000;
-        if (fireAt > nowMs || nowMs > Math.min(fireAt + EVENT_LATE_MS, startMs + 10 * 60_000)) continue;
+        // sự kiện cả ngày: cho phép nhắc muộn tới 12:00 (khởi động lại buổi sáng vẫn nhắc); sự kiện có giờ: muộn tối đa 30 phút, không quá 10 phút sau giờ bắt đầu
+        const lastOk = occ.allDay ? Math.min(fireAt + 5 * 3600_000, atMs(occ.day, '12:00')) : Math.min(fireAt + EVENT_LATE_MS, startMs + 10 * 60_000);
+        if (fireAt > nowMs || nowMs > lastOk) continue;
         try {
           fired += await tx(async (c) => {
             const ins = await c.query('INSERT INTO event_fires(event_id, day, offset_min) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING 1', [ev.id, occ.day, off]);
             if (!ins.length) return 0;
             const msg = eventMessage(ev, occ, off);
-            const who = ev.member_ids.length ? ev.member_ids : await activeMemberIds(c, ev.family_id);
-            return notifyMembers(c, { familyId: ev.family_id, memberIds: who, type: ev.kind === KIND_IMPORTANT ? 'important' : 'event', title: msg.title, body: msg.body, link: `#/f/${ev.family_id}/today`, dedupe: `ev:${ev.id}:${occ.day}:${off}` });
+            const who = [...(ev.member_ids.length ? ev.member_ids : await activeMemberIds(c, ev.family_id)), ...(await childMemberIds(c, ev.family_id, ev.child_ids))];
+            return notifyMembers(c, { familyId: ev.family_id, memberIds: who, type: ev.kind === KIND_IMPORTANT ? 'important' : 'event', title: msg.title, body: msg.body, link: `#/f/${ev.family_id}/today`, dedupe: `ev:${ev.id}:${occ.day}:${off}:${startMs}` });
           });
         } catch (e) { logErr('event', e); }
       }
@@ -100,6 +105,9 @@ export async function tick(nowMs = clock.now()) {
   out.rides = await rideStage(nowMs);
   out.events = await eventStage(nowMs);
   out.tasks = await taskStage(nowMs);
+  try { out.shop = await shopReminderStage(nowMs); } catch (e) { logErr('shop', e); }
+  try { out.health = await healthStage(nowMs); } catch (e) { logErr('health', e); }
+  try { out.dues = await dueStage(nowMs); } catch (e) { logErr('dues', e); }
   out.push = await drainOutbox({ nowMs });
   return out;
 }

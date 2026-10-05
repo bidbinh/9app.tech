@@ -21,6 +21,8 @@
       body.appendChild(h('div', { class: 'b', text: F9.dayLabel(occ.day, ctx.today) + ' · ' + timeText(occ) }));
       if (occ.location) body.appendChild(h('div', { text: 'Địa điểm: ' + occ.location }));
       if (kids.length) body.appendChild(h('div', { class: 'chips wrapchips' }, kids.map(F9.kidChip)));
+      var inCharge = (occ.memberIds || []).map(function (id) { return F9.memberOf(core, id); }).filter(Boolean);
+      if (inCharge.length) body.appendChild(h('div', { class: 'row' }, [F9.avatars(inCharge), h('div', { class: 'ml muted', text: 'Phụ trách: ' + inCharge.map(function (m) { return m.name; }).join(', ') })]));
       if (occ.checklist && occ.checklist.length) body.appendChild(h('div', {}, [h('div', { class: 'lab', text: 'Cần mang' }), h('ul', { class: 'plain' }, occ.checklist.map(function (c) { return h('li', { text: c }); }))]));
       if (occ.note) body.appendChild(h('p', { class: 'pre', text: occ.note }));
       if (occ.edited) body.appendChild(F9.notice('info', 'Ngày này đã được sửa riêng', 'Các ngày khác vẫn theo lịch gốc.'));
@@ -217,7 +219,7 @@
       h('div', { class: 'card' }, [
         F9.field('Tiêu đề', title), F9.field('Loại', kind),
         kidChips ? h('div', { class: 'field' }, [h('div', { class: 'lab', text: 'Cho con nào' }), kidChips]) : null,
-        h('div', { class: 'field' }, [h('div', { class: 'lab', text: 'Nhắc ai (để trống: cả nhà)' }), memChips]),
+        h('div', { class: 'field' }, [h('div', { class: 'lab', text: 'Người phụ trách, nhận nhắc (để trống: cả nhà)' }), memChips]),
       ]),
       h('div', { class: 'card' }, [
         h('label', { class: 'check', for: 'ad' }, [allDay, 'Cả ngày']),

@@ -47,3 +47,13 @@ Docker (Dockerfile giống 9lunch), compose chung mạng `ops_tms-network` và `
 - Chỉ nhận endpoint push của FCM, Mozilla, Apple, Windows (chống SSRF).
 - Âm lịch: 2031-04-21 có trăng mới sát nửa đêm (23:59 giờ VN), chưa đối chiếu độc lập; ngày lệch Trung Quốc khác đã kiểm (14/12/2020, Tết 2030 là 2/2).
 - Thực đơn tuần, đi chợ nâng cao: để sau bản đầu.
+
+## Quyết định sau phản biện độc lập
+- **Phiên:** cookie 400 ngày gia hạn trượt (làm mới khi dùng lại sau hơn 1 ngày); chỉ chấp nhận token máy chủ đã cấp (cookie lạ bị bỏ qua).
+- **Khôi phục chủ gia đình:** mã 20 ký tự hiện một lần khi tạo gia đình, chỉ lưu băm, dùng ở `#/recover` trên máy mới (gỡ thiết bị cũ, đổi mã). Chủ tạo lại mã trong tab Gia đình; chuyển quyền chủ thì mã của chủ cũ bị xóa. Thành viên khác vẫn khôi phục bằng link mời lại.
+- **Mời lại / gỡ thiết bị:** mở link mời lại (kể cả trên máy đã là chính người đó) hoặc chủ/quản lý bấm "Gỡ mọi thiết bị" thì mọi thiết bị khác, đăng ký đẩy bị thu hồi và token ICS đổi. Token ICS vẫn lưu dạng rõ để hiển thị lại (đã ghi rủi ro nhật ký nginx ở README).
+- **Quyền ca đưa đón:** người ngoài ca chỉ "Tôi nhận"; báo xong/bỏ qua cần là người trong ca, người đã nhận, hoặc chủ/quản lý. Không giao ca cho người chưa vào gia đình.
+- **Đẩy:** mặc định ẩn tên con/địa điểm/tên người trên màn hình khóa (tiêu đề chung), mỗi thiết bị bật hiện chi tiết được; allowlist chỉ fcm.googleapis.com, *.push.services.mozilla.com, *.notify.windows.com, *.push.apple.com.
+- **Giới hạn:** tạo gia đình theo IP mỗi giờ; IP lấy phần tử cuối X-Forwarded-For (TRUSTED_PROXY_HOPS), IPv6 gom /64; AI có trần theo gia đình, IP, toàn hệ mỗi ngày và chỉ trừ lượt khi đọc thành công.
+- **Nhắc:** khóa chống trùng gắn giờ bắt đầu nên dời giờ vẫn nhắc lại; sự kiện cả ngày nhắc muộn tới 12:00; cửa sổ nhắc ca = max(90, mốc "sau giờ ca" + 10) phút.
+- **Dữ liệu người rời:** hàng thành viên đã rời được giữ (chỉ tên) để lịch sử ca còn tên người làm; ghi rõ thay vì xóa.

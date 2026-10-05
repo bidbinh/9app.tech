@@ -1,0 +1,73 @@
+/* 9family: Sức khỏe gia đình. Dùng token của style.css (sáng/tối, Chữ lớn). Không style nội tuyến (CSP). */
+.hhead { gap: var(--s3); align-items: center; }
+.hhead .h1 { font-size: var(--t-xl); }
+.hhead .ml { margin-left: 0; }
+.htabs { position: sticky; top: calc(var(--bar-h) + env(safe-area-inset-top)); z-index: 10; background: var(--bg); padding: var(--s1) 0; }
+.htabs .seg button { padding: 0 4px; font-size: var(--t-xs); }
+.optwrap { overflow-x: auto; }
+.hrow .chips { margin-top: 6px; }
+.hfoot { text-align: center; margin-top: var(--s4); }
+.btn.ghost.danger-t { color: var(--bad); border-color: var(--bad); }
+.srcnote { margin-top: var(--s3); }
+.srcnote summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; }
+.srcnote p { margin-top: var(--s2); overflow-wrap: anywhere; }
+
+/* thuốc: ô "Uống 08:00" một chạm */
+.hmed { align-items: flex-start; }
+.medname { text-align: left; min-height: 44px; display: block; width: 100%; }
+.slots { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s2); }
+.slot { min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1.5px solid var(--brand); color: var(--brand-d); background: var(--surface); font-weight: 800; font-size: var(--t-s); display: inline-flex; align-items: center; gap: 6px; }
+.slot.on { background: var(--ok-l); border-color: var(--ok); color: var(--ok); }
+.slot:disabled { opacity: .6; }
+.hvax .chips { margin-top: 4px; }
+
+/* biểu đồ */
+.chartbox { margin: var(--s2) -4px 0; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.ch-grid { stroke: var(--line2); stroke-width: 1; }
+.ch-gx { stroke-dasharray: 2 4; }
+.ch-axis { stroke: var(--line); stroke-width: 1.5; }
+.ch-t { fill: var(--mute); font-size: 14px; font-family: inherit; }
+.ch-band { fill: var(--brand-l); opacity: .5; }
+.ch-line { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.ch-p3 { stroke: var(--mute); stroke-width: 1.5; stroke-dasharray: 3 5; opacity: .85; }
+.ch-p15 { stroke: var(--brand); stroke-width: 1.5; stroke-dasharray: 8 4; opacity: .7; }
+.ch-p50 { stroke: var(--brand-d); stroke-width: 2.5; opacity: .9; }
+.ch-me { stroke: var(--c-cam); stroke-width: 3; }
+.ch-me2 { stroke: var(--info); stroke-width: 3; }
+.ch-dot { stroke: var(--surface); stroke-width: 2; fill: var(--c-cam); }
+.ch-dot.ch-me2 { fill: var(--info); }
+.ch-dot.lv-high, .ch-dot.lv-severe_high, .ch-dot.lv-severe_low { fill: var(--bad); }
+.ch-dot.lv-high_mild { fill: var(--warn); }
+.ch-dot.lv-low { fill: var(--info); }
+.ch-ref { stroke-width: 1.5; stroke-dasharray: 6 4; }
+.ch-refhi { stroke: var(--bad); opacity: .7; }
+.ch-reflo { stroke: var(--info); opacity: .8; }
+.ch-track { fill: var(--surface2); }
+.ch-bar { fill: var(--brand); }
+.ch-bar.k2 { fill: var(--c-cam); } .ch-bar.k3 { fill: var(--c-tim); } .ch-bar.k4 { fill: var(--c-luc); } .ch-bar.k5 { fill: var(--c-do); } .ch-bar.k6 { fill: var(--c-nau); }
+.ch-bar.kmute { fill: var(--line); } .ch-bar.knear { fill: var(--warn-line); } .ch-bar.kover { fill: var(--warn); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: var(--s2); }
+.lg::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 3px solid var(--mute); vertical-align: middle; margin-right: 6px; }
+.lg-me::before { border-color: var(--c-cam); } .lg-me2::before { border-color: var(--info); }
+.lg-p50::before { border-color: var(--brand-d); } .lg-p15::before { border-color: var(--brand); border-top-style: dashed; } .lg-p3::before { border-color: var(--mute); border-top-style: dotted; }
+.gres { margin-top: var(--s3); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+
+/* in tóm tắt: chỉ in khung #printbox */
+.printbox { display: none; }
+@media print {
+  body.printing > *:not(.printbox) { display: none !important; }
+  body.printing .printbox { display: block; color: #000; background: #fff; font: 11pt/1.4 "Segoe UI", Arial, sans-serif; padding: 0; }
+  html, body { background: #fff !important; }
+  .printbox h1 { font-size: 18pt; margin: 0 0 4pt; }
+  .printbox h2 { font-size: 12pt; margin: 12pt 0 4pt; break-after: avoid; }
+  .printbox table { border-collapse: collapse; width: 100%; break-inside: auto; }
+  .printbox tr { break-inside: avoid; }
+  .printbox th, .printbox td { border: 1px solid #555; padding: 3pt 5pt; text-align: left; font-size: 10pt; vertical-align: top; }
+  .printbox th { background: #eee; }
+  .printbox .pdisc { margin-top: 14pt; font-size: 9.5pt; border-top: 1px solid #555; padding-top: 6pt; }
+}
+
+/* hàng trong danh sách có lề trong (style.css chỉ đặt lề cho hàng sự kiện) */
+.list > .list-row { padding-left: var(--s4); padding-right: var(--s3); }
+.list > .list-row.hrow { padding-left: var(--s3); }

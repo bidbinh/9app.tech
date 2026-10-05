@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { ApiError } from './errors.js';
+import { normIp } from './util.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(here, '..', 'public');
@@ -59,11 +60,15 @@ export function createApp() {
     return h.n > limit;
   }
 
-  // nginx đặt X-Forwarded-For = $remote_addr nên lấy phần tử đầu
+  // Lấy phần tử thứ n tính từ CUỐI của X-Forwarded-For (n = TRUSTED_PROXY_HOPS): đó là địa chỉ do nginx ghi, khách không giả được.
   function clientIp(req) {
+    const hops = config.trustedProxyHops;
     const xf = req.headers['x-forwarded-for'];
-    if (xf) return String(xf).split(',')[0].trim();
-    return req.socket.remoteAddress || '';
+    if (hops > 0 && xf) {
+      const parts = String(xf).split(',').map((x) => x.trim()).filter(Boolean);
+      if (parts.length) return normIp(parts[Math.max(0, parts.length - hops)]);
+    }
+    return normIp(req.socket.remoteAddress || '');
   }
 
   function readBody(req, maxBody = MAX_BODY) {
@@ -100,7 +105,7 @@ export function createApp() {
   }
 
   function serveStatic(urlPath, res) {
-    if (urlPath === '/' || urlPath === '' || urlPath === '/index.html' || /^\/[md]\/[A-Za-z0-9_-]{1,40}$/.test(urlPath)) { sendPage(res); return true; }
+    if (urlPath === '/' || urlPath === '' || urlPath === '/index.html') { sendPage(res); return true; }
     const rel = path.normalize(urlPath).replace(/^(\.\.[/\\])+/, '');
     const file = path.join(PUBLIC, rel);
     if (!file.startsWith(PUBLIC + path.sep)) return false;
@@ -208,6 +213,9 @@ export function createApp() {
     }
   }
 
+  // dọn bảng đếm định kỳ (không chỉ khi vượt 20000 khóa)
+  const sweeper = setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.reset < now) hits.delete(k); }, 60_000);
+  sweeper.unref?.();
   const server = http.createServer((req, res) => { handle(req, res); });
   server.requestTimeout = 30_000;
 
@@ -219,6 +227,7 @@ export function createApp() {
       return new Promise((resolve) => server.listen(port, () => resolve(server.address().port)));
     },
     close() {
+      clearInterval(sweeper);
       return new Promise((resolve) => { server.closeAllConnections?.(); server.close(() => resolve()); });
     },
   };

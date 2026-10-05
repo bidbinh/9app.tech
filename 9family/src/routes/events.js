@@ -60,7 +60,7 @@ export function parseEvent(b, today) {
 
 async function checkTargets(c, fid, e) {
   if (e.child_ids.length) {
-    const r = await c.query('SELECT id FROM children WHERE family_id=$1 AND id = ANY($2::uuid[])', [fid, e.child_ids]);
+    const r = await c.query('SELECT id FROM children WHERE family_id=$1 AND archived_at IS NULL AND id = ANY($2::uuid[])', [fid, e.child_ids]);
     if (r.length !== e.child_ids.length) throw new ApiError(400, 'invalid_input', 'Có con không thuộc gia đình này', { field: 'Con' });
   }
   if (e.member_ids.length) {
@@ -86,14 +86,21 @@ async function exceptionsFor(q, ids, from, to) {
   return m;
 }
 
+// Tài khoản của con chỉ thấy sự kiện của chính mình: gắn với hồ sơ con của mình, gán cho mình, hoặc sự kiện chung cả nhà (không gắn con/người nào)
+export const visibleToChild = (o, me) => {
+  const kids = o.childIds || o.child_ids || []; const mem = o.memberIds || o.member_ids || [];
+  return kids.some((k) => me.childIds.includes(k)) || mem.includes(me.id) || (!kids.length && !mem.length);
+};
+
 // Các lần diễn ra của mọi sự kiện gia đình trong [from, to]
-export async function occurrencesIn(q, fid, from, to, { childId = null } = {}) {
+export async function occurrencesIn(q, fid, from, to, { childId = null, viewer = null } = {}) {
   const evs = await q('SELECT * FROM events WHERE family_id=$1 AND start_date <= $3 AND (until_date IS NULL OR until_date >= $2)', [fid, from, to]);
   const ex = await exceptionsFor(q, evs.map((e) => e.id), from, to);
   const lunar = makeLunarCache();
   const out = [];
   for (const ev of evs) {
     if (childId && !ev.child_ids.includes(childId)) continue;
+    if (viewer && viewer.role === 'con' && !visibleToChild(ev, viewer)) continue;
     for (const o of expand(ev, from, to, ex.get(ev.id) || new Map(), lunar)) {
       out.push({ ...o, childIds: ev.child_ids, memberIds: ev.member_ids, checklist: ev.checklist, recurring: ev.rec_type !== 'none', recType: ev.rec_type, notifyOffsets: ev.notify_offsets, source: ev.source });
     }
@@ -114,35 +121,35 @@ export function eventRoutes(app) {
   F.get('/today', async (ctx, me, fid) => {
     const now = clock.now(); const today = dayOfMs(now); const tomorrow = addDays(today, 1);
     await tx(async (c) => { await ensureRideDays(c, today, fid); await ensureRideDays(c, tomorrow, fid); });
-    const occ = await occurrencesIn(query, fid, today, tomorrow);
+    const occ = await occurrencesIn(query, fid, today, tomorrow, { viewer: me });
     const tasks = await query(
-      `SELECT t.id, t.title, t.due_date, t.assignee_id FROM tasks t WHERE t.family_id=$1 AND t.done_at IS NULL AND (t.assignee_id=$2 OR t.assignee_id IS NULL OR (t.due_date IS NOT NULL AND t.due_date <= $3))
+      `SELECT t.id, t.title, t.due_date, t.assignee_id FROM tasks t WHERE t.family_id=$1 AND t.done_at IS NULL AND (t.assignee_id=$2 OR (${me.role === 'con' ? 'false' : 'true'} AND (t.assignee_id IS NULL OR (t.due_date IS NOT NULL AND t.due_date <= $3))))
         ORDER BY t.due_date NULLS LAST, t.created_at LIMIT 6`, [fid, me.id, tomorrow]);
     const unread = (await query('SELECT count(*)::int n FROM notifications WHERE member_id=$1 AND read_at IS NULL', [me.id]))[0].n;
     const l = solarToLunar(today);
     return {
       now, today, lunar: [l.day, l.month, l.leap ? 1 : 0],
       events: occ.filter((o) => o.day === today), tomorrowEvents: occ.filter((o) => o.day === tomorrow),
-      rides: await ridesOfDay(query, fid, today), tomorrowRides: await ridesOfDay(query, fid, tomorrow),
+      rides: await ridesOfDay(query, fid, today, me), tomorrowRides: await ridesOfDay(query, fid, tomorrow, me),
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, due: t.due_date, assigneeId: t.assignee_id })), unread,
     };
-  });
+  }, { con: true });
 
   F.get('/calendar', async (ctx, me, fid) => {
     const from = cleanDay(ctx.query.from, 'Từ ngày'); const to = cleanDay(ctx.query.to, 'Đến ngày');
     const span = daysBetween(from, to);
     if (span < 0 || span + 1 > config.maxRangeDays) throw new ApiError(400, 'invalid_input', `Chỉ xem được tối đa ${config.maxRangeDays} ngày một lần`, { field: 'Khoảng ngày' });
     const childId = ctx.query.childId ? uuidParam(ctx.query.childId) : null;
-    return { from, to, today: dayOfMs(clock.now()), events: await occurrencesIn(query, fid, from, to, { childId }), lunar: lunarMap(from, to) };
-  });
+    return { from, to, today: dayOfMs(clock.now()), events: await occurrencesIn(query, fid, from, to, { childId, viewer: me }), lunar: lunarMap(from, to) };
+  }, { con: true });
 
   F.get('/events/:id', async (ctx, me, fid) => {
     const id = uuidParam(ctx.params.id);
     const ev = (await query('SELECT * FROM events WHERE id=$1 AND family_id=$2', [id, fid]))[0];
-    if (!ev) throw new ApiError(404, 'not_found', 'Không tìm thấy sự kiện');
+    if (!ev || (me.role === 'con' && !visibleToChild(ev, me))) throw new ApiError(404, 'not_found', 'Không tìm thấy sự kiện');
     const ex = await query('SELECT * FROM event_exceptions WHERE event_id=$1 ORDER BY day', [id]);
-    return { event: eventOut(ev), exceptions: ex.map((x) => ({ day: x.day, action: x.action, title: x.title, location: x.location, note: x.note, start: x.start_time, end: x.end_time })), canEdit: isManager(me) || ev.created_by === me.id };
-  });
+    return { event: eventOut(ev), exceptions: ex.map((x) => ({ day: x.day, action: x.action, title: x.title, location: x.location, note: x.note, start: x.start_time, end: x.end_time })), canEdit: me.role !== 'con' && (isManager(me) || ev.created_by === me.id) };
+  }, { con: true });
 
   F.post('/events/preview', async (ctx, me, fid) => {
     ctx.noBump = true;
@@ -239,7 +246,9 @@ export function eventRoutes(app) {
     return tx(async (c) => {
       const ev = await loadForEdit(c, me, fid, id);
       if (day <= ev.start_date) { await c.query('DELETE FROM events WHERE id=$1', [id]); return { deleted: true }; }
-      await c.query('UPDATE events SET until_date=$2, updated_at=now() WHERE id=$1', [id, addDays(day, -1)]);
+      // không bao giờ kéo dài khoảng lặp: lấy ngày sớm hơn giữa hạn cũ và ngày trước ngày này
+      const cut = addDays(day, -1);
+      await c.query('UPDATE events SET until_date=$2, updated_at=now() WHERE id=$1', [id, ev.until_date && ev.until_date < cut ? ev.until_date : cut]);
       await c.query('DELETE FROM event_exceptions WHERE event_id=$1 AND day >= $2', [id, day]);
       return { deleted: false };
     });
@@ -320,10 +329,15 @@ export function eventRoutes(app) {
     if (!isManager(me)) throw forbidden('Chỉ chủ gia đình hoặc người quản lý mới nhập thời khóa biểu');
     const img = checkImage(ctx.body.image);
     const today = dayOfMs(clock.now());
-    const used = (await query(
-      `INSERT INTO ai_usage(family_id, day, n) VALUES($1,$2,1) ON CONFLICT (family_id, day) DO UPDATE SET n = ai_usage.n + 1 RETURNING n`, [fid, today]))[0].n;
-    if (used > config.aiPerFamilyPerDay) throw new ApiError(429, 'ai_quota', 'Hôm nay đã đọc ảnh quá nhiều lần. Mai thử lại hoặc nhập tay bằng lưới.');
-    return scanTimetable(img);
+    // hạn mức theo gia đình, theo IP và toàn hệ mỗi ngày; chỉ trừ khi đọc thành công
+    const scopes = [['f:' + fid, config.aiPerFamilyPerDay], ['ip:' + ctx.ip, config.aiPerIpPerDay], ['g', config.aiGlobalPerDay]];
+    const used = await query('SELECT scope, n FROM ai_quota WHERE day=$1 AND scope = ANY($2::text[])', [today, scopes.map((s) => s[0])]);
+    for (const [sc, cap] of scopes) {
+      if ((used.find((u) => u.scope === sc)?.n || 0) >= cap) throw new ApiError(429, 'ai_quota', sc === 'g' ? 'Dịch vụ đọc ảnh hôm nay đã hết lượt. Mai thử lại hoặc nhập tay bằng lưới.' : 'Hôm nay đã đọc ảnh quá nhiều lần. Mai thử lại hoặc nhập tay bằng lưới.');
+    }
+    const out = await scanTimetable(img);
+    await query('INSERT INTO ai_quota(scope, day, n) SELECT s, $1, 1 FROM unnest($2::text[]) s ON CONFLICT (scope, day) DO UPDATE SET n = ai_quota.n + 1', [today, scopes.map((s) => s[0])]);
+    return out;
   }, { maxBody: 6 * 1024 * 1024, limit: 12, limitKey: 'aiscan' });
 }
 

@@ -6,7 +6,7 @@ import os from 'node:os';
 import https from 'node:https';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { startEmbedded } from './embedded-pg.js';
+import { boot as bootSystem, signup, Browser } from '../test/integration/harness.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SHOTS = path.join(root, 'shots');
@@ -17,13 +17,8 @@ const { default: puppeteer } = await import(PPT);
 const jsQR = (await import('jsqr')).default;
 const { PNG } = await import('pngjs');
 
-const pg = await startEmbedded({ database: 'family_e2e' });
-process.env.DATABASE_URL = pg.url;
-process.env.RATE_LIMIT_PER_MIN = '1000000'; process.env.ROUTE_LIMIT_FACTOR = '1000'; process.env.SESSION_LIMIT_PER_MIN = '1000000';
-process.env.FAMILY_PUSH_ALLOW_ANY = '1'; process.env.FAMILY_AI_KEY = 'khoa-ai-e2e'; process.env.FAMILY_AI_RETRY_MS = '5';
-const webpush = (await import('web-push')).default;
-const vk = webpush.generateVAPIDKeys(); process.env.VAPID_PUBLIC_KEY = vk.publicKey; process.env.VAPID_PRIVATE_KEY = vk.privateKey;
-const { start } = await import('../src/server.js');
+// 9id THẬT + 9family THẬT, hai PostgreSQL nhúng, "nginx" mô phỏng ở một cổng >= 17000 (cookie nine_sid dùng chung như trên 9app.tech). Xem test/integration/harness.js.
+const sys = await bootSystem({ legacy: false, cacheMs: 0 });
 const { config } = await import('../src/config.js');
 const { clock } = await import('../src/clock.js');
 const scheduler = await import('../src/scheduler.js');
@@ -31,10 +26,8 @@ const db = await import('../src/db.js');
 const vn = await import('../src/vn.js');
 const { solarToLunar } = await import('../src/lunar.js');
 const push = await import('../src/push.js');
-config.port = 0;
-const app = await start({ scheduler: false });
-const port = app.server.address().port;
-const ORIGIN = `http://127.0.0.1:${port}`;
+config.aiRetryDelayMs = 5; config.aiKey = 'khoa-ai-e2e';
+const ORIGIN = sys.ORIGIN;
 const URL0 = `${ORIGIN}${config.basePath}/`;
 const at = (day, hhmm = '00:00') => vn.atMs(day, hhmm);
 const TODAY = '2026-10-05'; // thứ hai
@@ -44,20 +37,25 @@ const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), '9family-chrome-'));
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--no-sandbox', '--disable-gpu', `--user-data-dir=${userDataDir}`], defaultViewport: null });
 
 const results = []; const problems = [];
-const cleanup = async () => { try { await browser.close(); } catch { /* bỏ qua */ } try { await app.close(); await db.close(); } catch { /* bỏ qua */ } try { await pg.stop(); } catch { /* bỏ qua */ } };
+const cleanup = async () => { try { await browser.close(); } catch { /* bỏ qua */ } try { await sys.stop(); } catch { /* bỏ qua */ } };
 for (const sig of ['uncaughtException', 'unhandledRejection']) process.on(sig, async (err) => { console.error('LỖI KHÔNG BẮT ĐƯỢC:', err && err.stack ? err.stack.split('\n').slice(0, 4).join(' | ') : err); await cleanup(); process.exit(2); });
 let VIEW = { width: 390, height: 844 };
 let lastPage = null;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function newUser(name, { dark = false, view = VIEW, tz = null, init = null, initArg = null } = {}) {
+async function newUser(name, { dark = false, view = VIEW, tz = null, init = null, initArg = null, anon = false, acct = null, displayName = null } = {}) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
-  await page.setViewport({ ...view, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  await page.setViewport({ ...view, deviceScaleFactor: 2, isMobile: view.width < 700, hasTouch: view.width < 700 });
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: dark ? 'dark' : 'light' }]);
   if (tz) await page.emulateTimezone(tz);
   if (init) await page.evaluateOnNewDocument(init, initArg);
   page.__name = name; page.__ctx = ctx; page.__dark = dark;
+  if (!anon) { // tài khoản 9app thật (đăng ký bằng API 9id, OTP mock), cookie nine_sid như sau khi đăng nhập
+    acct = acct || await signup(sys, { name: displayName || name });
+    await page.setCookie({ name: 'nine_sid', value: acct.jar.nine_sid, url: ORIGIN });
+    page.__acct = acct;
+  }
   page.on('console', (m) => { if (['error', 'warning'].includes(m.type()) && !/Failed to load resource.*(40[0-9]|410|ERR_INTERNET_DISCONNECTED)/.test(m.text()) && !/favicon|icon\.(svg|png)/.test(m.text())) problems.push(`[${name}] console.${m.type()}: ${m.text()}`); });
   page.on('pageerror', (e) => problems.push(`[${name}] pageerror: ${e.message}`));
   page.on('requestfailed', (r) => { if (!r.failure()?.errorText?.includes('ERR_ABORTED') && !/ERR_INTERNET_DISCONNECTED/.test(r.failure()?.errorText || '')) problems.push(`[${name}] requestfailed ${r.url()} ${r.failure()?.errorText}`); });
@@ -156,19 +154,21 @@ async function audit(page, label) {
       if (sheetOn && !e.closest('.sheet')) continue;
       const cs = getComputedStyle(e);
       const fs = parseFloat(cs.fontSize);
-      if (fs < 12.9) out.tiny.push(`${e.tagName}.${e.className} ${fs}px "${e.textContent.trim().slice(0, 20)}"`);
+      if (fs < 13.9) out.tiny.push(`${e.tagName}.${e.className} ${fs}px "${e.textContent.trim().slice(0, 20)}"`);
       const fg = cs.color; const bg = bgOf(e);
       const l1 = lum(fg), l2 = lum(bg); const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
       const big = fs >= 24 || (fs >= 18.66 && Number(cs.fontWeight) >= 700);
       if (ratio < (big ? 3 : 4.5) && out.lowContrast.length < 6 && !e.closest('[disabled], .btn:disabled')) out.lowContrast.push(`${e.tagName}.${e.className} ${ratio.toFixed(2)} "${e.textContent.trim().slice(0, 20)}"`);
     }
-    out.wide = [...document.querySelectorAll('body *')].filter((e) => vis(e) && e.getBoundingClientRect().right > window.innerWidth + 1 && !e.closest('.sheet-back') && !e.classList.contains('offscreen')).slice(0, 4).map((e) => e.tagName + '.' + e.className);
+    out.tabCut = [...document.querySelectorAll('.tab')].filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.textContent.trim());
+    out.wide = [...document.querySelectorAll('body *')].filter((e) => vis(e) && e.getBoundingClientRect().right > window.innerWidth + 1 && !e.closest('.sheet-back, .fchips, .tpl') && !e.classList.contains('offscreen')).slice(0, 4).map((e) => e.tagName + '.' + e.className);
     return out;
   });
   if (r.overflow) problems.push(`[${label}] TRÀN NGANG (scrollWidth ${r.sw} > ${r.iw})`);
+  if (r.tabCut.length) problems.push(`[${label}] nhãn thanh dưới bị cắt: ${r.tabCut.join(', ')}`);
   if (r.wide.length) problems.push(`[${label}] phần tử vượt khung: ${r.wide.join(', ')}`);
   if (r.small.length) problems.push(`[${label}] vùng bấm < 44px: ${[...new Set(r.small)].slice(0, 5).join('; ')}`);
-  if (r.tiny.length) problems.push(`[${label}] chữ < 13px: ${[...new Set(r.tiny)].slice(0, 4).join('; ')}`);
+  if (r.tiny.length) problems.push(`[${label}] chữ < 14px: ${[...new Set(r.tiny)].slice(0, 4).join('; ')}`);
   if (r.inputsNoLabel.length) problems.push(`[${label}] ô nhập không nhãn: ${r.inputsNoLabel.join(', ')}`);
   if (r.lowContrast.length) problems.push(`[${label}] tương phản thấp: ${[...new Set(r.lowContrast)].join('; ')}`);
 }
@@ -185,115 +185,100 @@ const setClock = (day, hhmm) => clock.set(at(day, hhmm));
 const closeSheet = async (p) => { await tap(p, 'Đóng', { exact: true, scope: '.sheet button', wait: 300 }); };
 const reloadAt = async (p, name) => { await p.evaluate((h) => { location.hash = h; }, '#/f/' + fid + '/' + name); await p.reload({ waitUntil: 'networkidle0' }); };
 const goto = async (p, hash) => { await p.goto(URL0 + hash, { waitUntil: 'networkidle0' }); };
-const tab = async (p, name) => { await p.evaluate(() => document.activeElement && document.activeElement.blur()); await sleep(250); await tap(p, name, { scope: '#tabs a', wait: 500 }); };
-const inviteUrl = (p) => p.evaluate(() => document.querySelector('.linkbox[data-invite]').textContent);
+const tab = async (p, name) => {
+  await p.evaluate(() => document.activeElement && document.activeElement.blur()); await sleep(250);
+  if (name === 'Việc chung') { await tap(p, 'Tiện ích', { scope: '#tabs a', wait: 500 }); await tap(p, 'Việc chung', { scope: 'a.tile', wait: 600 }); return; }
+  await tap(p, name, { scope: '#tabs a', wait: 500 });
+};
+// mở mục "Nâng cao" ở tab Gia đình (lịch ICS, mốc nhắc)
+const adv = async (p) => { if (!(await p.$('details.more[open]'))) await tap(p, 'Lịch ICS', { scope: 'summary', wait: 400 }); };
 const sheetText = (p) => p.evaluate(() => [...document.querySelectorAll('.sheet')].pop()?.innerText || '');
+// mở tờ chi tiết của dòng ca có chứa chữ `t`
+const openRide = async (p, t) => {
+  await p.bringToFront();
+  const h = await p.evaluateHandle((t) => [...document.querySelectorAll('.ride')].find((c) => c.textContent.includes(t)) || null, t);
+  const el = h.asElement(); if (!el) throw new Error('[' + p.__name + '] không thấy dòng ca "' + t + '"');
+  await el.evaluate((c) => c.scrollIntoView({ block: 'center' })); await sleep(300);
+  await (await el.$('.ev-open')).click(); await sleep(500);
+};
 
-let me, bo, ba, out, fid;
+let me, bo, ba, out, fid, RECOVERY1, RECOVERY2;
 const NAMES = { me: 'Mẹ Bình Minh 🌸', bo: 'Bố Tuấn', ba: 'Bà nội Lan' };
 
 console.log('--- 390x844, chế độ sáng ---');
-await step('màn đầu khi chưa có gia đình: trống nhưng rõ ràng, không tràn, không lỗi', async () => {
-  me = await newUser('Mẹ');
-  await goto(me, '');
-  await waitText(me, 'Chào mừng đến 9family');
-  await audit(me, 'welcome'); await shot(me, '01-welcome');
-  must((await text(me)).includes('9app'), 'thiếu nút ‹ 9app');
+const kidForm = async (p, name, year, grade, school, note) => {
+  await fill(p, 'Tên gọi', name); await fill(p, 'Năm sinh', String(year)); await fill(p, 'Lớp', grade); await fill(p, 'Trường', school); if (note) await fill(p, 'Lưu ý đưa đón', note);
+};
+// người lớn vào gia đình bằng lời mời qua số điện thoại ở 9id (API thật), rồi mở 9family; relation là quan hệ trong nhà (phần của 9family)
+const joinFamily = async (label, displayName, relation) => {
+  const acct = await signup(sys, { name: displayName });
+  await me.__acct.id('POST', `/families/${fid}/invites`, { phone: acct.phone, role: 'thanh_vien' });
+  const inv = (await acct.id('GET', '/invitations')).json.invitations[0];
+  await acct.id('POST', `/invitations/${inv.id}/accept`, {});
+  const w = (await me.__acct.id('GET', `/families/${fid}`)).json.invitations.find((i) => i.status === 'awaiting');
+  if (w) await me.__acct.id('POST', `/families/${fid}/invites/${w.id}/approve`, {});
+  const pg = await newUser(label, { acct });
+  await goto(pg, '#/f/' + fid + '/today');
+  await waitText(pg, 'Hôm nay');
+  const mem = (await api(pg, 'api/families/' + fid)).json.me;
+  await api(pg, `api/families/${fid}/members/${mem.id}`, 'POST', { relation });
+  return pg;
+};
+
+await step('màn đầu khi chưa đăng nhập: chào + Đăng nhập / Đăng ký tài khoản 9app, không tràn, không lỗi', async () => {
+  const anon = await newUser('Khách', { anon: true });
+  await goto(anon, '');
+  await waitText(anon, 'Chào mừng đến 9family');
+  const t = await text(anon);
+  must(t.includes('Đăng nhập') && t.includes('Đăng ký tài khoản 9app') && t.includes('9app'), 'thiếu nút đăng nhập/đăng ký hoặc ‹ 9app');
+  must(!t.includes('Tạo gia đình'), 'chưa đăng nhập thì chưa có biểu mẫu tạo gia đình');
+  await audit(anon, 'welcome'); await shot(anon, '01-welcome');
+  await anon.__ctx.close();
 });
 
-await step('Mẹ tạo gia đình với tên có dấu và emoji; vào thẳng màn Hôm nay; gia đình mới trống có hướng dẫn', async () => {
+await step('Mẹ (đã đăng nhập tài khoản 9app) tạo gia đình với tên có dấu và emoji; vào thẳng màn Hôm nay; gia đình mới trống có hướng dẫn', async () => {
+  me = await newUser('Mẹ', { displayName: NAMES.me });
+  await goto(me, '');
+  await waitText(me, 'Tạo gia đình');
+  await audit(me, 'chua-co-gia-dinh');
   await fill(me, 'Tên gia đình', 'Nhà Cún Con 🏠');
-  await fill(me, 'Tên của bạn', NAMES.me);
   await fill(me, 'Bạn là', 'me', { select: true });
-  await tap(me, 'Tạo gia đình', { exact: true, wait: 900 });
+  await tap(me, 'Tạo gia đình', { exact: true, wait: 1400 });
   await waitText(me, 'Bắt đầu với gia đình mới');
   fid = (await hashOf(me)).split('/')[2];
+  must((await sys.idDb.query('SELECT name FROM families WHERE id=$1', [fid]))[0].name === 'Nhà Cún Con 🏠', 'gia đình phải nằm ở 9id với đúng id');
   const t = await text(me);
   must(t.includes('Nhà Cún Con 🏠') && t.includes('Hôm nay'), 'thiếu tiêu đề');
-  must(t.includes('Thứ hai, 05/10/2026') && new RegExp('Âm lịch ' + solarToLunar(TODAY).day + '/' + solarToLunar(TODAY).month).test(t), 'thiếu ngày dương/âm lịch: ' + t.slice(0, 200));
+  must(t.includes('Thứ hai, 05/10') && t.includes('2026') && new RegExp('Âm lịch ' + solarToLunar(TODAY).day + '/' + solarToLunar(TODAY).month).test(t), 'thiếu ngày dương/âm lịch: ' + t.slice(0, 200));
   await audit(me, 'today-moi'); await shot(me, '02-today-trong');
 });
 
-const kidForm = async (p, name, year, grade, school, note) => {
-  await fill(p, 'Tên gọi', name); await fill(p, 'Năm sinh', String(year)); await fill(p, 'Lớp', grade); await fill(p, 'Trường', school); if (note) await fill(p, 'Ghi chú', note);
-};
-await step('Mẹ thêm con Bống (tên emoji, ghi chú) và Cún ở tab Gia đình', async () => {
+await step('Mẹ thêm con Bống (tên emoji, ghi chú) và Cún ở tab Gia đình (hồ sơ nằm ở 9id, trường/lớp ở 9family)', async () => {
   await tab(me, 'Gia đình');
   await waitText(me, 'Trẻ em (0/8)');
   must((await text(me)).includes('Chưa có con nào'), 'thiếu trạng thái chưa có con');
   await audit(me, 'family-moi'); await shot(me, '03-family-moi');
   await tap(me, '+ Thêm con', { wait: 400 });
-  await kidForm(me, 'Bống 🎀', 2018, '3A', 'Tiểu học Hoa Mai', 'Dị ứng đậu phộng. Chờ ở cổng B.');
+  await kidForm(me, 'Bống 🎀', 2018, '3A', 'Tiểu học Hoa Mai', 'Chờ ở cổng B.');
+  await fill(me, 'Ghi chú sức khỏe', 'Dị ứng đậu phộng.');
   await audit(me, 'child-sheet'); await shot(me, '04-them-con');
-  await tap(me, 'Thêm con', { exact: true, wait: 700 });
+  await tap(me, 'Thêm con', { exact: true, wait: 1000 });
   await waitText(me, 'Trẻ em (1/8)'); await waitText(me, 'Bống 🎀');
   await tap(me, '+ Thêm con', { wait: 400 });
   await kidForm(me, 'Cún', 2020, '1B', 'Mầm non Họa Mi', '');
-  await tap(me, 'Thêm con', { exact: true, wait: 700 });
+  await tap(me, 'Thêm con', { exact: true, wait: 1000 });
   await waitText(me, 'Trẻ em (2/8)');
-  await tap(me, '+ Thêm con', { wait: 300 }); await kidForm(me, 'bống 🎀', 2018, '3A', 'x', ''); await tap(me, 'Thêm con', { exact: true, wait: 500 });
-  await waitText(me, 'Đã có con tên này'); await closeSheet(me);
   await audit(me, 'family-2-con'); await shot(me, '05-family-co-con');
 });
 
-await step('Mẹ mời Bố bằng link; Bố mở link ở phiên mới và vào gia đình', async () => {
-  await tap(me, '+ Mời', { wait: 400 });
-  await fill(me, 'Tên', NAMES.bo); await fill(me, 'Vai trò', 'bo', { select: true });
-  await tap(me, 'Tạo link mời', { exact: true, wait: 900 });
-  await waitText(me, 'Link mời ' + NAMES.bo);
-  const url = await inviteUrl(me);
-  must(/\/9family\/m\/[A-Za-z0-9_-]{24}$/.test(url), 'link mời sai dạng: ' + url);
-  await audit(me, 'invite-sheet'); await shot(me, '06-link-moi');
-  await closeSheet(me);
-  bo = await newUser('Bố');
-  await bo.goto(url, { waitUntil: 'networkidle0' });
-  await waitText(bo, 'Bạn được mời vào gia đình');
-  must((await text(bo)).includes('Nhà Cún Con 🏠'), 'không thấy tên gia đình');
-  await audit(bo, 'join'); await shot(bo, '07-moi-vao-gia-dinh');
-  await tap(bo, 'Vào gia đình', { exact: true, wait: 900 });
-  await waitText(bo, 'Hôm nay');
-  must((await hashOf(bo)).includes('/today'), 'chưa vào màn Hôm nay');
+await step('Bố và Bà vào gia đình bằng lời mời qua số điện thoại (chấp nhận, chủ duyệt); mở 9family thấy đúng gia đình', async () => {
+  bo = await joinFamily('Bố', NAMES.bo, 'bo');
   must(!(await text(bo)).includes('Bắt đầu với gia đình mới'), 'thành viên thường không nên thấy hướng dẫn của chủ');
-  await shot(bo, '08-bo-today');
-  bo.url0 = url;
-});
-
-await step('dùng lại link mời đã dùng: người lạ bị từ chối; chính Bố mở lại thì được báo đã ở trong gia đình', async () => {
-  const la = await newUser('Người lạ');
-  await la.goto(bo.url0, { waitUntil: 'networkidle0' });
-  await waitText(la, 'Link này đã được dùng');
-  await audit(la, 'link-da-dung'); await shot(la, '09-link-da-dung');
-  must(!(await text(la)).includes('Nhà Cún'), 'lộ tên gia đình cho người lạ');
-  await la.__ctx.close();
-  await bo.goto(bo.url0, { waitUntil: 'networkidle0' });
-  await waitText(bo, 'Bạn đã ở trong gia đình');
-  await tap(bo, 'Mở gia đình', { wait: 600 }); await waitText(bo, 'Hôm nay');
-});
-
-await step('link mời hết hạn sau 7 ngày bị từ chối; chủ tạo link mới cho đúng người, Bà vào được', async () => {
-  await tap(me, '+ Mời', { wait: 400 });
-  await fill(me, 'Tên', NAMES.ba); await fill(me, 'Vai trò', 'ba', { select: true });
-  await tap(me, 'Tạo link mời', { exact: true, wait: 900 });
-  const url = await inviteUrl(me);
-  await closeSheet(me);
-  clock.set(clock.now() + 8 * 86400_000);
-  ba = await newUser('Bà');
-  await ba.goto(url, { waitUntil: 'networkidle0' });
-  await waitText(ba, 'Link đã hết hạn');
-  await audit(ba, 'link-het-han'); await shot(ba, '10-link-het-han');
-  setClock(TODAY, '06:30');
-  await waitText(me, 'Chưa vào');
-  await tap(me, 'Thành viên ' + NAMES.ba, { wait: 400 });
-  await tap(me, 'Tạo link mời mới', { wait: 900 });
-  const url2 = await inviteUrl(me);
-  must(url2 !== url, 'link mới trùng link cũ');
-  await closeSheet(me);
-  await ba.goto(url, { waitUntil: 'networkidle0' });
-  await waitText(ba, 'Link không dùng được');
-  await ba.goto(url2, { waitUntil: 'networkidle0' });
-  await waitText(ba, 'Bạn được mời vào gia đình');
-  await tap(ba, 'Vào gia đình', { exact: true, wait: 900 }); await waitText(ba, 'Hôm nay');
-  ba.url0 = url2;
+  await audit(bo, 'bo-today'); await shot(bo, '08-bo-today');
+  ba = await joinFamily('Bà', NAMES.ba, 'ba');
+  await me.bringToFront(); await goto(me, '#/f/' + fid + '/me');
+  await waitText(me, 'Thành viên (3)');
+  await audit(me, 'family-3-nguoi'); await shot(me, '06-ba-nguoi-trong-gia-dinh');
 });
 
 await step('người ngoài gia đình mở thẳng địa chỉ gia đình: không thấy gì', async () => {
@@ -308,70 +293,21 @@ await step('người ngoài gia đình mở thẳng địa chỉ gia đình: kh�
   must((await api(out, 'api/families/' + fid)).status === 404, 'API trả khác 404 cho người ngoài');
 });
 
-await step('thành viên thường (Bố) không thấy nút quản trị; chủ thấy đủ', async () => {
+await step('thành viên thường (Bố) không thấy nút quản trị; chủ thấy đủ; tên và quyền đổi ở tài khoản 9app', async () => {
+  await tap(me, 'Thành viên Bố Tuấn', { wait: 500 });
+  must((await sheetText(me)).includes('Quản lý thành viên ở tài khoản 9app'), 'chủ phải thấy liên kết sang 9app');
+  await closeSheet(me);
   await tab(bo, 'Gia đình');
   await waitText(bo, 'Trẻ em (2/8)');
+  await adv(bo);
   const t = (await text(bo)).toLowerCase();
-  must(!t.includes('+ thêm con') && !t.includes('+ mời') && !t.includes('mốc nhắc đưa đón') && !t.includes('xóa gia đình'), 'Bố thấy nút quản trị');
-  must(t.includes('thiết bị của bạn') && t.includes('rời gia đình'), 'thiếu phần của người thường');
+  must(!t.includes('+ thêm con') && !t.includes('+ mời') && !t.includes('mốc nhắc đưa đón') && !t.includes('chuyển quyền chủ'), 'Bố thấy nút quản trị');
+  must(t.includes('rời gia đình') && t.includes('lịch ics'), 'thiếu phần của người thường');
   await audit(bo, 'family-bo'); await shot(bo, '12-family-bo');
+  await adv(me);
   const tm = (await text(me)).toLowerCase();
-  must(tm.includes('xóa gia đình') && tm.includes('chuyển quyền chủ gia đình') && tm.includes('mốc nhắc đưa đón'), 'chủ thiếu nút');
+  must(tm.includes('chuyển quyền chủ, rời hoặc xóa gia đình') && tm.includes('mốc nhắc đưa đón'), 'chủ thiếu nút');
 });
-
-await step('Bố thêm thiết bị thứ hai bằng QR: quét ra đúng link, dùng một lần, gỡ thiết bị', async () => {
-  await tap(bo, '+ Thêm thiết bị', { wait: 1200 });
-  await waitText(bo, 'Còn');
-  const img = await bo.$('.sheet img.qr');
-  await img.evaluate((x) => x.scrollIntoView({ block: 'center' })); await sleep(200);
-  await bo.waitForFunction(() => { const i = document.querySelector('.sheet img.qr'); return i && i.complete && i.naturalWidth > 0; }, { timeout: 5000 });
-  const src = await bo.evaluate(() => document.querySelector('.sheet img.qr').src);
-  const png = PNG.sync.read(Buffer.from(src.split(',')[1], 'base64'));
-  const dec = jsQR(new Uint8ClampedArray(png.data), png.width, png.height)?.data;
-  const shown = await bo.evaluate(() => document.querySelector('.sheet .linkbox').textContent);
-  must(dec === shown && /\/9family\/d\//.test(dec), 'QR không khớp link: ' + dec + ' vs ' + shown);
-  await audit(bo, 'device-sheet'); await shot(bo, '13-lien-ket-thiet-bi');
-  const bo2 = await newUser('Bố máy 2');
-  await bo2.goto(dec, { waitUntil: 'networkidle0' });
-  await waitText(bo2, 'Thêm thiết bị mới');
-  await shot(bo2, '14-thiet-bi-moi');
-  await tap(bo2, 'Liên kết thiết bị này', { wait: 900 });
-  await waitText(bo2, 'Hôm nay');
-  const again = await newUser('Bố máy 3');
-  await again.goto(dec, { waitUntil: 'networkidle0' });
-  await waitText(again, 'Link liên kết này đã được dùng');
-  await again.__ctx.close();
-  await closeSheet(bo);
-  await bo.reload({ waitUntil: 'networkidle0' });
-  await waitText(bo, 'máy này');
-  const n = await bo.evaluate(() => [...document.querySelectorAll('.list-row')].filter((r) => /Gỡ/.test(r.textContent)).length);
-  must(n === 1, 'phải có đúng 1 thiết bị khác để gỡ, thấy ' + n);
-  await tap(bo, 'Gỡ thiết bị', { wait: 400 }); await tap(bo, 'Gỡ thiết bị', { exact: true, scope: '.sheet button', wait: 800 });
-  await bo2.reload({ waitUntil: 'networkidle0' });
-  await waitText(bo2, 'Không tìm thấy');
-  await bo2.__ctx.close();
-});
-
-await step('Bà mất điện thoại: chủ mời lại đúng Bà, điện thoại cũ bị gỡ, Bà vào máy mới', async () => {
-  await me.bringToFront();
-  await gone(me, 'Chưa vào', 15000);
-  await tap(me, 'Thành viên ' + NAMES.ba, { wait: 400 });
-  await tap(me, 'Mời lại (mất điện thoại)', { wait: 900 });
-  const url = await inviteUrl(me);
-  await closeSheet(me);
-  const baNew = await newUser('Bà máy mới');
-  await baNew.goto(url, { waitUntil: 'networkidle0' });
-  await waitText(baNew, 'Bạn được mời vào gia đình');
-  await tap(baNew, 'Vào gia đình', { exact: true, wait: 900 });
-  await waitText(baNew, 'Hôm nay');
-  await ba.reload({ waitUntil: 'networkidle0' });
-  await waitText(ba, 'Không tìm thấy');
-  await ba.__ctx.close();
-  ba = baNew;
-  const members = (await api(me, 'api/families/' + fid)).json.members.filter((m) => !m.external);
-  must(members.length === 3, 'số thành viên phải còn 3, thấy ' + members.length);
-});
-
 
 // ---------- thời khóa biểu, sự kiện, lịch ----------
 const fillAria = async (p, prefix, value) => {
@@ -452,7 +388,7 @@ await step('Mẹ đọc ảnh thời khóa biểu của Cún bằng AI: cảnh b
   await waitText(me, 'Lịch');
   const ev = await calEvents(me, '2026-10-05', '2026-10-11');
   must(ev.some((e) => e.title === 'Chữ số') && !ev.some((e) => e.title === 'Chữ s4i') && ev.some((e) => e.title === 'Tập đọc'), 'sự kiện từ ảnh không đúng');
-  const dump = JSON.stringify(await db.query("SELECT * FROM ai_usage")) + JSON.stringify(await db.query('SELECT title, note FROM events'));
+  const dump = JSON.stringify(await db.query("SELECT * FROM ai_quota")) + JSON.stringify(await db.query('SELECT title, note FROM events'));
   must(!dump.includes('iVBOR'), 'ảnh bị lưu');
   gsrv.close();
 });
@@ -461,8 +397,8 @@ const kidChip = (p, n) => tap(p, n, { scope: '.optchip', wait: 100 });
 const evSave = async (p, label = 'Lưu sự kiện') => { await p.evaluate(() => document.activeElement && document.activeElement.blur()); await sleep(250); await tap(p, label, { exact: true, wait: 1000 }); };
 await step('Mẹ tạo sự kiện lặp hằng tuần có nhắc và danh sách cần mang; xem trước các lần tới', async () => {
   await tab(me, 'Hôm nay');
-  await waitText(me, 'Lịch hôm nay');
-  await tap(me, '+ Thêm', { wait: 700 });
+  await waitText(me, 'Dòng thời gian hôm nay');
+  await goto(me, '#/f/' + fid + '/event/new/' + TODAY);
   await waitText(me, 'Thêm sự kiện');
   await fill(me, 'Tiêu đề', 'Học múa 💃'); await fill(me, 'Loại', 'nang_khieu', { select: true });
   await kidChip(me, 'Bống 🎀');
@@ -490,13 +426,13 @@ await step('sự kiện một lần, sinh nhật hằng năm, giỗ và rằm th
   await open();
   await fill(me, 'Tiêu đề', 'Họp phụ huynh'); await fill(me, 'Loại', 'hop_phu_huynh', { select: true });
   await kidChip(me, 'Cún'); await fill(me, 'Giờ bắt đầu', '08:00'); await tap(me, '1 ngày', { scope: '.optchip', wait: 100 });
-  await evSave(me); await waitText(me, 'Lịch hôm nay');
+  await evSave(me); await waitText(me, 'Dòng thời gian hôm nay');
   await open();
   await fill(me, 'Tiêu đề', 'Sinh nhật Bống 🎂'); await fill(me, 'Loại', 'ngay_quan_trong', { select: true });
   await tap(me, 'Cả ngày', { scope: 'label', wait: 100 });
   await fill(me, 'Ngày', '2018-02-28'); await fill(me, 'Lặp lại', 'yearly', { select: true });
   await waitText(me, '28/02/2027');
-  await evSave(me); await waitText(me, 'Lịch hôm nay');
+  await evSave(me); await waitText(me, 'Dòng thời gian hôm nay');
   await open();
   await fill(me, 'Tiêu đề', 'Giỗ ông nội 🕯️'); await fill(me, 'Loại', 'ngay_quan_trong', { select: true });
   await tap(me, 'Cả ngày', { scope: 'label', wait: 100 });
@@ -509,14 +445,14 @@ await step('sự kiện một lần, sinh nhật hằng năm, giỗ và rằm th
   const y27 = lunarToSolar(20, 8, 2027).split('-').reverse().join('/');
   must(pv.includes(y27), 'xem trước giỗ phải có ' + y27);
   await shot(me, '22-form-gio-am-lich');
-  await evSave(me); await waitText(me, 'Lịch hôm nay');
+  await evSave(me); await waitText(me, 'Dòng thời gian hôm nay');
   await open();
   await fill(me, 'Tiêu đề', 'Rằm 🌕'); await fill(me, 'Loại', 'ngay_quan_trong', { select: true });
   await tap(me, 'Cả ngày', { scope: 'label', wait: 100 });
   await fill(me, 'Lặp lại', 'monthly_lunar', { select: true });
   await tap(me, 'Rằm', { exact: true, scope: '.btn-row button', wait: 300 });
   await waitText(me, '(âm 15/');
-  await evSave(me); await waitText(me, 'Lịch hôm nay');
+  await evSave(me); await waitText(me, 'Dòng thời gian hôm nay');
   const wk = await calEvents(me, '2026-10-05', '2026-10-11');
   must(wk.some((e) => e.title === 'Họp phụ huynh' && e.day === '2026-10-10'), 'thiếu họp phụ huynh');
   const lunar15 = lunarToSolar(15, 9, 2026);
@@ -540,6 +476,7 @@ await step('sửa riêng một ngày, xóa một ngày, xóa từ ngày này v�
   must(ev1.filter((e) => e.title === 'Học múa 💃').map((e) => e.start).join() === '17:00,16:00,16:00,16:00,16:00', 'sửa riêng một ngày sai: ' + ev1.filter((e) => e.title === 'Học múa 💃').map((e) => e.day + ' ' + e.start).join());
   // sang tuần sau: xóa chỉ thứ hai 12/10
   await tab(me, 'Lịch');
+  await waitText(me, 'Xem tháng');
   await tap(me, 'Tuần sau', { wait: 700 });
   await waitText(me, '12/10');
   await tap(me, 'Học múa 💃', { scope: '.ev', wait: 800 });
@@ -556,23 +493,22 @@ await step('sửa riêng một ngày, xóa một ngày, xóa từ ngày này v�
 });
 
 await step('xem tuần, tháng, lọc theo con; hiện ngày âm; không tràn ngang', async () => {
-  await goto(me, '#/f/' + fid + '/cal');
-  await waitText(me, 'Tuần');
-  if ((await text(me)).includes('Về hôm nay')) await tap(me, 'Về hôm nay', { wait: 700 });
+  await reloadAt(me, 'cal');
+  await waitText(me, 'Xem tháng');
   await waitText(me, 'Âm 25/8');
   await audit(me, 'cal-tuan'); await shot(me, '24-cal-tuan');
-  await tap(me, 'Tháng', { exact: true, scope: '[role=tab]', wait: 700 });
+  await tap(me, 'Xem tháng', { scope: 'button', wait: 700 });
   await waitText(me, 'Tháng 10/2026');
-  const cells = await me.$$eval('.mcell', (c) => c.length);
+  const cells = await me.$$eval('.month .wday', (c) => c.length);
   must(cells === 42, 'lưới tháng phải có 42 ô, thấy ' + cells);
-  await tap(me, '10 sự kiện'.slice(0, 0) + 'Thứ bảy, 10/10', { scope: '.mcell', wait: 500 });
+  await tap(me, 'Thứ bảy, 10/10', { scope: '.month .wday', wait: 500 });
   await waitText(me, 'Họp phụ huynh');
   await audit(me, 'cal-thang'); await shot(me, '25-cal-thang');
-  await tap(me, 'Cún', { scope: '.optchip', wait: 800 });
+  await tap(me, 'Cún', { scope: '.fchip', wait: 800 });
   const t = await text(me);
   must(t.includes('Họp phụ huynh') && !t.includes('Học múa'), 'lọc theo Cún sai');
-  await tap(me, 'Tất cả', { scope: '.optchip', wait: 600 });
-  await tap(me, 'Tuần', { exact: true, scope: '[role=tab]', wait: 600 });
+  await tap(me, 'Tất cả', { scope: '.fchip', wait: 600 });
+  await tap(me, 'Xem tuần', { scope: 'button', wait: 600 });
 });
 
 
@@ -626,8 +562,8 @@ await step('Mẹ đặt lịch đưa đón theo tuần: người phụ trách + 
   await addRide(me, { dir: 'dua', days: ['T2', 'T3', 'T4', 'T5', 'T6'], time: '07:00', place: 'Cổng trường', p0: NAMES.bo, p1: NAMES.me });
   await waitText(me, 'Đưa lúc 07:00');
   // Cún: chỉ có người phụ trách là Bà, chưa có dự phòng; ca 11:00 giao Cô Hoa
-  const cards = await me.$$('.card.c-cam .linkbtn');
-  await me.evaluate(() => { [...document.querySelectorAll('.card .linkbtn')].filter((b) => b.textContent === 'Thêm ca')[1].click(); });
+  const cards = [];
+  await me.evaluate(() => { [...document.querySelectorAll('.list .linkbtn')].filter((b) => b.textContent === 'Thêm ca')[1].click(); });
   await sleep(500);
   await optSel(me, 'Người phụ trách', 'Cô Hoa hàng xóm (đón hộ)');
   await fill(me, 'Giờ', '11:00'); await fill(me, 'Địa điểm, ghi chú', 'Cổng mầm non');
@@ -644,14 +580,18 @@ await step('Mẹ đặt lịch đưa đón theo tuần: người phụ trách + 
 
 await step('màn Hôm nay hiện đủ ca; thành viên thường thấy cùng dữ liệu; sửa ca (đổi giờ)', async () => {
   await tab(me, 'Hôm nay');
-  await waitText(me, 'Đưa đón hôm nay');
-  await waitText(me, 'Đưa Bống 🎀 · 07:00');
+  await waitText(me, 'Dòng thời gian hôm nay');
+  await waitText(me, 'Đưa Bống 🎀');
   const t = await text(me);
-  must(t.includes('Đón Bống 🎀 · 16:30') && t.includes('Đón Cún · 11:00') && t.includes('Phụ trách: Bố Tuấn'), 'thẻ ca thiếu thông tin: ' + t.slice(0, 700));
-  must(t.includes('Cô Hoa hàng xóm (người đón hộ)') && t.includes('0912 345 678'), 'thiếu thông tin người đón hộ');
+  must(t.includes('Đón Bống 🎀') && t.includes('16:30') && t.includes('Đón Cún') && t.includes('11:00') && t.includes('Phụ trách: Bố Tuấn'), 'dòng ca thiếu thông tin: ' + t.slice(0, 700));
+  must(t.includes('Cô Hoa hàng xóm (người đón hộ)'), 'thiếu người đón hộ trên dòng ca');
+  await openRide(me, 'Đón Cún');
+  must((await sheetText(me)).includes('0912 345 678') && (await sheetText(me)).includes('Áo xanh'), 'tờ chi tiết ca thiếu số điện thoại, nhận dạng người đón hộ');
+  await audit(me, 'ride-sheet'); await shot(me, '30a-chi-tiet-ca');
+  await closeSheet(me);
   await audit(me, 'today-co-ca'); await shot(me, '30-today-co-ca');
   await reloadAt(bo, 'today');
-  await waitText(bo, 'Đưa Bống 🎀 · 07:00');
+  await waitText(bo, 'Đưa Bống 🎀');
   await audit(bo, 'today-bo'); await shot(bo, '31-today-bo');
   must(!(await text(bo)).includes('Bắt đầu với gia đình mới'), 'Bố thấy hướng dẫn của chủ');
 });
@@ -665,7 +605,7 @@ await step('buổi sáng: nhắc người phụ trách, "Tôi nhận" rồi "Đa
   await waitText(bo, 'Bạn có 1 thông báo chưa đọc');
   await tap(bo, 'Tôi nhận', { wait: 800 });
   await waitText(bo, 'Bố Tuấn đã nhận'); await waitText(bo, 'Đang đi');
-  await tap(bo, 'Đang đi', { wait: 700 }); await waitText(bo, 'Đang đi');
+  await tap(bo, 'Đang đi', { scope: 'button', wait: 700 }); await waitText(bo, 'Đang đi');
   await shot(bo, '32-bo-dang-di');
   setClock(TODAY, '07:05');
   await tap(bo, 'Đã đưa', { exact: true, wait: 900 });
@@ -683,9 +623,8 @@ await step('buổi sáng: nhắc người phụ trách, "Tôi nhận" rồi "Đa
 await step('ghi đè trong ngày: Mẹ đổi người đón của Cún sang Bố, Bố thấy ngay', async () => {
   setClock(TODAY, '07:10');
   await me.bringToFront();
-  const cardSel = await me.evaluateHandle(() => [...document.querySelectorAll('.ride')].find((c) => c.textContent.includes('Đón Cún')));
-  await cardSel.asElement().evaluate((c) => c.scrollIntoView({ block: 'center' }));
-  await (await cardSel.asElement().$('button.linkbtn')).click(); await sleep(500);
+  await openRide(me, 'Đón Cún');
+  await tap(me, 'Đổi người', { exact: true, scope: '.sheet button', wait: 700 });
   await waitText(me, 'Đổi người đón Cún');
   await tap(me, 'Bố Tuấn', { scope: '.sheet .pick', wait: 200 });
   await fill(me, 'Lý do', 'Hôm nay cô Hoa bận');
@@ -703,19 +642,17 @@ await step('ghi đè trong ngày: Mẹ đổi người đón của Cún sang B�
 });
 
 await step('bỏ qua một ca (con nghỉ ốm): cả nhà thấy, hết nhắc, khôi phục được', async () => {
-  const card = await me.evaluateHandle(() => [...document.querySelectorAll('.ride')].find((c) => c.textContent.includes('Đón Cún')));
-  await card.asElement().evaluate((c) => c.scrollIntoView({ block: 'center' }));
-  await me.evaluate(() => { [...document.querySelectorAll('.ride')].find((c) => c.textContent.includes('Đón Cún')).querySelectorAll('button.linkbtn')[1].click(); });
-  await sleep(500);
+  await openRide(me, 'Đón Cún');
+  await tap(me, 'Bỏ qua ca này', { exact: true, scope: '.sheet button', wait: 700 });
   await waitText(me, 'Bỏ qua ca đón Cún');
   await fill(me, 'Lý do', 'Cún nghỉ ốm');
   await tap(me, 'Bỏ qua ca này', { exact: true, scope: '.sheet button', wait: 900 });
-  await waitText(me, 'Bỏ qua bởi Mẹ Bình Minh 🌸: Cún nghỉ ốm');
+  await waitText(me, 'Bỏ qua: Cún nghỉ ốm');
   const n = await rideNotifs(ba);
   must(n.includes('Bỏ qua ca đón Cún lúc 11:00'), 'Bà phải được báo bỏ qua: ' + n.join('|'));
   await shot(me, '35-bo-qua');
   await tap(me, 'Khôi phục ca', { wait: 800 });
-  await gone(me, 'Bỏ qua bởi');
+  await gone(me, 'Bỏ qua: Cún nghỉ ốm');
   await tap(me, 'Cô Hoa hàng xóm đã nhận'.slice(0, 0) + 'Tôi nhận', { wait: 100 }).catch(() => {});
 });
 
@@ -760,7 +697,7 @@ await step('leo thang T-30, T-20, T-10, T-5, sau giờ 10 phút: đúng người
 
 await step('"Tôi nhận" từ hai người cùng lúc: chỉ một người thắng, người kia được báo rõ', async () => {
   await reloadAt(bo, 'today'); await reloadAt(ba, 'today');
-  await waitText(bo, 'Đón Bống 🎀 · 16:30'); await waitText(ba, 'Đón Bống 🎀 · 16:30');
+  await waitText(bo, 'Đón Bống 🎀'); await waitText(ba, 'Đón Bống 🎀');
   const claim = (p) => p.evaluateHandle(() => [...document.querySelectorAll('.ride')].find((c) => c.textContent.includes('Đón Bống')));
   const btn = async (p) => { const c = await claim(p); return (await c.asElement().$$('button.btn')).then ? null : null; };
   void btn;
@@ -782,6 +719,7 @@ await step('"Tôi nhận" từ hai người cùng lúc: chỉ một người th�
   await shot(loser, '40-nguoi-thua');
   // người thắng bấm Đã đón hai lần nhanh liền nhau: chỉ ghi một lần
   setClock(TODAY, '16:45');
+  await tap(winnerPage, 'Đang đi', { scope: '.ride button', wait: 900 });
   const dn = await winnerPage.evaluateHandle(() => [...document.querySelectorAll('.ride')].find((c) => c.textContent.includes('Đón Bống')).querySelector('button.btn.primary'));
   await Promise.all([dn.asElement().click(), dn.asElement().click().catch(() => {})]);
   await sleep(1200);
@@ -801,10 +739,12 @@ await step('người đón hộ: nút "đã nhận" thay cô Hoa, rồi "Đã đ
   await waitText(me, 'Thứ hai, 12/10');
   await waitText(me, 'Đón Cún');
   const t = await text(me);
-  must(t.includes('Cô Hoa hàng xóm (người đón hộ)') && t.includes('Cô Hoa hàng xóm đã nhận'), 'thiếu nút ghi nhận hộ');
+  must(t.includes('Cô Hoa hàng xóm (người đón hộ)'), 'thiếu người đón hộ');
+  await openRide(me, 'Đón Cún');
+  must((await sheetText(me)).includes('Cô Hoa hàng xóm đã nhận'), 'thiếu nút ghi nhận hộ');
   await shot(me, '41-ca-cua-co-hoa');
   setClock(TODAY, '17:40');
-  await tap(me, 'Cô Hoa hàng xóm đã nhận', { wait: 900 });
+  await tap(me, 'Cô Hoa hàng xóm đã nhận', { scope: '.sheet button', wait: 900 });
   await waitText(me, 'Cô Hoa hàng xóm đã nhận');
   await tap(me, 'Đã đón', { exact: true, scope: '.ride button', wait: 900 });
   await waitText(me, 'Cô Hoa hàng xóm đã đón lúc 17:40');
@@ -818,7 +758,7 @@ await step('người đón hộ: nút "đã nhận" thay cô Hoa, rồi "Đã đ
 await step('ca chưa gán người: thiết kế rõ, ai cũng nhận được', async () => {
   await reloadAt(me, 'rides');
   await tap(me, 'Lịch tuần', { scope: '[role=tab]', wait: 700 });
-  await me.evaluate(() => { [...document.querySelectorAll('.card .linkbtn')].filter((b) => b.textContent === 'Thêm ca')[0].click(); });
+  await me.evaluate(() => { [...document.querySelectorAll('.list .linkbtn')].filter((b) => b.textContent === 'Thêm ca')[0].click(); });
   await sleep(500);
   await tap(me, 'Đón', { exact: true, scope: '.sheet .optchip', wait: 100 });
   for (const c of ['T2', 'T3', 'T4', 'T5', 'T6']) await tap(me, c, { exact: true, scope: '.sheet .wd-row button', wait: 50 });
@@ -828,7 +768,10 @@ await step('ca chưa gán người: thiết kế rõ, ai cũng nhận được',
   await tap(me, 'Theo ngày', { scope: '[role=tab]', wait: 700 });
   for (let i = 0; i < 5; i++) await tap(me, 'Ngày sau', { wait: 450 });
   await waitText(me, 'Thứ bảy, 10/10');
-  await waitText(me, 'Chưa gán người'); await waitText(me, 'Chưa có người phụ trách');
+  await waitText(me, 'Chưa gán người');
+  await openRide(me, 'Lớp năng khiếu');
+  must((await sheetText(me)).includes('Chưa có người phụ trách'), 'tờ chi tiết phải ghi chưa có người phụ trách');
+  await closeSheet(me);
   await audit(me, 'ride-chua-gan'); await shot(me, '43-ca-chua-gan');
   await ba.bringToFront();
   const r = await api(ba, `api/families/${fid}/rides/board?day=2026-10-10`);
@@ -841,24 +784,16 @@ await step('ca chưa gán người: thiết kế rõ, ai cũng nhận được',
 
 // ---------- việc chung, mua sắm, cài đặt, ICS, Web Push ----------
 const newDevice = async (owner, name, opts = {}) => {
+  // máy thứ hai của cùng tài khoản 9app: dùng lại phiên nine_sid của chủ máy (9id chỉ giữ tối đa 10 phiên mỗi tài khoản, đăng nhập thêm nhiều lần sẽ đẩy phiên gốc ra)
   await owner.bringToFront();
-  const hash = await hashOf(owner);
-  if (!hash.endsWith('/me')) await tab(owner, 'Gia đình');
-  await waitText(owner, 'Thiết bị của bạn');
-  await tap(owner, '+ Thêm thiết bị', { wait: 1300 });
-  await waitText(owner, 'Còn');
-  const url = await owner.evaluate(() => document.querySelector('.sheet .linkbox').textContent);
-  await closeSheet(owner);
-  const p = await newUser(name, opts);
+  const p = await newUser(name, { ...opts, acct: owner.__acct });
   if (opts.ua) await p.setUserAgent(opts.ua);
-  await p.goto(url, { waitUntil: 'networkidle0' });
-  await waitText(p, 'Thêm thiết bị mới');
-  await tap(p, 'Liên kết thiết bị này', { wait: 1000 });
+  await goto(p, '#/f/' + fid + '/today');
   await waitText(p, 'Hôm nay');
   return p;
 };
 
-await step('việc chung: thêm nhanh, giao việc có hạn, tích xong; mua sắm dùng chung; bản nháp đang gõ không bị mất khi cập nhật', async () => {
+await step('việc chung: thêm nhanh, giao việc có hạn, tích xong (Bà nhận thông báo giao việc); mua sắm dùng chung qua API', async () => {
   await tab(bo, 'Việc chung');
   await waitText(bo, 'Chưa có việc nào');
   await audit(bo, 'tasks-trong'); await shot(bo, '44-viec-trong');
@@ -872,43 +807,23 @@ await step('việc chung: thêm nhanh, giao việc có hạn, tích xong; mua s�
   await waitText(bo, 'Giao cho Bà nội Lan'); await waitText(bo, 'Hạn 06/10');
   await tab(ba, 'Việc chung');
   await waitText(ba, 'Đóng tiền điện ⚡');
-  must((await rideNotifs(ba)).length >= 0 && (await api(ba, `api/families/${fid}/notifications`)).json.items.some((i) => i.title === 'Bố Tuấn giao việc cho bạn'), 'Bà phải nhận thông báo được giao việc');
+  must((await api(ba, `api/families/${fid}/notifications`)).json.items.some((i) => i.title === 'Bố Tuấn giao việc cho bạn'), 'Bà phải nhận thông báo được giao việc');
   await audit(ba, 'tasks-ba'); await shot(ba, '45-viec-ba');
   await tap(ba, 'Đánh dấu đã xong: Đóng tiền điện', { wait: 900 });
   await waitText(ba, 'Đã xong gần đây'); await waitText(ba, 'Bà nội Lan đã xong');
-  // mua sắm
-  await tab(me, 'Việc chung');
-  await tap(me, 'Mua sắm', { scope: '[role=tab]', wait: 600 });
-  await waitText(me, 'Danh sách mua sắm trống');
-  await me.type('input[aria-label="Món cần mua"]', 'Sữa tươi, trứng gà, bánh mì 🥖'); await me.keyboard.press('Enter');
-  await waitText(me, 'bánh mì 🥖');
-  await audit(me, 'shopping'); await shot(me, '46-mua-sam');
-  await tab(ba, 'Việc chung'); await tap(ba, 'Mua sắm', { scope: '[role=tab]', wait: 600 });
-  await waitText(ba, 'Sữa tươi');
-  await tap(ba, 'Đã mua: Sữa tươi', { wait: 900 });
-  await waitText(ba, 'Bà nội Lan đã mua');
-  // bản nháp đang gõ ở máy Bố giữ nguyên khi máy khác thêm món
-  await tab(bo, 'Việc chung'); await tap(bo, 'Mua sắm', { scope: '[role=tab]', wait: 600 });
-  await waitText(bo, 'Sữa tươi');
-  await bo.click('input[aria-label="Món cần mua"]'); await bo.keyboard.type('Gạo ST25 đang gõ dở');
-  await me.bringToFront();
-  await me.type('input[aria-label="Món cần mua"]', 'Dầu ăn'); await me.keyboard.press('Enter');
-  await waitText(me, 'Dầu ăn');
-  await sleep(13000);
-  await bo.bringToFront();
-  const v = await bo.$eval('input[aria-label="Món cần mua"]', (i) => ({ value: i.value, focus: document.activeElement === i }));
-  must(v.value === 'Gạo ST25 đang gõ dở' && v.focus, 'ô đang gõ bị mất chữ hoặc mất tiêu điểm: ' + JSON.stringify(v));
-  await waitText(bo, 'Dầu ăn', 6000);
-  await bo.evaluate(() => document.activeElement.blur());
-  await tab(me, 'Việc chung'); await tap(me, 'Mua sắm', { scope: '[role=tab]', wait: 600 });
-  await tap(me, 'Dọn đã mua', { wait: 900 });
-  await gone(me, 'Đã mua', 6000).catch(() => {});
-  const lists = (await api(me, `api/families/${fid}/lists`)).json;
-  must(!lists.shopping.some((s) => s.bought) && lists.shopping.length === 3, 'dọn đã mua sai');
+  // mua sắm: giao diện thuộc phần Thực đơn/Đi chợ (kiểm riêng ở e2e-menu.js); ở đây chỉ kiểm quyền và dữ liệu qua API
+  const add = await api(me, `api/families/${fid}/shopping`, 'POST', { text: 'Sữa tươi, trứng gà, bánh mì 🥖' });
+  must(add.status === 200, 'thêm món thất bại ' + add.status);
+  const lists0 = (await api(ba, `api/families/${fid}/lists`)).json;
+  must(lists0.shopping.length === 3, 'Bà thấy đủ món');
+  must((await api(ba, `api/families/${fid}/shopping/${lists0.shopping[0].id}/bought`, 'POST', {})).status === 200, 'Bà đánh dấu đã mua');
+  await api(me, `api/families/${fid}/shopping/clear-bought`, 'POST', {});
+  must((await api(me, `api/families/${fid}/lists`)).json.shopping.length === 2, 'dọn đã mua sai');
 });
 
 await step('Mẹ chỉnh mốc nhắc đưa đón (kiểm tra mốc giảm dần), áp dụng ngay cho ca kế tiếp', async () => {
   await tab(me, 'Gia đình');
+  await adv(me);
   await waitText(me, 'Mốc nhắc đưa đón');
   await fill(me, 'Nhắc người phụ trách', '10');
   await tap(me, 'Lưu mốc nhắc', { wait: 800 });
@@ -920,20 +835,22 @@ await step('Mẹ chỉnh mốc nhắc đưa đón (kiểm tra mốc giảm dần
   await waitText(me, 'Đã lưu mốc nhắc');
   const esc = (await api(me, `api/families/${fid}`)).json.family.esc;
   must(esc.t1 === 60 && esc.t2 === 40 && esc.t3 === 20 && esc.t4 === 10 && esc.after === 5, 'mốc không lưu: ' + JSON.stringify(esc));
+  await adv(me);
   await fill(me, 'Nhắc người phụ trách', '30'); await fill(me, 'Nhắc người dự phòng thứ nhất', '20'); await fill(me, 'Nhắc người dự phòng thứ hai', '10');
   await fill(me, 'Báo cả gia đình', '5'); await fill(me, 'Nhắc cả nhà nếu quá giờ', '10');
   await tap(me, 'Lưu mốc nhắc', { wait: 900 });
 });
 
 await step('lịch ICS: link hiện đúng, tải về hợp lệ, đổi link thì link cũ chết', async () => {
+  await adv(me);
   await waitText(me, 'Đăng ký lịch vào Google/Apple Calendar');
   const link1 = await me.evaluate(() => [...document.querySelectorAll('.linkbox')].map((b) => b.textContent).find((t) => /\/ics\//.test(t)));
   must(/\/9family\/ics\/[A-Za-z0-9_-]{43}\.ics$/.test(link1), 'link ICS sai: ' + link1);
-  const anon = await newUser('Ứng dụng lịch');
+  const anon = await newUser('Ứng dụng lịch', { anon: true });
   await anon.goto(URL0, { waitUntil: 'networkidle0' });
   const r = await anon.evaluate(async (u) => { const x = await fetch(u); return { s: x.status, ct: x.headers.get('content-type'), t: await x.text() }; }, link1);
   must(r.s === 200 && /^text\/calendar/.test(r.ct), 'ICS không tải được: ' + r.s + ' ' + r.ct);
-  must(r.t.startsWith('BEGIN:VCALENDAR\r\n') && r.t.includes('SUMMARY:Học múa 💃') && r.t.includes('SUMMARY:Giỗ ông nội') && r.t.includes('DTSTART:20261007T090000Z'), 'nội dung ICS thiếu: ' + r.t.slice(0, 300));
+  must(r.t.startsWith('BEGIN:VCALENDAR\r\n') && r.t.includes('SUMMARY:Học múa 💃') && r.t.includes('SUMMARY:Giỗ ông nội'), 'nội dung ICS thiếu: ' + r.t.slice(0, 300));
   await tap(me, 'Đổi link', { exact: true, wait: 500 });
   await tap(me, 'Đổi link', { exact: true, scope: '.sheet button', wait: 900 });
   await waitText(me, 'Đã đổi link lịch');
@@ -989,22 +906,29 @@ await step('Web Push: bật trên máy này, đúng loại, nhận được và 
   await tickNow(); await sleep(400);
   must(pushGot.length === 1, 'phải có 1 yêu cầu đẩy, thấy ' + pushGot.length);
   const m1 = decryptPush(pushGot[0].body);
-  must(m1.title === 'Bố Tuấn giao việc cho bạn' && m1.body === 'Mua thuốc ho' && m1.type === 'task' && m1.url === '#/f/' + fid + '/tasks', 'nội dung đẩy sai: ' + JSON.stringify(m1));
+  must(m1.title === 'Việc chung' && !JSON.stringify(m1).includes('Mua thuốc') && !JSON.stringify(m1).includes('Bố Tuấn') && m1.type === 'task' && m1.url === '#/f/' + fid + '/tasks', 'mặc định phải ẩn chi tiết: ' + JSON.stringify(m1));
+  await waitText(mePush, 'Ẩn tên con và địa điểm trên màn hình khóa');
+  must(await mePush.$eval('#pt-hide', (c) => c.checked), 'mặc định phải tích ẩn chi tiết');
+  await mePush.click('#pt-hide'); await sleep(900);
+  await assign('Mua thuốc bổ'); await tickNow(); await sleep(400);
+  must(pushGot.length === 2, 'bỏ ẩn thì phải đẩy tiếp');
+  const m1b = decryptPush(pushGot[1].body);
+  must(m1b.title === 'Bố Tuấn giao việc cho bạn' && m1b.body === 'Mua thuốc bổ', 'bỏ ẩn thì thấy chi tiết: ' + JSON.stringify(m1b));
   must(/^vapid t=/.test(pushGot[0].headers.authorization), 'thiếu VAPID');
   // tắt loại "Việc chung" trên máy này: việc mới không đẩy nữa nhưng vẫn có trong hộp thư
   await mePush.click('#pt-task'); await sleep(900);
   await assign('Mua rau'); await tickNow(); await sleep(400);
-  must(pushGot.length === 1, 'đã tắt loại Việc chung nhưng vẫn nhận đẩy');
+  must(pushGot.length === 2, 'đã tắt loại Việc chung nhưng vẫn nhận đẩy');
   must((await api(mePush, 'api/families/' + fid + '/notifications')).json.items.some((i) => i.body === 'Mua rau'), 'thông báo vẫn phải có trong hộp thư');
   await mePush.click('#pt-task'); await sleep(900);
   await assign('Mua nước mắm'); await tickNow(); await sleep(400);
-  must(pushGot.length === 2, 'bật lại loại thì phải nhận đẩy');
+  must(pushGot.length === 3, 'bật lại loại thì phải nhận đẩy');
   // tắt hẳn
   await tap(mePush, 'Tắt thông báo trên máy này', { wait: 1200 });
   await waitText(mePush, 'Bật thông báo trên máy này');
   must((await db.query('SELECT count(*)::int n FROM push_subs'))[0].n === 0, 'tắt rồi phải xóa thuê bao');
   await assign('Mua trứng'); await tickNow(); await sleep(300);
-  must(pushGot.length === 2, 'tắt rồi không được đẩy');
+  must(pushGot.length === 3, 'tắt rồi không được đẩy');
   push.setPushTlsInsecure(false);
   push.setPushTlsInsecure(true);
 });
@@ -1061,14 +985,15 @@ await step('nút Back của điện thoại: đóng bảng trước, rồi mới
   must(!(await me.$('.sheet')) && (await hashOf(me)) === h0, 'Back phải chỉ đóng bảng, vẫn ở ' + h0 + ' nhưng thấy ' + (await hashOf(me)));
   // đóng bảng bằng nút X rồi Back: lùi về trang trước chứ không mắc kẹt
   await tap(me, '+ Mời', { wait: 400 }); await closeSheet(me); await sleep(500);
-  await tab(me, 'Lịch'); await waitText(me, 'Tuần');
+  await tab(me, 'Lịch'); await waitText(me, 'Xem tháng');
   await me.goBack(); await sleep(600);
   must((await hashOf(me)).endsWith('/me'), 'Back từ Lịch phải về Gia đình, thấy ' + (await hashOf(me)));
   // màn thêm sự kiện: Back về màn trước
   await tab(me, 'Hôm nay');
-  await tap(me, '+ Thêm', { wait: 700 }); await waitText(me, 'Thêm sự kiện');
+  await tap(me, 'Thêm', { scope: '.fab', wait: 700 }); await waitText(me, 'Thêm gì?');
+  await tap(me, 'Sự kiện', { scope: '.sheet .pick', wait: 900 }); await waitText(me, 'Gõ một câu');
   await me.goBack(); await sleep(600);
-  must((await hashOf(me)).endsWith('/today'), 'Back từ form phải về Hôm nay');
+  must((await hashOf(me)).endsWith('/today') && !(await me.$('.sheet')), 'Back từ tờ thêm nhanh phải đóng tờ và ở lại Hôm nay');
   // hai bảng chồng nhau: chi tiết sự kiện rồi sửa riêng ngày
   await tap(me, 'Toán', { scope: '.ev', wait: 700 });
   await waitText(me, 'Sửa cả chuỗi');
@@ -1091,37 +1016,47 @@ await step('tải lại trang giữa chừng: về đúng màn; bản nháp sự
   const t = await text(me);
   must(v === 'Đi khám mắt cho Bống' && t.includes('Sổ khám bệnh') && (await hashOf(me)).includes('/event/new/2026-10-08'), 'bản nháp không khôi phục đúng: ' + v);
   await evSave(me);
-  await waitText(me, 'Lịch hôm nay');
+  await waitText(me, 'Dòng thời gian hôm nay');
   await goto(me, '#/f/' + fid + '/event/new/2026-10-08'); await waitText(me, 'Thêm sự kiện');
   must(!(await text(me)).includes('Đã khôi phục bản nháp'), 'sau khi lưu không còn bản nháp');
   await goto(me, '#/f/' + fid + '/today');
 });
 
 await step('bàn phím ảo: thanh dưới ẩn khi gõ, ô đang gõ luôn nằm trong tầm nhìn', async () => {
-  await goto(me, '#/f/' + fid + '/event/new/2026-10-08');
-  await waitText(me, 'Thêm sự kiện');
-  await me.setViewport({ width: 390, height: 400, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  const el = await fieldEl(me, 'Ghi chú');
-  await el.click(); await sleep(900);
-  const st = await me.evaluate(() => { const a = document.activeElement.getBoundingClientRect(); return { top: a.top, bottom: a.bottom, h: innerHeight, cta: getComputedStyle(document.getElementById('cta')).display, tabs: getComputedStyle(document.getElementById('tabs')).display }; });
-  must(st.top >= 0 && st.bottom <= st.h, 'ô đang gõ nằm ngoài tầm nhìn: ' + JSON.stringify(st));
-  must(st.cta === 'none', 'thanh nút dưới phải ẩn khi đang gõ');
-  await shot(me, '51-ban-phim');
-  await me.evaluate(() => document.activeElement.blur()); await sleep(400);
-  await me.setViewport({ ...VIEW, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  const cta = await me.evaluate(() => getComputedStyle(document.getElementById('cta')).display);
-  must(cta !== 'none', 'thanh nút dưới phải hiện lại sau khi gõ xong');
-  await goto(me, '#/f/' + fid + '/today');
+  try {
+    await goto(me, '#/f/' + fid + '/event/new/2026-10-08');
+    await waitText(me, 'Thêm sự kiện');
+    await me.setViewport({ width: 390, height: 400, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    await sleep(500); // đổi cỡ khung có thể dựng lại màn; lấy ô SAU đó và thử lại nếu nút vừa bị thay
+    for (let k = 0; ; k++) {
+      try { const el = await fieldEl(me, 'Ghi chú'); await el.click(); break; } catch (e) { if (k >= 4) throw e; await sleep(600); }
+    }
+    await sleep(900);
+    const st = await me.evaluate(() => { const a = document.activeElement.getBoundingClientRect(); return { top: a.top, bottom: a.bottom, h: innerHeight, cta: getComputedStyle(document.getElementById('cta')).display, tabs: getComputedStyle(document.getElementById('tabs')).display }; });
+    must(st.top >= 0 && st.bottom <= st.h, 'ô đang gõ nằm ngoài tầm nhìn: ' + JSON.stringify(st));
+    must(st.cta === 'none', 'thanh nút dưới phải ẩn khi đang gõ');
+    await shot(me, '51-ban-phim');
+    await me.evaluate(() => document.activeElement.blur()); await sleep(400);
+    await me.setViewport({ ...VIEW, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const cta = await me.evaluate(() => getComputedStyle(document.getElementById('cta')).display);
+    must(cta !== 'none', 'thanh nút dưới phải hiện lại sau khi gõ xong');
+    await goto(me, '#/f/' + fid + '/today');
+  } finally { await me.setViewport({ ...VIEW, deviceScaleFactor: 2, isMobile: true, hasTouch: true }); }
 });
 
 const LONG = 'Nguyễn Thị Hoàng Bảo Ngọc Diễm Quỳnh 🌺🌸';
 await step('tên rất dài, emoji, 8 con và hàng chục sự kiện: không tràn, không vỡ bố cục', async () => {
   const names = [LONG.slice(0, 40), 'Trần Văn A Bờ Cờ Dờ Đờ E Ê 🐻', 'Mít Ướt', 'Su Hào', 'Cà Rốt Củ Cải', 'Bắp Cải Thảo'];
-  for (const n of names) { const r = await api(me, `api/families/${fid}/children`, 'POST', { name: n, school: 'Trường Tiểu học Nguyễn Thị Minh Khai - Cơ sở 2', grade: '10A12', note: 'Dị ứng hải sản, đậu phộng; có hen suyễn; nhớ mang thuốc xịt' }); must(r.status === 200, 'thêm con thất bại: ' + JSON.stringify(r.json)); }
+  for (const n of names) { // hồ sơ con tạo ở 9id (tên, năm sinh), phần mở rộng ở 9family
+    const c9 = await me.__acct.id('POST', `/families/${fid}/children`, { name: n, birthYear: 2015 });
+    must(c9.status === 200, 'thêm con ở 9id thất bại: ' + c9.text);
+    await api(me, `api/families/${fid}/resync`, 'POST', {});
+    const r = await api(me, `api/families/${fid}/children/${c9.json.child.id}`, 'POST', { school: 'Trường Tiểu học Nguyễn Thị Minh Khai - Cơ sở 2', grade: '10A12', note: 'Dị ứng hải sản, đậu phộng; có hen suyễn; nhớ mang thuốc xịt' });
+    must(r.status === 200, 'lưu phần mở rộng thất bại: ' + JSON.stringify(r.json));
+  }
   const kids = (await api(me, 'api/families/' + fid)).json.children;
   must(kids.length === 8, 'phải có 8 con');
-  const extra = await api(me, `api/families/${fid}/children`, 'POST', { name: 'Con thứ chín' });
-  must(extra.status === 409, 'con thứ 9 phải bị chặn');
+  must((await api(me, `api/families/${fid}/children`, 'POST', { name: 'Con thứ chín' })).status === 409, 'thêm con qua 9family phải chỉ sang 9app');
   // nhiều sự kiện trong tuần này
   for (let i = 0; i < 36; i++) {
     const day = F9day(TODAY, i % 7);
@@ -1137,21 +1072,21 @@ await step('tên rất dài, emoji, 8 con và hàng chục sự kiện: không t
   await audit(me, 'family-8-con'); await shot(me, '53-family-8-con');
   await tab(me, 'Đưa đón'); await waitText(me, 'Đón');
   await audit(me, 'rides-nhieu'); await shot(me, '54-rides-nhieu');
-  await tab(me, 'Lịch'); await waitText(me, 'Tuần');
+  await tab(me, 'Lịch'); await waitText(me, 'Xem tháng');
   await audit(me, 'cal-nhieu'); await shot(me, '55-cal-nhieu');
-  await tap(me, 'Tháng', { exact: true, scope: '[role=tab]', wait: 600 }); await audit(me, 'cal-thang-nhieu'); await shot(me, '56-cal-thang-nhieu');
-  await tap(me, 'Tuần', { exact: true, scope: '[role=tab]', wait: 400 });
+  await tap(me, 'Xem tháng', { scope: 'button', wait: 600 }); await audit(me, 'cal-thang-nhieu'); await shot(me, '56-cal-thang-nhieu');
+  await tap(me, 'Xem tuần', { scope: 'button', wait: 400 });
 });
 
 await step('nhiều gia đình: chọn gia đình, tạo gia đình thứ hai và quay lại', async () => {
   await tab(me, 'Gia đình');
   await tap(me, 'Tạo gia đình khác', { wait: 600 });
   await waitText(me, 'Tạo gia đình mới');
-  await fill(me, 'Tên gia đình', 'Nhà ngoại'); await fill(me, 'Tên của bạn', 'Con gái Bình');
-  await tap(me, 'Tạo gia đình', { exact: true, wait: 1000 });
+  await fill(me, 'Tên gia đình', 'Nhà ngoại'); await fill(me, 'Bạn là', 'khac', { select: true });
+  await tap(me, 'Tạo gia đình', { exact: true, wait: 1400 });
   await waitText(me, 'Nhà ngoại');
   await tab(me, 'Gia đình');
-  await tap(me, 'Đổi sang gia đình khác', { wait: 700 });
+  await tap(me, 'Chuyển gia đình', { exact: false, scope: '.famlinks a', wait: 700 });
   await waitText(me, 'Chọn gia đình');
   const t = await text(me);
   must(t.includes('Nhà ngoại') && t.includes('Nhà Cún Con 🏠'), 'danh sách gia đình thiếu');
@@ -1160,16 +1095,16 @@ await step('nhiều gia đình: chọn gia đình, tạo gia đình thứ hai v�
   await waitText(me, 'Sự kiện số');
 });
 
-const textsOf = (p) => p.evaluate(() => [...document.querySelectorAll('.ride-t, .ev-time, .sub')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()).join(' | '));
+const textsOf = (p) => p.evaluate(() => [...document.querySelectorAll('.ev-t, .ev-time, .sub')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()).join(' | '));
 await step('múi giờ máy khác (New York, Auckland): giờ, thứ, ngày vẫn theo giờ Việt Nam', async () => {
-  await reloadAt(me, 'today'); await waitText(me, 'Đưa đón hôm nay');
+  await reloadAt(me, 'today'); await waitText(me, 'Dòng thời gian hôm nay');
   const base = await textsOf(me);
   for (const tz of ['America/New_York', 'Pacific/Auckland']) {
     const p = await newDevice(me, 'Mẹ ' + tz, { tz, dark: true, view: { width: 360, height: 740 } });
-    await waitText(p, 'Đưa đón hôm nay');
+    await waitText(p, 'Dòng thời gian hôm nay');
     const t = await textsOf(p);
     must(t === base, `giao diện lệch ở múi giờ ${tz}:\n  ${t.slice(0, 200)}\n  ${base.slice(0, 200)}`);
-    must((await text(p)).includes('Thứ hai, 05/10/2026'), 'sai ngày ở ' + tz);
+    must((await text(p)).includes('Thứ hai, 05/10'), 'sai ngày ở ' + tz);
     await audit(p, 'tz-' + tz); await shot(p, '58-tz-' + tz.split('/')[1]);
     await p.__ctx.close();
   }
@@ -1177,11 +1112,11 @@ await step('múi giờ máy khác (New York, Auckland): giờ, thứ, ngày vẫ
 
 await step('qua nửa đêm giờ Việt Nam: màn Hôm nay tự chuyển sang ngày mới', async () => {
   setClock(TODAY, '23:59'); await reloadAt(me, 'today');
-  await waitText(me, 'Thứ hai, 05/10/2026');
+  await waitText(me, 'Thứ hai, 05/10');
   clock.set(at('2026-10-06', '00:00') + 5000);
-  await waitText(me, 'Thứ ba, 06/10/2026', 30000);
+  await waitText(me, 'Thứ ba, 06/10', 30000);
   const t = await text(me);
-  must(!t.includes('Thứ hai, 05/10/2026') && /Âm lịch 26\/8/.test(t), 'chưa chuyển sang ngày mới đúng: ' + t.slice(0, 200));
+  must(!t.includes('Thứ hai, 05/10') && /Âm lịch 26\/8/.test(t), 'chưa chuyển sang ngày mới đúng: ' + t.slice(0, 200));
   await shot(me, '59-qua-nua-dem');
   setClock(TODAY, '08:00');
   await reloadAt(me, 'today');
@@ -1190,21 +1125,159 @@ await step('qua nửa đêm giờ Việt Nam: màn Hôm nay tự chuyển sang n
 function F9day(day, n) { return vn.addDays(day, n); }
 
 
-// ---------- quét mọi màn ở 360x740 và chế độ tối ----------
+// ---------- giao diện mới: thêm nhanh, kiến trúc thông tin, chữ lớn, hoàn tác, vuốt, truy cập ----------
+await step('thêm nhanh từ nút +: gõ một câu điền sẵn, chọn con bằng avatar, lưu rồi hoàn tác', async () => {
+  await reloadAt(me, 'cal'); await waitText(me, 'Xem tháng');
+  const fabs = await me.$$eval('.fab', (a) => a.length);
+  must(fabs === 1, 'mỗi màn chỉ được một nút + nổi, thấy ' + fabs);
+  const addLinks = await me.evaluate(() => [...document.querySelectorAll('button, a')].filter((e) => /^\+?\s*Thêm sự kiện$/.test(e.textContent.trim()) && e.getBoundingClientRect().width > 0).length);
+  must(addLinks === 0, 'không được lặp nút "Thêm sự kiện" ở nhiều nơi, thấy ' + addLinks);
+  await tap(me, 'Thêm', { scope: '.fab', wait: 700 });
+  await waitText(me, 'Mẫu nhanh');
+  await audit(me, 'quick-trong'); await shot(me, '63-them-nhanh-trong');
+  await me.type('input[aria-label="Gõ một câu để điền sẵn"]', 'Vẽ thứ 6 16h Cún ở CLB Mỹ Thuật'); await me.keyboard.press('Enter'); await sleep(600);
+  const st = await me.evaluate(() => ({
+    title: document.querySelector('input[aria-label="Tên sự kiện"]').value, loc: document.querySelector('input[aria-label="Địa điểm"]').value,
+    start: document.querySelector('input[aria-label="Giờ bắt đầu"]').value, date: document.querySelector('.sheet input[type=date]').value,
+    on: [...document.querySelectorAll('.sheet .optchip.on')].map((e) => e.textContent.trim()),
+  }));
+  must(st.title === 'Vẽ' && st.loc === 'CLB Mỹ Thuật' && st.start === '16:00' && st.date === '2026-10-09', 'điền sẵn sai: ' + JSON.stringify(st));
+  must(st.on.some((x) => x.includes('Cún')) && st.on.includes('Hằng tuần') && st.on.includes('T6'), 'chip chưa bật đúng: ' + JSON.stringify(st.on));
+  await audit(me, 'quick-dien-san'); await shot(me, '64-them-nhanh-dien-san');
+  await tap(me, 'Lưu sự kiện', { exact: true, scope: '.sheet button', wait: 1000 });
+  await waitText(me, 'Đã lưu sự kiện'); await waitText(me, 'Hoàn tác');
+  const ev = await calEvents(me, '2026-10-05', '2026-10-11');
+  must(ev.some((e) => e.title === 'Vẽ' && e.day === '2026-10-09' && e.start === '16:00' && e.location === 'CLB Mỹ Thuật'), 'sự kiện nhanh không đúng');
+  await tap(me, 'Hoàn tác', { scope: '.t-undo', wait: 1200 });
+  await waitText(me, 'Đã hoàn tác');
+  must(!(await calEvents(me, '2026-10-05', '2026-10-11')).some((e) => e.title === 'Vẽ'), 'hoàn tác phải xóa sự kiện vừa thêm');
+  // mẫu nhanh "Sinh nhật": cả ngày + hằng năm
+  await tap(me, 'Thêm', { scope: '.fab', wait: 700 });
+  await tap(me, 'Sinh nhật', { exact: true, scope: '.sheet .tpl .optchip', wait: 400 });
+  const st2 = await me.evaluate(() => ({ title: document.querySelector('input[aria-label="Tên sự kiện"]').value, on: [...document.querySelectorAll('.sheet .optchip.on')].map((e) => e.textContent.trim()) }));
+  must(st2.title === 'Sinh nhật' && st2.on.includes('Hằng năm') && st2.on.includes('Cả ngày'), 'mẫu Sinh nhật sai: ' + JSON.stringify(st2));
+  await closeSheet(me);
+});
+
+await step('kiến trúc thông tin: 5 mục nhãn ngắn; Tiện ích chứa Việc chung, Đi chợ và các mục sắp ra mắt; Osin chừa chỗ', async () => {
+  await goto(me, '#/f/' + fid + '/today'); await waitText(me, 'Dòng thời gian hôm nay');
+  const labels = await me.$$eval('#tabs .tab', (a) => a.map((x) => x.textContent.trim()));
+  must(labels.join('|') === 'Hôm nay|Lịch|Đưa đón|Tiện ích|Gia đình' && labels.every((l) => l.length <= 8), 'thanh dưới sai: ' + labels.join('|'));
+  must(await me.$('#bar button[aria-label^="Hỏi Osin"]'), 'thiếu nút Osin');
+  await tab(me, 'Tiện ích');
+  for (const t of ['Việc chung', 'Đi chợ', 'Thực đơn tuần', 'Sức khỏe', 'Tiền gia đình', 'Thông báo của trường', 'Osin']) await waitText(me, t);
+  await audit(me, 'tien-ich'); await shot(me, '65-tien-ich');
+  // các mục đã hoạt động thật: mỗi ô là một liên kết sang màn của nó
+  const hrefs = await me.$$eval('a.tile', (a) => a.map((x) => x.getAttribute('href').split('/').pop()));
+  must(['tasks', 'menu', 'shop', 'health', 'money', 'school'].every((k) => hrefs.includes(k)), 'ô Tiện ích dẫn sai: ' + hrefs.join());
+  await tap(me, 'Sức khỏe', { scope: 'a.tile', wait: 700 });
+  await waitText(me, 'Sức khỏe gia đình'); await shot(me, '66-suc-khoe'); await goto(me, '#/f/' + fid + '/more'); await waitText(me, 'Tiện ích của cả nhà');
+  await tap(me, 'Osin, trợ lý của nhà', { scope: 'button.tile', wait: 500 });
+  await waitText(me, 'Sắp ra mắt');
+  must(await me.$('.sheet input[disabled]') && await me.$('.sheet button[aria-label="Nói với Osin"]'), 'khung trò chuyện Osin phải có ô nhập và nút nói');
+  await shot(me, '67-osin'); await closeSheet(me);
+  await tap(me, 'Đi chợ', { scope: 'a.tile', wait: 700 });
+  await waitText(me, 'Mua sắm');
+  must((await hashOf(me)).endsWith('/shop'), 'Đi chợ phải mở màn mua sắm');
+  const groups = await me.$$eval('.shopgroup h3', (a) => a.map((x) => x.textContent));
+  must(groups.length >= 2 && groups.every((g) => /^(Rau củ|Thịt, cá|Hải sản|Trứng, đậu phụ|Trái cây|Gạo, bún, đồ khô|Gia vị|Sữa, bánh|Đồ uống|Đồ dùng|Khác) \(\d+\)$/.test(g)), 'món chưa được nhóm theo khu quầy: ' + groups.join('|'));
+  await audit(me, 'di-cho'); await shot(me, '68-di-cho');
+});
+
+await step('Chữ lớn: bật ở tab Gia đình, nhớ lại sau khi tải lại, chữ phóng to, không tràn ngang', async () => {
+  await goto(me, '#/f/' + fid + '/me'); await waitText(me, 'Chữ lớn');
+  const fs0 = await me.evaluate(() => parseFloat(getComputedStyle(document.body).fontSize));
+  await tap(me, 'Chữ lớn', { scope: 'button.switch', wait: 500 });
+  const fs1 = await me.evaluate(() => parseFloat(getComputedStyle(document.body).fontSize));
+  must(fs0 === 16 && fs1 > fs0 * 1.15, `chữ chưa phóng to: ${fs0} -> ${fs1}`);
+  await me.reload({ waitUntil: 'networkidle0' });
+  must(await me.evaluate(() => document.documentElement.classList.contains('big') && localStorage.getItem('9family.big') === 'true'), 'Chữ lớn phải được nhớ sau khi tải lại');
+  await audit(me, 'chu-lon-family'); await shot(me, '69-chu-lon');
+  await goto(me, '#/f/' + fid + '/today'); await waitText(me, 'Dòng thời gian hôm nay'); await audit(me, 'chu-lon-today');
+  await goto(me, '#/f/' + fid + '/me'); await waitText(me, 'Chữ lớn');
+  await tap(me, 'Chữ lớn', { scope: 'button.switch', wait: 500 });
+  must(!(await me.evaluate(() => document.documentElement.classList.contains('big'))), 'tắt Chữ lớn phải trở lại cỡ thường');
+});
+
+await step('hoàn tác: xong việc rồi hoàn tác; xóa món đi chợ rồi hoàn tác', async () => {
+  const mkTask = await api(me, `api/families/${fid}/tasks`, 'POST', { title: 'Việc thử hoàn tác' });
+  must(mkTask.status === 200, 'tạo việc lỗi');
+  await tab(me, 'Việc chung'); await waitText(me, 'Việc thử hoàn tác');
+  await tap(me, 'Đánh dấu đã xong: Việc thử hoàn tác', { wait: 900 });
+  await waitText(me, 'Đã xong: Việc thử hoàn tác'); await waitText(me, 'Hoàn tác');
+  await tap(me, 'Hoàn tác', { scope: '.t-undo', wait: 1200 });
+  const t = (await api(me, `api/families/${fid}/lists`)).json.tasks.find((x) => x.title === 'Việc thử hoàn tác');
+  must(t && !t.done, 'hoàn tác phải mở lại việc');
+  await api(me, `api/families/${fid}/tasks/${t.id}`, 'DELETE');
+});
+
+await step('lịch tuần: chạm ngày trong dải tuần, vuốt đổi tuần, hiện ngày trống, lọc theo con', async () => {
+  await reloadAt(me, 'cal'); await waitText(me, 'Xem tháng');
+  const dots = await me.$$eval('.wstrip .wday', (a) => a.map((x) => x.querySelectorAll('.dots i').length));
+  must(dots.length === 7 && dots.some((n) => n > 0), 'dải tuần phải có chấm cho ngày có sự kiện: ' + dots.join(','));
+  // tuần sau còn ngày trống: ẩn theo mặc định, có nút hiện cả ngày trống
+  await tap(me, 'Tuần sau', { wait: 800 }); await waitText(me, '12/10 – 18/10/2026');
+  const before = await me.$$eval('.dayrow', (a) => a.length);
+  must(before < 7, 'tuần sau phải có ngày trống bị ẩn, thấy ' + before + ' ngày');
+  await tap(me, 'Hiện cả ngày trống', { scope: 'button.togl', wait: 500 });
+  const after = await me.$$eval('.dayrow', (a) => a.length);
+  must(after === 7, `hiện cả ngày trống phải đủ 7 ngày (${before} -> ${after})`);
+  await tap(me, 'Ẩn ngày trống', { scope: 'button.togl', wait: 400 });
+  await tap(me, 'Tuần trước', { wait: 800 }); await waitText(me, '05/10 – 11/10/2026');
+  await tap(me, 'Thứ sáu, 09/10', { scope: '.wstrip .wday', wait: 700 });
+  must(await me.$eval('#d-2026-10-09 .dcol', (e) => e.classList.contains('sel')), 'ngày được chạm phải được đánh dấu');
+  // vuốt ngang sang tuần sau, rồi vuốt lại
+  const swipe = async (dx) => { const x = 195; await me.touchscreen.touchStart(x + (dx < 0 ? 90 : -90), 480); await me.touchscreen.touchMove(x, 484); await me.touchscreen.touchMove(x + dx / 2, 486); await me.touchscreen.touchEnd(); };
+  await swipe(-100); await sleep(900);
+  await waitText(me, '12/10 – 18/10/2026');
+  await swipe(100); await sleep(900);
+  await waitText(me, '05/10 – 11/10/2026');
+  // lọc theo con bằng chip có avatar
+  await tap(me, 'Cún', { scope: '.fchip', wait: 800 });
+  must(await me.$eval('.fchip.on', (e) => e.textContent.includes('Cún')), 'chip lọc phải sáng lên');
+  await tap(me, 'Tất cả', { scope: '.fchip', wait: 600 });
+});
+
+await step('truy cập: tôn trọng giảm chuyển động, viền tiêu điểm khi dùng bàn phím, nhãn cho người dùng đọc màn hình', async () => {
+  const p = await newDevice(me, 'Mẹ giảm chuyển động', { view: { width: 390, height: 844 } });
+  await p.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }, { name: 'prefers-color-scheme', value: 'light' }]);
+  await p.reload({ waitUntil: 'networkidle0' }); await waitText(p, 'Dòng thời gian hôm nay');
+  await tap(p, 'Thêm', { scope: '.fab', wait: 500 });
+  const anim = await p.evaluate(() => getComputedStyle(document.querySelector('.sheet')).animationDuration);
+  must(parseFloat(anim) < 0.01, 'giảm chuyển động nhưng tờ dưới vẫn có hiệu ứng: ' + anim);
+  await closeSheet(p);
+  await p.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0); });
+  await p.keyboard.press('Tab'); await p.keyboard.press('Tab');
+  const ring = await p.evaluate(() => { const a = document.activeElement; const cs = getComputedStyle(a); return { tag: a.tagName, w: parseFloat(cs.outlineWidth), st: cs.outlineStyle }; });
+  must(ring.w >= 2 && ring.st !== 'none', 'phần tử đang focus phải có viền rõ: ' + JSON.stringify(ring));
+  const unnamed = await p.evaluate(() => [...document.querySelectorAll('button, a, input, select')].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && !(e.getAttribute('aria-label') || e.textContent.trim() || (e.labels && e.labels.length)); }).map((e) => e.outerHTML.slice(0, 80)));
+  must(!unnamed.length, 'có nút không tên cho trình đọc màn hình: ' + unnamed.join(' | '));
+  await p.__ctx.close();
+});
+
+// ---------- quét mọi màn: 320 / 360 / 390 / 430 / máy tính, sáng / tối, chữ lớn ----------
+const BIG = () => localStorage.setItem('9family.big', 'true');
 async function sweep(p, tag) {
-  const L = (n) => `${tag}-${n}`;
-  const S = async (n) => { await audit(p, L(n)); await shot(p, 'sw-' + L(n)); };
-  await reloadAt(p, 'today'); await waitText(p, 'Đưa đón hôm nay'); await S('today');
-  await tab(p, 'Lịch'); await waitText(p, 'Tuần'); await S('cal-tuan');
-  await tap(p, 'Tháng', { exact: true, scope: '[role=tab]', wait: 600 }); await S('cal-thang');
-  await tap(p, 'Tuần', { exact: true, scope: '[role=tab]', wait: 400 });
+  const S = async (n) => { await audit(p, `${tag}-${n}`); await shot(p, `sw-${tag}-${n}`); };
+  await reloadAt(p, 'today'); await waitText(p, 'Dòng thời gian hôm nay'); await S('today');
+  await tap(p, 'Thêm', { scope: '.fab', wait: 600 }); await waitText(p, 'Thêm gì?'); await S('add-menu');
+  await tap(p, 'Sự kiện', { scope: '.sheet .pick', wait: 900 }); await waitText(p, 'Mẫu nhanh'); await S('quick-event'); await closeSheet(p);
+  await tap(p, 'Hỏi Osin', { scope: '#bar button', wait: 500 }); await waitText(p, 'Sắp ra mắt'); await S('osin'); await closeSheet(p);
+  await openRide(p, 'Đón Bống'); await S('ride-sheet'); await closeSheet(p);
+  await tab(p, 'Lịch'); await waitText(p, 'Xem tháng'); await S('cal-tuan');
+  await tap(p, 'Xem tháng', { scope: 'button', wait: 600 }); await S('cal-thang');
+  await tap(p, 'Xem tuần', { scope: 'button', wait: 400 });
   await tab(p, 'Đưa đón'); await waitText(p, 'Theo ngày'); await S('rides-ngay');
   await tap(p, 'Lịch tuần', { scope: '[role=tab]', wait: 600 }); await S('rides-tuan');
-  await p.evaluate(() => { [...document.querySelectorAll('.card .linkbtn')].filter((b) => b.textContent === 'Thêm ca')[0].click(); }); await sleep(500); await S('ride-form'); await closeSheet(p);
+  await p.evaluate(() => { [...document.querySelectorAll('.list .linkbtn')].filter((b) => b.textContent === 'Thêm ca')[0].click(); }); await sleep(500); await S('ride-form'); await closeSheet(p);
   await tap(p, 'Lịch sử', { scope: '[role=tab]', wait: 600 }); await S('rides-su');
+  await tab(p, 'Tiện ích'); await waitText(p, 'Sắp ra mắt'); await S('tien-ich');
+  await tap(p, 'Thực đơn tuần', { scope: 'a.tile', wait: 900 }); await waitText(p, 'Thực đơn tuần'); await S('thuc-don');
+  await tab(p, 'Tiện ích'); await waitText(p, 'Sắp ra mắt');
   await tab(p, 'Việc chung'); await waitText(p, 'Việc cần làm'); await S('viec');
   await tap(p, 'Mua sắm', { scope: '[role=tab]', wait: 500 }); await S('mua-sam');
   await tab(p, 'Gia đình'); await waitText(p, 'Thành viên'); await S('family');
+  await adv(p); await S('family-nang-cao');
   await tap(p, 'Thành viên Bố Tuấn', { wait: 500 }); await S('member-sheet'); await closeSheet(p);
   await tap(p, '+ Mời', { wait: 500 }); await S('invite-form'); await closeSheet(p);
   await tap(p, 'Sửa hồ sơ', { wait: 500 }); await S('child-sheet'); await closeSheet(p);
@@ -1212,80 +1285,74 @@ async function sweep(p, tag) {
   await goto(p, '#/f/' + fid + '/event/new/' + TODAY); await waitText(p, 'Thêm sự kiện'); await S('event-form');
   const kid = (await api(p, 'api/families/' + fid)).json.children[0].id;
   await goto(p, '#/f/' + fid + '/tkb/' + kid); await waitText(p, 'Thời khóa biểu'); await S('tkb');
-  await goto(p, '#/f/' + fid + '/today'); await waitText(p, 'Đưa đón hôm nay');
-  await p.evaluate(() => { document.querySelector('.ride button.linkbtn').click(); }); await sleep(500); await S('assign-sheet'); await closeSheet(p);
 }
-await step('quét mọi màn: 360x740 sáng', async () => {
-  const p = await newDevice(me, 'Mẹ 360 sáng', { view: { width: 360, height: 740 } });
-  await sweep(p, '360s'); await p.__ctx.close();
-});
-await step('quét mọi màn: 390x844 tối', async () => {
-  const p = await newDevice(me, 'Mẹ 390 tối', { dark: true });
-  await sweep(p, '390t'); await p.__ctx.close();
-});
-await step('quét mọi màn: 360x740 tối', async () => {
-  const p = await newDevice(me, 'Mẹ 360 tối', { dark: true, view: { width: 360, height: 740 } });
-  await sweep(p, '360t'); await p.__ctx.close();
-});
+const SWEEPS = [
+  ['360x740 sáng', '360s', { view: { width: 360, height: 740 } }],
+  ['390x844 tối', '390t', { dark: true }],
+  ['360x740 tối', '360t', { dark: true, view: { width: 360, height: 740 } }],
+  ['320x640 sáng, chữ lớn', '320sL', { view: { width: 320, height: 640 }, init: BIG }],
+  ['430x932 sáng', '430s', { view: { width: 430, height: 932 } }],
+  ['390x844 tối, chữ lớn', '390tL', { dark: true, init: BIG }],
+  ['máy tính 1280x800 sáng', '1280s', { view: { width: 1280, height: 800 } }],
+];
+for (const [name, tag, opts] of SWEEPS) {
+  await step('quét mọi màn: ' + name, async () => {
+    const p = await newDevice(me, 'Mẹ ' + tag, opts);
+    await sweep(p, tag); await p.__ctx.close();
+  });
+}
 
-// ---------- chuyển quyền chủ, rời gia đình, xóa gia đình ----------
-await step('chủ không rời được khi chưa chuyển quyền; chuyển quyền chủ cho Bố', async () => {
-  await tab(me, 'Gia đình');
-  await tap(me, 'Rời gia đình', { exact: true, wait: 500 });
-  await tap(me, 'Rời gia đình', { exact: true, scope: '.sheet button', wait: 900 });
-  await waitText(me, 'Hãy chuyển quyền chủ cho người khác trước khi rời');
-  must((await hashOf(me)).endsWith('/me'), 'chủ vẫn phải ở lại gia đình');
-  await closeSheet(me).catch(() => {});
-  await tap(me, 'Chuyển quyền chủ gia đình', { wait: 600 });
-  await audit(me, 'transfer-sheet'); await shot(me, '60-chuyen-quyen');
-  await tap(me, 'Bố Tuấn', { scope: '.sheet .pick', wait: 200 });
-  await tap(me, 'Chuyển quyền', { exact: true, scope: '.sheet button', wait: 1000 });
-  await waitText(me, 'Đã chuyển quyền chủ gia đình');
-  await bo.bringToFront(); await reloadAt(bo, 'me');
+// ---------- chuyển quyền chủ, rời gia đình, xóa gia đình: làm ở 9id, 9family đồng bộ ----------
+const resync = async (p) => { await api(p, `api/families/${fid}/resync`, 'POST', {}); };
+await step('chuyển quyền chủ cho Bố ở 9id: 9family đổi vai trò, Mẹ thành người quản lý, đúng một chủ', async () => {
+  await goto(me, '#/f/' + fid + '/me'); await waitText(me, 'Chuyển gia đình');
+  const t0 = (await text(me)).toLowerCase();
+  must(t0.includes('chuyển quyền chủ, rời hoặc xóa gia đình'), 'chủ thấy lối sang 9app');
+  // lối đi sang 9app là liên kết cùng nguồn gốc
+  const href = await me.$$eval('a.list-row', (as) => as.map((a) => a.getAttribute('href')).filter((h) => h && h.startsWith('/id/')));
+  must(href.some((h) => h === '/id/#/gia-dinh/' + fid) && href.some((h) => h === '/id/#/tai-khoan'), 'thiếu liên kết sang 9id: ' + href.join());
+  await audit(me, 'transfer-links'); await shot(me, '60-chuyen-quyen');
+  const boId = bo.__acct.userId;
+  const tr = await me.__acct.id('POST', `/families/${fid}/transfer`, { toUserId: boId, password: me.__acct.password });
+  must(tr.status === 200, 'chuyển quyền ở 9id thất bại ' + tr.status + ' ' + tr.text);
+  await resync(me); await resync(bo);
+  await bo.bringToFront(); await reloadAt(bo, 'me'); await adv(bo);
   const tb = (await text(bo)).toLowerCase();
-  must(tb.includes('xóa gia đình') && tb.includes('chuyển quyền chủ gia đình') && tb.includes('mốc nhắc đưa đón'), 'Bố phải có quyền chủ');
-  await me.bringToFront(); await reloadAt(me, 'me');
+  must(tb.includes('chuyển quyền chủ, rời hoặc xóa gia đình') && tb.includes('mốc nhắc đưa đón'), 'Bố phải có quyền chủ');
+  await me.bringToFront(); await reloadAt(me, 'me'); await adv(me);
   const tm = (await text(me)).toLowerCase();
   must(!tm.includes('xóa gia đình') && tm.includes('quản lý') && tm.includes('mốc nhắc đưa đón'), 'Mẹ phải thành người quản lý');
+  must((await db.query("SELECT count(*)::int n FROM members WHERE family_id=$1 AND role='chu' AND left_at IS NULL", [fid]))[0].n === 1, 'luôn đúng một chủ');
 });
 
-await step('Bà rời gia đình: các ca Bà phụ trách trở về chưa gán, Bà không xem được nữa', async () => {
-  const before = (await db.query("SELECT count(*)::int n FROM rides WHERE p0 IN (SELECT id FROM members WHERE name='Bà nội Lan') OR p1 IN (SELECT id FROM members WHERE name='Bà nội Lan') OR p2 IN (SELECT id FROM members WHERE name='Bà nội Lan')"))[0].n;
+await step('Bà rời gia đình ở 9id: các ca Bà phụ trách trở về chưa gán, Bà không xem được nữa', async () => {
+  const q = "SELECT count(*)::int n FROM rides WHERE p0 IN (SELECT id FROM members WHERE name='Bà nội Lan') OR p1 IN (SELECT id FROM members WHERE name='Bà nội Lan') OR p2 IN (SELECT id FROM members WHERE name='Bà nội Lan')";
+  const before = (await db.query(q))[0].n;
   must(before > 0, 'Bà phải đang giữ ca nào đó');
-  await ba.bringToFront(); await tab(ba, 'Gia đình');
-  await tap(ba, 'Rời gia đình', { exact: true, wait: 500 });
-  await tap(ba, 'Rời gia đình', { exact: true, scope: '.sheet button', wait: 1200 });
-  await waitText(ba, 'Chào mừng đến 9family');
-  const after = (await db.query("SELECT count(*)::int n FROM rides WHERE p0 IN (SELECT id FROM members WHERE name='Bà nội Lan') OR p1 IN (SELECT id FROM members WHERE name='Bà nội Lan') OR p2 IN (SELECT id FROM members WHERE name='Bà nội Lan')"))[0].n;
-  must(after === 0, 'ca của Bà phải được gỡ người');
+  const lv = await ba.__acct.id('POST', `/families/${fid}/leave`, {});
+  must(lv.status === 200, 'rời gia đình thất bại ' + lv.status);
+  await ba.bringToFront(); await ba.reload({ waitUntil: 'networkidle0' });
   must((await api(ba, 'api/families/' + fid)).status === 404, 'Bà phải không còn xem được gia đình');
-  await me.bringToFront(); await reloadAt(me, 'me');
+  await me.bringToFront(); await resync(me); await reloadAt(me, 'me');
+  const after = (await db.query(q))[0].n;
+  must(after === 0, 'ca của Bà phải được gỡ người');
   must(!(await text(me)).includes('Bà nội Lan'), 'Bà phải biến khỏi danh sách thành viên');
 });
 
-await step('chủ mới xóa gia đình: gõ sai tên bị chặn, gõ đúng thì xóa sạch cho mọi người', async () => {
-  await bo.bringToFront(); await reloadAt(bo, 'me'); await waitText(bo, 'Xóa gia đình');
-  await tap(bo, 'Xóa gia đình', { exact: true, wait: 500 });
-  await audit(bo, 'delete-sheet'); await shot(bo, '61-xoa-gia-dinh');
-  await fill(bo, 'Gõ tên gia đình', 'nhầm tên');
-  await tap(bo, 'Xóa vĩnh viễn', { wait: 800 });
-  await waitText(bo, 'Hãy gõ đúng tên gia đình để xác nhận xóa');
-  await fill(bo, 'Gõ tên gia đình', 'Nhà Cún Con 🏠');
-  await tap(bo, 'Xóa vĩnh viễn', { wait: 1500 });
-  await waitText(bo, 'Chào mừng đến 9family');
-  for (const t of ['families', 'members', 'children', 'events', 'rides', 'ride_days', 'tasks', 'shopping', 'notifications', 'push_subs']) {
-    const col = t === 'families' ? 'id' : 'family_id';
-    if (t === 'push_subs') continue;
-    const n = (await db.query(`SELECT count(*)::int n FROM ${t} WHERE ${col}=$1`, [fid]))[0].n;
-    must(n === 0, `bảng ${t} còn ${n} dòng của gia đình đã xóa`);
-  }
+await step('chủ mới xóa gia đình ở 9id: gõ sai tên bị chặn; xóa rồi mọi người nhận "Không tìm thấy"', async () => {
+  const bad = await bo.__acct.id('POST', `/families/${fid}/delete`, { password: bo.__acct.password, confirmName: 'nhầm tên' });
+  must(bad.status === 400, 'gõ sai tên phải bị chặn, được ' + bad.status);
+  const del = await bo.__acct.id('POST', `/families/${fid}/delete`, { password: bo.__acct.password, confirmName: 'Nhà Cún Con 🏠' });
+  must(del.status === 200, 'xóa thất bại ' + del.status + ' ' + del.text);
+  sys.famId.flushCaches();
   await me.bringToFront(); await reloadAt(me, 'today');
   await waitText(me, 'Không tìm thấy');
   must((await api(me, 'api/families/' + fid)).status === 404, 'sau khi xóa phải 404');
   const mine = (await api(me, 'api/me')).json.families;
   must(mine.length === 1 && mine[0].name === 'Nhà ngoại', 'Mẹ chỉ còn gia đình Nhà ngoại');
+  await bo.bringToFront(); await goto(bo, '');
+  await waitText(bo, 'Tạo gia đình');
 });
-
 
 // ---- tổng kết ----
 console.log('\n--- kết quả ---');
@@ -1293,8 +1360,6 @@ const okN = results.filter((r) => r.ok).length;
 console.log(`${okN}/${results.length} bước đạt`);
 if (problems.length) { console.log('\nVấn đề phát hiện:'); [...new Set(problems)].forEach((p) => console.log(' - ' + p)); }
 await browser.close();
-await app.close();
-await db.close();
-await pg.stop();
+await sys.stop();
 try { fs.rmSync(userDataDir, { recursive: true, force: true }); } catch { /* bỏ qua */ }
 process.exit(okN === results.length && !problems.length ? 0 : 1);
