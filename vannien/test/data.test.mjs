@@ -211,14 +211,20 @@ test('chỉ mục tìm kiếm đã khớp với dữ liệu (chạy build-search
   assert.equal(read('search-index.json'), JSON.stringify(buildIndex(), null, 2) + '\n')
 })
 
+/** Tên tệp js/css của bản dựng, đọc từ index.html (tên có mã băm đổi sau mỗi lần build). */
+function builtAssets() {
+  const html = read('index.html')
+  return [...html.matchAll(/\/vannien\/(assets\/[\w.-]+\.(?:js|css))/g)].map((m) => m[1])
+}
+
 test('trang chính đã gắn mô-đun và các tệp cần thiết có thật', () => {
   for (const f of ['index.html', '404.html']) {
     const html = read(f)
     assert.match(html, /\/vannien\/mod\/mod\.css/)
     assert.match(html, /\/vannien\/mod\/app\.js/)
-    assert.match(html, /\/vannien\/assets\/index-BFsi-86l\.js/, 'bản dựng cũ phải còn nguyên')
+    assert.match(html, /\/vannien\/assets\/index-[\w-]+\.js/, 'bản dựng phải còn nguyên')
   }
-  for (const f of ['mod/app.js', 'mod/mod.css', 'mod/logic.js', 'mod/lunar.js', 'mod/ui.js', 'mod/speech.js', 'mod/vankhan.js', 'mod/mam.js', 'mod/data/van-khan.json', 'mod/data/mam-cung.json', 'search-index.json', 'assets/index-BFsi-86l.js', 'assets/index-DBnjKoHK.css']) {
+  for (const f of ['mod/app.js', 'mod/mod.css', 'mod/logic.js', 'mod/lunar.js', 'mod/ui.js', 'mod/speech.js', 'mod/vankhan.js', 'mod/mam.js', 'mod/data/van-khan.json', 'mod/data/mam-cung.json', 'search-index.json', ...builtAssets()]) {
     assert.ok(fs.existsSync(path.join(ROOT, f)), f)
   }
 })

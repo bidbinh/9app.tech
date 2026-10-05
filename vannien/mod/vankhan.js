@@ -1,7 +1,7 @@
 /** Mô-đun Văn khấn: danh sách theo dịp, trang bài khấn có điền chỗ trống, chữ to, đọc to, in, chia sẻ. */
-import { h, clear, store, toast, copyText, shareText, uid } from './ui.js?v=2'
-import * as L from './logic.js?v=2'
-import { createReader, speechSupported } from './speech.js?v=2'
+import { h, clear, store, toast, copyText, shareText, uid } from './ui.js?v=5'
+import * as L from './logic.js?v=5'
+import { createReader, speechSupported } from './speech.js?v=5'
 
 const PROFILE_KEY = 'vn.vk.profile'
 const GIO_KEY = 'vn.vk.gio'

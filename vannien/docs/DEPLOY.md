@@ -32,3 +32,12 @@ node --test test/
 
 - `node --test test/` kiểm tra logic, dữ liệu, chỉ mục, pack.
 - `node scripts/e2e.mjs` mở Chrome thật ở 390x844 và 1280x800, so với bản sao lưu `vannien.bak-*`, chụp ảnh vào `shots\`.
+
+## Giao diện (tông sáng 9app)
+
+- Màu, chữ, thẻ của cả Vạn Niên và mô-đun nằm ở `D:\Lịch vạn niên\src\index.css` (biến `--bg`, `--card`, `--brand`, `--good-*`, `--bad-*`; chế độ tối theo hệ thống). `mod\mod.css` chỉ dùng lại các biến đó, nên sửa màu thì sửa ở `index.css`.
+- Thanh điều hướng 5 mục: Hôm nay, Tháng, Xem ngày, Cúng lễ, Phong thủy. Mục Cúng lễ do bản dựng vẽ sẵn (liên kết `#/van-khan`); trong màn có hai thẻ con Văn khấn | Mâm cúng do `mod\app.js` dựng. Mọi đường dẫn hash cũ giữ nguyên nên `search-index.json` không đổi.
+- Màn Hôm nay có thẻ Cúng lễ (lối tắt Văn khấn, Mâm cúng và Sắp tới) tính trong bản dựng (`src\lib\cungle.js`; id bài khấn và mâm phải khớp `mod\data`). Đổi id trong `mod\data` thì phải sửa `cungle.js`.
+- `node scripts/ux-check.mjs`: tràn ngang, vùng chạm, cỡ chữ, tương phản, nhãn thanh dưới, deep link ở 320/360/390/430/1280, sáng và tối. `node scripts/ux-shots.mjs <tiền tố>`: chụp ảnh vào `shots\ux\`.
+- `tools\pack-vannien.mjs` chạy `npm run build` qua shell trên Windows (Node mới không cho chạy `npm.cmd` trực tiếp).
+- Tên tệp trong `assets\` có mã băm, đổi sau mỗi lần build: chép cả thư mục `assets\` mới và xóa tệp cũ trên server.

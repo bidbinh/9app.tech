@@ -86,8 +86,10 @@ function main() {
   const built = spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'build'], {
     cwd: SRC,
     stdio: 'inherit',
+    shell: process.platform === 'win32', // Node mới trên Windows không cho chạy npm.cmd nếu không qua shell (EINVAL)
     env: { ...process.env, VITE_BASE: '/vannien/' },
   });
+  if (built.error) console.error('Không chạy được npm run build:', built.error.message);
   if (built.status !== 0) process.exit(built.status || 1);
 
   const dist = path.join(SRC, 'dist');

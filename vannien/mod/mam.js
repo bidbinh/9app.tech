@@ -1,6 +1,6 @@
 /** Mô-đun Mâm cúng, mâm cỗ: danh sách đồ lễ theo dịp, tính lượng và ngân sách, danh sách đi chợ, công thức. */
-import { h, clear, store, toast, copyText, shareText, uid } from './ui.js?v=2'
-import * as L from './logic.js?v=2'
+import { h, clear, store, toast, copyText, shareText, uid } from './ui.js?v=5'
+import * as L from './logic.js?v=5'
 
 const PRICES_KEY = 'vn.mam.prices'
 const SAVED_KEY = 'vn.mam.saved'

@@ -5,15 +5,16 @@
  *   #/mam-cung, #/mam-cung/<id>, #/mam-cung/ngu-qua, #/mam-cung/cong-thuc/<id>
  *   #/ve-noi-dung
  *   #/hom-nay, #/lich, #/xem-ngay, #/phong-thuy   (các tab cũ, mở thẳng bằng link)
+ * Thanh điều hướng có 5 mục: Hôm nay · Tháng · Xem ngày · Cúng lễ (Văn khấn | Mâm cúng) · Phong thủy.
  */
-import { h, clear } from './ui.js?v=2'
-import { vnToday, dateInfo, parseHash } from './logic.js?v=2'
-import * as VK from './vankhan.js?v=2'
-import * as MC from './mam.js?v=2'
+import { h, clear } from './ui.js?v=5'
+import { vnToday, dateInfo, parseHash } from './logic.js?v=5'
+import * as VK from './vankhan.js?v=5'
+import * as MC from './mam.js?v=5'
 
 const TAB_ROUTES = ['hom-nay', 'lich', 'xem-ngay', 'phong-thuy']
 const MODULE_ROUTES = new Set(['van-khan', 'mam-cung', 've-noi-dung'])
-const VERSION = '2' // do scripts/bump-version.mjs cập nhật
+const VERSION = '5' // do scripts/bump-version.mjs cập nhật
 const BASE_TITLE = document.title
 
 let data = null
@@ -70,6 +71,16 @@ function iconSpan(key) {
   return s
 }
 
+const HOME_HOSTS = ['9app.tech', 'www.9app.tech', 'localhost', '127.0.0.1']
+const homeHref = () => (HOME_HOSTS.includes(location.hostname) ? '/' : 'https://9app.tech/')
+
+/** Hai thẻ con của màn Cúng lễ: Văn khấn | Mâm cúng. */
+const SUBTABS = [
+  { route: 'van-khan', label: 'Văn khấn' },
+  { route: 'mam-cung', label: 'Mâm cúng' },
+]
+let subtabsEl = null
+
 function mountShell() {
   const app = document.querySelector('.app')
   if (!app || document.getElementById('vn-main')) return !!document.getElementById('vn-main')
@@ -82,19 +93,35 @@ function mountShell() {
   titleEl = h('h2')
   lunarEl = h('div', { class: 'clock', id: 'vn-lunar' })
   body = h('div', { class: 'vn-body', id: 'vn-body' })
+  subtabsEl = h(
+    'div',
+    { class: 'vn-subtabs', role: 'tablist', 'aria-label': 'Cúng lễ' },
+    SUBTABS.map((t) => h('a', { class: 'vn-subtab', href: `#/${t.route}`, role: 'tab', 'data-sub': t.route }, t.label)),
+  )
   main = h('main', { class: 'main vn-main', id: 'vn-main', hidden: true }, [
-    h('div', { class: 'topbar' }, [h('div', null, [kickerEl, titleEl]), lunarEl]),
+    h('header', { class: 'topbar' }, [
+      h('a', { class: 'home9 ve-9app', 'data-ve-9app': '', href: homeHref(), 'aria-label': 'Về 9app' }, [h('span', { class: 'chev', 'aria-hidden': 'true' }, '‹'), '9app']),
+      h('div', { class: 'titles' }, [kickerEl, titleEl]),
+      lunarEl,
+    ]),
+    subtabsEl,
     body,
   ])
   reactMain.after(main)
 
-  const items = [
-    { route: 'van-khan', label: 'Văn khấn', icon: 'khan' },
-    { route: 'mam-cung', label: 'Mâm cúng', icon: 'mam' },
-  ]
-  for (const it of items) {
-    nav.append(h('a', { class: 'nav-btn vn-btn-nav', href: `#/${it.route}`, 'data-route': it.route }, [iconSpan(it.icon), it.label]))
-    mobile.append(h('a', { class: 'tab-btn vn-btn-nav', href: `#/${it.route}`, 'data-route': it.route }, [iconSpan(it.icon), it.label]))
+  // Mục "Cúng lễ" do bản dựng vẽ sẵn (không bị trễ khi mô-đun tải chậm). Bản dựng cũ chưa có thì thêm vào đây.
+  for (const [parent, cls, beforeSel] of [
+    [nav, 'nav-btn', ':scope > .nav-btn:not(.vn-btn-nav):last-of-type'],
+    [mobile, 'tab-btn', ':scope > .tab-btn:not(.vn-btn-nav):last-of-type'],
+  ]) {
+    if (parent.querySelector('.vn-btn-nav')) continue
+    const a = h('a', { class: `${cls} vn-btn-nav`, href: '#/van-khan', 'data-route': 'cung-le' }, [
+      h('span', { class: 'ico' }, [iconSpan('mam')]),
+      h('span', { class: 'lbl' }, 'Cúng lễ'),
+    ])
+    const last = parent.querySelector(beforeSel)
+    if (last) last.before(a)
+    else parent.append(a)
   }
 
   // Bấm tab cũ của Vạn Niên: ghi vào hash để Back và link trực tiếp hoạt động.
@@ -119,7 +146,20 @@ function setModuleOn(on) {
 }
 
 function setActiveNav(routeName) {
-  document.querySelectorAll('.vn-btn-nav').forEach((a) => a.classList.toggle('active', a.dataset.route === routeName))
+  // Văn khấn, Mâm cúng và Về nội dung đều thuộc mục "Cúng lễ" của thanh điều hướng.
+  const inModule = routeName === 'van-khan' || routeName === 'mam-cung'
+  document.querySelectorAll('.vn-btn-nav').forEach((a) => {
+    a.classList.toggle('active', inModule)
+    if (inModule) a.setAttribute('aria-current', 'page')
+    else a.removeAttribute('aria-current')
+  })
+  if (subtabsEl) {
+    subtabsEl.querySelectorAll('.vn-subtab').forEach((t) => {
+      const on = t.dataset.sub === routeName
+      t.classList.toggle('active', on)
+      t.setAttribute('aria-selected', on ? 'true' : 'false')
+    })
+  }
 }
 
 function reactTabButtons() {
@@ -300,3 +340,18 @@ function boot() {
 }
 
 boot()
+
+// Thanh dự phòng của /js/homebar.js (#n9-bar + html.n9-pad) chỉ cần khi trang chưa có nút ‹ 9app.
+// Vạn Niên đã có nút của riêng mình (.ve-9app trong tiêu đề), nên gỡ thanh trống và đệm 44 px còn sót lại.
+function dropEmptyHomeBar() {
+  const root = document.documentElement
+  const bar = document.getElementById('n9-bar')
+  if (bar && !bar.querySelector('a')) bar.remove()
+  if (!document.getElementById('n9-bar') && root.classList.contains('n9-pad')) root.classList.remove('n9-pad')
+}
+dropEmptyHomeBar()
+{
+  const o = new MutationObserver(dropEmptyHomeBar)
+  o.observe(document.documentElement, { childList: true, subtree: true })
+  setTimeout(() => o.disconnect(), 8000)
+}

@@ -1,5 +1,5 @@
 /** Đọc to bằng speechSynthesis (vi-VN). Đọc từng đoạn, báo đoạn đang đọc để tô sáng. */
-import { speechText } from './logic.js?v=2'
+import { speechText } from './logic.js?v=5'
 
 export const speechSupported = () => typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window
 

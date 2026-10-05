@@ -20,14 +20,16 @@ const vars = (date, extra = {}) => L.buildVars({ ho_ten: 'Nguyễn Văn An', dia
 /* V1 */
 test('V1: pack chèn lại hai thẻ mô-đun, chạy lại không đổi', () => {
   const html = read('index.html')
-  const dist = fs.readFileSync(path.join(ROOT, '..', 'vannien.bak-20261004', 'index.html'), 'utf8')
+  // bản dựng gốc = index.html hiện tại bỏ hai thẻ mô-đun (pack chèn lại phải ra đúng bản đang dùng)
+  const dist = html.replace(/\s*<link rel="stylesheet" href="\/vannien\/mod\/mod\.css[^"]*" \/>/, '').replace(/\s*<script type="module" src="\/vannien\/mod\/app\.js[^"]*"><\/script>/, '')
+  const cssAsset = /assets\/index-[\w-]+\.css/.exec(html)[0]
   const ver = /const VERSION = '(\d+)'/.exec(read('mod/app.js'))[1]
   assert.equal(finalizeHtml(dist, ver), html, 'index.html tạo lại từ bản dựng phải giống bản đang dùng')
   const once = injectModuleTags(dist, '5')
   assert.equal(injectModuleTags(once, '5'), once, 'idempotent')
   assert.equal((once.match(/mod\/mod\.css/g) || []).length, 1)
   assert.equal((once.match(/mod\/app\.js/g) || []).length, 1)
-  assert.ok(once.indexOf('mod.css') > once.indexOf('assets/index-DBnjKoHK.css'), 'thẻ mô-đun nằm sau css của bản dựng')
+  assert.ok(once.indexOf('mod.css') > once.indexOf(cssAsset), 'thẻ mô-đun nằm sau css của bản dựng')
   assert.equal(injectModuleTags(once, '9').match(/\?v=(\d+)/g).join(), '?v=9,?v=9')
 })
 test('V1: plan chỉ xóa tệp của bản dựng, giữ mod/ và mọi thứ khác', () => {

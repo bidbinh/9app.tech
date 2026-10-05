@@ -1,6 +1,6 @@
 // Kiểm thử giao diện thật bằng Chrome (puppeteer-core): điện thoại 390x844 và máy tính 1280x800.
 // Chạy:  node scripts/e2e.mjs        Ảnh chụp ghi vào vannien/shots/ (thư mục này KHÔNG đưa lên bản triển khai).
-// Tự dựng máy chủ tĩnh ở cổng ngẫu nhiên từ 10100 trở lên; so sánh tính năng cũ với bản sao lưu (BACKUP).
+// Tự dựng máy chủ tĩnh ở cổng ngẫu nhiên từ 20000 trở lên; so sánh tính năng cũ với bản sao lưu (BACKUP).
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
@@ -145,7 +145,9 @@ async function legacySnapshot(base, view) {
       const m = document.querySelector('.app > .main:not(.vn-main)')
       const c = m.cloneNode(true)
       c.querySelectorAll('.clock').forEach((e) => e.remove())
-      return { text: c.innerText.replace(/\s+/g, ' ').trim(), cards: c.querySelectorAll('.card').length, h2: m.querySelector('.topbar h2').innerText }
+      // "facts": nội dung theo lớp thẻ giữ nguyên qua hai giao diện (không phụ thuộc cách bố trí)
+      const facts = [...c.querySelectorAll('.pair, .tag, .viec-row, .hour, .loi, .warn-banner, .score-item, .dir')].map((e) => e.className.split(' ')[0] + ':' + e.textContent.replace(/\s+/g, ''))
+      return { text: c.innerText.replace(/\s+/g, ' ').trim(), facts, h2: m.querySelector('.topbar h2').innerText }
     })
     if (label === 'Tháng') {
       // bấm sang tháng sau rồi chọn ngày 15
@@ -158,7 +160,7 @@ async function legacySnapshot(base, view) {
       const opts = await page.$$eval('.main select option', (o) => o.map((x) => x.value))
       await page.select('.main select', opts[5])
       await sleep(200)
-      snap['Xem ngày:việc6'] = await page.evaluate(() => [...document.querySelectorAll('.score-item')].map((e) => e.innerText.replace(/\s+/g, ' ')).join('||'))
+      snap['Xem ngày:việc6'] = await page.evaluate(() => [...document.querySelectorAll('.score-item')].map((e) => e.textContent.replace(/\s+/g, ' ').toLowerCase()).join('||'))
     }
     if (label === 'Phong thủy') {
       snap['Phong thủy:input'] = await page.evaluate(() => [...document.querySelectorAll('.main input, .main select')].length)
@@ -174,10 +176,19 @@ if (old) {
     await step(`Bốn tab và thao tác cũ giống bản sao lưu (${label})`, async () => {
       const a = await legacySnapshot(`http://127.0.0.1:${old.port}/vannien/`, view)
       const b = await legacySnapshot(URL0, view)
+      // Giao diện đã đổi nên không so nguyên văn: so tiêu đề và nội dung theo lớp thẻ (pair, tag, hour, ...) phải giống hệt.
       for (const k of Object.keys(a)) {
-        const x = JSON.stringify(a[k])
-        const y = JSON.stringify(b[k])
-        if (x !== y) throw new Error(`"${k}" khác bản sao lưu:\n  cũ: ${x.slice(0, 160)}\n  mới: ${y.slice(0, 160)}`)
+        if (typeof a[k] === 'object' && a[k] !== null && 'facts' in a[k]) {
+          eq(b[k].h2, a[k].h2, `"${k}": tiêu đề`)
+          eq(JSON.stringify(b[k].facts), JSON.stringify(a[k].facts), `"${k}": nội dung (${a[k].facts.length} mục) khác bản sao lưu`)
+          ok(a[k].facts.length > 5, `"${k}": ít mục để so`)
+        } else {
+          const x = JSON.stringify(a[k])
+          const y = JSON.stringify(b[k])
+          if (x !== y) throw new Error(`"${k}" khác bản sao lưu:
+  cũ: ${x.slice(0, 160)}
+  mới: ${y.slice(0, 160)}`)
+        }
       }
       ok(Object.keys(a).length >= 7, 'ít bước so sánh')
     })
@@ -197,7 +208,7 @@ async function suite(view) {
     await open(page, '')
     const sel = mobile ? '.mobile-nav' : '.sidebar .nav'
     const labels = await page.$$eval(`${sel} > *`, (a) => a.map((e) => e.innerText.replace(/\s+/g, ' ').trim()))
-    eq(labels.join('|'), 'Hôm nay|Tháng|Xem ngày|Phong thủy|Văn khấn|Mâm cúng')
+    eq(labels.join('|'), 'Hôm nay|Tháng|Xem ngày|Cúng lễ|Phong thủy')
     ok(await visible(page, '.hero'), 'trang Hôm nay phải hiện khi không có hash')
     ok(!(await visible(page, '#vn-main')), 'mô-đun phải ẩn khi không có hash')
     if (mobile) ok(await noOverflow(page), 'tràn ngang')
@@ -209,7 +220,8 @@ async function suite(view) {
     eq(await count(page, '#vn-vk-list .vn-card'), vk.items.length)
     ok((await count(page, '#vn-upcoming .vn-up')) >= 3, 'mục Sắp tới')
     ok(!(await visible(page, '.hero')), 'trang cũ phải ẩn')
-    ok(await page.$eval('.vn-btn-nav[data-route="van-khan"]', (e) => e.classList.contains('active')), 'nút điều hướng sáng')
+    ok(await page.$eval('.vn-btn-nav[data-route="cung-le"]', (e) => e.classList.contains('active')), 'mục Cúng lễ sáng')
+    ok(await page.$eval('.vn-subtab[data-sub="van-khan"]', (e) => e.classList.contains('active')), 'thẻ con Văn khấn sáng')
     if (mobile) ok(await noOverflow(page), 'tràn ngang')
     await shot(page, 'vankhan_list')
     await shot(page, 'vankhan_list_full', true)
@@ -586,7 +598,7 @@ async function suite(view) {
     await clickText(page, navSel, 'Tháng')
     eq(await hashOf(page), '#/lich')
     ok(await visible(page, '.cal-grid'), 'lịch tháng hiện')
-    await clickText(page, navSel, 'Văn khấn')
+    await clickText(page, navSel, 'Cúng lễ')
     eq(await hashOf(page), '#/van-khan')
     ok(await visible(page, '#vn-main') && !(await visible(page, '.cal-grid')), 'sang văn khấn')
     await clickText(page, navSel, 'Xem ngày')
@@ -605,7 +617,7 @@ async function suite(view) {
   await step(`${tag}: từ trang gốc vào Văn khấn rồi Back về đúng Hôm nay`, async () => {
     await open(page, '')
     const navSel = mobile ? '.mobile-nav > a.tab-btn' : '.sidebar a.nav-btn'
-    await clickText(page, navSel, 'Văn khấn')
+    await clickText(page, navSel, 'Cúng lễ')
     ok(await visible(page, '#vn-main'), 'vào văn khấn')
     await page.goBack()
     await sleep(300)

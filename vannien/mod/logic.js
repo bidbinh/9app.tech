@@ -12,7 +12,7 @@ import {
   yearChiIndex,
   addDays,
   WEEKDAYS,
-} from './lunar.js?v=2'
+} from './lunar.js?v=5'
 
 /* ---------- Chữ ---------- */
 

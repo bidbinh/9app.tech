@@ -1,5 +1,5 @@
 // Máy chủ tĩnh nhỏ để kiểm thử: phục vụ thư mục Vạn Niên ở /vannien/ và js/homebar.js của cổng 9app ở /js/.
-// Chạy tay:  node scripts/server.mjs [thư mục] [cổng]    (cổng mặc định ngẫu nhiên từ 10100)
+// Chạy tay:  node scripts/server.mjs [thư mục] [cổng]    (cổng mặc định ngẫu nhiên từ 20000)
 import http from 'node:http'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -53,7 +53,7 @@ export function startServer({ dir: dirIn = path.resolve(HERE, '..'), port = 0 } 
   })
   return new Promise((resolve, reject) => {
     const tryListen = (n) => {
-      const pt = port || 10100 + Math.floor(Math.random() * 800)
+      const pt = port || 20000 + Math.floor(Math.random() * 9000)
       server.once('error', (e) => (e.code === 'EADDRINUSE' && n < 20 ? tryListen(n + 1) : reject(e)))
       server.listen(pt, '127.0.0.1', () => resolve({ server, port: server.address().port, close: () => new Promise((r) => server.close(r)) }))
     }
