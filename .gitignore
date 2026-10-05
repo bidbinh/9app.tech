@@ -3,3 +3,11 @@ certs/
 .DS_Store
 Thumbs.db
 node_modules/
+
+shots/
+9app-site.tar
+_snapshots/
+*.bak-*/
+vannien.bak-*/
+js/apps.js.local
+.claude/scheduled_tasks.lock
