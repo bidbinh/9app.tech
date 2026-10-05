@@ -1,0 +1,11 @@
+{
+  "name": "9payday",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9payday - Trợ lý lương và dòng tiền cho người đi làm: gross/net, thuế TNCN, hũ chi tiêu, mục tiêu, vay, quyết toán.",
+  "scripts": {
+    "test": "node --test test/",
+    "e2e": "node scripts/e2e.js"
+  }
+}

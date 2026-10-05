@@ -1,0 +1,12 @@
+{
+  "name": "9car",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9car - Sổ tay xe ô tô và xe máy: nhắc đăng kiểm, bảo hiểm, bảo dưỡng, chi phí, sạc xe điện.",
+  "scripts": {
+    "test": "node --test test/",
+    "e2e": "node scripts/e2e.js",
+    "icons": "node scripts/make-icons.js"
+  }
+}

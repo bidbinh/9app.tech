@@ -1,0 +1,20 @@
+{
+  "name": "9gift - Sổ lễ",
+  "short_name": "9gift",
+  "description": "Sổ mừng cưới, hiếu hỉ, nhắc sinh nhật và ngày giỗ theo âm lịch, gợi ý quà và lời chúc. Dữ liệu chỉ nằm trên máy bạn.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f7fb",
+  "theme_color": "#2563eb",
+  "categories": ["lifestyle", "productivity", "finance"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
