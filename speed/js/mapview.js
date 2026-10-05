@@ -26,12 +26,22 @@ export class MapView {
       boxZoom: false,
     }).setView(MAP.center, MAP.zoom);
 
-    L.tileLayer(MAP.tileUrl, {
+    const tiles = L.tileLayer(MAP.tileUrl, {
       minZoom: MAP.minZoom,
       maxZoom: MAP.maxZoom,
       bounds: MAP.maxBounds,
       attribution: MAP.attribution,
+      subdomains: MAP.tileSubdomains || 'abc',
+      crossOrigin: true,
     }).addTo(this.map);
+    tiles.on('tileerror', (e) => {
+      const img = e.tile;
+      if (!img || img.dataset.fallback || !MAP.tileFallback) return;
+      img.dataset.fallback = '1';
+      img.src = L.Util.template(MAP.tileFallback, {
+        s: 'a', r: '', z: e.coords.z, x: e.coords.x, y: e.coords.y,
+      });
+    });
 
     this.zoomControl = L.control.zoom({ position: 'bottomleft' });
     this._explore = false;

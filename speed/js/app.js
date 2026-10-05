@@ -34,7 +34,7 @@ const ui = {
   overlayNote: $('overlay-note'), btnExportPoi: $('btn-export-poi'),
   alerts: $('alerts'), alertMain: $('alert-main'), alertIcon: $('alert-icon'),
   alertText: $('alert-text'), alertDist: $('alert-dist'),
-  btnStart: $('btn-start'), btnSound: $('btn-sound'), btnSim: $('btn-sim'),
+  btnSound: $('btn-sound'), btnSim: $('btn-sim'),
   btnSettings: $('btn-settings'), btnRecenter: $('btn-recenter'),
   sheet: $('sheet'), sheetBackdrop: $('sheet-backdrop'), btnCloseSheet: $('btn-close-sheet'),
   selVehicle: $('sel-vehicle'), chkSound: $('chk-sound'), chkVoice: $('chk-voice'),
@@ -362,8 +362,6 @@ async function toggleRun(force) {
     }
     await requestWakeLock();
     state.running = true;
-    ui.btnStart.textContent = 'Dừng hành trình';
-    ui.btnStart.classList.add('on');
   } else {
     gpsSource.stop();
     simSource.stop();
@@ -371,8 +369,6 @@ async function toggleRun(force) {
     releaseWakeLock();
     clearTimeout(state.fixWatchdog);
     state.running = false;
-    ui.btnStart.textContent = 'Bắt đầu hành trình';
-    ui.btnStart.classList.remove('on');
     setGpsChip('', 'Đã dừng');
   }
 }
@@ -386,8 +382,12 @@ function toggleSim() {
   ui.simControls.hidden = !state.simMode;
   ui.simHint.hidden = !state.simMode;
   mapView.setExploreMode(state.simMode);
-  if (!state.simMode) simSource.stop();
-  setGpsChip('', state.simMode ? 'Mô phỏng — chọn điểm xuất phát' : 'Đã dừng');
+  if (!state.simMode) {
+    simSource.stop();
+    toggleRun(true);
+  } else {
+    setGpsChip('', 'Mô phỏng — chọn điểm xuất phát');
+  }
 }
 
 async function requestWakeLock() {
@@ -511,7 +511,7 @@ function refreshVoiceNote(info) {
     el.textContent = 'Đang dùng giọng tiếng Việt có sẵn (Hoài My). Không dùng giọng Anh của Windows.';
     el.className = 'note';
   } else {
-    el.textContent = 'Bấm bắt đầu hành trình để tải giọng tiếng Việt. Máy này không có gói vi-VN — sẽ không dùng giọng Anh.';
+    el.textContent = 'Chạm màn hình một lần để tải giọng tiếng Việt. Máy này không có gói vi-VN — sẽ không dùng giọng Anh.';
     el.className = 'note warn';
   }
 }
@@ -536,7 +536,6 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-ui.btnStart.addEventListener('click', () => toggleRun());
 ui.btnSim.addEventListener('click', toggleSim);
 ui.btnSettings.addEventListener('click', () => openSheet(true));
 ui.btnCloseSheet.addEventListener('click', () => openSheet(false));
@@ -562,19 +561,7 @@ initSettingsUi();
 // Lớp camera tự quản nạp song song, thiếu cũng không sao.
 await Promise.all([tileData.init(), overlay.init()]);
 
-// Định vị một lần khi mở app để bản đồ nhảy về đúng khu vực người dùng
-if ('geolocation' in navigator) {
-  navigator.geolocation.getCurrentPosition(
-    (p) => {
-      if (state.running) return;
-      mapView.map.setView([p.coords.latitude, p.coords.longitude], MAP.zoom);
-      pickSource(p.coords.latitude, p.coords.longitude);
-      roadData.ensureCoverage(p.coords.latitude, p.coords.longitude, null);
-    },
-    () => { /* chưa cấp quyền cũng không sao, bấm Bắt đầu sẽ hỏi lại */ },
-    { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 },
-  );
-}
+await toggleRun(true);
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').catch(() => { /* không bắt buộc */ });

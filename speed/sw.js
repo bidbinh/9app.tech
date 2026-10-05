@@ -7,7 +7,7 @@
 //   - data/*.bin Range: đi thẳng ra mạng (IndexedDB đã cache từng ô).
 //   - Đổi CACHE_VERSION mỗi lần phát hành để máy đã cài PWA nhận worker mới.
 
-const CACHE_VERSION = 'v9';
+const CACHE_VERSION = 'v12';
 const SHELL_CACHE = `9speed-shell-${CACHE_VERSION}`;
 const TILE_CACHE = `9speed-tiles-${CACHE_VERSION}`;
 const TILE_LIMIT = 600;
@@ -100,7 +100,13 @@ self.addEventListener('fetch', (event) => {
   // trong IndexedDB rồi.
   if (request.headers.has('range') || url.pathname.includes('/data/s/')) return;
 
-  if (url.hostname.endsWith('tile.openstreetmap.org')) {
+  if (
+    url.hostname.endsWith('tile.openstreetmap.de') ||
+    url.hostname.endsWith('tile.openstreetmap.fr') ||
+    url.hostname.endsWith('arcgisonline.com') ||
+    url.hostname.endsWith('basemaps.cartocdn.com') ||
+    url.hostname.endsWith('tile.openstreetmap.org')
+  ) {
     event.respondWith((async () => {
       const cache = await caches.open(TILE_CACHE);
       const hit = await cache.match(request);
