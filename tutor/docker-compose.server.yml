@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
     env_file: .env
     mem_limit: 160m
+    # không publish cổng: chỉ nginx được gọi; mạng ops_tms-network dùng chung nên xem ghi chú trong README
     networks: [shipdb, tms]
 networks:
   shipdb:

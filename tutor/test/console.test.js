@@ -8,7 +8,8 @@ before(async () => { await boot(); });
 after(shutdown);
 
 const KEY = 'k-tutor'; const SECRET = 'bi-mat-kiem-thu-9tutor-0123456789abcdef';
-async function call(path, { method = 'GET', body = '', key = KEY, secret = SECRET, ts = Math.floor(Date.now() / 1000) } = {}) {
+let seq = 0;
+async function call(path, { method = 'GET', body = '', key = KEY, secret = SECRET, ts = Math.floor(Date.now() / 1000) - (seq++ % 100) } = {}) {
   const url = new URL(base + '/admin-api/v1' + path);
   const pathq = url.pathname + url.search;
   const headers = { 'x-console-key': key, 'x-console-ts': String(ts), 'x-console-sig': contract.sign(secret, String(ts), method, pathq, body) };
@@ -58,4 +59,12 @@ test('manifest, health, summary, users, user detail đều qua bộ kiểm tra c
   assert.equal((await call('/users/999999')).status, 404);
   assert.equal((await call('/users/abc')).status, 404);
   assert.ok(b && c);
+});
+
+test('phát lại đúng yêu cầu đã ký bị từ chối (401), yêu cầu mới thì qua', async () => {
+  config.consoleApiKeyId = KEY; config.consoleApiSecret = SECRET;
+  const ts = Math.floor(Date.now() / 1000) - 111;
+  assert.equal((await call('/health', { ts })).status, 200);
+  assert.equal((await call('/health', { ts })).status, 401);
+  assert.equal((await call('/health', { ts: ts + 1 })).status, 200);
 });

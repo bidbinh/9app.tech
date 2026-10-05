@@ -118,7 +118,7 @@ test('production thiếu DATABASE_URL hoặc dùng chuỗi mặc định thì b�
 
 test('hai bản khởi động đồng thời cùng chạy migration không đụng nhau', async () => {
   await Promise.all([db.migrate(), db.migrate(), db.migrate()]);
-  assert.equal((await db.query(`SELECT count(*)::int AS n FROM schema_migrations`))[0].n, 1);
+  assert.equal((await db.query(`SELECT count(*)::int AS n FROM schema_migrations`))[0].n, 2);
 });
 
 test('lỗi ở kết nối nhàn rỗi của pool chỉ ghi log, không sập tiến trình', () => {

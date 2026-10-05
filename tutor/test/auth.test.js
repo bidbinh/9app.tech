@@ -99,7 +99,9 @@ test('mã ghép/khôi phục bị giới hạn số lần thử theo IP', async 
     const c = new Client();
     for (let i = 0; i < 5; i++) assert.equal((await c.post('/api/devices/redeem', { code: 'ZZZZZZZZZZZZ' })).status, 404);
     assert.equal((await c.post('/api/devices/redeem', { code: 'ZZZZZZZZZZZZ' })).status, 429);
-    assert.equal((await c.post('/api/recover', { code: 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA' })).status, 429, 'dùng chung bộ đếm');
+    assert.equal((await c.post('/api/recover', { code: 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA' })).status, 404, 'bộ đếm khôi phục tách riêng bộ đếm ghép');
+    for (let i = 0; i < 4; i++) await c.post('/api/recover', { code: 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA' });
+    assert.equal((await c.post('/api/recover', { code: 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA' })).status, 429);
   } finally { config.recoverPerIpHour = old; resetHourly(); }
 });
 

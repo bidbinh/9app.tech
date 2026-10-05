@@ -13,7 +13,7 @@ Hai sản phẩm trong một (công cụ cho gia sư, sàn kết nối). **Bản
    - Giới hạn: 5 tài khoản mới mỗi IP mỗi giờ, 10 lần thử khôi phục/ghép mỗi IP mỗi giờ.
 2. **Tự khai tình trạng và pháp lý** (xem mục riêng): sinh viên, giáo viên trường công lập, giáo viên/người dạy khác, khác. Chọn bắt buộc trước khi dùng.
 3. **Học sinh**: tên, lớp, môn, phụ huynh (tên, SĐT, số Zalo nếu khác), ghi chú, mô hình học phí (theo buổi / theo tháng / gói N buổi) và mức phí, lưu trữ (ngừng dạy, giữ lịch sử). Tối đa 150 học sinh đang dạy.
-4. **Lịch dạy tuần lặp lại** (`slots`): thứ, giờ bắt đầu, thời lượng, nơi dạy, hiệu lực từ ngày. Buổi cụ thể (`lessons`) sinh ra theo yêu cầu khi xem lịch (idempotent, khóa duy nhất `(slot_id, slot_day)`), không sinh quá khứ. Thêm buổi lẻ, dời buổi, buổi bù.
+4. **Lịch dạy tuần lặp lại** (`slots`): thứ, giờ bắt đầu, thời lượng, nơi dạy, hiệu lực từ ngày. Buổi cụ thể (`lessons`) sinh ra theo yêu cầu khi xem lịch (idempotent, khóa duy nhất `(slot_id, slot_day)`). Ngày hiệu lực có thể lùi tối đa 60 ngày để ghi bù buổi đã dạy; màn Hôm nay sinh bù khoảng trống tối đa 90 ngày về trước. Lưu trữ học sinh thì lịch lặp tạm dừng và chạy lại khi khôi phục. Một buổi không được kéo qua nửa đêm (giới hạn có chủ ý). Thêm buổi lẻ, dời buổi, buổi bù.
 5. **Cảnh báo và chặn trùng lịch**: tạo lịch lặp, buổi lẻ, dời buổi đều kiểm tra chồng giờ với mọi buổi chưa hủy và lịch lặp của gia sư đó; trùng thì trả `409 schedule_conflict` kèm danh sách buổi trùng. Dạy nhóm có chủ ý thì gửi `allowOverlap: true` (giao diện hỏi "Vẫn xếp trùng?"). Kiểm tra chạy trong giao dịch khóa hàng gia sư nên hai yêu cầu đồng thời không lách được.
 6. **Điểm danh một chạm**: "Đã dạy" (ghi học phí buổi lúc đó, không đổi khi sau này sửa mức phí), "Học sinh nghỉ" (chọn tính phí hay không), "Gia sư hủy" (không bao giờ tính phí). Không điểm danh "đã dạy" cho ngày chưa đến. **Buổi bù**: từ buổi bị hủy hoặc học sinh nghỉ, xếp một buổi bù (mỗi buổi gốc tối đa một buổi bù); theo buổi thì buổi bù tính phí khi dạy, buổi gốc không tính (nếu gia sư chọn không tính).
 7. **Nhật ký buổi học**: nội dung, bài tập giao, nhận xét, mức tiếp thu 1 đến 5, ghi chú riêng (không bao giờ ra ngoài tài khoản gia sư).
@@ -32,6 +32,7 @@ Hai sản phẩm trong một (công cụ cho gia sư, sàn kết nối). **Bản
 ## Pháp lý dạy thêm: cách app xử lý (CẦN LUẬT SƯ XÁC NHẬN)
 Theo ghi chép đã có (Thông tư 29/2024/TT-BGDĐT, hiệu lực 14/02/2025; chưa được kiểm chứng bởi luật sư): dạy thêm có thu tiền ngoài nhà trường là hoạt động kinh doanh phải đăng ký theo quy định (có tranh luận về sinh viên làm gia sư); **giáo viên trường công lập không được tự tổ chức dạy thêm có thu tiền hay đăng ký đơn vị kinh doanh dạy thêm, chỉ được dạy với tư cách người lao động của cơ sở hợp pháp và phải báo hiệu trưởng**. Vì vậy:
 - Bắt buộc **tự khai tình trạng**; thay đổi được, có ghi thời điểm.
+- **Cần luật sư duyệt câu chữ cảnh báo trước khi ra mắt.** Điều cốt lõi theo ghi chép: giáo viên không dạy thêm có thu tiền cho chính học sinh mình dạy chính khóa. Phạm vi khóa thật chỉ là trang giới thiệu công khai; các công cụ ghi sổ vẫn dùng được, cảnh báo không kiểm tra hộ.
 - Giáo viên công lập: hiện **cảnh báo rõ** ở lần chọn và ở màn chính cài đặt; **khóa trang giới thiệu công khai** (máy chủ trả 403, tắt trang nếu đang bật khi đổi sang tình trạng này); app **không** có chức năng "đăng ký kinh doanh" hay hướng dẫn lách. Các công cụ ghi sổ khác vẫn dùng được (là sổ cá nhân), nhưng cảnh báo vẫn hiển thị.
 - Sinh viên và người dạy khác: nhắc "kiểm tra quy định đăng ký kinh doanh và nghĩa vụ thuế tại địa phương"; app không tư vấn pháp lý và không tính thuế.
 - Tên "học phí" chỉ là sổ ghi của gia sư; app không phải đơn vị cung cấp dịch vụ giáo dục.
@@ -53,3 +54,6 @@ Dữ liệu trẻ em là dữ liệu cá nhân nhạy cảm: không lưu ngày s
 
 ## Kiểm thử bắt buộc
 Đơn vị (VietQR/CRC, lịch, tính học phí). Tích hợp PostgreSQL thật: phân quyền và IDOR (mọi tài nguyên), link công khai (chỉ lộ đúng dữ liệu, thu hồi, tùy chọn học phí), không trùng lịch kể cả yêu cầu đồng thời, tính học phí/gói/thu một phần/thu đủ, nhập xấu (độ dài, ký tự điều khiển, số âm/quá lớn, ngày sai), giới hạn tần suất, CSRF, khôi phục và ghép thiết bị, trang công khai gia sư, Console contract. E2E Chrome 390×844 và màn rộng, sáng/tối, không lỗi console, ảnh vào `tutor/shots/`.
+
+## Lưu giữ dữ liệu
+`created_ip` giữ 30 ngày; tài khoản không hoạt động 365 ngày và chưa có học sinh (hoặc 730 ngày) bị xóa cứng. Trang giới thiệu `/g/` cố ý noindex; mã tạo lại được. Mã báo cáo lưu nguyên văn trong CSDL (đổi sang băm sẽ không gửi lại link được).

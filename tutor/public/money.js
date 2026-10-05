@@ -96,7 +96,7 @@
         }
         syncSms();
         var zalo = r.zaloPhone ? h('a', { class: 'btn ghost', href: 'https://zalo.me/' + r.zaloPhone, target: '_blank', rel: 'noopener noreferrer', onclick: function () { T9.copy(text(), 'Đã chép tin nhắn. Dán vào Zalo nhé'); } }, [T9.ico('chat', 18), 'Chép và mở Zalo']) : null;
-        body.appendChild(h('div', { class: 'btn-row' }, [T9.btn('Sao chép tin nhắn', 'primary', function () { T9.copy(text(), 'Đã sao chép tin nhắn'); }, null), zalo, r.phone ? sms : null]));
+        body.appendChild(h('div', { class: 'btn-row' }, [T9.btn('Sao chép tin nhắn', 'primary', function () { T9.copy(text(), 'Đã sao chép tin nhắn'); }), zalo, r.phone ? sms : null]));
         if (!r.phone) body.appendChild(h('div', { class: 'hint', text: 'Chưa có số điện thoại phụ huynh nên chưa mở Zalo hay SMS được. Sửa hồ sơ học sinh để thêm số.' }));
         if (r.balance > 0) {
           if (r.hasBank) {

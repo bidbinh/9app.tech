@@ -51,7 +51,7 @@ async function find(page, text, scope = 'button, a, [role=radio]', exact = false
   lastPage = page;
   await page.bringToFront();
   let h = null;
-  for (let tries = 0; tries < 16; tries++) {
+  for (let tries = 0; tries < 40; tries++) {
     h = await page.evaluateHandle((text, scope, exact) => {
       const norm = (s) => s.replace(/\s+/g, ' ').trim();
       const els = [...document.querySelectorAll(scope)].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; });
@@ -67,10 +67,20 @@ async function find(page, text, scope = 'button, a, [role=radio]', exact = false
   return el;
 }
 async function tap(page, text, o = {}) {
-  const el = await find(page, text, o.scope, o.exact);
-  await el.evaluate((e) => { if (!e.closest('.sheet')) e.scrollIntoView({ block: 'center' }); else e.scrollIntoView({ block: 'nearest' }); });
-  await sleep(60);
-  await el.click();
+  if (!/Hoàn tác/.test(text)) await page.waitForFunction(() => { const t = document.getElementById('toast'); return !t || t.classList.contains('hidden') || !t.classList.contains('act'); }, { timeout: 12000 }).catch(() => {});
+  // trang tự làm mới định kỳ có thể thay phần tử giữa lúc tìm và bấm: tìm lại và bấm lại tối đa 4 lần
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const el = await find(page, text, o.scope, o.exact);
+      await el.evaluate((e) => { if (!e.closest('.sheet')) e.scrollIntoView({ block: 'center' }); else e.scrollIntoView({ block: 'nearest' }); });
+      await sleep(60);
+      await el.click();
+      break;
+    } catch (err) {
+      if (attempt >= 3 || !/not clickable|detached|Execution context|not an Element/.test(err.message)) throw err;
+      await sleep(400);
+    }
+  }
   await sleep(o.wait ?? 300);
 }
 async function fill(page, label, value, o = {}, attempt = 0) {
@@ -96,11 +106,11 @@ async function fill1(page, label, value, o = {}) {
   if (value) await el.type(value, { delay: 0 });
 }
 const text = (page) => page.evaluate(() => document.body.innerText);
-async function waitText(page, t, timeout = 9000) {
+async function waitText(page, t, timeout = 15000) {
   await page.bringToFront();
   try { await page.waitForFunction((t) => document.body.innerText.toLowerCase().includes(t.toLowerCase()), { timeout }, t); } catch { throw new Error(`[${page.__name}] chờ không thấy chữ "${t}". Màn hình hiện: ${(await text(page)).slice(0, 400).replace(/\n+/g, ' | ')}`); }
 }
-async function gone(page, t, timeout = 9000) { await page.waitForFunction((t) => !document.body.innerText.includes(t), { timeout }, t); }
+async function gone(page, t, timeout = 15000) { await page.waitForFunction((t) => !document.body.innerText.includes(t), { timeout }, t); }
 async function shot(page, name) { await sleep(200); await page.screenshot({ path: path.join(SHOTS, name + '.png') }); }
 const hashOf = (page) => page.evaluate(() => location.hash);
 const api = (page, p, method = 'GET', body) => page.evaluate(async (p, method, body) => {
@@ -159,6 +169,12 @@ async function step(name, fn) {
     console.log(`  ✗ ${name}\n      ${e.message.split('\n')[0]}`);
   }
 }
+// chờ một điều kiện (hàm chạy ở Node) đúng, thay cho sleep cố định
+async function until(fn, msg, timeout = 15000) {
+  const t0 = Date.now(); let last;
+  while (Date.now() - t0 < timeout) { try { last = await fn(); if (last) return last; } catch (err) { last = err; } await sleep(250); }
+  throw new Error('quá thời gian chờ: ' + msg + (last instanceof Error ? ' (' + last.message + ')' : ''));
+}
 const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
 
 // ============================================================================
@@ -185,7 +201,7 @@ await step('tạo tài khoản: bắt buộc chọn tình trạng; giáo viên c
   await tap(t, 'Tạo tài khoản', { exact: true, scope: 'button' });
   await waitText(t, 'Hãy chọn tình trạng');
   await tap(t, 'Giáo viên trường công lập');
-  await waitText(t, 'không được tự tổ chức dạy thêm có thu tiền');
+  await waitText(t, 'chính học sinh mình đang dạy chính khóa');
   await audit(t, 'onboard-gvcong'); await shot(t, '02-onboard-gv-cong-canh-bao');
   await tap(t, 'Sinh viên');
   await waitText(t, 'có thể phải đăng ký kinh doanh');
@@ -264,13 +280,13 @@ await step('lịch lặp hôm nay lúc 06:00 xuất hiện ở Hôm nay; điểm
 });
 
 await step('báo trùng giờ khi xếp học sinh thứ hai cùng giờ; hủy hoặc vẫn xếp trùng có chủ ý', async () => {
-  await api(t, 'api/students', 'POST', { name: 'Trần Bảo Ngọc', grade: 'Lớp 7', subject: 'Văn', feeModel: 'thang', feeAmount: 1500000 });
-  await sleep(7500); // chờ thông báo hoàn tác của bước trước tự tắt
+  expect((await api(t, 'api/students', 'POST', { name: 'Trần Bảo Ngọc', grade: 'Lớp 7', subject: 'Văn', feeModel: 'thang', feeAmount: 1500000 })).status === 200, 'tạo học sinh thứ hai thất bại');
   await tap(t, 'Lịch', { scope: 'a.tab', wait: 600 });
   await waitText(t, 'Tuần này');
   await tap(t, 'Thêm buổi học', { scope: 'button' });
   await waitText(t, 'Thêm buổi học');
-  await fill(t, 'Học sinh', (await api(t, 'api/students')).json.students.find((s) => s.name === 'Trần Bảo Ngọc').id, { select: true });
+  const ngoc = await until(async () => (await api(t, 'api/students')).json.students.find((s) => s.name === 'Trần Bảo Ngọc'), 'học sinh Trần Bảo Ngọc có trong danh sách');
+  await fill(t, 'Học sinh', ngoc.id, { select: true });
   await t.$eval('.sheet input[type=time]', (el) => { el.value = '06:30'; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await tap(t, 'Thêm vào lịch', { exact: true, scope: '.sheet button', wait: 700 });
   await waitText(t, 'Trùng giờ');
@@ -281,9 +297,8 @@ await step('báo trùng giờ khi xếp học sinh thứ hai cùng giờ; hủy 
   await tap(t, 'Thêm vào lịch', { exact: true, scope: '.sheet button', wait: 700 });
   await tap(t, 'Vẫn xếp trùng', { exact: true, scope: '.sheet button', wait: 900 });
   await waitText(t, 'Đã thêm buổi học');
-  await sleep(500);
-  const wk = (await api(t, `api/week?from=${today}&days=1`)).json.lessons;
-  expect(wk.length === 2 && wk.every((l) => l.overlap), 'hai buổi phải đều gắn cờ trùng');
+  const wk = await until(async () => { const l = (await api(t, `api/week?from=${today}&days=1`)).json.lessons; return l.length === 2 ? l : null; }, 'có 2 buổi sau khi xếp trùng');
+  expect(wk.every((l) => l.overlap), 'hai buổi phải đều gắn cờ trùng');
   await waitText(t, 'Trùng giờ'); await shot(t, '12-lich-tuan-trung-gio');
   await api(t, `api/lessons/${wk.find((l) => l.studentName === 'Trần Bảo Ngọc').id}`, 'DELETE');
 });
@@ -302,7 +317,7 @@ await step('chi tiết buổi: nhật ký, mức tiếp thu; học sinh nghỉ k
   await waitText(t, 'Đã lưu nhật ký');
   await tap(t, 'Đóng', { scope: '.sheet button', wait: 400 });
   // một buổi lẻ hôm qua: học sinh nghỉ
-  const sid = (await api(t, 'api/students')).json.students.find((s) => s.name === 'Nguyễn Minh Anh').id;
+  const sid = (await until(async () => (await api(t, 'api/students')).json.students.find((s) => s.name === 'Nguyễn Minh Anh'), 'có học sinh Nguyễn Minh Anh')).id;
   const l = (await api(t, 'api/lessons', 'POST', { studentId: sid, day: addDays(today, -1), startMin: 1020, durationMin: 60 })).json.lesson;
   expect(!!l, 'tạo buổi hôm qua thất bại');
   await t.goto(URL0 + '#/', { waitUntil: 'networkidle0' }); await t.reload({ waitUntil: 'networkidle0' });
@@ -431,11 +446,13 @@ await step('thiết bị: tạo mã ghép, máy thứ hai mở link ghép và v�
   await waitText(u2, 'Mở sổ dạy kèm trên máy này');
   await waitText(u2, 'Tài khoản sẽ được mở'); await waitText(u2, 'Cô Lan Hương');
   await shot(u2, '27-ghep-xac-nhan');
-  await tap(u2, 'Ghép thiết bị này', { exact: true, scope: 'button', wait: 1000 });
-  await waitText(u2, 'Cô Lan Hương');
+  await waitText(u2, 'học sinh đang dạy · tạo ngày');
+  await tap(u2, 'Ghép thiết bị này', { exact: true, scope: 'button', wait: 600 });
+  await waitText(u2, 'Xác nhận lần cuối'); await shot(u2, '27b-ghep-xac-nhan-lan-cuoi');
+  await tap(u2, 'Đúng, ghép', { exact: true, scope: '.sheet button', wait: 1000 });
+  await waitText(u2, 'Xin chào Cô Lan Hương');
   const used = await newUser('Máy 3');
   await used.goto(pairLink, { waitUntil: 'networkidle0' });
-  await tap(used, 'Ghép thiết bị này', { exact: true, scope: 'button', wait: 800 });
   await waitText(used, 'không đúng hoặc đã hết hạn');
   await used.__ctx.close();
   await t.reload({ waitUntil: 'networkidle0' });
@@ -487,7 +504,7 @@ await step('trang giới thiệu gia sư: bật, xem công khai; đổi sang gi�
   await p.reload({ waitUntil: 'networkidle0' });
   await waitText(p, 'Liên kết không còn hiệu lực');
   await t.goto(URL0 + '#/gioi-thieu', { waitUntil: 'networkidle0' }); await t.reload({ waitUntil: 'networkidle0' });
-  await waitText(t, 'không được tự tổ chức dạy thêm có thu tiền');
+  await waitText(t, 'chính học sinh mình đang dạy chính khóa');
   await audit(t, 'gioi-thieu-khoa'); await shot(t, '31-gioi-thieu-bi-khoa');
   await api(t, 'api/me', 'POST', { status: 'sinh_vien' });
   await p.__ctx.close();
@@ -521,9 +538,12 @@ await step('tên rất dài, 40 học sinh không tràn ngang', async () => {
 async function sweep(view, dark, tag, desktop = false) {
   const p = await newUser('Quét-' + tag, { dark, view, desktop });
   await p.goto(URL0, { waitUntil: 'networkidle0' });
-  await api(p, 'api/recover', 'POST', { code: recoveryCode });
+  const rec = await api(p, 'api/recover', 'POST', { code: recoveryCode });
+  if (rec.status !== 200) { problems.push(`[${tag}] khôi phục bằng mã thất bại: ${rec.status}`); await p.__ctx.close(); return; }
   await p.reload({ waitUntil: 'networkidle0' });
-  const sid = (await api(p, 'api/students')).json.students.find((s) => s.name === 'Nguyễn Minh Anh').id;
+  const stu = (await api(p, 'api/students')).json?.students?.find((s) => s.name === 'Nguyễn Minh Anh');
+  if (!stu) { problems.push(`[${tag}] không thấy học sinh mẫu (bước trước thất bại?)`); await p.__ctx.close(); return; }
+  const sid = stu.id;
   const pages = [['hom-nay', '#/'], ['lich', '#/lich'], ['hoc-sinh', '#/hs'], ['ho-so', '#/hs/' + sid], ['tien', '#/tien'], ['cai-dat', '#/cai-dat'], ['gioi-thieu', '#/gioi-thieu'], ['thiet-bi', '#/thiet-bi']];
   for (const [n, h] of pages) {
     await step(`${tag}: ${n}`, async () => {

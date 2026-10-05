@@ -178,7 +178,11 @@
     toastTimer = setTimeout(function () { t.className = 'toast hidden'; }, kind === 'err' ? 6000 : 3000);
   };
   T9.fail = function (e) {
-    if (e && e.status === 401) { T9.me = null; T9.go('#/'); return; }
+    if (e && e.status === 401) {
+      // đang có bảng nhập mở thì giữ nguyên nội dung đang gõ, chỉ báo phiên hết hạn
+      if (T9.sheetOpen()) { T9.toast('Phiên đăng nhập đã hết hạn. Hãy sao chép nội dung đang gõ, rồi mở lại tài khoản bằng mã khôi phục.', 'err'); return; }
+      T9.me = null; T9.go('#/'); return;
+    }
     T9.toast((e && e.message) || 'Có lỗi xảy ra, thử lại nhé', 'err');
   };
 

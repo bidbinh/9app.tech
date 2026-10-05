@@ -155,6 +155,19 @@ export function publicRoutes(app) {
     return { profile: profileJson(row) };
   }, { limit: 30 });
 
+  // Tạo lại mã trang giới thiệu (mã cũ ngừng hoạt động ngay), dùng khi lỡ chia sẻ nhầm
+  app.route('POST', '/api/profile/regenerate-code', async (ctx) => {
+    const t = requireTutor(ctx);
+    for (let i = 0; i < 6; i++) {
+      try {
+        const r = await query('UPDATE profiles SET code=$2, updated_at=now() WHERE tutor_id=$1 RETURNING *', [t.id, randomCode(10)]);
+        if (!r.length) throw new ApiError(404, 'not_found', 'Bạn chưa lập trang giới thiệu');
+        return { profile: profileJson(r[0]) };
+      } catch (e) { if (e.code !== '23505') throw e; }
+    }
+    throw new ApiError(500, 'internal', 'Không tạo được mã mới, thử lại');
+  }, { limit: 10 });
+
   async function publicProfile(code) {
     if (!/^[A-HJ-NP-Z2-9]{10}$/.test(String(code))) throw gone();
     const p = (await query(

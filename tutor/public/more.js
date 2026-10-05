@@ -125,6 +125,10 @@
           h('div', { class: 'btn-row' }, [T9.btn('Sao chép', 'primary', function () { T9.copy(url, 'Đã sao chép liên kết'); }),
             navigator.share ? T9.btn('Chia sẻ', 'ghost', function () { navigator.share({ title: headline.value, url: url }).catch(function () {}); }) : null,
             h('a', { class: 'btn ghost', href: url, target: '_blank', rel: 'noopener' }, [T9.ico('eye', 18), 'Xem trang'])]),
+          h('div', { class: 'btn-row' }, [T9.btn('Tạo lại mã trang', 'ghost sm danger-t', function () {
+            T9.confirm({ title: 'Tạo lại mã trang?', text: 'Liên kết hiện tại ngừng hoạt động ngay. Bạn cần chia sẻ lại liên kết mới.', ok: 'Tạo lại', danger: true }).then(function (y) { if (y) T9.post('api/profile/regenerate-code').then(function (r) { p = r.profile; T9.toast('Đã tạo mã mới'); showLink(); }, T9.fail); });
+          })]),
+          h('div', { class: 'hint', text: 'Trang này cố ý không cho công cụ tìm kiếm lập chỉ mục; chỉ ai có liên kết mới xem được.' }),
         ]));
       }
       var nodes = [];

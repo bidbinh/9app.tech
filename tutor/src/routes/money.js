@@ -18,7 +18,7 @@ async function ledgerFull(q, tutorId) {
 
 export function reminderMessage(st, tutor, bal, content) {
   const who = st.parent_name ? `anh/chị ${st.parent_name}` : 'anh/chị';
-  const lines = [`Chào ${who}. Mình gửi ${who === 'anh/chị' ? 'anh/chị' : 'anh/chị'} thông tin học phí của bé ${st.name}${st.subject ? ' (' + st.subject + ')' : ''}:`];
+  const lines = [`Chào ${who}. Mình xin gửi thông tin học phí của bé ${st.name}${st.subject ? ' (' + st.subject + ')' : ''}:`];
   lines.push(`- Tổng học phí đến nay: ${vnd(bal.total)}`);
   lines.push(`- Đã thu: ${vnd(bal.paid)}`);
   if (bal.balance > 0) lines.push(`- Còn lại: ${vnd(bal.balance)}`);

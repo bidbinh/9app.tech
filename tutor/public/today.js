@@ -119,6 +119,7 @@
           function send(st, extra) {
             T9.post('/api/lessons/' + l.id + '/mark', Object.assign({ status: st }, extra)).then(function (r2) {
               l = r2.lesson; done(); render(l);
+              if (r2.warning) T9.toast(r2.warning, 'err');
               if (r2.pkgLeft !== null && r2.pkgLeft !== undefined && r2.pkgLeft < 0) T9.toast('Đã dạy vượt số buổi của gói', 'err');
             }, T9.fail);
           }
@@ -132,7 +133,7 @@
               var inp = T9.money({ value: String(l.fee), 'aria-label': 'Học phí buổi này' });
               var save = T9.btn('Lưu', 'primary block', function () {
                 var v = T9.parseMoney(inp.value); if (isNaN(v) || v < 0) { T9.toast('Số tiền chưa đúng', 'err'); return; }
-                return T9.busy(save, function () { return T9.post('/api/lessons/' + l.id + '/mark', { status: l.status, fee: v, billable: l.billable }).then(function (r2) { l = r2.lesson; close2(); done(); render(l); }); });
+                return T9.busy(save, function () { return T9.post('/api/lessons/' + l.id + '/mark', { status: l.status, fee: v, billable: l.billable }).then(function (r2) { l = r2.lesson; close2(); done(); render(l); if (r2.warning) T9.toast(r2.warning, 'err'); }); });
               });
               b2.appendChild(T9.field('Số tiền (đ)', inp, 'Ví dụ 200000 hoặc 200k')); b2.appendChild(save);
             });
@@ -195,7 +196,7 @@
               var go = T9.btn('Xếp buổi bù', 'primary block', function () {
                 var sm = T9.minOf(t.value); if (!d.value || isNaN(sm)) { T9.toast('Hãy chọn ngày và giờ', 'err'); return; }
                 return T9.busy(go, function () {
-                  return T9.tryOverlap(function (allow) { return T9.post('/api/lessons', { makeupOf: l.id, day: d.value, startMin: sm, durationMin: +dur.value, location: l.location, allowOverlap: allow }); }).then(function (r2) { if (!r2) return; l.hasMakeup = true; close2(); done(); render(l); T9.toast('Đã xếp buổi bù ' + T9.dm(r2.lesson.day)); });
+                  return T9.tryOverlap(function (allow) { return T9.post('/api/lessons', { makeupOf: l.id, day: d.value, startMin: sm, durationMin: +dur.value, location: l.location, allowOverlap: allow }); }).then(function (r2) { if (!r2) return; l.hasMakeup = true; close2(); done(); render(l); T9.toast(r2.warning || ('Đã xếp buổi bù ' + T9.dm(r2.lesson.day)), r2.warning ? 'err' : ''); });
                 });
               });
               b2.appendChild(h('p', { class: 'muted', text: 'Buổi gốc không tính học phí nếu bạn chọn không tính. Buổi bù tính học phí khi bạn điểm danh "Đã dạy".' }));
@@ -228,7 +229,7 @@
           });
         });
         body.appendChild(T9.field('Học sinh', sel)); body.appendChild(T9.field('Ngày', d)); body.appendChild(T9.field('Giờ bắt đầu', t));
-        body.appendChild(T9.field('Thời lượng', dur)); body.appendChild(T9.field('Nơi dạy (tùy chọn)', loc));
+        body.appendChild(T9.field('Thời lượng', dur, 'Một buổi học không được kéo qua nửa đêm.')); body.appendChild(T9.field('Nơi dạy (tùy chọn)', loc));
         body.appendChild(h('div', { class: 'btn-row' }, [go]));
       });
     }, T9.fail);
@@ -236,10 +237,11 @@
 
   // ---------- màn Hôm nay ----------
   T9.today = function () {
+    T9.od = 0;
     T9.frame({ title: 'Hôm nay', tab: 'hom', right: [h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Thêm buổi học', onclick: function () { T9.addLessonSheet(T9._today || new Date().toISOString().slice(0, 10)); } }, [T9.ico('plus', 24)])] });
     T9.skeleton();
     T9.live({
-      fetch: function () { return T9.get('api/today'); },
+      fetch: function () { return T9.get('api/today' + (T9.od ? '?od=' + T9.od : '')); },
       render: renderToday, every: 30000,
     }).catch(function (e) { T9.loadError(e, T9.today); });
   };
@@ -268,8 +270,10 @@
         T9.link('#/hs/' + p.studentId, { class: 'linkbtn' }, ['Mở hồ sơ'])));
     });
     if (d.overdue.length) {
-      nodes.push(h('div', { class: 'sec', text: 'Chưa điểm danh (' + d.overdue.length + ')' }));
+      nodes.push(h('div', { class: 'sec', text: 'Chưa điểm danh (' + d.overdueTotal + ')' }));
       nodes.push(h('div', { class: 'lcards' }, d.overdue.map(function (l) { return withDay(l, d.today, onChange); })));
+      if (d.overdueTotal > d.overdueOffset + d.overdue.length) nodes.push(T9.btn('Xem thêm buổi cũ hơn', 'ghost', function () { T9.od = (T9.od || 0) + 30; T9.refresh(true); }));
+      if (d.overdueOffset > 0) nodes.push(T9.btn('Về các buổi mới nhất', 'ghost', function () { T9.od = 0; T9.refresh(true); }));
     }
     nodes.push(h('div', { class: 'sec', text: 'Hôm nay (' + d.lessons.length + ' buổi)' }));
     if (d.lessons.length) nodes.push(h('div', { class: 'lcards' }, d.lessons.map(function (l) { return T9.lessonCard(l, { today: d.today, onChange: onChange }); })));

@@ -141,7 +141,7 @@
         });
       });
       body.appendChild(h('div', { class: 'field' }, [h('div', { class: 'lab', text: 'Thứ' }), chips]));
-      body.appendChild(T9.field('Giờ bắt đầu', t)); body.appendChild(T9.field('Thời lượng', dur)); body.appendChild(T9.field('Nơi dạy (tùy chọn)', loc));
+      body.appendChild(T9.field('Giờ bắt đầu', t)); body.appendChild(T9.field('Thời lượng', dur, 'Một buổi học không được kéo qua nửa đêm.')); body.appendChild(T9.field('Nơi dạy (tùy chọn)', loc));
       body.appendChild(T9.field('Bắt đầu từ ngày', from, 'Chọn ngày trong quá khứ nếu muốn ghi bù các buổi đã dạy.'));
       body.appendChild(h('div', { class: 'btn-row' }, [go]));
     });
@@ -191,7 +191,7 @@
 
       // lịch lặp
       nodes.push(h('div', { class: 'card' }, [
-        h('div', { class: 'row sb' }, [h('h2', { text: 'Lịch dạy hằng tuần' }), s.active ? T9.btn('Thêm', 'ghost sm', function () { slotSheet(s, onChange); }) : null]),
+        h('div', { class: 'row sb' }, [h('h2', { text: 'Lịch dạy hằng tuần' }), s.active ? T9.btn('Thêm', 'ghost sm', function () { slotSheet(s, onChange); }) : T9.chip('Tạm dừng', 'warn')]),
         d.slots.length ? h('ul', { class: 'plain' }, d.slots.map(function (sl) {
           return h('li', { class: 'row sb' }, [
             h('div', { class: 'col' }, [h('span', { class: 'b', text: T9.DOW[sl.weekday] }), ' ', T9.timeRange(sl.startMin, sl.durationMin), sl.location ? h('div', { class: 'muted small', text: sl.location }) : null]),
@@ -199,7 +199,7 @@
               T9.confirm({ title: 'Dừng lịch này?', text: 'Các buổi từ hôm nay trở đi chưa ghi chép sẽ bị gỡ. Lịch sử giữ nguyên.', ok: 'Dừng lịch', danger: true }).then(function (y) { if (y) T9.del('api/slots/' + sl.id).then(onChange, T9.fail); });
             } }),
           ]);
-        })) : h('p', { class: 'muted', text: s.active ? 'Chưa có lịch lặp. Thêm lịch để buổi học tự hiện mỗi tuần, hoặc thêm buổi lẻ.' : 'Học sinh đã nghỉ nên không còn lịch.' }),
+        })) : h('p', { class: 'muted', text: s.active ? 'Chưa có lịch lặp. Thêm lịch để buổi học tự hiện mỗi tuần, hoặc thêm buổi lẻ.' : 'Lịch lặp được giữ nhưng đang tạm dừng vì học sinh đã nghỉ; khôi phục học sinh thì lịch chạy lại.' }),
         s.active ? h('div', { class: 'btn-row' }, [T9.btn('Thêm buổi lẻ', 'ghost sm', function () { T9.addLessonSheet(T9._today || new Date().toISOString().slice(0, 10), onChange); })]) : null,
       ]));
 
@@ -230,7 +230,7 @@
       nodes.push(h('div', { class: 'card' }, [h('h2', { text: 'Quản lý hồ sơ' }), h('div', { class: 'btn-row' }, [
         T9.btn(s.active ? 'Ngừng dạy (lưu trữ)' : 'Khôi phục học sinh', 'ghost', function () {
           if (!s.active) { T9.post('api/students/' + s.id + '/archive', { active: true }).then(function () { T9.toast('Đã khôi phục'); onChange(); }, T9.fail); return; }
-          T9.confirm({ title: 'Ngừng dạy học sinh này?', text: 'Lịch hằng tuần dừng, liên kết phụ huynh bị thu hồi. Lịch sử và sổ nợ vẫn giữ để bạn xem lại.', ok: 'Ngừng dạy', danger: true }).then(function (y) { if (y) T9.post('api/students/' + s.id + '/archive', { active: false }).then(function () { T9.toast('Đã lưu trữ'); onChange(); }, T9.fail); });
+          T9.confirm({ title: 'Ngừng dạy học sinh này?', text: 'Lịch hằng tuần tạm dừng (khôi phục học sinh thì chạy lại), liên kết phụ huynh bị thu hồi. Lịch sử và sổ nợ vẫn giữ để bạn xem lại.', ok: 'Ngừng dạy', danger: true }).then(function (y) { if (y) T9.post('api/students/' + s.id + '/archive', { active: false }).then(function () { T9.toast('Đã lưu trữ'); onChange(); }, T9.fail); });
         }),
         T9.btn('Xóa hẳn', 'ghost danger-t', function () {
           T9.confirm({ title: 'Xóa hẳn ' + s.name + '?', text: 'Toàn bộ buổi học, nhật ký, học phí và liên kết của học sinh này sẽ bị xóa vĩnh viễn, không khôi phục được.', ok: 'Xóa vĩnh viễn', danger: true }).then(function (y) { if (y) T9.del('api/students/' + s.id).then(function () { T9.toast('Đã xóa'); T9.go('#/hs'); }, T9.fail); });

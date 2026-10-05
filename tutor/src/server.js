@@ -15,6 +15,10 @@ export async function maintenance() {
   await query("DELETE FROM sessions WHERE last_used_at < now() - make_interval(days => $1)", [config.sessionDays]);
   await query("DELETE FROM pair_codes WHERE expires_at < now() - interval '1 day'");
   await query("DELETE FROM idem WHERE created_at < now() - interval '2 days'");
+  // chính sách lưu giữ: IP tạo tài khoản chỉ giữ 30 ngày (để giới hạn theo giờ); tài khoản bỏ hoang bị xóa cứng
+  // (không hoạt động 365 ngày và chưa có học sinh, hoặc không hoạt động 730 ngày)
+  await query("UPDATE tutors SET created_ip = NULL WHERE created_ip IS NOT NULL AND created_at < now() - interval '30 days'");
+  await query("DELETE FROM tutors t WHERE t.last_seen_at < now() - interval '730 days' OR (t.last_seen_at < now() - interval '365 days' AND NOT EXISTS (SELECT 1 FROM students s WHERE s.tutor_id = t.id))");
 }
 
 export function buildApp() {

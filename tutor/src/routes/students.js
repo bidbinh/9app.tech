@@ -142,7 +142,8 @@ export function studentRoutes(app) {
       }
       await c.query('UPDATE students SET active=$2 WHERE id=$1', [st.id, active]);
       if (!active) {
-        await endSlots(c, t.id, 'student_id=$3', [st.id]);
+        // lịch lặp được giữ ở trạng thái tạm dừng (học sinh không còn hoạt động nên không sinh buổi); khôi phục thì chạy lại
+        await c.query(`DELETE FROM lessons WHERE tutor_id=$1 AND student_id=$2 AND day >= $3 AND status='du_kien' AND slot_id IS NOT NULL AND day = slot_day AND topic='' AND homework='' AND comment='' AND private_note=''`, [t.id, st.id, todayVN()]);
         // link phụ huynh của học sinh đã nghỉ không còn hiệu lực
         await c.query('UPDATE share_links SET revoked_at=now() WHERE student_id=$1 AND revoked_at IS NULL', [st.id]);
       }

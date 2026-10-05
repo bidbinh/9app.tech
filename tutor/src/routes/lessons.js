@@ -41,11 +41,14 @@ export function lessonRoutes(app) {
   app.route('GET', '/api/today', async (ctx) => {
     const t = requireTutor(ctx);
     const today = todayVN();
-    await materialize(query, t.id, addDays(today, -14), addDays(today, 14));
+    // sinh bù khoảng trống nếu lâu không mở app (tối đa 90 ngày về trước)
+    await materialize(query, t.id, addDays(today, -90), addDays(today, 14));
     const todays = await query(
       `SELECT ${LESSON_SELECT} FROM lessons l JOIN students s ON s.id=l.student_id WHERE l.tutor_id=$1 AND l.day=$2 ORDER BY l.start_min`, [t.id, today]);
+    const od = ctx.query.od ? intIn(ctx.query.od, { min: 0, max: 100000, field: 'od' }) : 0;
+    const overdueTotal = (await query(`SELECT count(*)::int AS n FROM lessons WHERE tutor_id=$1 AND day < $2 AND status='du_kien' AND student_id IN (SELECT id FROM students WHERE tutor_id=$1 AND active)`, [t.id, today]))[0].n;
     const overdue = await query(
-      `SELECT ${LESSON_SELECT} FROM lessons l JOIN students s ON s.id=l.student_id WHERE l.tutor_id=$1 AND l.day < $2 AND l.day >= $3 AND l.status='du_kien' ORDER BY l.day DESC, l.start_min LIMIT 30`, [t.id, today, addDays(today, -30)]);
+      `SELECT ${LESSON_SELECT} FROM lessons l JOIN students s ON s.id=l.student_id WHERE l.tutor_id=$1 AND l.day < $2 AND l.status='du_kien' AND s.active ORDER BY l.day DESC, l.start_min LIMIT 30 OFFSET $3`, [t.id, today, od]);
     const upcoming = await query(
       `SELECT ${LESSON_SELECT} FROM lessons l JOIN students s ON s.id=l.student_id WHERE l.tutor_id=$1 AND l.day > $2 AND l.day <= $3 AND l.status='du_kien' ORDER BY l.day, l.start_min LIMIT 6`, [t.id, today, addDays(today, 14)]);
     const bal = await balances(query, t.id);
@@ -63,7 +66,7 @@ export function lessonRoutes(app) {
     return {
       today,
       lessons: flagOverlaps(todays.map(lessonJson)),
-      overdue: overdue.map(lessonJson),
+      overdue: overdue.map(lessonJson), overdueTotal, overdueOffset: od,
       upcoming: upcoming.map(lessonJson),
       stats: { month: monthOf(today), collected: m.collected, taught: m.taught, owed, debtors, students: students.length },
       lowPackages,
@@ -88,12 +91,13 @@ export function lessonRoutes(app) {
       await c.query('SELECT id FROM tutors WHERE id=$1 FOR UPDATE', [t.id]);
       const n = (await c.query('SELECT count(*)::int AS n FROM lessons WHERE tutor_id=$1', [t.id]))[0].n;
       if (n >= config.maxLessons) throw new ApiError(429, 'limit', 'Đã đạt giới hạn số buổi học lưu trữ.');
-      let studentId; let makeupOf = null;
+      let studentId; let makeupOf = null; let warning = null;
       if (b.makeupOf) {
         const src = await ownLesson(c.query, t.id, b.makeupOf, { lock: true });
         if (src.status !== 'hs_nghi' && src.status !== 'gs_huy') throw new ApiError(409, 'invalid_state', 'Chỉ xếp buổi bù cho buổi đã hủy hoặc học sinh nghỉ');
         if (src.makeup_of) throw new ApiError(409, 'invalid_state', 'Buổi này đã là buổi bù, không xếp bù tiếp');
         studentId = src.student_id; makeupOf = src.id;
+        if (src.status === 'hs_nghi' && src.billable) warning = 'Buổi nghỉ gốc đã tính học phí. Buổi bù cũng sẽ tính học phí khi bạn điểm danh "Đã dạy", nên phụ huynh có thể bị tính hai lần. Nếu không muốn, hãy chuyển buổi gốc sang "không tính".';
       } else {
         studentId = (await ownStudent(c.query, t.id, b.studentId)).id;
         const st = (await c.query('SELECT active FROM students WHERE id=$1', [studentId]))[0];
@@ -114,7 +118,7 @@ export function lessonRoutes(app) {
         if (e.code === '23505') throw new ApiError(409, 'invalid_state', 'Buổi này đã có buổi bù rồi');
         throw e;
       }
-      return { lesson: await lessonView(c.query, t.id, row.id) };
+      return { lesson: await lessonView(c.query, t.id, row.id), ...(warning ? { warning } : {}) };
     });
   }, { limit: 120 });
 
@@ -137,7 +141,8 @@ export function lessonRoutes(app) {
         `UPDATE lessons SET status=$2, billable=$3, billing=$4, fee=$5, marked_at=CASE WHEN $2='du_kien' THEN NULL ELSE now() END, updated_at=now() WHERE id=$1`,
         [l.id, status, billable, billing, fee]);
       const bal = (await balances(c.query, t.id, [l.student_id])).get(l.student_id);
-      return { lesson: await lessonView(c.query, t.id, l.id), balance: bal.balance, pkgLeft: st.fee_model === 'goi' || bal.pkgBought ? bal.pkgLeft : null };
+      const feeIgnored = feeOverride !== null && (status === 'da_day' || (status === 'hs_nghi' && ctx.body.billable === true)) && st.fee_model !== 'buoi';
+      return { lesson: await lessonView(c.query, t.id, l.id), ...(feeIgnored ? { warning: 'Học sinh tính học phí theo ' + (st.fee_model === 'thang' ? 'tháng' : 'gói') + ' nên học phí riêng cho buổi này không được áp dụng.' } : {}), balance: bal.balance, pkgLeft: st.fee_model === 'goi' || bal.pkgBought ? bal.pkgLeft : null };
     });
   }, { limit: 240 });
 

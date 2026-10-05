@@ -26,6 +26,7 @@ function verify(ctx) {
   const k = ts + ':' + got.toString();
   const now = Date.now();
   for (const [key, at] of seen) if (now - at > (MAX_SKEW_S + 30) * 1000) seen.delete(key);
+  if (seen.has(k)) throw new ApiError(401, 'unauthorized', 'Yêu cầu bị phát lại');
   seen.set(k, now);
 }
 

@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import net from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { ApiError } from './errors.js';
@@ -37,7 +38,19 @@ function compilePath(p) {
 let indexCache = null;
 function indexHtml() {
   if (!indexCache) indexCache = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
-  return indexCache.replaceAll('__BASE__', config.basePath + '/');
+  return indexCache.replaceAll('__BASE__', () => config.basePath + '/');
+}
+
+export function normIp(ip) {
+  let s = String(ip || '').trim().replace(/^::ffff:/i, '');
+  if (!s.includes(':')) return s;
+  if (net.isIPv6(s)) {
+    const [head, tail] = s.split('::');
+    const h = head ? head.split(':') : []; const t = tail ? tail.split(':') : [];
+    const full = s.includes('::') ? [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t] : h;
+    return full.slice(0, 4).map((x) => x.replace(/^0+(?=.)/, '').toLowerCase()).join(':') + '::/64';
+  }
+  return s;
 }
 
 export function createApp() {
@@ -60,11 +73,16 @@ export function createApp() {
     return h.n > limit;
   }
 
-  // nginx đặt X-Forwarded-For = $remote_addr nên lấy phần tử đầu
+  // Lấy phần tử CUỐI của X-Forwarded-For (do proxy gần nhất ghi, khách không giả được); TRUSTED_PROXY_HOPS = số proxy tin cậy.
+  // IPv6 gom về /64 để một máy không đổi địa chỉ mà né giới hạn.
   function clientIp(req) {
+    const hops = config.trustedProxyHops;
     const xf = req.headers['x-forwarded-for'];
-    if (xf) return String(xf).split(',')[0].trim();
-    return req.socket.remoteAddress || '';
+    if (hops > 0 && xf) {
+      const parts = String(xf).split(',').map((x) => x.trim()).filter(Boolean);
+      if (parts.length) return normIp(parts[Math.max(0, parts.length - hops)]);
+    }
+    return normIp(req.socket.remoteAddress || '');
   }
 
   function readBody(req) {
@@ -93,7 +111,7 @@ export function createApp() {
   }
 
   function sendPage(res, extra = {}) {
-    const html = indexHtml().replace('<!--META-->', extra.meta || '');
+    const html = indexHtml().replace('<!--META-->', () => extra.meta || '');
     res.writeHead(200, {
       'content-type': MIME['.html'], 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin',
       'cache-control': 'no-cache', 'content-security-policy': CSP, ...(extra.headers || {}),
@@ -213,6 +231,7 @@ export function createApp() {
     }
   }
 
+  setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.reset < now) hits.delete(k); }, 60_000).unref();
   const server = http.createServer((req, res) => { handle(req, res); });
   server.requestTimeout = 30_000;
 

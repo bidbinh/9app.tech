@@ -115,16 +115,16 @@ export function accountRoutes(app) {
   // Xem trước tài khoản mà mã ghép sẽ mở (không đốt mã): để người bấm biết có đúng tài khoản của mình không,
   // tránh bị lừa mở link ghép vào tài khoản của kẻ khác
   app.route('POST', '/api/devices/peek', async (ctx) => {
-    if (hourlyHit('rec:' + ctx.ip, config.recoverPerIpHour * 3)) throw tooMany();
+    if (hourlyHit('peek:' + ctx.ip, config.recoverPerIpHour * 3)) throw tooMany();
     const code = normCode(ctx.body.code);
     if (code.length !== 12) throw new ApiError(404, 'not_found', 'Mã ghép không đúng hoặc đã hết hạn');
-    const r = (await query('SELECT t.name FROM pair_codes p JOIN tutors t ON t.id = p.tutor_id WHERE p.code_hash=$1 AND p.expires_at > now()', [sha256hex(code)]))[0];
+    const r = (await query('SELECT t.name, t.created_at, (SELECT count(*)::int FROM students s WHERE s.tutor_id = t.id AND s.active) AS students FROM pair_codes p JOIN tutors t ON t.id = p.tutor_id WHERE p.code_hash=$1 AND p.expires_at > now()', [sha256hex(code)]))[0];
     if (!r) throw new ApiError(404, 'not_found', 'Mã ghép không đúng hoặc đã hết hạn');
-    return { name: r.name };
+    return { name: r.name, students: r.students, createdAt: r.created_at };
   }, { limit: 30 });
 
   app.route('POST', '/api/devices/redeem', async (ctx) => {
-    if (hourlyHit('rec:' + ctx.ip, config.recoverPerIpHour)) throw tooMany();
+    if (hourlyHit('pair:' + ctx.ip, config.recoverPerIpHour)) throw tooMany();
     const code = normCode(ctx.body.code);
     if (code.length !== 12) throw new ApiError(404, 'not_found', 'Mã ghép không đúng hoặc đã hết hạn');
     const t = await tx(async (c) => {

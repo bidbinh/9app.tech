@@ -13,13 +13,14 @@
 
   // Thông điệp pháp lý theo tình trạng tự khai. Đây là nhắc nhở chung, không phải tư vấn pháp lý.
   T9.legalNotice = function (status) {
+    var TAIL = ' Đây là ghi chép của chúng tôi, chưa được luật sư xác nhận và không phải tư vấn pháp lý. Hãy hỏi phòng giáo dục hoặc cơ quan có thẩm quyền ở địa phương.';
     if (status === 'giao_vien_cong') {
       return T9.notice('warn', 'Lưu ý dành cho giáo viên trường công lập',
-        'Theo quy định hiện hành về dạy thêm, học thêm (Thông tư 29/2024/TT-BGDĐT), giáo viên trường công lập không được tự tổ chức dạy thêm có thu tiền hoặc đăng ký kinh doanh dạy thêm; chỉ được dạy với tư cách người lao động của cơ sở dạy thêm hợp pháp và phải báo cáo hiệu trưởng. 9tutor chỉ là sổ ghi chép cá nhân, không hỗ trợ đăng ký kinh doanh và sẽ không mở trang giới thiệu công khai cho tình trạng này. Hãy tự kiểm tra quy định của trường và địa phương.');
+        'Theo ghi chép của chúng tôi về Thông tư 29/2024/TT-BGDĐT, giáo viên không được dạy thêm có thu tiền đối với chính học sinh mình đang dạy chính khóa, không được tự tổ chức hay đăng ký kinh doanh dạy thêm; nếu dạy ở cơ sở hợp pháp thì phải theo quy định của nhà trường. 9tutor chỉ là sổ ghi chép nên không kiểm tra những điều này giúp bạn. Duy nhất việc 9tutor khóa là trang giới thiệu công khai (không mở cho tình trạng này); các công cụ ghi sổ vẫn dùng được và bạn tự chịu trách nhiệm.' + TAIL);
     }
     if (status === 'sinh_vien' || status === 'giao_vien_khac' || status === 'khac') {
       return T9.notice('info', 'Nhắc nhở',
-        'Dạy thêm có thu tiền có thể phải đăng ký kinh doanh và kê khai thuế theo quy định tại địa phương (có tranh luận về trường hợp sinh viên dạy kèm). 9tutor chỉ là sổ ghi chép, không tư vấn pháp lý hay thuế. Hãy tự kiểm tra với cơ quan có thẩm quyền.');
+        'Dạy thêm có thu tiền có thể phải đăng ký kinh doanh và kê khai thuế theo quy định. Với sinh viên dạy kèm, cách hiểu quy định còn tranh luận và 9tutor không kết luận là được phép hay không được phép. Giáo viên trường công không nên chọn nhóm này nếu đang dạy chính khóa.' + TAIL);
     }
     return null;
   };
@@ -107,7 +108,7 @@
         h('p', { class: 'center muted', text: 'Đây là chìa khóa duy nhất để mở lại sổ của bạn khi đổi điện thoại hoặc xóa trình duyệt. Mã chỉ hiện một lần; 9tutor không lưu bản đọc được nên không thể cấp lại.' }),
         h('div', { class: 'reccode', 'aria-label': 'Mã khôi phục' }, code.split('-').map(function (g) { return h('span', { text: g }); })),
         h('div', { class: 'btn-row' }, [
-          T9.btn('Sao chép', 'ghost', function () { T9.copy(code, 'Đã sao chép mã khôi phục'); }, null),
+          T9.btn('Sao chép', 'ghost', function () { T9.copy(code, 'Đã sao chép mã khôi phục'); }),
           T9.btn('Tải về (.txt)', 'ghost', function () { downloadText('9tutor-ma-khoi-phuc.txt', '9tutor - mã khôi phục tài khoản\n\n' + code + '\n\nGiữ kín mã này. Ai có mã đều mở được sổ của bạn.\n'); }),
         ]),
         T9.notice('warn', 'Giữ kín', 'Ai có mã này đều vào được sổ của bạn. Đừng gửi cho học sinh hay phụ huynh. Có thể đổi mã mới trong Cài đặt.'),
@@ -158,21 +159,35 @@
     T9.bare(); T9.liveStop();
     var err = h('div', { class: 'hint err hidden', role: 'alert' });
     var who = h('div', { class: 'whobox', 'aria-live': 'polite' });
+    var warnSlot = h('div');
+    var peek = null;
     T9.post('api/devices/peek', { code: code }).then(function (r) {
+      peek = r;
       who.appendChild(h('div', { class: 'muted small', text: 'Tài khoản sẽ được mở' }));
       who.appendChild(h('div', { class: 'big', text: r.name }));
+      who.appendChild(h('div', { class: 'muted small', text: r.students + ' học sinh đang dạy · tạo ngày ' + T9.dmy(String(r.createdAt).slice(0, 10)) }));
+      if (T9.me) warnSlot.appendChild(T9.notice('bad', 'Bạn đang đăng nhập tài khoản khác', 'Bạn đang ở tài khoản "' + T9.me.name + '" (' + T9.me.activeStudents + ' học sinh). Ghép sẽ rời khỏi tài khoản này trên máy này; hãy chắc chắn đã lưu mã khôi phục của nó.'));
     }, function (e) { who.appendChild(h('div', { class: 'hint err', text: e.message })); go.disabled = true; });
+    function redeem() {
+      return T9.post('api/devices/redeem', { code: code }).then(function (r) { T9.me = r.me; history.replaceState(null, '', location.pathname + '#/'); T9.toast('Đã ghép thiết bị'); T9.go('#/'); }, function (e) { err.textContent = e.message; err.className = 'hint err'; });
+    }
     var go = T9.btn('Ghép thiết bị này', 'primary block', function () {
-      return T9.busy(go, function () {
-        return T9.post('/api/devices/redeem', { code: code }).then(function (r) { T9.me = r.me; history.replaceState(null, '', location.pathname + '#/'); T9.toast('Đã ghép thiết bị'); T9.go('#/'); }, function (e) { err.textContent = e.message; err.className = 'hint err'; });
+      if (!peek) return;
+      // xác nhận hai bước: nhắc lại tên và số học sinh của tài khoản đích
+      T9.sheet('Xác nhận lần cuối', function (body, close) {
+        body.appendChild(h('p', { text: 'Máy này sẽ mở tài khoản "' + peek.name + '" (' + peek.students + ' học sinh). Đúng là tài khoản của bạn?' }));
+        body.appendChild(h('div', { class: 'btn-row' }, [
+          T9.btn('Không, đóng lại', 'ghost', function () { close(); }),
+          T9.btn('Đúng, ghép', 'primary', function () { return T9.busy(this, function () { close(); return redeem(); }); }),
+        ]));
       });
     });
     T9.frame({ title: 'Ghép thiết bị', back: '#/' });
     T9.mount([h('div', { class: 'card center' }, [
       h('div', { class: 'okmark' }, [T9.ico('device', 28)]),
       h('h2', { text: 'Mở sổ dạy kèm trên máy này?' }),
-      h('p', { class: 'muted', text: 'Thiết bị này sẽ vào cùng tài khoản gia sư với thiết bị đã tạo mã.' }), who,
-      T9.notice('warn', 'Chỉ bấm nếu đúng là tài khoản của bạn', 'Nếu tên ở trên không phải của bạn, hoặc bạn không vừa tạo mã ghép, hãy đóng trang này. Có người có thể đang cố đưa bạn vào tài khoản của họ.'),
+      h('p', { class: 'muted', text: 'Thiết bị này sẽ vào cùng tài khoản gia sư với thiết bị đã tạo mã.' }), who, warnSlot,
+      T9.notice('warn', 'Chỉ bấm nếu đúng là tài khoản của bạn', 'Kiểm tra cả tên, số học sinh và ngày tạo. Nếu không khớp, hoặc bạn không vừa tạo mã ghép, hãy đóng trang này. Có người có thể đang cố đưa bạn vào tài khoản của họ.'),
       err, h('div', { class: 'btn-row' }, [go, T9.link('#/', { class: 'btn ghost' }, ['Không phải tôi'])]),
     ])]);
   };

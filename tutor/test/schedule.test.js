@@ -233,13 +233,14 @@ test('lưu trữ học sinh: dừng lịch, thu hồi link phụ huynh, giữ l�
   assert.equal((await c.get('/api/r/' + link.token, { csrf: false })).status, 200);
   await ok(c.post(`/api/students/${s.id}/archive`, { active: false }));
   assert.equal((await new (c.constructor)().get('/api/r/' + link.token)).status, 404);
-  assert.equal((await weekOf(c, day(0), 28)).length, 0);
+  assert.equal((await weekOf(c, day(0), 28)).length, 0, 'học sinh nghỉ: lịch lặp tạm dừng, không sinh buổi');
   assert.equal((await c.post(`/api/students/${s.id}/slots`, slotBody(day(1)))).status, 409);
   assert.equal((await c.post('/api/lessons', { studentId: s.id, day: day(2), startMin: 600, durationMin: 60 })).status, 409);
   const st = (await ok(c.get('/api/students'))).students.find((x) => x.id === s.id);
   assert.equal(st.active, false); assert.equal(st.balance, 100000);
   await ok(c.post(`/api/students/${s.id}/archive`, { active: true }));
-  assert.equal((await c.post(`/api/students/${s.id}/slots`, slotBody(day(1)))).status, 200);
+  assert.ok((await weekOf(c, day(0), 28)).length >= 3, 'khôi phục: lịch lặp cũ chạy lại');
+  assert.equal((await c.post(`/api/students/${s.id}/slots`, slotBody(day(1), 600, 60))).status, 409, 'trùng với chính lịch cũ đã chạy lại');
   assert.equal((await c.post(`/api/students/${s.id}/archive`, { active: 'có' })).status, 400);
 });
 
