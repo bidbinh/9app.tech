@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-04.2",
+  "version": "2026-10-04.3",
   "tra_cuu_ngay": "2026-10-04",
   "bo_cau_hoi": {
     "ten": "Bộ 600 câu hỏi dùng cho sát hạch lái xe cơ giới đường bộ",
@@ -57,13 +57,19 @@
       "ngay_tra": "2026-10-04"
     },
     {
-      "ten": "Thông tư 108/2026/TT-BCA ngày 29/6/2026 của Bộ Công an (thay thế Thông tư 12/2025/TT-BCA) – tổng hợp của LuatVietnam",
-      "url": "https://luatvietnam.vn/linh-vuc-khac/diem-moi-thong-tu-108-2026-tt-bca-ve-sat-hach-cap-giay-phep-lai-xe-va-quoc-te-883-110169-article.html",
-      "dung_cho": "Số câu, thời gian, điểm đạt mới áp dụng từ 01/3/2027; bỏ sát hạch mô phỏng; đạt phần trước mới thi phần sau",
+      "ten": "Thông tư 108/2026/TT-BCA ngày 29/6/2026 của Bộ Công an (văn bản gốc, bản đầy đủ trên cổng Chính phủ): Điều 4, Điều 41, Điều 42, Phụ lục I, II, III",
+      "url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/7/thong-tu-so-108.2026.tt-bca-ngay-29.6.2026-ban-day-du-v03.pdf",
+      "dung_cho": "Số câu, thời gian, điểm đạt lý thuyết mới từ 01/3/2027 (Phụ lục I: A1, A; II: B1; III: B, C1, C, D1, D2, D); ngày áp dụng (khoản 2 Điều 41); thứ tự thi lý thuyết, sa hình, đường trường không có mô phỏng (khoản 5 Điều 4); chuyển tiếp (Điều 42)",
       "ngay_tra": "2026-10-04"
     },
     {
-      "ten": "Nghị định 94/2026/NĐ-CP ngày 31/3/2026 (hiệu lực 01/7/2026) – bài của Báo điện tử Chính phủ",
+      "ten": "Thông tư 108/2026/TT-BCA – bảng so sánh của Thư Viện Pháp Luật (nguồn thứ cấp, dùng để đối chiếu chéo, số liệu khớp văn bản gốc)",
+      "url": "https://thuvienphapluat.vn/chinh-sach-phap-luat-moi/vn/ho-tro-phap-luat/chinh-sach-moi/116140/chinh-thuc-tang-so-luong-cau-hoi-ly-thuyet-sat-hach-lai-xe-tu-01-3-2027",
+      "dung_cho": "Đối chiếu chéo bảng số câu, thời gian, điểm đạt",
+      "ngay_tra": "2026-10-04"
+    },
+    {
+      "ten": "Nghị định 94/2026/NĐ-CP ngày 31/3/2026 (hiệu lực 01/7/2026) – bài của Báo điện tử Chính phủ (nguồn thứ cấp; chưa tra được toàn văn Nghị định)",
       "url": "https://xaydungchinhsach.chinhphu.vn/quy-dinh-moi-bo-phan-sat-hach-lai-xe-mo-phong-tu-01-7-2026-119260627105803901.htm",
       "dung_cho": "Bỏ phần sát hạch mô phỏng trên máy tính từ 01/7/2026; thứ tự thi",
       "ngay_tra": "2026-10-04"
@@ -76,11 +82,12 @@
     }
   ],
   "chua_chac": [
-    "Quy định đang thay đổi: từ 01/3/2027 đề thi lý thuyết tăng số câu theo Thông tư 108/2026/TT-BCA. Số liệu mới lấy từ bài tổng hợp, chưa đối chiếu được toàn bộ Phụ lục của văn bản gốc.",
-    "Hạng B1 theo đề mới (50 câu, 33 phút, đạt 45) chỉ thấy ở nguồn thứ cấp; cần đối chiếu Phụ lục II Thông tư 108/2026/TT-BCA.",
-    "Thông tư 108/2026/TT-BCA nói câu hỏi có thêm dạng đúng/sai, nối đáp án, video tình huống; bộ câu hỏi chính thức cho đề mới chưa được công bố khi tra cứu (04/10/2026), nên app dùng bộ 600 câu hiện hành.",
-    "Đề mới có còn đúng 1 câu điểm liệt mỗi đề hay không chưa xác nhận được từ văn bản gốc; app mặc định giữ 1 câu điểm liệt để ôn an toàn.",
+    "Đã đối chiếu văn bản gốc: số câu, thời gian, điểm đạt của đề lý thuyết từ 01/3/2027 (Phụ lục I, II, III Thông tư 108/2026/TT-BCA) khớp số liệu trong app, kể cả hạng B1.",
+    "Chưa xác minh: đề mới có còn 1 câu điểm liệt hay không. Điều 4 và các Phụ lục I, II, III của Thông tư 108/2026/TT-BCA không nêu số câu điểm liệt hay cơ cấu theo chương; app giữ 1 câu điểm liệt mỗi đề và chia các nhóm theo tỉ lệ đề hiện hành để ôn an toàn.",
+    "Chưa xác minh: bộ câu hỏi chính thức cho đề mới (Thông tư nói có thêm nội dung cấu tạo, sửa chữa, phòng cháy chữa cháy, vận tải đường bộ). Chưa tra được bản công bố đến 04/10/2026, nên app dùng bộ 600 câu hiện hành (Công văn 2262/CSGT-P5).",
+    "Chưa xác minh: việc bỏ sát hạch mô phỏng theo Nghị định 94/2026/NĐ-CP chỉ đọc qua bài của Báo điện tử Chính phủ (Điều 24); toàn văn Nghị định chưa tra được. Phía Thông tư 108 đã đối chiếu: Điều 4 khoản 5 không có bài mô phỏng.",
+    "Chưa xác minh bằng văn bản gốc: quy định đổi giấy phép hạng B1, B2 cũ sang hạng B (và C1). Chỉ thấy qua bài báo viện dẫn Điều 57 và Điều 89 Luật Trật tự, an toàn giao thông đường bộ 2024; hỏi cơ sở đào tạo hoặc Phòng Cảnh sát giao thông khi cần đổi.",
     "Cách phần mềm thi thật chọn câu trong từng nhóm (có loại câu điểm liệt khỏi các nhóm thường hay không) không được công bố; app loại các câu điểm liệt khỏi nhóm thường để đề không trùng câu.",
-    "Chuyển đổi hạng cũ (B1, B2 ô tô) sang hạng B mới: xem văn bản chính thức hoặc hỏi cơ sở đào tạo."
+    "Chưa đọc hết 134 trang Thông tư 108/2026/TT-BCA; các điều khác (ví dụ Điều 14 sát hạch trên giấy) không dùng trong app."
   ]
 }

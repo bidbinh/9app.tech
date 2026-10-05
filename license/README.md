@@ -24,3 +24,7 @@ Webapp tĩnh PWA (HTML/CSS/JS thuần, không build). Mở `index.html` qua mộ
 - SHA-256 bản đã dùng: d473be679b53458a33acc52057f3a4fe532ea489e91d88fb86789073cd98a9c5
 - Repo không đính kèm file PDF vì quyền phân phối lại chưa được xác nhận. Tải về, kiểm SHA-256, rồi chạy `python tools/extract-600.py <file.pdf>` và `node tools/build-data.mjs`.
 - `build-data.mjs` chỉ chuẩn hóa chỉ số trên của đơn vị (`cm 3` thành `cm³`, 5 câu: 119, 123 đến 126); không đổi nội dung hay đáp án.
+
+## Đề thi lý thuyết từ 01/3/2027 (đã đối chiếu văn bản gốc)
+- Văn bản gốc: Thông tư 108/2026/TT-BCA (29/6/2026), Phụ lục I (A1, A: 40 câu, 27 phút, đạt 36), Phụ lục II (B1: 50 câu, 33 phút, đạt 45), Phụ lục III (B: 50/33/45; C1: 60/40/54; C: 70/47/63; D1, D2, D: 80/53/72). Áp dụng từ 01/3/2027 (khoản 2 Điều 41). Trích dẫn và URL: `tools/source/thong-tu-108-2026-trich.txt`.
+- Chưa xác minh được: số câu điểm liệt và cơ cấu theo chương của đề mới (văn bản không nêu), bộ câu hỏi chính thức cho đề mới, toàn văn Nghị định 94/2026/NĐ-CP, quy định đổi B1/B2 cũ sang B (xem `tools/source/nguon-phu-nd94-hang-b.txt` và mục "Điều chưa chắc" trong `data/meta.json`).

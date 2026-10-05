@@ -37,7 +37,10 @@ test('cấu trúc đề hiện hành đúng số câu, thời gian, điểm đ�
 });
 
 test('cấu trúc đề mới từ 01/3/2027 (Thông tư 108/2026/TT-BCA)', () => {
-  const exp = { A1: [40, 27, 36], A: [40, 27, 36], B: [50, 33, 45], C1: [60, 40, 54], C: [70, 47, 63], D: [80, 53, 72] };
+  // Phụ lục I (A1, A), II (B1), III (B, C1, C, D1, D2, D) của Thông tư 108/2026/TT-BCA; xem tools/source/thong-tu-108-2026-trich.txt
+  const exp = { A1: [40, 27, 36], A: [40, 27, 36], B1: [50, 33, 45], B: [50, 33, 45], C1: [60, 40, 54], C: [70, 47, 63], D1: [80, 53, 72], D2: [80, 53, 72], D: [80, 53, 72] };
+  assert.equal(PROFILES.moi.kiemTra, 'da-doi-chieu-van-ban-goc');
+  assert.deepEqual(Object.keys(exp).sort(), [...HANG_LIST].sort());
   for (const [h, v] of Object.entries(exp)) {
     const s = examSpec('moi', h);
     assert.deepEqual([s.n, s.min, s.pass], v, h);

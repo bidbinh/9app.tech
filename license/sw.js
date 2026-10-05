@@ -2,7 +2,7 @@
 // - Vỏ app (HTML/CSS/JS/dữ liệu JSON/icon): lưu sẵn khi cài; lấy từ mạng trước, lỗi mạng thì dùng bản lưu.
 // - Hình minh họa câu hỏi (data/img): lưu dần khi xem (hoặc tải sẵn trong Cài đặt), ưu tiên bản đã lưu.
 // Đổi VERSION mỗi lần phát hành để máy đã cài nhận bản mới.
-const VERSION = 'v2';
+const VERSION = 'v3';
 // Chờ mạng tối đa bấy nhiêu ms; quá hạn mà đã có bản lưu thì dùng bản lưu (mạng yếu không làm app đơ).
 const NET_TIMEOUT = (self.__SW_TEST && self.__SW_TEST.timeout) || 3500;
 const SHELL_CACHE = `9license-shell-${VERSION}`;

@@ -1,0 +1,63 @@
+# Trích Thông tư 108/2026/TT-BCA ngày 29/6/2026 của Bộ trưởng Bộ Công an
+# (Quy định về sát hạch, cấp giấy phép lái xe; cấp, sử dụng giấy phép lái xe quốc tế). Người ký: Đại tướng Lương Tam Quang.
+# Ngày tra cứu: 2026-10-04.
+# Nguồn gốc (bản đầy đủ có chữ ký, dạng ảnh quét 134 trang, không có lớp chữ):
+#   https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/7/thong-tu-so-108.2026.tt-bca-ngay-29.6.2026-ban-day-du-v03.pdf
+#   (Cổng thông tin Chính phủ, trang văn bản: https://vanban.chinhphu.vn/?pageid=27160&docid=218725&classid=1&orggroupid=4)
+# Cách trích: đọc trực tiếp từng trang ảnh quét của PDF và chép lại các đoạn dưới đây (một số đoạn lược bằng dấu ...). Số trang là số thứ tự trang trong file PDF.
+# Đối chiếu thứ cấp (bảng số liệu khớp): https://thuvienphapluat.vn/chinh-sach-phap-luat-moi/vn/ho-tro-phap-luat/chinh-sach-moi/116140/chinh-thuc-tang-so-luong-cau-hoi-ly-thuyet-sat-hach-lai-xe-tu-01-3-2027
+
+== Điều 4 (PDF trang 2-3). Hình thức, nội dung và trình tự sát hạch lái xe ==
+1. Sát hạch lý thuyết
+a) Sát hạch lý thuyết: gồm các câu hỏi liên quan đến quy định của pháp luật về trật tự, an toàn giao thông đường bộ; kỹ thuật lái xe; quy tắc ứng xử người lái xe, văn hóa giao thông và phòng, chống tác hại của rượu, bia khi tham gia giao thông; nội dung liên quan đến cấu tạo và sửa chữa thông thường, kỹ năng phòng cháy, chữa cháy và cứu nạn, cứu hộ (đối với hạng B1, B trở lên); nội dung liên quan đến vận tải đường bộ (đối với hạng C1 trở lên);
+b) Sát hạch lý thuyết thực hiện trên máy tính, trừ trường hợp quy định tại Điều 14 Thông tư này;
+c) Thí sinh dự sát hạch lái xe hạng A1, A có giấy phép lái xe ô tô còn hiệu lực được miễn sát hạch lý thuyết.
+2. Sát hạch thực hành lái xe trong hình ... b) Đối với hạng B1: ... Thí sinh dự sát hạch phải điều khiển xe tiến qua hình chữ chi và lùi theo hướng ngược lại; ...
+4. Nội dung sát hạch lái xe
+a) Hạng A1 và A thực hiện theo quy định tại Phụ lục I; hạng B1 thực hiện theo quy định tại Phụ lục II ban hành kèm theo Thông tư này;
+b) Các hạng B, C1, C, D1, D2, D thực hiện theo quy định tại Phụ lục III, các hạng BE, D1E, D2E, DE thực hiện theo quy định tại Phụ lục IV, hạng C1E, CE thực hiện theo quy định tại Phụ lục V ban hành kèm theo Thông tư này.
+5. Trình tự sát hạch lái xe
+a) Sát hạch mô tô: Thí sinh thực hiện sát hạch lý thuyết, bài sát hạch số 1, bài sát hạch số 2;
+b) Sát hạch ô tô: Thí sinh thực hiện sát hạch lý thuyết, sát hạch thực hành lái xe trong hình, sát hạch thực hành lái xe trên đường.
+(Ghi chú của người trích: Điều 4 không có bài sát hạch mô phỏng tình huống trên máy tính.)
+
+== Phụ lục I (PDF trang 39-40). Trình tự sát hạch lái xe hạng A1 và A. A. Sát hạch lý thuyết ==
+I.2.3. Thực hiện nội dung sát hạch
+- Thời gian làm bài: 27 phút.
+- Đề thi được thiết kế dưới dạng 40 câu hỏi, mỗi câu hỏi được tính 01 điểm.
+- Khi hoàn thành bài sát hạch hoặc hết thời gian làm bài theo quy định, tất cả các câu trả lời của thí sinh (kể cả các câu hỏi chưa trả lời hết) được máy tính tự động chấm điểm và lưu lại trong máy chủ.
+I.3. Công nhận kết quả: 3.1. Điểm đạt yêu cầu từ 36/40 điểm trở lên.
+II (trắc nghiệm trên giấy, hạng A1 đối với người dân tộc thiểu số không biết đọc, viết tiếng Việt): Thời gian làm bài: 60 phút; đề gồm 30 câu hỏi trắc nghiệm, mỗi câu 01 điểm. (Điểm đạt của mục này ở trang 41, app không dùng.)
+
+== Phụ lục II (PDF trang 50-51). Trình tự sát hạch lái xe hạng B1. A. Sát hạch lý thuyết ==
+II.3.1. Thời gian làm bài: 33 phút.
+II.3.2. Đề thi được thiết kế gồm 50 câu hỏi, mỗi câu hỏi được tính 01 điểm.
+III.1. Điểm đạt yêu cầu: từ 45/50 điểm trở lên.
+
+== Phụ lục III (PDF trang 55-56). Trình tự sát hạch lái xe các hạng B, C1, C, D1, D2 và D. A. Sát hạch lý thuyết ==
+II.3.1. Đề sát hạch có số lượng câu hỏi và thời gian làm bài như sau:
+  Nội dung                 | Hạng B | Hạng C1 | Hạng C | Hạng D1, D2, D
+  Số câu hỏi trắc nghiệm   |   50   |   60    |   70   |      80
+  Thời gian làm bài (phút) |   33   |   40    |   47   |      53
+II.3.2. Mỗi câu hỏi được tính 01 điểm.
+III.1. Điểm đạt yêu cầu, theo bảng sau:
+  Nội dung                 | Hạng B | Hạng C1 | Hạng C | Hạng D1, D2, D
+  Thang điểm               |   50   |   60    |   70   |      80
+  Điểm đạt tối thiểu       |   45   |   54    |   63   |      72
+
+== Điều 41 (PDF trang 36-37). Hiệu lực thi hành ==
+1. Thông tư này có hiệu lực thi hành từ ngày 01 tháng 7 năm 2026, trừ các trường hợp quy định tại khoản 2, 3, 4, 5 Điều này.
+2. Nội dung sát hạch lý thuyết, sát hạch thực hành lái xe trong hình, sát hạch thực hành lái xe trên đường quy định tại khoản 4 Điều 4 Thông tư này áp dụng từ ngày 01 tháng 3 năm 2027; nội dung bài sát hạch số 2 quy định tại khoản 4 Điều 4 và Phụ lục I ... áp dụng từ ngày 01 tháng 01 năm 2028.
+3. Hình, thiết bị và phần mềm sát hạch tình huống giả định trên đường hạng A1, A của sân tập lái dùng để sát hạch lái xe mô tô áp dụng từ ngày 01 tháng 01 năm 2028.
+4. Cấp thẻ sát hạch viên điện tử áp dụng từ ngày 01 tháng 7 năm 2027.
+5. Nội dung về nhận diện của thí sinh qua thiết bị, phần mềm ứng dụng định danh và xác thực điện tử quy định tại các phụ lục I, II, III, IV, V áp dụng từ ngày 01 tháng 01 năm 2027.
+6. Thông tư số 12/2025/TT-BCA ngày 28 tháng 02 năm 2025 ... hết hiệu lực kể từ ngày Thông tư này có hiệu lực thi hành, trừ các trường hợp quy định tại khoản 1, khoản 2, khoản 3 Điều 4, Phụ lục II, Phụ lục III, mục A, C, mẫu số 01, 02, 03 mục D Phụ lục IV, ... Phụ lục V, ... Phụ lục VI ban hành kèm theo Thông tư số 12/2025/TT-BCA tiếp tục có hiệu lực thi hành đến hết ngày 28 tháng 02 năm 2027.
+
+== Điều 42 (PDF trang 37). Điều khoản chuyển tiếp ==
+1. Trường hợp thí sinh đạt phần sát hạch lý thuyết, thực hành lái xe trong hình, lái xe trên đường đối với sát hạch lái xe ô tô trước ngày Thông tư này có hiệu lực thì được công nhận kết quả sát hạch và được cấp giấy phép lái xe.
+2. Trường hợp thực hiện sát hạch theo quy định tại Thông tư số 12/2025/TT-BCA mà thí sinh vắng hoặc không đạt 01 nội dung trở lên (sát hạch lý thuyết, lái xe trong hình, lái xe trên đường), phải dự sát hạch lại nội dung chưa đạt theo quy định tại Thông tư số 12/2025/TT-BCA; từ ngày 01 tháng 3 năm 2027 phải dự sát hạch lại nội dung chưa đạt theo quy định của Thông tư này.
+
+== Những gì văn bản KHÔNG nêu (đã đọc Điều 4, Điều 41, 42 và phần lý thuyết Phụ lục I, II, III) ==
+- Không thấy cơ cấu số câu theo chương/nhóm cho từng đề, không thấy quy định "câu điểm liệt" và số câu điểm liệt của đề mới. Các Phụ lục chỉ nêu số câu, thời gian, điểm đạt.
+- Không thấy bộ câu hỏi mới kèm theo; bộ câu hỏi do Cục CSGT ban hành riêng (chưa tra được bản công bố cho đề từ 01/3/2027).
+- Chưa đọc hết 134 trang (các điều khác như Điều 14, đổi giấy phép lái xe chưa đọc kỹ).
