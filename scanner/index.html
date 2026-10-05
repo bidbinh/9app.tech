@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'sha256-6N30r85K+9dFgTlkk60/XehcNbijd32pQbsjEff9KpM=' 'sha256-LB4wsvzRp9/okbD9xY4eFRCghfd9iR9ZBGP2qxnqbrs='; img-src 'self' data: blob:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' blob: data:; font-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="theme-color" content="#f6f5fb" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#120f1c" media="(prefers-color-scheme: dark)">
-<meta name="description" content="Quét tài liệu bằng camera điện thoại: tự cắt, nắn phẳng, lọc nền trắng, ghép nhiều trang thành PDF, đọc chữ tiếng Việt, ký tay. Xử lý hoàn toàn trên máy bạn.">
+<meta name="description" content="Quét tài liệu bằng camera điện thoại: tự cắt, nắn phẳng, khử bóng, đọc chữ tiếng Việt, xuất PDF, Word, Excel; chuyển đổi, gộp, tách, nén PDF. Xử lý hoàn toàn trên máy bạn.">
 <title>9scanner — Quét tài liệu trên máy bạn</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -45,6 +45,18 @@
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
     <symbol id="i-wand" viewBox="0 0 24 24"><path d="m5 19 9-9M14 6l1-2 1 2 2 1-2 1-1 2-1-2-2-1zM18.5 13l.6-1.2.6 1.2 1.2.6-1.2.6-.6 1.2-.6-1.2-1.2-.6z"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4.5 11.5 9 16M5 11.5h9a5 5 0 0 1 0 10h-3"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7h11M15 4l3 3-3 3M17 17H6M9 14l-3 3 3 3"/></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><path d="M6 4v5a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4V4M12 13v7M9 17l3 3 3-3"/></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><path d="M12 4v8M12 12 6 20M12 12l6 8M9 7l3-3 3 3"/></symbol>
+    <symbol id="i-compress" viewBox="0 0 24 24"><path d="M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5"/></symbol>
+    <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M8 20h8M6 16h12v-2a3 3 0 0 0-3-3h-1V8a2 2 0 1 0-4 0v3H9a3 3 0 0 0-3 3z"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="3.5"/><path d="m10.5 12.5 8.5-8.5M16 7l2 2M14 9l2 2"/></symbol>
+    <symbol id="i-word" viewBox="0 0 24 24"><path d="M7 3.5h7l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5zM14 3.5V8h4.5M8.5 12l1.2 5 1.8-4.5 1.8 4.5 1.2-5"/></symbol>
+    <symbol id="i-table" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M3.5 10h17M3.5 14.5h17M9.5 5v14"/></symbol>
+    <symbol id="i-auto" viewBox="0 0 24 24"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-pages" viewBox="0 0 24 24"><rect x="4" y="3.5" width="7" height="9" rx="1.5"/><rect x="13" y="3.5" width="7" height="9" rx="1.5"/><rect x="4" y="14.5" width="7" height="6" rx="1.5"/><rect x="13" y="14.5" width="7" height="6" rx="1.5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 4 8.5 4.5L12 13 3.5 8.5zM3.5 12.5 12 17l8.5-4.5M3.5 16.5 12 21l8.5-4.5"/></symbol>
+    <symbol id="i-plus-doc" viewBox="0 0 24 24"><path d="M7 3.5h7l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5zM14 3.5V8h4.5M12 11v6M9 14h6"/></symbol>
   </defs>
 </svg>
 
@@ -61,6 +73,7 @@
     </header>
     <main class="scroll">
       <p class="privacy"><svg><use href="#i-lock"/></svg><span>Ảnh được xử lý ngay trên máy của bạn và <b>không gửi lên máy chủ</b>. Tài liệu lưu trong trình duyệt này.</span></p>
+      <button class="tools-card" id="btn-tools"><svg><use href="#i-swap"/></svg><span><b>Công cụ chuyển đổi</b><small>PDF sang Word, Excel, ảnh · gộp, tách, nén, đặt mật khẩu</small></span><svg class="chev"><use href="#i-right"/></svg></button>
       <div id="storage-banner" class="banner" hidden></div>
       <div class="folders" id="folders" role="tablist" aria-label="Thư mục"></div>
       <ul class="docs" id="doc-list"></ul>
@@ -80,10 +93,13 @@
   <!-- ======== CAMERA ======== -->
   <section class="view camera" id="v-camera" aria-label="Chụp tài liệu" hidden>
     <video id="cam-video" playsinline muted autoplay></video>
+    <canvas id="cam-outline" aria-hidden="true"></canvas>
     <div class="cam-guide" aria-hidden="true"></div>
+    <div class="cam-status" id="cam-status" aria-live="polite" hidden></div>
     <div class="cam-top">
       <button class="cam-btn" id="cam-close" aria-label="Đóng camera"><svg><use href="#i-close"/></svg></button>
       <div class="cam-top-right">
+        <button class="cam-chip" id="cam-auto" aria-pressed="false">Tự chụp</button>
         <button class="cam-chip" id="cam-multi" aria-pressed="false">Chụp liên tục</button>
         <button class="cam-btn" id="cam-torch" aria-label="Đèn pin" hidden><svg><use href="#i-flash"/></svg></button>
         <button class="cam-btn" id="cam-flip" aria-label="Đổi camera"><svg><use href="#i-flip"/></svg></button>
@@ -129,11 +145,20 @@
     </div>
     <div class="chips scroller" id="filter-chips" role="radiogroup" aria-label="Chọn bộ lọc"></div>
     <p class="hint small" id="filter-hint" aria-live="polite"></p>
+    <div class="toggles" role="group" aria-label="Làm sạch trang">
+      <button class="chip tgl" id="f-dewarp" aria-pressed="false">Nắn phẳng</button>
+      <button class="chip tgl" id="f-clean" aria-pressed="false">Xóa ngón tay / vật cản</button>
+    </div>
+    <p class="hint small warn-note" id="fix-note" aria-live="polite" hidden></p>
     <div class="tool-row">
       <button class="tool" id="f-crop"><svg><use href="#i-crop"/></svg><span>Sửa góc</span></button>
       <button class="tool" id="f-rotl"><svg><use href="#i-rot-l"/></svg><span>Xoay trái</span></button>
       <button class="tool" id="f-rotr"><svg><use href="#i-rot-r"/></svg><span>Xoay phải</span></button>
       <button class="tool" id="f-sign"><svg><use href="#i-pen"/></svg><span>Ký</span></button>
+    </div>
+    <div class="tool-row second">
+      <button class="tool" id="f-orient"><svg><use href="#i-auto"/></svg><span>Tự xoay chữ</span></button>
+      <button class="tool" id="f-all"><svg><use href="#i-layers"/></svg><span>Lọc mọi trang</span></button>
     </div>
     <nav class="bar">
       <button class="btn secondary" id="f-add"><svg><use href="#i-plus"/></svg><span>Thêm trang</span></button>
@@ -238,6 +263,39 @@
         <button class="btn primary" id="ocr-share"><svg><use href="#i-share"/></svg><span>Chia sẻ</span></button>
       </div>
     </main>
+  </section>
+
+  <!-- ======== CÔNG CỤ CHUYỂN ĐỔI ======== -->
+  <section class="view" id="v-tools" aria-label="Công cụ chuyển đổi" hidden>
+    <header class="top">
+      <button class="icon-btn" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+      <h1 class="title">Công cụ chuyển đổi</h1>
+    </header>
+    <main class="scroll">
+      <p class="hint small left">Mọi tệp được xử lý ngay trên máy của bạn, không gửi đi đâu.</p>
+      <ul class="tool-list" id="tool-list"></ul>
+    </main>
+  </section>
+
+  <!-- ======== QUẢN LÝ TRANG PDF ======== -->
+  <section class="view" id="v-pdfpages" aria-label="Sắp xếp trang PDF" hidden>
+    <header class="top">
+      <button class="icon-btn" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+      <h1 class="title" id="pp-title">Sắp xếp trang PDF</h1>
+    </header>
+    <div class="tool-row pp-tools">
+      <button class="tool" id="pp-all"><svg><use href="#i-check"/></svg><span>Chọn tất cả</span></button>
+      <button class="tool" id="pp-rot"><svg><use href="#i-rot-r"/></svg><span>Xoay trang chọn</span></button>
+      <button class="tool" id="pp-del"><svg><use href="#i-trash"/></svg><span>Xóa trang chọn</span></button>
+    </div>
+    <main class="scroll">
+      <ul class="pp-grid" id="pp-grid"></ul>
+      <p class="hint small" id="pp-hint">Chạm vào trang để chọn. Dùng mũi tên dưới mỗi trang để đổi thứ tự.</p>
+    </main>
+    <nav class="bar">
+      <button class="btn secondary" id="pp-split"><svg><use href="#i-split"/></svg><span>Tách trang chọn</span></button>
+      <button class="btn primary big" id="pp-save"><svg><use href="#i-download"/></svg><span>Lưu PDF mới</span></button>
+    </nav>
   </section>
 </div>
 

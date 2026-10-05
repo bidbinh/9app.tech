@@ -7,9 +7,14 @@
 // Dựng lại: kết quả mã hóa từng trang được nhớ theo (nội dung trang, cạnh dài, chất lượng) nên đổi khổ giấy/bật OCR không dựng lại.
 import { buildPdf, pageBox } from './pdf.js';
 import { fitToBudget, budgetTarget, QUALITY_PRESETS, MIN_QUALITY } from './compress.js';
-import { renderPage, canvasToBlob, scaleCanvas } from './render.js';
+import { renderPage, canvasToBlob, scaleCanvas, makeCanvas, pageOrientation, rotateCanvas } from './render.js';
+import { rotateSigns, quadSize, toPixels } from './geom.js';
 import { recognizeCanvas, joinPages } from './ocr.js';
 import { safeName, filterWords } from './textutil.js';
+import { removeRuling } from './ocrprep.js';
+import { layoutPage, tablesForSheet } from './layout.js';
+import { buildDocx, DOCX_MIME } from './docx.js';
+import { buildXlsx, XLSX_MIME } from './xlsx.js';
 
 export { safeName };
 
@@ -18,7 +23,7 @@ const MEMORY_PIXELS = 36e6;
 const CACHE_BYTES = 40e6;
 export const stats = { renders: 0, cacheHits: 0, ocrRuns: 0 };
 
-export const geomKey = (p) => JSON.stringify([p.corners.map((c) => [Math.round(c.x * 1e4), Math.round(c.y * 1e4)]), p.rot || 0]);
+export const geomKey = (p) => JSON.stringify([p.corners.map((c) => [Math.round(c.x * 1e4), Math.round(c.y * 1e4)]), p.rot || 0, p.clean || 'auto', p.dewarp || 'auto']);
 const pageKey = (p) => `${p.id}|${p.src && p.src.size}|${geomKey(p)}|${p.filter}|${JSON.stringify(p.signs || [])}`;
 
 function checkAbort(signal) {
@@ -35,17 +40,65 @@ function encPut(key, v) {
   while (encBytes > CACHE_BYTES && enc.size > 1) { const k = enc.keys().next().value; encBytes -= enc.get(k).bytes.length; enc.delete(k); }
 }
 
-/** Đọc chữ của một trang (có nhớ kết quả cho đến khi đổi góc/xoay). Chạy trên ảnh đã khử bóng để đọc tốt hơn. */
+function prepForOcr(canvas) {
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const rules = removeRuling(id);
+  ctx.putImageData(id, 0, 0);
+  return rules;
+}
+function flip180(canvas) {
+  const c = makeCanvas(canvas.width, canvas.height);
+  const x = c.getContext('2d');
+  x.translate(c.width, c.height); x.rotate(Math.PI); x.drawImage(canvas, 0, 0);
+  return c;
+}
+const OCR_FLIP_BELOW = 62; // độ tin cậy dưới mức này thì thử lật 180 độ (trang bị úp ngược đọc ra rác)
+
+/**
+ * Đọc chữ từ canvas: xóa đường kẻ bảng rồi OCR; nếu độ tin cậy thấp thì thử lật 180 độ và lấy bản tốt hơn.
+ * Trả về { r (kết quả OCR), rules, flipped }.
+ */
+export async function ocrCanvasSmart(canvas, onProgress, signal) {
+  let rules = prepForOcr(canvas);
+  stats.ocrRuns++;
+  let r = await recognizeCanvas(canvas, onProgress);
+  let flipped = false;
+  if (r.confidence < OCR_FLIP_BELOW) {
+    checkAbort(signal);
+    const alt = flip180(canvas);
+    stats.ocrRuns++;
+    const r2 = await recognizeCanvas(alt, onProgress);
+    if (r2.confidence > r.confidence + 8) { r = r2; rules = flipRules(rules, canvas.width, canvas.height); flipped = true; }
+  }
+  return { r, rules, flipped };
+}
+
+/**
+ * Đọc chữ của một trang (có nhớ kết quả cho đến khi đổi góc/xoay). Chạy trên ảnh "Màu tự động" đã xóa đường kẻ bảng.
+ * Nếu trang bị úp ngược (độ tin cậy thấp, lật 180 độ đọc tốt hơn rõ rệt) thì xoay trang luôn (page.rot) để chữ đúng chiều.
+ */
 export async function ocrPage(page, onProgress, signal) {
-  const key = geomKey(page);
+  const key = geomKey(page) + '|v2';
   if (page.ocr && page.ocr.key === key) return page.ocr;
   checkAbort(signal);
-  const canvas = await renderPage(page, { srcEdge: 2600, maxEdge: OCR_EDGE, filter: 'deshadow', noSigns: true });
+  const canvas = await renderPage(page, { srcEdge: 2600, maxEdge: OCR_EDGE, filter: 'auto', noSigns: true });
   checkAbort(signal);
-  stats.ocrRuns++;
-  const r = await recognizeCanvas(canvas, onProgress);
-  page.ocr = { key, text: r.text, words: r.words, width: r.width, height: r.height, confidence: r.confidence };
+  const { r, rules, flipped } = await ocrCanvasSmart(canvas, onProgress, signal);
+  if (flipped) {
+    page.rot = ((page.rot || 0) + 180) % 360;
+    page.signs = rotateSigns(page.signs, 180, 1);
+    page.thumb = null;
+    page.autoFlipped = true;
+  }
+  page.ocr = { key: geomKey(page) + '|v2', text: r.text, words: r.words, width: r.width, height: r.height, confidence: r.confidence, rules };
   return page.ocr;
+}
+function flipRules(r, W, H) {
+  return {
+    hLines: r.hLines.map((l) => ({ y: H - l.y, x0: W - l.x1, x1: W - l.x0 })),
+    vLines: r.vLines.map((l) => ({ x: W - l.x, y0: H - l.y1, y1: H - l.y0 })),
+  };
 }
 
 export async function ocrAll(pages, onProgress, signal) {
@@ -228,4 +281,87 @@ export function downloadBlob(blob, name) {
   a.href = url; a.download = name; a.rel = 'noopener';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+/** Bố cục (đoạn, tiêu đề, bảng) của một trang đã OCR. */
+export function pageLayout(page) {
+  const o = page.ocr;
+  return layoutPage({ words: o.words, width: o.width, height: o.height }, { rules: o.rules });
+}
+
+/**
+ * Xuất Word. opts: { title, withImages (kèm ảnh trang đã xử lý ở cuối), onProgress, signal, sigImages }
+ * Trả về { blob, size, layouts }
+ */
+export async function exportDocx(pages, opts) {
+  const { title, withImages, onProgress, signal, sigImages } = opts;
+  if (!pages.length) throw new Error('Chưa có trang nào');
+  const layouts = [];
+  for (let i = 0; i < pages.length; i++) {
+    checkAbort(signal);
+    if (onProgress) onProgress({ stage: 'ocr', i, n: pages.length });
+    await ocrPage(pages[i], (p) => onProgress && onProgress({ stage: 'ocr', i, n: pages.length, sub: p }), signal);
+    layouts.push(pageLayout(pages[i]));
+  }
+  const images = [];
+  if (withImages) {
+    for (let i = 0; i < pages.length; i++) {
+      if (onProgress) onProgress({ stage: 'render', i, n: pages.length });
+      const e = await encodedPage(pages[i], 1600, 0.82, sigImages, signal);
+      images.push({ bytes: e.bytes, w: e.w, h: e.h });
+    }
+  }
+  const bytes = await buildDocx(layouts, { title, images });
+  return { blob: new Blob([bytes], { type: DOCX_MIME }), size: bytes.length, layouts };
+}
+
+/** Các bảng (có thể sửa) cho Excel: [{name, rows, approx}] — mỗi bảng một trang tính; không có bảng thì từng dòng chữ là một hàng. */
+export async function sheetsForPages(pages, { onProgress, signal } = {}) {
+  const sheets = [];
+  for (let i = 0; i < pages.length; i++) {
+    checkAbort(signal);
+    if (onProgress) onProgress({ stage: 'ocr', i, n: pages.length });
+    await ocrPage(pages[i], (p) => onProgress && onProgress({ stage: 'ocr', i, n: pages.length, sub: p }), signal);
+    const tabs = tablesForSheet(pageLayout(pages[i]));
+    tabs.forEach((t, k) => sheets.push({ name: pages.length > 1 ? `Trang ${i + 1}${tabs.length > 1 ? ' - Bảng ' + (k + 1) : ''}` : tabs.length > 1 ? `Bảng ${k + 1}` : 'Bảng 1', rows: t.rows, approx: t.approx, page: i }));
+  }
+  return sheets;
+}
+
+export async function exportXlsx(sheets, title) {
+  const bytes = await buildXlsx(sheets.map((s) => ({ name: s.name, rows: s.rows, headerRow: !s.approx })), { title });
+  return { blob: new Blob([bytes], { type: XLSX_MIME }), size: bytes.length };
+}
+
+function pageAspect(page) {
+  const q = quadSize(toPixels(page.corners, page.srcW || 1, page.srcH || 1));
+  const a = q.w / (q.h || 1);
+  return (page.rot || 0) % 180 === 0 ? a : 1 / a;
+}
+
+/**
+ * Tự xoay đúng chiều chữ: dò dọc/ngang bằng hình ảnh, rồi dùng OCR so sánh hai chiều (thẳng / lộn ngược) và chọn chiều đọc tốt hơn.
+ * Trả về { rot (mới), changed, confidence } và cập nhật page.rot, page.signs. Nếu OCR không chạy được thì chỉ sửa dọc/ngang.
+ */
+export async function autoOrientPage(page, onProgress) {
+  const o = await pageOrientation(page);
+  const base = o.ratio >= 1.6 ? (o.horizontal ? 0 : 90) : 0;
+  const canvas = await renderPage({ ...page, rot: 0, signs: [] }, { srcEdge: 2000, maxEdge: 1400, filter: 'auto', noSigns: true, noFix: true });
+  let best = base, bestConf = -1;
+  try {
+    for (const cand of [base, (base + 180) % 360]) {
+      const c = rotateCanvas(canvas, cand);
+      prepForOcr(c);
+      const r = await recognizeCanvas(c, onProgress);
+      if (r.confidence > bestConf + 6) { bestConf = r.confidence; best = cand; }
+    }
+  } catch (e) { best = base; bestConf = -1; }
+  const before = page.rot || 0;
+  if (best !== before) {
+    const aspect = pageAspect(page);
+    const delta = ((best - before) % 360 + 360) % 360;
+    page.signs = rotateSigns(page.signs, delta, aspect);
+    page.rot = best; page.thumb = null; page.ocr = null;
+  }
+  return { rot: best, changed: best !== before, confidence: bestConf };
 }

@@ -794,7 +794,7 @@ await step('Giới hạn 30/60/100/150/200 KB với 5 trang: tệp thật <= gi�
   return out.join('; ');
 }, page);
 
-await step('Bộ lọc không làm cháy thẻ có ảnh/con dấu/khối tối; mặc định Khử bóng; có cảnh báo', async () => {
+await step('Bộ lọc không làm cháy thẻ có ảnh/con dấu/khối tối; mặc định Màu tự động; có cảnh báo', async () => {
   const b = await newPage({ name: 'the-co-anh' });
   await b.goto(URL0, { waitUntil: 'networkidle0' });
   await waitView(b, 'home');
@@ -804,7 +804,7 @@ await step('Bộ lọc không làm cháy thẻ có ảnh/con dấu/khối tối;
   await b.click('#crop-full');
   await b.click('#crop-next'); await waitView(b, 'filter'); await waitFilterIdle(b);
   const def = await S(b, 'S.doc.pages[0].filter');
-  if (def !== 'deshadow') throw new Error('mặc định ' + def);
+  if (def !== 'auto') throw new Error('mặc định ' + def);
   const px = async () => b.evaluate(() => {
     const c = document.querySelector('#pv-canvas'), x = c.getContext('2d');
     const at = (fx, fy) => { const d = x.getImageData(Math.round(fx * c.width), Math.round(fy * c.height), 1, 1).data; return [d[0], d[1], d[2]]; };
@@ -812,7 +812,7 @@ await step('Bộ lọc không làm cháy thẻ có ảnh/con dấu/khối tối;
   });
   const lum = (c) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
   const out = {};
-  for (const f of ['Khử bóng', 'Nền trắng']) {
+  for (const f of ['Màu tự động', 'Khử bóng', 'Ảnh rõ nét', 'Nền trắng']) {
     await clickText(b, f, '#filter-chips button'); await waitFilterIdle(b);
     const p = await px(); out[f] = p;
     if (lum(p.dark) > 95) throw new Error(f + ': khối xám tối bị cháy ' + p.dark);
@@ -825,6 +825,9 @@ await step('Bộ lọc không làm cháy thẻ có ảnh/con dấu/khối tối;
   await clickText(b, 'Đen trắng', '#filter-chips button'); await waitFilterIdle(b);
   const bw = await b.$eval('#filter-hint', (e) => e.classList.contains('warn'));
   if (!bw) throw new Error('Đen trắng thiếu cảnh báo');
+  await clickText(b, 'Trắng đen tài liệu', '#filter-chips button'); await waitFilterIdle(b);
+  const dbw = await b.$eval('#filter-hint', (e) => e.classList.contains('warn'));
+  if (!dbw) throw new Error('Trắng đen tài liệu thiếu cảnh báo');
   await b.__ctx.close();
   return 'khối tối ' + out['Nền trắng'].dark + ', con dấu ' + out['Nền trắng'].stamp;
 }, page);

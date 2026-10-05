@@ -3,11 +3,14 @@
 // rồi chia ảnh cho nền đó để bỏ bóng đổ và đưa nền về trắng.
 
 export const FILTERS = [
+  { id: 'auto', label: 'Màu tự động', hint: 'Tự chọn: văn bản thì nền trắng, nét rõ; có ảnh/con dấu thì giữ màu. Nên dùng mặc định.' },
+  { id: 'sharp', label: 'Ảnh rõ nét', hint: 'Nền trắng, chữ đậm và sắc nét, vẫn giữ màu mực và con dấu.' },
+  { id: 'docbw', label: 'Trắng đen tài liệu', hint: 'Như bản photo: chữ đen trên nền trắng tinh, nhẹ khi in hoặc gửi. Mất ảnh và màu.' },
+  { id: 'deshadow', label: 'Khử bóng', hint: 'Bỏ bóng đổ, cân bằng màu giấy, giữ ảnh. Hợp giấy tờ có ảnh.' },
   { id: 'original', label: 'Gốc', hint: 'Giữ nguyên màu. Hợp giấy tờ có ảnh, con dấu.' },
+  { id: 'gray', label: 'Xám', hint: 'Bỏ màu: con dấu đỏ và ảnh sẽ thành xám.' },
   { id: 'magic', label: 'Nền trắng', hint: 'Làm trắng nền, hợp văn bản thuần. Có thể làm nhạt ảnh và con dấu.' },
   { id: 'bw', label: 'Đen trắng', hint: 'Chỉ nên dùng cho văn bản thuần: mất ảnh, con dấu và màu.' },
-  { id: 'gray', label: 'Xám', hint: 'Bỏ màu: con dấu đỏ và ảnh sẽ thành xám.' },
-  { id: 'deshadow', label: 'Khử bóng', hint: 'Bỏ bóng đổ, giữ màu và ảnh. Nên dùng mặc định.' },
 ];
 
 const BINS = 64;
@@ -36,7 +39,9 @@ function dilateGrid(a, gw, gh) {
         const Y = y + yy; if (Y < 0 || Y >= gh) continue;
         for (let xx = -1; xx <= 1; xx++) { const X = x + xx; if (X < 0 || X >= gw) continue; if (a[Y * gw + X] > m) m = a[Y * gw + X]; }
       }
-      out[y * gw + x] = m;
+      // ô chỉ kém hẳn lân cận (do dính mực) mới được thay bằng giá trị lớn nhất; bóng đổ thoải thì giữ nguyên giá trị ô
+      const g0 = a[y * gw + x];
+      out[y * gw + x] = g0 >= m * 0.8 ? g0 : m;
     }
   }
   return out;
@@ -87,8 +92,28 @@ export function estimateBackground(img, pct = 0.85) {
   const ref = sortedL[Math.floor(n * 0.8)];
   const known = new Uint8Array(n);
   let nKnown = 0;
-  for (let i = 0; i < n; i++) if (lumG[i] >= Math.max(110, ref * 0.62) && sat[i] <= 0.3) { known[i] = 1; nKnown++; }
-  const nonPaper = 1 - nKnown / n;
+  for (let i = 0; i < n; i++) if (lumG[i] >= Math.max(24, Math.min(110, ref * 0.8), ref * 0.62) && sat[i] <= 0.3) { known[i] = 1; nKnown++; }
+  // Bóng đổ lớn (bàn tay, nếp gấp) sáng dần/tối dần: ô hơi tối hơn ô giấy bên cạnh vẫn là giấy.
+  // Ảnh/khối tối thì tụt đột ngột nên không bị coi là giấy.
+  for (let guard = 0; guard < gw + gh; guard++) {
+    const add = [];
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+      const i = y * gw + x;
+      if (known[i] || sat[i] > 0.3 || lumG[i] < Math.max(16, Math.min(55, ref * 0.6), ref * 0.42)) continue;
+      let best = 0;
+      for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+        const X = x + xx, Y = y + yy;
+        if (X < 0 || Y < 0 || X >= gw || Y >= gh) continue;
+        const j = Y * gw + X;
+        if (known[j] && lumG[j] > best) best = lumG[j];
+      }
+      if (best > 0 && lumG[i] >= best * 0.86) add.push(i);
+    }
+    if (!add.length) break;
+    for (const i of add) { known[i] = 1; nKnown++; }
+  }
+  const nonPaper0 = 1 - nKnown / n;
+  const nonPaper = Math.max(nonPaper0, 0);
   if (nKnown > 0 && nKnown < n) {
     for (let guard = 0; guard < gw + gh && nKnown < n; guard++) {
       const add = [];
@@ -134,19 +159,27 @@ const clamp255 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v);
 const smooth = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
 
 /** Nền trắng (kiểu "Magic Color"): chia theo nền từng kênh, kéo tương phản, tăng nhẹ độ bão hòa. */
-export function filterMagic(img) {
+export function filterMagic(img, bg) {
   const { width: w, height: h, data } = img;
-  const bg = estimateBackground(img);
+  bg = bg || estimateBackground(img);
   const sm = makeSampler(bg);
   const lo = 38, hi = 228;
   const k = 255 / (hi - lo);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
-      const br = Math.max(90, sm(bg.r, x, y)), bgc = Math.max(90, sm(bg.g, x, y)), bb = Math.max(90, sm(bg.b, x, y));
+      const br = Math.max(12, sm(bg.r, x, y)), bgc = Math.max(12, sm(bg.g, x, y)), bb = Math.max(12, sm(bg.b, x, y));
       let r = (data[i] * 255) / br, g = (data[i + 1] * 255) / bgc, b = (data[i + 2] * 255) / bb;
       r = clamp255((r - lo) * k); g = clamp255((g - lo) * k); b = clamp255((b - lo) * k);
-      const l = 0.299 * r + 0.587 * g + 0.114 * b;
+      let l = 0.299 * r + 0.587 * g + 0.114 * b;
+      // tăng đậm nét nhạt (bút chì, mực xanh nhạt, mực phai): kéo các điểm xám trung bình tối đi, giữ nguyên màu mực và nền trắng
+      if (l > 1) {
+        const ln = l / 255, t = smooth(0.5, 0.97, ln), a = 0.45 * smooth(0.5, 0.66, ln);
+        const target = l * (1 - a) + t * 255 * a;
+        const gain = target / l;
+        r = clamp255(r * gain); g = clamp255(g * gain); b = clamp255(b * gain);
+        l = 0.299 * r + 0.587 * g + 0.114 * b;
+      }
       const sat = 1.18;
       data[i] = clamp255(l + (r - l) * sat); data[i + 1] = clamp255(l + (g - l) * sat); data[i + 2] = clamp255(l + (b - l) * sat);
     }
@@ -154,19 +187,121 @@ export function filterMagic(img) {
   return img;
 }
 
-/** Khử bóng: chỉ chia cho độ sáng nền (giữ nguyên sắc giấy và ảnh), không kéo tương phản mạnh. */
-export function filterDeshadow(img) {
+/** Khử bóng: chia từng kênh cho màu nền (bỏ bóng đổ và ám màu giấy), không kéo tương phản mạnh. */
+export function filterDeshadow(img, bg) {
   const { width: w, height: h, data } = img;
-  const bg = estimateBackground(img);
+  bg = bg || estimateBackground(img);
   const sm = makeSampler(bg);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
-      const bl = Math.max(90, 0.299 * sm(bg.r, x, y) + 0.587 * sm(bg.g, x, y) + 0.114 * sm(bg.b, x, y));
-      const f = 250 / bl;
-      data[i] = clamp255(data[i] * f); data[i + 1] = clamp255(data[i + 1] * f); data[i + 2] = clamp255(data[i + 2] * f);
+      const br = Math.max(12, sm(bg.r, x, y)), bgc = Math.max(12, sm(bg.g, x, y)), bb = Math.max(12, sm(bg.b, x, y));
+      // cân bằng trắng nhẹ: kéo màu nền về gần trung tính nhưng không xóa hẳn sắc giấy
+      const lum = 0.299 * br + 0.587 * bgc + 0.114 * bb;
+      const kr = 0.8 * (252 / br) + 0.2 * (252 / lum), kg = 0.8 * (252 / bgc) + 0.2 * (252 / lum), kb = 0.8 * (252 / bb) + 0.2 * (252 / lum);
+      data[i] = clamp255(data[i] * kr); data[i + 1] = clamp255(data[i + 1] * kg); data[i + 2] = clamp255(data[i + 2] * kb);
     }
   }
+  return img;
+}
+
+/** Làm nét kiểu "unsharp mask" chỉ trên độ sáng (không viền màu). radius tính theo điểm ảnh, amount ~0.6..1.6. */
+export function sharpen(img, amount = 1, radius) {
+  const { width: w, height: h, data } = img;
+  const r = radius || Math.max(1, Math.round(Math.min(w, h) / 700));
+  const n = w * h;
+  const lum = new Float32Array(n);
+  for (let i = 0; i < n; i++) lum[i] = 0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2];
+  let cur = lum;
+  for (let pass = 0; pass < 3; pass++) cur = boxBlurF(cur, w, h, r); // 3 lần hộp ~ Gauss
+  for (let i = 0; i < n; i++) {
+    const d = (lum[i] - cur[i]) * amount;
+    const o = i * 4;
+    data[o] = clamp255(data[o] + d); data[o + 1] = clamp255(data[o + 1] + d); data[o + 2] = clamp255(data[o + 2] + d);
+  }
+  return img;
+}
+
+function boxBlurF(src, w, h, rad) {
+  const tmp = new Float32Array(w * h), out = new Float32Array(w * h);
+  const win = 2 * rad + 1;
+  for (let y = 0; y < h; y++) {
+    let s = 0;
+    for (let x = -rad; x <= rad; x++) s += src[y * w + Math.min(w - 1, Math.max(0, x))];
+    for (let x = 0; x < w; x++) {
+      tmp[y * w + x] = s / win;
+      s += src[y * w + Math.min(w - 1, x + rad + 1)] - src[y * w + Math.max(0, x - rad)];
+    }
+  }
+  for (let x = 0; x < w; x++) {
+    let s = 0;
+    for (let y = -rad; y <= rad; y++) s += tmp[Math.min(h - 1, Math.max(0, y)) * w + x];
+    for (let y = 0; y < h; y++) {
+      out[y * w + x] = s / win;
+      s += tmp[Math.min(h - 1, y + rad + 1) * w + x] - tmp[Math.max(0, y - rad) * w + x];
+    }
+  }
+  return out;
+}
+
+/** Ảnh rõ nét: nền trắng + làm nét + chữ đậm hơn một chút. Giữ màu mực. */
+export function filterSharp(img, bg) {
+  filterMagic(img, bg);
+  sharpen(img, 1.1);
+  return img;
+}
+
+/** Trắng đen tài liệu: chuẩn hóa theo nền rồi ngưỡng cục bộ kiểu Sauvola (chữ đen, nền trắng tinh, chịu được bóng và nền loang). */
+export function filterDocBW(img, bg) {
+  const { width: w, height: h, data } = img;
+  bg = bg || estimateBackground(img);
+  const sm = makeSampler(bg);
+  const n = w * h;
+  const L = new Float32Array(n);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x, o = i * 4;
+    const bl = Math.max(12, 0.299 * sm(bg.r, x, y) + 0.587 * sm(bg.g, x, y) + 0.114 * sm(bg.b, x, y));
+    L[i] = Math.min(1.3, (0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2]) / bl);
+  }
+  // ảnh tích phân của L và L^2 để lấy trung bình/độ lệch cục bộ
+  const W1 = w + 1;
+  const I1 = new Float64Array(W1 * (h + 1)), I2 = new Float64Array(W1 * (h + 1));
+  for (let y = 0; y < h; y++) {
+    let r1 = 0, r2 = 0;
+    for (let x = 0; x < w; x++) {
+      const v = L[y * w + x];
+      r1 += v; r2 += v * v;
+      I1[(y + 1) * W1 + x + 1] = I1[y * W1 + x + 1] + r1;
+      I2[(y + 1) * W1 + x + 1] = I2[y * W1 + x + 1] + r2;
+    }
+  }
+  const win = Math.max(12, Math.round(Math.min(w, h) / 28));
+  const k = 0.3, R = 0.3;
+  for (let y = 0; y < h; y++) {
+    const y0 = Math.max(0, y - win), y1 = Math.min(h, y + win + 1);
+    for (let x = 0; x < w; x++) {
+      const x0 = Math.max(0, x - win), x1 = Math.min(w, x + win + 1);
+      const cnt = (x1 - x0) * (y1 - y0);
+      const s1 = I1[y1 * W1 + x1] - I1[y0 * W1 + x1] - I1[y1 * W1 + x0] + I1[y0 * W1 + x0];
+      const s2 = I2[y1 * W1 + x1] - I2[y0 * W1 + x1] - I2[y1 * W1 + x0] + I2[y0 * W1 + x0];
+      const m = s1 / cnt, sd = Math.sqrt(Math.max(0, s2 / cnt - m * m));
+      // vùng phẳng (không chữ): ngưỡng thấp để nền luôn trắng; vùng có nét: ngưỡng Sauvola
+      let T = m * (1 + k * (sd / R - 1));
+      T = Math.min(T, 0.82);
+      const v = L[y * w + x];
+      const t = smooth(T - 0.07, T + 0.03, v);
+      const o = (y * w + x) * 4;
+      const c = 255 * t;
+      data[o] = data[o + 1] = data[o + 2] = c;
+    }
+  }
+  return img;
+}
+
+/** Màu tự động: văn bản thuần -> Ảnh rõ nét; có ảnh/con dấu lớn -> Khử bóng + làm nét nhẹ. */
+export function filterAuto(img, bg) {
+  bg = bg || estimateBackground(img);
+  if (bg.nonPaper > 0.12) { filterDeshadow(img, bg); sharpen(img, 0.7); } else filterSharp(img, bg);
   return img;
 }
 
@@ -178,7 +313,7 @@ export function filterBW(img, threshold = 0.76) {
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
-      const bl = Math.max(90, 0.299 * sm(bg.r, x, y) + 0.587 * sm(bg.g, x, y) + 0.114 * sm(bg.b, x, y));
+      const bl = Math.max(12, 0.299 * sm(bg.r, x, y) + 0.587 * sm(bg.g, x, y) + 0.114 * sm(bg.b, x, y));
       const l = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / bl;
       const v = 255 * smooth(threshold - 0.14, threshold + 0.04, l);
       data[i] = data[i + 1] = data[i + 2] = v;
@@ -209,8 +344,33 @@ export function filterGray(img) {
   return img;
 }
 
+/** Ảnh quá tối thường nhiều nhiễu hạt: làm mịn nhẹ 3x3 trước khi lọc để chia cho nền không khuếch đại nhiễu. */
+export function denoiseIfDark(img) {
+  const { width: w, height: h, data } = img;
+  const sample = [];
+  for (let i = 0; i < w * h; i += 37) sample.push(0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2]);
+  sample.sort((a, b) => a - b);
+  const p70 = sample[Math.floor(sample.length * 0.7)] || 255;
+  if (p70 >= 125) return false;
+  const tmp = new Uint8ClampedArray(data.length);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const o = (y * w + x) * 4, a = (y * w + Math.max(0, x - 1)) * 4, b = (y * w + Math.min(w - 1, x + 1)) * 4;
+    for (let c = 0; c < 3; c++) tmp[o + c] = (data[a + c] + data[o + c] * 2 + data[b + c]) / 4;
+    tmp[o + 3] = 255;
+  }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const o = (y * w + x) * 4, a = (Math.max(0, y - 1) * w + x) * 4, b = (Math.min(h - 1, y + 1) * w + x) * 4;
+    for (let c = 0; c < 3; c++) data[o + c] = (tmp[a + c] + tmp[o + c] * 2 + tmp[b + c]) / 4;
+  }
+  return true;
+}
+
 export function applyFilter(img, id) {
+  if (id !== 'original' && id !== 'gray') denoiseIfDark(img);
   switch (id) {
+    case 'auto': return filterAuto(img);
+    case 'sharp': return filterSharp(img);
+    case 'docbw': return filterDocBW(img);
     case 'magic': return filterMagic(img);
     case 'bw': return filterBW(img);
     case 'gray': return filterGray(img);

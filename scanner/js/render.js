@@ -2,6 +2,8 @@
 import { warpPerspective, rotateRGBA, quadSize, fitEdge, toPixels } from './geom.js';
 import { applyFilter, looksLikePhoto } from './filters.js';
 import { detectDocument } from './edges.js';
+import { detectOrientation } from './orient.js';
+import { applyFixes } from './fixes.js';
 
 export const SRC_MAX_EDGE = 2600;
 
@@ -105,13 +107,16 @@ export async function renderPage(page, opts = {}) {
   const outData = warpPerspective(src, quad, o.w, o.h);
   let img = { data: outData, width: o.w, height: o.h };
   const photoLike = opts.analyze ? looksLikePhoto(img) : false;
-  applyFilter(img, opts.filter || page.filter || 'original');
   if (page.rot) img = rotateRGBA(img, page.rot);
+  let fixInfo = null;
+  if (!opts.noFix) { const r = applyFixes(img, page); img = r.img; fixInfo = r.info; }
+  applyFilter(img, opts.filter || page.filter || 'original');
   const canvas = makeCanvas(img.width, img.height);
   const ctx = canvas.getContext('2d');
   ctx.putImageData(new ImageData(img.data, img.width, img.height), 0, 0);
   if (!opts.noSigns) drawSigns(ctx, canvas.width, canvas.height, page.signs, opts.sigImages);
   canvas.photoLike = photoLike;
+  canvas.fixInfo = fixInfo;
   return canvas;
 }
 
@@ -157,4 +162,23 @@ export function pickFiles({ accept = 'image/*', multiple = true, capture } = {})
     inp.addEventListener('cancel', () => finish([]));
     inp.click();
   });
+}
+
+/** Dò hướng chữ của trang (đã nắn phẳng, chưa xoay): { axisRot, rot, conf, ratio, horizontal }. */
+export async function pageOrientation(page) {
+  const canvas = await renderPage({ ...page, rot: 0, signs: [] }, { srcEdge: 1400, maxEdge: 1000, filter: 'auto', noSigns: true, noFix: true });
+  const id = canvas.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, canvas.width, canvas.height);
+  return detectOrientation(id);
+}
+
+/** Xoay canvas theo bội số 90 độ (chiều kim đồng hồ). */
+export function rotateCanvas(canvas, deg) {
+  const d = ((deg % 360) + 360) % 360;
+  if (!d) return canvas;
+  const swap = d % 180 !== 0;
+  const c = makeCanvas(swap ? canvas.height : canvas.width, swap ? canvas.width : canvas.height);
+  const x = c.getContext('2d');
+  x.translate(c.width / 2, c.height / 2); x.rotate((d * Math.PI) / 180);
+  x.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  return c;
 }

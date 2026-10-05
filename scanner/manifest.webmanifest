@@ -1,7 +1,7 @@
 {
   "name": "9scanner — Quét tài liệu trên máy bạn",
   "short_name": "9scanner",
-  "description": "Quét giấy tờ bằng camera: tự cắt, nắn phẳng, lọc nền trắng, ghép PDF, đọc chữ tiếng Việt, ký tay. Xử lý hoàn toàn trên máy.",
+  "description": "Quét giấy tờ bằng camera: tự cắt, nắn phẳng, khử bóng, đọc chữ tiếng Việt, xuất PDF/Word/Excel, chuyển đổi và gộp tách PDF. Xử lý hoàn toàn trên máy.",
   "lang": "vi",
   "dir": "ltr",
   "id": "./",

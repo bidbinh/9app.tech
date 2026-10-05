@@ -76,12 +76,17 @@ export function recognizeCanvas(canvas, onProgress) {
       const w = await getWorker();
       const res = await w.recognize(canvas, {}, { text: true, blocks: true });
       const d = res.data;
-      const words = [];
-      for (const b of d.blocks || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) for (const wd of l.words || []) {
-        if (!wd.text || !wd.text.trim()) continue;
-        words.push({ text: wd.text.trim(), x0: wd.bbox.x0, y0: wd.bbox.y0, x1: wd.bbox.x1, y1: wd.bbox.y1, conf: wd.confidence });
+      const words = [], lines = [];
+      for (const b of d.blocks || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) {
+        const lw = [];
+        for (const wd of l.words || []) {
+          if (!wd.text || !wd.text.trim()) continue;
+          const w = { text: wd.text.trim(), x0: wd.bbox.x0, y0: wd.bbox.y0, x1: wd.bbox.x1, y1: wd.bbox.y1, conf: wd.confidence };
+          words.push(w); lw.push(w);
+        }
+        if (lw.length) lines.push({ words: lw });
       }
-      return { text: (d.text || '').trim(), words, width: canvas.width, height: canvas.height, confidence: d.confidence };
+      return { text: (d.text || '').trim(), words, lines, width: canvas.width, height: canvas.height, confidence: d.confidence };
     } catch (e) {
       await disposeOcr(); // worker có thể đã hỏng: lần sau dựng lại
       const err = new Error(friendly(e));

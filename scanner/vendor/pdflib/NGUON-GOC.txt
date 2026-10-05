@@ -1,0 +1,3 @@
+pdf-lib 1.17.1 (MIT, Andrew Dillon): dist/pdf-lib.min.js lấy từ npm (registry.npmjs.org), giữ nguyên.
+Dùng để gộp, tách, xoay, đóng dấu PDF và làm nền cho bộ mã hóa mật khẩu tự viết (js/pdfcrypt.js).
+Giấy phép đầy đủ: LICENSE-pdf-lib.txt. Nạp lười khi dùng công cụ PDF lần đầu.

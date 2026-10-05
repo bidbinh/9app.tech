@@ -1,0 +1,9 @@
+Thư viện bên thứ ba (vendor hóa, không nạp từ CDN):
+- pdf.js (pdfjs-dist 5.6.205, Apache-2.0, Mozilla): bản "legacy" (chạy được trên trình duyệt cũ hơn)
+    pdf.min.js        = legacy/build/pdf.min.mjs
+    pdf.worker.min.js = legacy/build/pdf.worker.min.mjs
+  Đổi đuôi .mjs thành .js để máy chủ luôn trả đúng kiểu MIME JavaScript (không phụ thuộc cấu hình .mjs của nginx).
+- wasm/jbig2.wasm, wasm/openjpeg.wasm (giải mã ảnh JBIG2 và JPEG2000 trong PDF quét): kèm giấy phép LICENSE_* cùng thư mục.
+Giấy phép đầy đủ: LICENSE-pdfjs.txt (Apache-2.0).
+Không kèm: phông chuẩn (standard_fonts) và cmaps; PDF không nhúng phông sẽ dùng phông hệ thống.
+Lấy từ npm (registry.npmjs.org). Dùng lười: chỉ tải khi người dùng mở công cụ PDF.

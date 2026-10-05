@@ -5,6 +5,7 @@
 //  4) bao lồi -> rút về tứ giác bao nhỏ nhất,
 //  5) chấm điểm theo độ lấp đầy; điểm thấp nghĩa là không chắc (giao diện sẽ báo cho người dùng chỉnh tay).
 import { orderCorners, polygonArea, isConvexQuad } from './geom.js';
+import { houghQuad } from './lines.js';
 
 const DETECT_EDGE = 400;
 
@@ -283,10 +284,179 @@ function evaluateMask(mask, w, h, feat) {
     let score = fill * fill * (0.55 + 0.45 * Math.min(1, areaFrac / 0.3));
     if (!isConvexQuad(ordered) || !anglesOK(ordered)) score *= 0.4;
     if (touch >= 3) score *= 0.8;
+    // tứ giác ôm gần hết khung hình: nhiều khả năng là cả nền, không phải tờ giấy
+    const m2 = Math.min(w, h) * 0.03;
+    if (ordered.every((p) => p.x < m2 || p.y < m2 || p.x > w - m2 || p.y > h - m2) && areaFrac > 0.8) score *= 0.5;
     score *= 0.35 + 0.65 * edgeContrast(ordered, feat, w, h);
     if (!best || score > best.score) best = { score, quad: ordered, areaFrac, fill };
   }
   return best;
+}
+
+// Tinh chỉnh từng cạnh: mép giấy bị bóng đổ thường tối gần bằng nền nên mặt nạ cắt lẹm vào trong.
+// Thử dịch cạnh ra ngoài tới 8% và giữ vị trí có biên màu mạnh nhất (trung vị dọc cạnh, nên chữ và vân bàn không đánh lừa).
+const SLOPE_REFINE = false; // thử khớp độ nghiêng từng cạnh: chưa cải thiện ổn định trên ảnh thử, để tắt
+function refineQuad(quad, feat, w, h) {
+  const cx = quad.reduce((a, p) => a + p.x, 0) / 4, cy = quad.reduce((a, p) => a + p.y, 0) / 4;
+  const maxOutNear = Math.min(w, h) * 0.08, maxOutFar = Math.min(w, h) * 0.16;
+  const px = (arr, x, y) => arr[Math.min(h - 1, Math.max(0, Math.round(y))) * w + Math.min(w - 1, Math.max(0, Math.round(x)))];
+  const lines = [];
+  for (let i = 0; i < 4; i++) {
+    const p = quad[i], r = quad[(i + 1) % 4];
+    const dx = r.x - p.x, dy = r.y - p.y, len = Math.hypot(dx, dy) || 1;
+    let nx = -dy / len, ny = dx / len;
+    if (((p.x + r.x) / 2 - cx) * nx + ((p.y + r.y) / 2 - cy) * ny < 0) { nx = -nx; ny = -ny; }
+    // độ mạnh biên tại độ lệch d (điểm ảnh, dương = ra ngoài) trên đoạn t0..t1 của cạnh (trung vị nên chữ/vân bàn không đánh lừa)
+    const strength = (d, t0 = 0.12, t1 = 0.88, N0 = 0) => {
+      const N = N0 || Math.max(12, Math.min(60, Math.round(len * (t1 - t0) / 3.5)));
+      const vals = [];
+      let skipped = 0;
+      for (let k = 0; k < N; k++) {
+        const t = t0 + ((t1 - t0) * k) / (N - 1);
+        const bx = p.x + dx * t + nx * d, by = p.y + dy * t + ny * d;
+        const ix = bx - nx * 2.5, iy = by - ny * 2.5, ox = bx + nx * 2.5, oy = by + ny * 2.5;
+        if (ox < 0 || oy < 0 || ox > w - 1 || oy > h - 1 || ix < 0 || iy < 0 || ix > w - 1 || iy > h - 1) { skipped++; continue; }
+        vals.push(Math.hypot(px(feat.r, ix, iy) - px(feat.r, ox, oy), px(feat.g, ix, iy) - px(feat.g, ox, oy), px(feat.b, ix, iy) - px(feat.b, ox, oy)));
+      }
+      if (skipped > N * 0.4 || vals.length < 5) return -1;
+      vals.sort((a, b) => a - b);
+      return vals[vals.length >> 1];
+    };
+    const s0 = strength(0);
+    let bestD = 0, bestS = s0;
+    if (s0 >= 0) {
+      const maxOut = s0 < 22 ? maxOutFar : maxOutNear; // đang ở chỗ phẳng: tìm xa hơn
+      for (let d = 1; d <= maxOut; d++) {
+        const s = strength(d) - 0.1 * d;
+        if (s > bestS) { bestS = s; bestD = d; }
+      }
+    }
+    const moved = bestD > 0 && bestS >= Math.max(16, 1.25 * Math.max(s0, 1));
+    const d0 = moved ? bestD : 0;
+    const edgeS = moved ? bestS : s0;
+    // sửa độ nghiêng của cạnh: tìm vị trí biên tốt nhất theo từng đoạn rồi khớp đường thẳng (mặt nạ thường cho cạnh hơi lệch góc)
+    let slope = 0, off = d0;
+    if (SLOPE_REFINE && moved && edgeS >= 30) {
+      const pts = [];
+      const SEG = 6;
+      for (let sgi = 0; sgi < SEG; sgi++) {
+        const t0 = 0.1 + (0.8 * sgi) / SEG, t1 = 0.1 + (0.8 * (sgi + 1)) / SEG;
+        let bd = d0, bs = -1;
+        for (let d = d0 - 10; d <= d0 + 10; d++) { const s2 = strength(d, t0, t1, 10) - 0.15 * Math.abs(d - d0); if (s2 > bs) { bs = s2; bd = d; } }
+        if (bs >= 0.5 * edgeS) pts.push({ t: (t0 + t1) / 2, d: bd });
+      }
+      if (pts.length >= 4) {
+        const n = pts.length; let st = 0, sd = 0, stt = 0, std = 0;
+        for (const q of pts) { st += q.t; sd += q.d; stt += q.t * q.t; std += q.t * q.d; }
+        const den = n * stt - st * st;
+        if (den > 1e-9) { slope = (n * std - st * sd) / den; off = (sd - slope * st) / n; }
+        // giới hạn: không dịch quá xa so với kết quả ban đầu
+        if (Math.abs(slope) > len * 0.12) { slope = 0; off = d0; }
+      }
+    }
+    // đường mới: tại t, độ lệch = off + slope * (t - 0.5)
+    const dA = off + slope * (0 - 0.5), dB = off + slope * (1 - 0.5);
+    lines.push({ ax: p.x + nx * dA, ay: p.y + ny * dA, bx: r.x + nx * dB, by: r.y + ny * dB, changed: Math.abs(dA) > 0.01 || Math.abs(dB) > 0.01 });
+  }
+  if (!lines.some((l) => l.changed)) return quad;
+  const out = [];
+  for (let i = 0; i < 4; i++) {
+    const a = lines[(i + 3) % 4], b = lines[i];
+    const adx = a.bx - a.ax, ady = a.by - a.ay, bdx = b.bx - b.ax, bdy = b.by - b.ay;
+    const den = adx * bdy - ady * bdx;
+    if (Math.abs(den) < 1e-6) return quad;
+    const t = ((b.ax - a.ax) * bdy - (b.ay - a.ay) * bdx) / den;
+    out.push({ x: a.ax + adx * t, y: a.ay + ady * t });
+  }
+  if (!isConvexQuad(out) || out.some((p) => p.x < -w * 0.02 || p.y < -h * 0.02 || p.x > w * 1.02 || p.y > h * 1.02)) return quad;
+  return out;
+}
+
+// Mở rộng cạnh khi ngay ngoài cạnh vẫn là giấy (cùng sắc độ và còn đủ sáng): bóng đổ làm mặt nạ cắt lẹm vào trong giấy.
+// Mỗi cạnh chia 3 đoạn, mỗi đoạn tự đẩy ra ngoài tới khi gặp màu khác giấy rồi khớp đường thẳng (nên cả độ nghiêng cũng được sửa).
+// Không chạy trên cạnh có nền bàn cùng màu giấy (bàn trắng): kiểm bằng vùng xa hơn ngoài cạnh.
+function growQuad(quad, feat, w, h) {
+  const cx = quad.reduce((a, p) => a + p.x, 0) / 4, cy = quad.reduce((a, p) => a + p.y, 0) / 4;
+  const inside = (x, y) => {
+    let sign = 0;
+    for (let i = 0; i < 4; i++) { const p = quad[i], q = quad[(i + 1) % 4]; const c = (q.x - p.x) * (y - p.y) - (q.y - p.y) * (x - p.x); if (c !== 0) { const sg = c > 0 ? 1 : -1; if (sign && sg !== sign) return false; sign = sg; } }
+    return true;
+  };
+  const cbOf = (r, g, b) => 128 - 0.168736 * r - 0.331264 * g + 0.5 * b, crOf = (r, g, b) => 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+  // màu giấy tham chiếu từ phần sáng trong tứ giác
+  const xs = quad.map((p) => p.x), ys = quad.map((p) => p.y);
+  const lums = [], cbs = [], crs = [];
+  for (let y = Math.max(0, Math.floor(Math.min(...ys))); y < Math.min(h, Math.ceil(Math.max(...ys))); y += 2) for (let x = Math.max(0, Math.floor(Math.min(...xs))); x < Math.min(w, Math.ceil(Math.max(...xs))); x += 2) {
+    if (!inside(x, y)) continue;
+    const i = y * w + x; const l = 0.299 * feat.r[i] + 0.587 * feat.g[i] + 0.114 * feat.b[i];
+    lums.push(l); cbs.push(cbOf(feat.r[i], feat.g[i], feat.b[i])); crs.push(crOf(feat.r[i], feat.g[i], feat.b[i]));
+  }
+  if (lums.length < 200) return quad;
+  const sl = Float32Array.from(lums).sort(), lHi = sl[Math.floor(sl.length * 0.85)];
+  const sel = []; for (let i = 0; i < lums.length; i++) if (lums[i] >= lHi * 0.8) sel.push(i);
+  const med = (a) => { const t = a.slice().sort((x, y) => x - y); return t[t.length >> 1]; };
+  const refCb = med(sel.map((i) => cbs[i])), refCr = med(sel.map((i) => crs[i]));
+  const paperLike = (x, y) => {
+    if (x < 1 || y < 1 || x > w - 2 || y > h - 2) return null; // ngoài khung ảnh
+    const i = Math.round(y) * w + Math.round(x);
+    const r = feat.r[i], g = feat.g[i], b = feat.b[i], l = 0.299 * r + 0.587 * g + 0.114 * b;
+    return Math.abs(cbOf(r, g, b) - refCb) <= 9 && Math.abs(crOf(r, g, b) - refCr) <= 9 && l >= lHi * 0.42;
+  };
+  const maxGrow = Math.round(Math.min(w, h) * 0.07);
+  const lines = [];
+  let any = false;
+  for (let i = 0; i < 4; i++) {
+    const p = quad[i], r = quad[(i + 1) % 4];
+    const dx = r.x - p.x, dy = r.y - p.y, len = Math.hypot(dx, dy) || 1;
+    let nx = -dy / len, ny = dx / len;
+    if (((p.x + r.x) / 2 - cx) * nx + ((p.y + r.y) / 2 - cy) * ny < 0) { nx = -nx; ny = -ny; }
+    const lumAt = (x, y) => { const j = Math.round(y) * w + Math.round(x); return 0.299 * feat.r[j] + 0.587 * feat.g[j] + 0.114 * feat.b[j]; };
+    const frac = (t0, t1, d) => {
+      let hit = 0, tot = 0;
+      for (let k = 0; k < 12; k++) {
+        const t = t0 + ((t1 - t0) * k) / 11;
+        const x = p.x + dx * t + nx * d, y = p.y + dy * t + ny * d;
+        const v = paperLike(x, y);
+        if (v === null) continue;
+        tot++;
+        // bóng đổ trên giấy đổi sáng từ từ; mép giấy/bàn thì nhảy bậc: có bậc thì không phải giấy tiếp diễn
+        const xb = x - nx * 3, yb = y - ny * 3;
+        if (v && xb > 1 && yb > 1 && xb < w - 2 && yb < h - 2 && Math.abs(lumAt(x, y) - lumAt(xb, yb)) <= 0.06 * lHi) hit++;
+      }
+      return tot >= 6 ? hit / tot : -1;
+    };
+    // bàn cùng màu giấy? kiểm vùng xa hơn một chút ngoài cạnh
+    const far = frac(0.1, 0.9, maxGrow + 6);
+    const wins = [[0.06, 0.34], [0.34, 0.66], [0.66, 0.94]];
+    const pts = [];
+    for (const [t0, t1] of wins) {
+      let d = 0;
+      while (d < maxGrow && frac(t0, t1, d + 2) >= 0.72) d++;
+      pts.push({ t: (t0 + t1) / 2, d });
+    }
+    const deskLikePaper = far >= 0.5;
+    if (deskLikePaper || pts.every((q) => q.d === 0)) { lines.push({ ax: p.x, ay: p.y, bx: r.x, by: r.y, changed: false }); continue; }
+    // khớp đường thẳng d = a + b t; không thu vào trong
+    const n = pts.length; let st = 0, sd = 0, stt = 0, std = 0;
+    for (const q of pts) { st += q.t; sd += q.d; stt += q.t * q.t; std += q.t * q.d; }
+    const den = n * stt - st * st;
+    const slope = (n * std - st * sd) / den, off = (sd - slope * st) / n;
+    const dA = Math.max(0, off), dB = Math.max(0, off + slope);
+    lines.push({ ax: p.x + nx * dA, ay: p.y + ny * dA, bx: r.x + nx * dB, by: r.y + ny * dB, changed: dA > 0.5 || dB > 0.5 });
+    if (dA > 0.5 || dB > 0.5) any = true;
+  }
+  if (!any) return quad;
+  const out = [];
+  for (let i = 0; i < 4; i++) {
+    const a = lines[(i + 3) % 4], b = lines[i];
+    const adx = a.bx - a.ax, ady = a.by - a.ay, bdx = b.bx - b.ax, bdy = b.by - b.ay;
+    const den = adx * bdy - ady * bdx;
+    if (Math.abs(den) < 1e-6) return quad;
+    const t = ((b.ax - a.ax) * bdy - (b.ay - a.ay) * bdx) / den;
+    out.push({ x: a.ax + adx * t, y: a.ay + ady * t });
+  }
+  if (!isConvexQuad(out) || out.some((p) => p.x < -w * 0.02 || p.y < -h * 0.02 || p.x > w * 1.02 || p.y > h * 1.02)) return quad;
+  return out;
 }
 
 /**
@@ -350,6 +520,12 @@ export function detectDocument(img, opts = {}) {
       consider('ngưỡng', m);
     }
   }
+  // Bổ sung: dò theo cạnh (Hough). Dùng khi cách dò mặt nạ yếu, hoặc khi cạnh dò được ôm trọn hơn (bóng đổ che mép giấy).
+  let hq = null;
+  if (!opts.noHough) { try { hq = houghQuad(br, bg, bb, w, h); } catch (e) { hq = null; } }
+  if (hq && hq.score >= 0.6 && (!best || best.score < 0.7)) {
+    best = { score: hq.score, quad: orderCorners(hq.quad), areaFrac: hq.areaFrac, method: 'cạnh', fromHough: true };
+  }
   const W = img.width, H = img.height;
   if (!best || best.score < 0.45) {
     const m = 0.05;
@@ -360,11 +536,14 @@ export function detectDocument(img, opts = {}) {
   }
   const k = s.f;
   // Thu vào trong khoảng 1,5 điểm ảnh (ở độ phân giải nhận dạng) để không lẫn viền nền ở mép giấy
+  if (!best.fromHough && !opts.noRefine) { const feat = { r: br, g: bg, b: bb }; const q1 = refineQuad(orderCorners(best.quad), feat, w, h); best = { ...best, quad: opts.noGrow ? q1 : growQuad(q1, feat, w, h) }; }
   const cx = best.quad.reduce((a, p) => a + p.x, 0) / 4, cy = best.quad.reduce((a, p) => a + p.y, 0) / 4;
+  const inset = 4;
   const corners = best.quad.map((p) => {
     const dx = cx - p.x, dy = cy - p.y, len = Math.hypot(dx, dy) || 1;
-    const q = { x: p.x + (dx / len) * 1.5, y: p.y + (dy / len) * 1.5 };
+    const q = { x: p.x + (dx / len) * inset, y: p.y + (dy / len) * inset };
     return { x: Math.min(W - 1, Math.max(0, q.x * k)), y: Math.min(H - 1, Math.max(0, q.y * k)) };
   });
-  return { corners, score: best.score, found: best.score >= 0.7, method: best.method };
+  // Kết quả theo cạnh kém chắc hơn: vẫn dùng làm khung gợi ý ban đầu nhưng chỉ báo "đã nhận" khi rất chắc
+  return { corners, score: best.score, found: best.score >= (best.fromHough ? 0.86 : 0.7), method: best.method };
 }

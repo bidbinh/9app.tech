@@ -1,6 +1,6 @@
 // Service worker 9scanner: vỏ ứng dụng lưu sẵn để mở được khi mất mạng; dữ liệu OCR (vendor/) lưu khi dùng lần đầu.
 // Đổi CACHE_VERSION mỗi lần phát hành.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const SHELL_CACHE = `9scanner-shell-${CACHE_VERSION}`;
 const VENDOR_CACHE = `9scanner-vendor-${CACHE_VERSION}`;
 
@@ -8,6 +8,8 @@ const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/style.css',
   './js/app.js', './js/geom.js', './js/edges.js', './js/filters.js', './js/pdf.js', './js/compress.js', './js/store.js',
   './js/render.js', './js/camera.js', './js/cropper.js', './js/sign.js', './js/ocr.js', './js/export.js', './js/idlayout.js', './js/textutil.js', './js/jpeg.js', './js/signmath.js',
+  './js/ui.js', './js/zip.js', './js/layout.js', './js/docx.js', './js/xlsx.js', './js/ocrprep.js', './js/orient.js', './js/lines.js', './js/stable.js', './js/livecam.js',
+  './js/pdfjs.js', './js/pdftools.js', './js/pdfcrypt.js', './js/tools.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-180.png', './icons/icon-maskable-512.png',
   '/js/homebar.js',
 ];

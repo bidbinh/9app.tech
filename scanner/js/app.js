@@ -2,113 +2,33 @@
 import { Store, newId, quotaLevel } from './store.js';
 import { Camera, cameraErrorMessage } from './camera.js';
 import { Cropper } from './cropper.js';
-import { importImage, renderPage, autoDetect, sourceCanvas, thumbOf, pickFiles, dropSourceCache, canvasToBlob, makeCanvas, blobToBitmap } from './render.js';
+import { importImage, renderPage, autoDetect, sourceCanvas, thumbOf, pickFiles, dropSourceCache, canvasToBlob, makeCanvas, blobToBitmap, pageOrientation } from './render.js';
 import { FILTERS } from './filters.js';
 import { defaultCorners, orderCorners, rotateSigns, quadSize, toPixels } from './geom.js';
 import { setJfifDpi } from './jpeg.js';
 import { avgConfidence } from './textutil.js';
 import { SignPad } from './sign.js';
-import { exportPdf, exportJpgs, ocrAll, safeName, shareFiles, downloadBlob, clearExportCache } from './export.js';
+import { exportPdf, exportJpgs, exportDocx, sheetsForPages, exportXlsx, autoOrientPage, ocrAll, safeName, shareFiles, downloadBlob, clearExportCache } from './export.js';
+import { initTools, editSheets, enterPdfPages, leavePdfPages } from './tools.js';
+import { LiveDetect } from './livecam.js';
+import { analyzeQuality, frameWarnings } from './quality.js';
 import { parseSize, formatSize, MIN_LIMIT_BYTES } from './compress.js';
 import { ID_SIZES, SHEETS, mmToPx, cropRect, layoutSheet } from './idlayout.js';
 import { buildPdf, pageBox, MM } from './pdf.js';
 import { disposeOcr } from './ocr.js';
-
-const $ = (s, r = document) => r.querySelector(s);
-const SVGNS = 'http://www.w3.org/2000/svg';
-
-/* ---------------- tiện ích DOM ---------------- */
-function h(tag, props = {}, ...kids) {
-  const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(props)) {
-    if (v == null || v === false) continue;
-    if (k === 'class') e.className = v;
-    else if (k === 'text') e.textContent = v;
-    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
-    else if (k === 'dataset') Object.assign(e.dataset, v);
-    else e.setAttribute(k, v === true ? '' : v);
-  }
-  for (const c of kids.flat()) if (c != null) e.append(c.nodeType ? c : document.createTextNode(c));
-  return e;
-}
-function icon(id) {
-  const s = document.createElementNS(SVGNS, 'svg');
-  const u = document.createElementNS(SVGNS, 'use');
-  u.setAttribute('href', '#i-' + id);
-  s.append(u);
-  return s;
-}
-let toastTimer;
-function toast(msg, ms = 2800) {
-  const t = $('#toast');
-  t.textContent = msg; t.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, ms);
-}
-const pref = {
-  get(k, d) { try { const v = JSON.parse(localStorage.getItem('9scanner.' + k)); return v == null ? d : v; } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('9scanner.' + k, JSON.stringify(v)); } catch (e) { /* bị chặn: bỏ qua */ } },
-};
-
-function openModal(build, { center = false } = {}) {
-  const m = h('div', { class: 'modal' + (center ? ' center' : '') });
-  const sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true' });
-  const api = { close() { m.remove(); if (api.onclose) api.onclose(); }, el: sheet };
-  m.addEventListener('pointerdown', (e) => { if (e.target === m) api.close(); });
-  build(sheet, api);
-  m.append(sheet);
-  $('#overlay-root').append(m);
-  return api;
-}
-function askText(title, value = '', okLabel = 'Lưu') {
-  return new Promise((resolve) => {
-    let done = false;
-    const m = openModal((sheet, api) => {
-      const inp = h('input', { type: 'text', value, maxlength: '60', 'aria-label': title });
-      const finish = (v) => { if (done) return; done = true; api.close(); resolve(v); };
-      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(inp.value.trim() || null); });
-      sheet.append(h('h2', { text: title }), inp,
-        h('div', { class: 'actions' },
-          h('button', { class: 'btn secondary', text: 'Hủy', onclick: () => finish(null) }),
-          h('button', { class: 'btn primary', text: okLabel, onclick: () => finish(inp.value.trim() || null) })));
-      setTimeout(() => { inp.focus(); inp.select(); }, 50);
-    }, { center: true });
-    m.onclose = () => { if (!done) { done = true; resolve(null); } };
-  });
-}
-function confirmDlg(title, msg, okLabel = 'Đồng ý', danger = false) {
-  return new Promise((resolve) => {
-    let done = false;
-    const m = openModal((sheet, api) => {
-      const finish = (v) => { if (done) return; done = true; api.close(); resolve(v); };
-      sheet.append(h('h2', { text: title }), h('p', { text: msg }),
-        h('div', { class: 'actions' },
-          h('button', { class: 'btn secondary', text: 'Hủy', onclick: () => finish(false) }),
-          h('button', { class: 'btn primary', text: okLabel, onclick: () => finish(true) })));
-    }, { center: true });
-    m.onclose = () => { if (!done) { done = true; resolve(false); } };
-    void danger;
-  });
-}
-function actionSheet(title, items) {
-  openModal((sheet, api) => {
-    sheet.append(h('h2', { text: title }));
-    for (const it of items) {
-      sheet.append(h('button', { class: 'list-btn' + (it.danger ? ' danger' : ''), onclick: () => { api.close(); it.fn(); } }, icon(it.icon || 'file'), it.label));
-    }
-  });
-}
+import { $, h, icon, toast, pref, openModal, askText, confirmDlg, actionSheet } from './ui.js';
 
 /* ---------------- trạng thái & điều hướng ---------------- */
 const S = {
   store: null, doc: null, dirty: new Set(), cur: -1, folder: null, cam: null, shots: 0, multi: false,
-  sigs: [], sigImages: new Map(), stack: ['home'], pos: 0, ignorePop: false, token: 0, lastFilter: 'deshadow', signForPage: false,
+  sigs: [], sigImages: new Map(), stack: ['home'], pos: 0, ignorePop: false, token: 0, lastFilter: 'auto', signForPage: false,
 };
-const VIEWS = ['home', 'camera', 'crop', 'filter', 'doc', 'sign', 'id', 'ocr'];
+const VIEWS = ['home', 'camera', 'crop', 'filter', 'doc', 'sign', 'id', 'ocr', 'tools', 'pdfpages'];
 const enter = {};
 
 function show(v) {
   if (S.cam && v !== 'camera') stopCamera();
+  if (S.view === 'pdfpages' && v !== 'pdfpages') leavePdfPages();
   for (const n of VIEWS) $('#v-' + n).hidden = n !== v;
   S.view = v;
   if (enter[v]) enter[v]();
@@ -182,6 +102,7 @@ async function addPage(input) {
   const page = { id: newId(), src: imp.blob, srcW: imp.w, srcH: imp.h, corners: defaultCorners(), filter: S.lastFilter, rot: 0, signs: [], ocr: null, found: false };
   const d = await autoDetect(page);
   page.corners = d.corners; page.found = d.found;
+  try { const o = await pageOrientation(page); if (o.axisRot) page.rot = o.axisRot; } catch (e) { /* không dò được hướng: giữ nguyên */ }
   doc.pages.push(page);
   markDirty(page);
   return doc.pages.length - 1;
@@ -294,6 +215,7 @@ async function startCamera() {
   try {
     await cam.start(S.facing || 'environment');
     if (S.cam !== cam) { cam.stop(); return; } // đã rời màn hình camera trong lúc khởi động
+    startLive();
     $('#cam-torch').hidden = !cam.hasTorch;
     $('#cam-torch').classList.remove('on');
     cam.onended = () => {
@@ -311,11 +233,20 @@ async function startCamera() {
     $('#cam-shutter').disabled = true;
   }
 }
-function stopCamera() { if (S.cam) { S.cam.stop(); S.cam = null; } }
+function stopCamera() { stopLive(); if (S.cam) { S.cam.stop(); S.cam = null; } }
+function startLive() {
+  if (!S.live) {
+    S.live = new LiveDetect({ video: $('#cam-video'), canvas: $('#cam-outline'), status: $('#cam-status'), auto: () => S.autoShoot && !$('#cam-shutter').disabled, onFire: () => shutter() });
+  }
+  S.live.start();
+}
+function stopLive() { if (S.live) S.live.stop(); }
 function startShoot() { S.shots = 0; navTo('camera'); }
 enter.camera = () => {
   S.multi = pref.get('multi', false);
+  S.autoShoot = pref.get('autoShoot', false);
   $('#cam-multi').setAttribute('aria-pressed', String(S.multi));
+  $('#cam-auto').setAttribute('aria-pressed', String(S.autoShoot));
   updateCamCount();
   startCamera();
 };
@@ -432,10 +363,49 @@ function paintFilterHint() {
   const f = FILTERS.find((x) => x.id === page.filter);
   el.textContent = f ? f.hint : '';
   el.classList.toggle('warn', false);
-  if (page.photoLike && ['magic', 'bw', 'gray'].includes(page.filter)) {
-    el.textContent = 'Trang có ảnh hoặc mảng màu lớn: nên dùng “Gốc” hoặc “Khử bóng”. ' + (f ? f.hint : '');
+  if (page.photoLike && ['magic', 'bw', 'gray', 'sharp', 'docbw'].includes(page.filter)) {
+    el.textContent = 'Trang có ảnh hoặc mảng màu lớn: nên dùng “Màu tự động”, “Gốc” hoặc “Khử bóng”. ' + (f ? f.hint : '');
     el.classList.add('warn');
-  } else if (['bw', 'gray'].includes(page.filter)) el.classList.add('warn');
+  } else if (['bw', 'gray', 'docbw'].includes(page.filter)) el.classList.add('warn');
+}
+const pct1 = (v) => (v * 100).toFixed(1).replace('.', ',');
+async function paintFixNote(page, info) {
+  const note = $('#fix-note'), bd = $('#f-dewarp'), bc = $('#f-clean');
+  if (!info) { note.hidden = true; return; }
+  bd.setAttribute('aria-pressed', String(!!info.dewarp.applied));
+  bc.setAttribute('aria-pressed', String(!!info.clean.applied));
+  const lines = [];
+  const good = [];
+  if (info.dewarp.applied) good.push(`Đã nắn phẳng trang cong (độ cong ${pct1(info.dewarp.curvature)}% → ${pct1(info.dewarp.after)}%).`);
+  if (info.clean.applied) good.push(`Đã xóa ngón tay/vật cản (${pct1(info.clean.area)}% trang).`);
+  if (info.clean.applied && info.clean.overlapsText) lines.push('Ngón tay che sát chữ: chữ bị che không khôi phục được. Hãy chụp lại, đặt tay ra ngoài mép giấy.');
+  // chẩn đoán chất lượng (làm một lần cho mỗi hình học trang)
+  const qk = geomSig(page);
+  if (!page._q || page._q.key !== qk) {
+    try {
+      const cv = await renderPage(page, { srcEdge: 1600, maxEdge: 1100, filter: 'original', noSigns: true, noFix: true });
+      const idq = cv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, cv.width, cv.height);
+      page._q = { key: qk, issues: analyzeQuality(idq).issues.concat(frameWarnings(page.corners, page.srcW, page.srcH, page.found)) };
+    } catch (e) { page._q = { key: qk, issues: [] }; }
+  }
+  if (page !== curPage()) return;
+  for (const i of page._q.issues) lines.push(i.text);
+  note.textContent = [...lines, ...good].join(' ');
+  note.hidden = !note.textContent;
+  note.classList.toggle('good', !lines.length);
+}
+const geomSig = (p) => JSON.stringify([p.corners.map((c) => [Math.round(c.x * 1e3), Math.round(c.y * 1e3)]), p.rot || 0]);
+function toggleFix(kind) {
+  const page = curPage(); if (!page) return;
+  const key = kind === 'dewarp' ? 'dewarp' : 'clean';
+  const was = $(kind === 'dewarp' ? '#f-dewarp' : '#f-clean').getAttribute('aria-pressed') === 'true';
+  page[key] = was ? 'off' : 'on';
+  page.thumb = null; page.ocr = null;
+  markDirty(page);
+  renderPreview().then(() => {
+    const now = $(kind === 'dewarp' ? '#f-dewarp' : '#f-clean').getAttribute('aria-pressed') === 'true';
+    if (!was && !now) toast(kind === 'dewarp' ? 'Không thấy trang bị cong đáng kể để nắn phẳng.' : 'Không thấy ngón tay hay vật cản ở mép trang.', 3200);
+  });
 }
 function paintChips() {
   const page = curPage();
@@ -460,6 +430,7 @@ async function renderPreview() {
     if (my !== renderTok || S.view !== 'filter') return;
     page.photoLike = canvas.photoLike;
     paintFilterHint();
+    paintFixNote(page, canvas.fixInfo);
     const pv = $('#pv-canvas');
     pv.width = canvas.width; pv.height = canvas.height;
     pv.getContext('2d').drawImage(canvas, 0, 0);
@@ -553,6 +524,10 @@ function bindFilter() {
   $('#f-rotr').addEventListener('click', () => rotateResult(90));
   $('#f-crop').addEventListener('click', () => navTo('crop'));
   $('#f-sign').addEventListener('click', openSignPicker);
+  $('#f-orient').addEventListener('click', autoOrientCurrent);
+  $('#f-dewarp').addEventListener('click', () => toggleFix('dewarp'));
+  $('#f-clean').addEventListener('click', () => toggleFix('clean'));
+  $('#f-all').addEventListener('click', applyFilterToAll);
   $('#f-add').addEventListener('click', async () => {
     const page = curPage(); if (page && !page.thumb) { await refreshThumb(page); markDirty(page); }
     startShoot();
@@ -562,6 +537,23 @@ function bindFilter() {
     if (page && !page.thumb) { try { await refreshThumb(page); } catch (e) { /* bỏ qua */ } markDirty(page); }
     navPrev('doc');
   });
+}
+async function autoOrientCurrent() {
+  const page = curPage(); if (!page) return;
+  const btn = $('#f-orient'); btn.disabled = true;
+  toast('Đang dò chiều chữ… Lần đầu cần tải bộ đọc chữ.', 60000);
+  try {
+    const r = await autoOrientPage(page);
+    markDirty(page);
+    $('#toast').hidden = true;
+    if (r.changed) { toast('Đã xoay cho chữ thẳng.'); renderPreview(); } else toast(r.confidence >= 0 ? 'Chữ đã đúng chiều.' : 'Không đọc được chữ để dò chiều. Hãy dùng nút Xoay.', 3500);
+  } catch (e) { $('#toast').hidden = true; toast('Không dò được chiều chữ. Hãy dùng nút Xoay.', 4000); }
+  btn.disabled = false;
+}
+function applyFilterToAll() {
+  const page = curPage(); if (!page) return;
+  for (const p of S.doc.pages) { p.filter = page.filter; p.thumb = null; markDirty(p); }
+  toast(`Đã áp dụng cho ${S.doc.pages.length} trang.`);
 }
 function rotateResult(d) {
   const page = curPage(); if (!page) return;
@@ -626,11 +618,11 @@ function openExportSheet() {
   const doc = S.doc;
   if (!doc || !doc.pages.length) return;
   const P = pref.get('export', {});
-  const E = { format: 'pdf', paper: P.paper || 'a4', quality: P.quality || 'normal', limitText: P.limitText || '1 MB', withText: false, result: null, building: false };
+  const E = { format: 'pdf', paper: P.paper || 'a4', quality: P.quality || 'normal', limitText: P.limitText || '1 MB', withText: false, withImages: false, sheets: null, result: null, building: false };
   let tok = 0, timer;
   openModal((sheet, api) => {
     const seg = (label, opts, key, after) => {
-      const row = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': label });
+      const row = h('div', { class: 'seg' + (opts.length > 3 ? ' wrap' : ''), role: 'radiogroup', 'aria-label': label });
       const paint = () => { for (const b of row.children) { const on = b.dataset.v === E[key]; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); } };
       for (const [v, t] of opts) row.append(h('button', { role: 'radio', dataset: { v }, text: t, onclick: () => { E[key] = v; paint(); if (after) after(); schedule(); } }));
       paint();
@@ -648,15 +640,27 @@ function openExportSheet() {
     const ocrCheck = h('input', { type: 'checkbox', id: 'exp-ocr' });
     ocrCheck.addEventListener('change', () => { E.withText = ocrCheck.checked; schedule(); });
     const ocrRow = h('label', { class: 'check', for: 'exp-ocr' }, ocrCheck, h('span', {}, 'PDF tìm và sao chép được chữ', h('small', { text: 'Đọc chữ từng trang bằng OCR tiếng Việt, mất thêm thời gian.' })));
+    const imgCheck = h('input', { type: 'checkbox', id: 'exp-img' });
+    imgCheck.addEventListener('change', () => { E.withImages = imgCheck.checked; schedule(); });
+    const imgRow = h('label', { class: 'check', for: 'exp-img' }, imgCheck, h('span', {}, 'Kèm ảnh trang quét ở cuối tệp', h('small', { text: 'Để đối chiếu với bản gốc. Tệp sẽ nặng hơn.' })));
+    const officeNote = h('p', { class: 'hint small left' });
+    const editBtn = h('button', { class: 'btn secondary wide', disabled: true }, icon('table'), 'Xem và sửa bảng trước khi xuất');
     const paperGrp = h('div', {}, h('div', { class: 'grp', text: 'Khổ giấy' }), seg('Khổ giấy', [['a4', 'A4'], ['fit', 'Giữ tỉ lệ ảnh']], 'paper'));
     const qualGrp = h('div', {}, h('div', { class: 'grp', text: 'Chất lượng' }),
       seg('Chất lượng', [['high', 'Cao'], ['normal', 'Chuẩn'], ['small', 'Nhỏ'], ['limit', 'Giới hạn']], 'quality', () => { limitBox.hidden = E.quality !== 'limit'; }), limitBox);
     limitBox.hidden = E.quality !== 'limit';
     const apply = () => {
       const isText = E.format === 'text';
+      const isOffice = E.format === 'docx' || E.format === 'xlsx';
       paperGrp.hidden = E.format !== 'pdf';
-      qualGrp.hidden = isText;
+      qualGrp.hidden = isText || isOffice;
       ocrRow.hidden = E.format !== 'pdf';
+      imgRow.hidden = E.format !== 'docx';
+      editBtn.hidden = E.format !== 'xlsx';
+      officeNote.hidden = !isOffice;
+      officeNote.textContent = E.format === 'docx'
+        ? 'Chữ được đọc bằng OCR tiếng Việt rồi dựng lại thành đoạn văn, tiêu đề, bảng trong tệp Word. Độ chính xác phụ thuộc ảnh chụp: hãy kiểm tra lại chữ có dấu và số.'
+        : 'Bảng được dò từ kết quả đọc chữ (OCR) nên chỉ gần đúng: có thể lệch ô hoặc sai chữ. Bạn được xem và sửa trước khi xuất.';
       btnShare.lastChild.textContent = isText ? 'Đọc chữ' : 'Chia sẻ';
       btnDl.hidden = isText;
       status.hidden = isText;
@@ -664,8 +668,8 @@ function openExportSheet() {
     };
     sheet.append(h('h2', { text: `Xuất “${doc.name}” (${doc.pages.length} trang)` }),
       h('div', { class: 'grp', text: 'Định dạng' }),
-      seg('Định dạng', [['pdf', 'PDF'], ['jpg', 'Ảnh JPG'], ['text', 'Văn bản']], 'format', apply),
-      paperGrp, qualGrp, ocrRow, status,
+      seg('Định dạng', [['pdf', 'PDF'], ['docx', 'Word'], ['xlsx', 'Excel'], ['jpg', 'Ảnh JPG'], ['text', 'Văn bản']], 'format', apply),
+      paperGrp, qualGrp, ocrRow, imgRow, officeNote, editBtn, status,
       h('div', { class: 'actions' }, btnDl, btnShare));
     apply();
 
@@ -679,7 +683,7 @@ function openExportSheet() {
       if (E.format === 'text') return;
       pref.set('export', { paper: E.paper, quality: E.quality, limitText: E.limitText });
       let limitBytes;
-      if (E.quality === 'limit') {
+      if (E.quality === 'limit' && (E.format === 'pdf' || E.format === 'jpg')) {
         limitBytes = parseSize(E.limitText);
         if (!limitBytes) { status.className = 'result bad'; status.textContent = 'Hãy nhập giới hạn dung lượng, ví dụ 500 KB hoặc 1,5 MB.'; return; }
         if (limitBytes < MIN_LIMIT_BYTES) { status.className = 'result bad'; status.textContent = 'Giới hạn dưới 5 KB là quá nhỏ cho một trang ảnh. Hãy nhập ít nhất 5 KB.'; return; }
@@ -693,7 +697,16 @@ function openExportSheet() {
       try {
         const base = safeName(doc.name);
         let res;
-        if (E.format === 'pdf') {
+        if (E.format === 'docx') {
+          const r = await exportDocx(doc.pages, { title: doc.name, withImages: E.withImages, sigImages: S.sigImages, onProgress: progress, signal });
+          res = { files: [{ name: base + '.docx', blob: r.blob }], size: r.size, info: { ok: true } };
+          for (const p of doc.pages) markDirty(p);
+        } else if (E.format === 'xlsx') {
+          if (!E.sheets) { E.sheets = await sheetsForPages(doc.pages, { onProgress: progress, signal }); for (const p of doc.pages) markDirty(p); }
+          const r = await exportXlsx(E.sheets, doc.name);
+          res = { files: [{ name: base + '.xlsx', blob: r.blob }], size: r.size, info: { ok: true } };
+          editBtn.disabled = false;
+        } else if (E.format === 'pdf') {
           const r = await exportPdf(doc.pages, { paper: E.paper, quality: E.quality, limitBytes, withText: E.withText, title: doc.name, sigImages: S.sigImages, onProgress: progress, signal });
           res = { files: [{ name: base + '.pdf', blob: r.blob }], size: r.size, info: r.info };
         } else {
@@ -707,7 +720,7 @@ function openExportSheet() {
           return;
         }
         E.result = res;
-        let msg = `${E.format === 'pdf' ? 'PDF' : doc.pages.length + ' ảnh'}: `;
+        let msg = `${{ pdf: 'PDF', docx: 'Word', xlsx: 'Excel' }[E.format] || doc.pages.length + ' ảnh'}: `;
         status.textContent = '';
         status.append(msg, h('b', { text: formatSize(res.size) }));
         if (limitBytes) {
@@ -724,6 +737,16 @@ function openExportSheet() {
     }
     function schedule() { clearTimeout(timer); tok++; if (ctl) ctl.abort(); btnShare.disabled = E.format !== 'text'; btnDl.disabled = true; timer = setTimeout(build, 350); }
 
+    editBtn.addEventListener('click', async () => {
+      if (!E.sheets) return;
+      const edited = await editSheets(E.sheets, { title: 'Kiểm tra bảng trước khi xuất Excel', ok: 'Dùng bảng này' });
+      if (!edited) return;
+      E.sheets = edited;
+      const r = await exportXlsx(E.sheets, doc.name);
+      E.result = { files: [{ name: safeName(doc.name) + '.xlsx', blob: r.blob }], size: r.size, info: { ok: true } };
+      status.className = 'result good'; status.textContent = ''; status.append('Excel: ', h('b', { text: formatSize(r.size) }), ' (đã cập nhật theo chỉnh sửa)');
+      btnShare.disabled = false; btnDl.disabled = false;
+    });
     btnDl.addEventListener('click', () => {
       if (!E.result) return;
       for (const f of E.result.files) downloadBlob(f.blob, f.name);
@@ -950,6 +973,11 @@ function bindGlobal() {
   const camPick = async () => { const f = await pickFiles(); if (f.length) { stopCamera(); addFiles(f); } };
   $('#cam-gallery').addEventListener('click', camPick);
   $('#cam-msg-pick').addEventListener('click', camPick);
+  $('#cam-auto').addEventListener('click', () => {
+    S.autoShoot = !S.autoShoot; pref.set('autoShoot', S.autoShoot);
+    $('#cam-auto').setAttribute('aria-pressed', String(S.autoShoot));
+    toast(S.autoShoot ? 'Tự chụp: giữ yên máy trước tờ giấy, ứng dụng sẽ tự chụp.' : 'Đã tắt tự chụp.', 2600);
+  });
   $('#cam-multi').addEventListener('click', () => {
     S.multi = !S.multi; pref.set('multi', S.multi);
     $('#cam-multi').setAttribute('aria-pressed', String(S.multi)); updateCamCount();
@@ -977,6 +1005,8 @@ async function init() {
   S.store = await Store.create();
   history.replaceState({ v: 'home', i: 0 }, '');
   bindGlobal(); bindCrop(); bindFilter(); bindOcr(); bindSign(); bindId();
+  initTools({ navTo });
+  enter.pdfpages = () => { if (!enterPdfPages()) goHome(); };
   buildChips();
   try { await loadSigs(); } catch (e) { /* chưa có chữ ký */ }
   show('home');

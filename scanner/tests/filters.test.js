@@ -21,8 +21,8 @@ function page() {
 
 const mean = (img, pts) => pts.reduce((s, o) => s + img.data[o], 0) / pts.length;
 
-test('danh sách bộ lọc đủ 5 loại với nhãn tiếng Việt', () => {
-  assert.deepEqual(FILTERS.map((f) => f.id), ['original', 'magic', 'bw', 'gray', 'deshadow']);
+test('danh sách bộ lọc đủ 8 loại với nhãn tiếng Việt', () => {
+  assert.deepEqual(FILTERS.map((f) => f.id).sort(), ['auto', 'bw', 'deshadow', 'docbw', 'gray', 'magic', 'original', 'sharp']);
   assert.ok(FILTERS.every((f) => /\p{L}/u.test(f.label)));
 });
 
