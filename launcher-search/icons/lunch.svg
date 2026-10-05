@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff9a5c"/>
+      <stop offset=".5" stop-color="#f5513a"/>
+      <stop offset="1" stop-color="#c0262d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".2" cy=".05" r=".9">
+      <stop offset="0" stop-color="#fff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ffe6dc"/></linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#5b0d10" flood-opacity=".35"/></filter>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="114" fill="url(#glow)"/>
+  <!-- hơi nóng -->
+  <g fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" opacity=".85">
+    <path d="M190 150c-16 22 16 34 0 58"/>
+    <path d="M256 128c-16 22 16 34 0 58"/>
+  </g>
+  <!-- đũa -->
+  <g stroke="#ffe9a8" stroke-width="15" stroke-linecap="round" filter="url(#sh)">
+    <path d="M318 96L372 252"/>
+    <path d="M350 86L412 244"/>
+  </g>
+  <!-- cơm đầy bát -->
+  <path d="M132 262c0-42 54-70 124-70s124 28 124 70z" fill="#ffffff"/>
+  <g fill="#ffe6dc"><circle cx="196" cy="236" r="10"/><circle cx="236" cy="224" r="10"/><circle cx="280" cy="228" r="10"/><circle cx="322" cy="238" r="10"/><circle cx="258" cy="246" r="9"/></g>
+  <!-- bát -->
+  <g filter="url(#sh)"><path d="M112 262h288c0 86-60 140-144 140s-144-54-144-140z" fill="url(#bowl)"/></g>
+  <path d="M170 322c20 22 52 34 86 34" fill="none" stroke="#f5513a" stroke-width="12" stroke-linecap="round" opacity=".55"/>
+  <rect x="196" y="398" width="120" height="22" rx="11" fill="#ffe6dc"/>
+</svg>

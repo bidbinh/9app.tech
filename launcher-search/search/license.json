@@ -1,0 +1,178 @@
+[
+ {
+  "name": "Trang chủ ôn thi bằng lái",
+  "keywords": [
+   "ôn thi bằng lái",
+   "thi bằng lái",
+   "bằng lái xe",
+   "gplx",
+   "600 câu"
+  ],
+  "path": "",
+  "blurb": "Ôn thi bằng lái xe với bộ 600 câu chính thức."
+ },
+ {
+  "name": "Học theo chương",
+  "keywords": [
+   "học theo chương",
+   "các chương",
+   "lý thuyết lái xe",
+   "học lý thuyết",
+   "luyện tập",
+   "làm bài",
+   "luyện câu hỏi"
+  ],
+  "path": "#/hoc",
+  "blurb": "Sáu chương của bộ 600 câu: chọn chương để học và luyện tập."
+ },
+ {
+  "name": "Chương 1: Quy tắc giao thông",
+  "keywords": [
+   "quy tắc giao thông",
+   "luật giao thông",
+   "quy định chung",
+   "chương 1"
+  ],
+  "path": "#/hoc/c/1",
+  "blurb": "Quy định chung và quy tắc giao thông."
+ },
+ {
+  "name": "Chương 2: Văn hóa, đạo đức lái xe",
+  "keywords": [
+   "văn hóa giao thông",
+   "đạo đức người lái xe",
+   "phòng cháy chữa cháy",
+   "cứu hộ",
+   "chương 2"
+  ],
+  "path": "#/hoc/c/2",
+  "blurb": "Văn hóa giao thông, đạo đức, phòng cháy chữa cháy, cứu hộ."
+ },
+ {
+  "name": "Chương 3: Kỹ thuật lái xe",
+  "keywords": [
+   "kỹ thuật lái xe",
+   "tập lái",
+   "chương 3"
+  ],
+  "path": "#/hoc/c/3",
+  "blurb": "Kỹ thuật lái xe an toàn."
+ },
+ {
+  "name": "Chương 4: Cấu tạo và sửa chữa",
+  "keywords": [
+   "cấu tạo xe",
+   "sửa chữa",
+   "bảo dưỡng",
+   "chương 4"
+  ],
+  "path": "#/hoc/c/4",
+  "blurb": "Cấu tạo và sửa chữa xe."
+ },
+ {
+  "name": "Chương 5: Biển báo",
+  "keywords": [
+   "biển báo chương 5",
+   "báo hiệu đường bộ",
+   "chương 5"
+  ],
+  "path": "#/hoc/c/5",
+  "blurb": "Các câu hỏi về báo hiệu đường bộ."
+ },
+ {
+  "name": "Chương 6: Sa hình",
+  "keywords": [
+   "sa hình",
+   "giải sa hình",
+   "xử lý tình huống",
+   "tình huống giao thông",
+   "chương 6"
+  ],
+  "path": "#/hoc/c/6",
+  "blurb": "Giải thế sa hình và xử lý tình huống."
+ },
+ {
+  "name": "Câu điểm liệt",
+  "keywords": [
+   "điểm liệt",
+   "câu liệt",
+   "sai là trượt",
+   "câu hỏi điểm liệt"
+  ],
+  "path": "#/hoc/diem-liet",
+  "blurb": "Những câu sai một câu là trượt."
+ },
+ {
+  "name": "Tra cứu biển báo",
+  "keywords": [
+   "biển báo",
+   "tra biển báo",
+   "biển cấm",
+   "biển chỉ dẫn",
+   "biển hiệu lệnh"
+  ],
+  "path": "#/hoc/bien-bao",
+  "blurb": "Tìm biển báo theo từ khóa hoặc nhóm biển."
+ },
+ {
+  "name": "Thi thử",
+  "keywords": [
+   "thi thử",
+   "đề thi thử",
+   "thi sát hạch",
+   "đề thi",
+   "bài thi thử"
+  ],
+  "path": "#/thi",
+  "blurb": "Thi thử theo cấu trúc đề thật, có tính giờ."
+ },
+ {
+  "name": "Ôn lại câu sai",
+  "keywords": [
+   "ôn lại",
+   "câu sai",
+   "câu đến hạn",
+   "lặp lại ngắt quãng"
+  ],
+  "path": "#/on",
+  "blurb": "Ôn lại những câu hay sai và câu đến hạn."
+ },
+ {
+  "name": "Tiến độ học",
+  "keywords": [
+   "tiến độ",
+   "thống kê học",
+   "kết quả thi thử",
+   "chương yếu"
+  ],
+  "path": "#/tien-do",
+  "blurb": "Xem tiến độ, kết quả thi thử và chương yếu nhất."
+ },
+ {
+  "name": "Cài đặt: hạng bằng, ngày thi",
+  "keywords": [
+   "cài đặt",
+   "hạng bằng",
+   "hạng A1",
+   "hạng B",
+   "ngày thi",
+   "đặt ngày thi",
+   "chế độ tối",
+   "giao diện"
+  ],
+  "path": "#/cai-dat",
+  "blurb": "Chọn hạng bằng, đặt ngày thi, đổi giao diện, sao lưu."
+ },
+ {
+  "name": "Về dữ liệu và nguồn",
+  "keywords": [
+   "về dữ liệu",
+   "nguồn",
+   "thông tư 108",
+   "báo sai",
+   "miễn trừ"
+  ],
+  "path": "#/du-lieu",
+  "blurb": "Nguồn dữ liệu, quy định áp dụng, báo sai."
+ }
+]

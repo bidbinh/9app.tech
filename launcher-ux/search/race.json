@@ -1,0 +1,255 @@
+[
+ {
+  "name": "Lịch giải chạy",
+  "keywords": [
+   "giải chạy",
+   "lịch giải chạy",
+   "chạy bộ",
+   "marathon",
+   "running",
+   "đăng ký giải"
+  ],
+  "path": "",
+  "blurb": "Lịch giải chạy bộ, trail, Ironman và link đăng ký."
+ },
+ {
+  "name": "Giải chạy đường nhựa",
+  "keywords": [
+   "giải chạy đường nhựa",
+   "road",
+   "marathon đường nhựa",
+   "chạy đường phố"
+  ],
+  "path": "#/?type=road",
+  "blurb": "Lọc các giải chạy trên đường nhựa."
+ },
+ {
+  "name": "Giải chạy trail",
+  "keywords": [
+   "giải trail",
+   "chạy trail",
+   "chạy núi",
+   "chạy địa hình",
+   "trail running"
+  ],
+  "path": "#/?type=trail",
+  "blurb": "Lọc các giải trail."
+ },
+ {
+  "name": "Giải triathlon, Ironman",
+  "keywords": [
+   "triathlon",
+   "ironman",
+   "70.3",
+   "ba môn phối hợp",
+   "bơi đạp chạy"
+  ],
+  "path": "#/?type=tri",
+  "blurb": "Lọc các giải triathlon và Ironman."
+ },
+ {
+  "name": "Giải chạy 5K",
+  "keywords": [
+   "5k",
+   "5 km",
+   "chạy 5km",
+   "giải 5k"
+  ],
+  "path": "#/?dist=5K",
+  "blurb": "Các giải có cự ly 5K."
+ },
+ {
+  "name": "Giải chạy 10K",
+  "keywords": [
+   "10k",
+   "10 km",
+   "chạy 10km",
+   "giải 10k"
+  ],
+  "path": "#/?dist=10K",
+  "blurb": "Các giải có cự ly 10K."
+ },
+ {
+  "name": "Giải bán marathon 21K",
+  "keywords": [
+   "21k",
+   "half marathon",
+   "bán marathon",
+   "21 km",
+   "giải 21k"
+  ],
+  "path": "#/?dist=21K",
+  "blurb": "Các giải có cự ly 21K."
+ },
+ {
+  "name": "Giải marathon 42K",
+  "keywords": [
+   "42k",
+   "marathon",
+   "full marathon",
+   "42 km",
+   "giải 42k"
+  ],
+  "path": "#/?dist=42K",
+  "blurb": "Các giải có cự ly 42K."
+ },
+ {
+  "name": "Giải ultra từ 50K",
+  "keywords": [
+   "ultra",
+   "ultramarathon",
+   "50k",
+   "100k",
+   "siêu marathon",
+   "giải ultra"
+  ],
+  "path": "#/?dist=ultra",
+  "blurb": "Các giải ultra từ 50 km trở lên."
+ },
+ {
+  "name": "Giải miền Bắc",
+  "keywords": [
+   "giải miền bắc",
+   "hà nội",
+   "sapa",
+   "sa pa",
+   "hạ long",
+   "ninh bình",
+   "mộc châu"
+  ],
+  "path": "#/?region=vn-bac",
+  "blurb": "Giải chạy ở miền Bắc."
+ },
+ {
+  "name": "Giải miền Trung, Tây Nguyên",
+  "keywords": [
+   "giải miền trung",
+   "đà nẵng",
+   "huế",
+   "đà lạt",
+   "tây nguyên",
+   "quy nhơn",
+   "nha trang"
+  ],
+  "path": "#/?region=vn-trung",
+  "blurb": "Giải chạy ở miền Trung và Tây Nguyên."
+ },
+ {
+  "name": "Giải miền Nam",
+  "keywords": [
+   "giải miền nam",
+   "sài gòn",
+   "tp hcm",
+   "hồ chí minh",
+   "vũng tàu",
+   "phú quốc",
+   "cần thơ"
+  ],
+  "path": "#/?region=vn-nam",
+  "blurb": "Giải chạy ở miền Nam."
+ },
+ {
+  "name": "Giải ở Đông Nam Á",
+  "keywords": [
+   "giải đông nam á",
+   "singapore",
+   "thái lan",
+   "malaysia",
+   "bangkok"
+  ],
+  "path": "#/?region=sea",
+  "blurb": "Giải chạy ở các nước Đông Nam Á."
+ },
+ {
+  "name": "Giải ở Châu Á",
+  "keywords": [
+   "giải châu á",
+   "nhật bản",
+   "tokyo",
+   "hàn quốc",
+   "seoul",
+   "đài loan"
+  ],
+  "path": "#/?region=asia",
+  "blurb": "Giải chạy ở Châu Á."
+ },
+ {
+  "name": "Giải trên thế giới",
+  "keywords": [
+   "giải thế giới",
+   "berlin",
+   "boston",
+   "new york",
+   "london",
+   "marathon thế giới"
+  ],
+  "path": "#/?region=world",
+  "blurb": "Giải chạy lớn trên thế giới."
+ },
+ {
+  "name": "Giải đang mở đăng ký",
+  "keywords": [
+   "đang mở đăng ký",
+   "mở đăng ký",
+   "đăng ký giải chạy",
+   "còn vé"
+  ],
+  "path": "#/?reg=open",
+  "blurb": "Giải đang nhận đăng ký."
+ },
+ {
+  "name": "Giải sắp mở đăng ký",
+  "keywords": [
+   "sắp mở đăng ký",
+   "sắp mở",
+   "sắp có vé"
+  ],
+  "path": "#/?reg=soon",
+  "blurb": "Giải sắp mở đăng ký."
+ },
+ {
+  "name": "Giải đã qua",
+  "keywords": [
+   "giải đã qua",
+   "giải cũ",
+   "kết quả giải",
+   "năm ngoái"
+  ],
+  "path": "#/?past=1",
+  "blurb": "Xem cả các giải đã diễn ra."
+ },
+ {
+  "name": "Lịch giải theo tháng",
+  "keywords": [
+   "lịch tháng",
+   "xem theo tháng",
+   "lịch giải theo tháng",
+   "lịch chạy tháng"
+  ],
+  "path": "#/?view=month",
+  "blurb": "Xem các giải trên lịch tháng."
+ },
+ {
+  "name": "Giải của tôi",
+  "keywords": [
+   "giải của tôi",
+   "giải đã lưu",
+   "giải quan tâm",
+   "nhắc giải",
+   "yêu thích"
+  ],
+  "path": "#/mine",
+  "blurb": "Các giải bạn đã lưu hoặc đăng ký, kèm nhắc lịch."
+ },
+ {
+  "name": "Về dữ liệu giải chạy",
+  "keywords": [
+   "về dữ liệu",
+   "nguồn dữ liệu",
+   "độ chính xác",
+   "báo sai giải"
+  ],
+  "path": "#/about",
+  "blurb": "Nguồn dữ liệu và cách kiểm chứng."
+ }
+]

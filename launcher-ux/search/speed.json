@@ -1,0 +1,48 @@
+[
+ {
+  "name": "Cảnh báo tốc độ",
+  "keywords": [
+   "cảnh báo tốc độ",
+   "tốc độ",
+   "giới hạn tốc độ",
+   "chạy quá tốc độ",
+   "đo tốc độ",
+   "gps"
+  ],
+  "path": "",
+  "blurb": "Báo khi vượt tốc độ cho phép của đoạn đường đang đi."
+ },
+ {
+  "name": "Camera phạt nguội",
+  "keywords": [
+   "camera phạt nguội",
+   "camera giám sát",
+   "bắn tốc độ",
+   "phạt nguội",
+   "điểm camera"
+  ],
+  "path": "",
+  "blurb": "Cảnh báo điểm camera trên đường đi."
+ },
+ {
+  "name": "Biển báo giao thông",
+  "keywords": [
+   "biển báo",
+   "biển báo giới hạn",
+   "biển hạn chế tốc độ"
+  ],
+  "path": "",
+  "blurb": "Hiện biển giới hạn tốc độ của đoạn đường."
+ },
+ {
+  "name": "Mô phỏng chuyến đi",
+  "keywords": [
+   "mô phỏng",
+   "chạy thử",
+   "giả lập",
+   "simulator"
+  ],
+  "path": "",
+  "blurb": "Chạy thử cảnh báo mà không cần di chuyển. Bấm nút Mô phỏng."
+ }
+]
