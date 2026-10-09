@@ -1,0 +1,12 @@
+.git
+node_modules
+certs
+speed
+vannien
+nginx
+tools
+*.mp4
+*.webp
+9fly/index.html
+9fly/src
+9fly/public

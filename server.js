@@ -6,6 +6,7 @@
 //
 // /            launcher 9app (folder này)
 // /speed/...   app 9speed (../9speed.tech)
+// /9fly/...    app 9fly (bản build trong 9fly/dist)
 // /9pick/...   proxy 9pick.tech (cùng origin với launcher)
 // /9quy/...    proxy quỹ phụ huynh (uvicorn :8088)
 // /9fin/...    proxy sổ thu chi cá nhân (uvicorn :8080)
@@ -17,6 +18,8 @@ import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { matchGate, proxyGate } from './js/gate.js';
+import { fetchAirportFids } from './lib/aerodatabox.mjs';
+import { resolveBoard } from './lib/board.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SPEED = path.resolve(ROOT, '..', '9speed.tech');
@@ -45,7 +48,47 @@ function resolvePath(urlPath) {
     if (rest === '/') rest = '/index.html';
     return { root: SPEED, file: path.join(SPEED, path.normalize(rest).replace(/^(\.\.[/\\])+/, '')) };
   }
+  if (urlPath === '/9fly' || urlPath.startsWith('/9fly/')) {
+    const dist = path.join(ROOT, '9fly', 'dist');
+    let rest = urlPath.slice('/9fly'.length) || '/';
+    if (rest === '/' || rest === '') rest = '/index.html';
+    return { root: dist, file: path.join(dist, path.normalize(rest).replace(/^(\.\.[/\\])+/, '')) };
+  }
   return { root: ROOT, file: path.join(ROOT, path.normalize(urlPath).replace(/^(\.\.[/\\])+/, '')) };
+}
+
+function sendJson(res, status, body) {
+  const payload = JSON.stringify(body);
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-cache, no-store',
+    'Content-Length': Buffer.byteLength(payload),
+  });
+  res.end(payload);
+}
+
+function handleFids(req, res) {
+  const code = new URL(req.url, 'http://x').searchParams.get('airport') || '';
+  fetchAirportFids(code)
+    .then((board) => sendJson(res, 200, board))
+    .catch((error) => {
+      if (error?.code === 'missing_key') {
+        sendJson(res, 503, { ok: false, reason: 'missing_key' });
+        return;
+      }
+      if (error?.code === 'unsupported_airport') {
+        sendJson(res, 400, { ok: false, reason: 'unsupported_airport' });
+        return;
+      }
+      sendJson(res, 502, { ok: false, reason: 'upstream' });
+    });
+}
+
+function handleBoard(req, res) {
+  const airport = new URL(req.url, 'http://x').searchParams.get('airport') || '';
+  resolveBoard(airport)
+    .then((result) => sendJson(res, result.status, result.body))
+    .catch(() => sendJson(res, 200, { source: 'sample', fallback: true, reason: 'acv_unavailable' }));
 }
 
 function inside(root, file) {
@@ -67,6 +110,16 @@ function handler(req, res) {
     return;
   }
 
+  if (urlPath === '/9fly/api/fids') {
+    handleFids(req, res);
+    return;
+  }
+
+  if (urlPath === '/9fly/api/board') {
+    handleBoard(req, res);
+    return;
+  }
+
   const gate = matchGate(urlPath);
   if (gate) {
     proxyGate(req, res, gate, { secure: useHttps });
@@ -76,6 +129,11 @@ function handler(req, res) {
   const { root, file: filePath } = resolvePath(urlPath);
   if (!inside(root, filePath)) {
     res.writeHead(403).end('Forbidden');
+    return;
+  }
+  if (root.endsWith(`${path.sep}9fly${path.sep}dist`) && !fs.existsSync(root)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
+      .end('Chưa có bản build 9fly. Trong thư mục 9fly chạy: npm install && npm run build');
     return;
   }
 
@@ -155,6 +213,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n9app đang chạy:`);
   console.log(`  ${scheme}://localhost:${PORT}`);
   console.log(`  ${scheme}://localhost:${PORT}/speed/`);
+  console.log(`  ${scheme}://localhost:${PORT}/9fly/`);
   for (const ip of localAddresses()) {
     console.log(`  ${scheme}://${ip}:${PORT}   (điện thoại cùng Wi-Fi)`);
   }

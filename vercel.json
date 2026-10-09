@@ -1,0 +1,18 @@
+{
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "functions": {
+    "api/board.js": {
+      "maxDuration": 20
+    }
+  },
+  "routes": [
+    { "src": "/9fly/api/board", "dest": "/api/board" },
+    { "src": "/9fly/assets/(.*)", "dest": "/9fly/dist/assets/$1" },
+    { "src": "/9fly/favicon.svg", "dest": "/9fly/dist/favicon.svg" },
+    { "src": "/9fly/manifest.webmanifest", "dest": "/9fly/dist/manifest.webmanifest" },
+    { "src": "/9fly/?", "dest": "/9fly/dist/index.html" },
+    { "handle": "filesystem" }
+  ]
+}

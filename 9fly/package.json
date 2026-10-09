@@ -1,0 +1,23 @@
+{
+  "name": "9fly",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "9fly — theo dõi chuyến bay, mua vé và làm thủ tục. Thuộc 9app.tech.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.2",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
