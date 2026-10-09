@@ -15,7 +15,7 @@ export type FlightStatus =
   | 'landed'
   | 'cancelled';
 
-export type BoardSource = 'aerodatabox' | 'sample';
+export type BoardSource = 'acv' | 'aerodatabox' | 'sample';
 
 export type BoardDirection = 'arrival' | 'departure';
 
@@ -31,8 +31,26 @@ export type BoardFlight = {
   scheduledTime: string;
   estimatedTime: string;
   status: FlightStatus;
+  /** Text ACV publishes in trangThai. Not mapped onto on-time or departed. */
+  statusText?: string;
+  /** gioKhoiHanh as published. Absent on sample rows. */
+  departPublished?: string;
+  /** gioHaCanh as published. Absent on sample rows. */
+  arrivePublished?: string;
+  routeText?: string;
+  terminal?: string;
   gate?: string;
   belt?: string;
+};
+
+export type BoardResult = {
+  arrivals: BoardFlight[];
+  departures: BoardFlight[];
+  source: BoardSource;
+  fallback?: boolean;
+  reason?: string;
+  observedAt?: string;
+  flightDate?: string;
 };
 
 export type Offer = {

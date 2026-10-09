@@ -19,6 +19,7 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { matchGate, proxyGate } from './js/gate.js';
 import { fetchAirportFids } from './lib/aerodatabox.mjs';
+import { ACV_AIRPORTS, fetchAcvBoard } from './lib/acv.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SPEED = path.resolve(ROOT, '..', '9speed.tech');
@@ -83,6 +84,44 @@ function handleFids(req, res) {
     });
 }
 
+const BOARD_AIRPORTS = new Set(ACV_AIRPORTS);
+
+function boardProvider() {
+  const value = String(process.env.NINEFLY_BOARD_PROVIDER || 'acv').trim().toLowerCase();
+  if (value === 'sample' || value === 'aerodatabox' || value === 'acv') return value;
+  return 'acv';
+}
+
+function requestedAirport(req) {
+  const code = new URL(req.url, 'http://x').searchParams.get('airport') || '';
+  return code.trim().toUpperCase();
+}
+
+function handleBoard(req, res) {
+  const airport = requestedAirport(req);
+  if (!BOARD_AIRPORTS.has(airport)) {
+    sendJson(res, 400, { ok: false, reason: 'unsupported_airport' });
+    return;
+  }
+  const provider = boardProvider();
+  if (provider === 'sample') {
+    sendJson(res, 200, { source: 'sample', fallback: false, airport });
+    return;
+  }
+  if (provider === 'aerodatabox') {
+    fetchAirportFids(airport)
+      .then((board) => sendJson(res, 200, board))
+      .catch(() => sendJson(res, 200, { source: 'sample', fallback: true, reason: 'aerodatabox_unavailable', airport }));
+    return;
+  }
+  fetchAcvBoard(airport)
+    .then((board) => sendJson(res, 200, board))
+    .catch(() => {
+      console.warn(`9fly board ${airport}: acv_unavailable`);
+      sendJson(res, 200, { source: 'sample', fallback: true, reason: 'acv_unavailable', airport });
+    });
+}
+
 function inside(root, file) {
   const prefix = root.endsWith(path.sep) ? root : root + path.sep;
   return file === root || file.startsWith(prefix);
@@ -104,6 +143,11 @@ function handler(req, res) {
 
   if (urlPath === '/9fly/api/fids') {
     handleFids(req, res);
+    return;
+  }
+
+  if (urlPath === '/9fly/api/board') {
+    handleBoard(req, res);
     return;
   }
 

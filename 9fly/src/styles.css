@@ -208,9 +208,23 @@ main {
 .status.boarding, .status.arriving { background: #e8f1ff; color: var(--info); }
 .status.departed, .status.landed { background: #eef2f4; color: #52656e; }
 .status.cancelled { background: #fdecec; color: var(--danger); }
-.status.scheduled { background: #eef3f6; color: #3d515b; }
-.attrib { margin: 0; color: var(--muted); font-size: 0.82rem; }
+.status.scheduled, .status.published { background: #eef3f6; color: #3d515b; }
+.status.published { max-width: 9.5rem; text-align: center; line-height: 1.25; }
+.attrib { margin: 0; color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
 .attrib a { color: var(--teal-d); }
+.attrib.experimental {
+  background: #fff6e0;
+  color: #6b4a00;
+  border: 1px solid #efd39a;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.attrib.sample-note {
+  background: #f4f8f9;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
 .flight.departed, .flight.landed, .flight.cancelled { opacity: 0.78; }
 .pin {
   margin-top: 12px;

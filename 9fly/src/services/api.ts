@@ -4,7 +4,7 @@
  * (bảng chuyến, tìm vé, đặt chỗ, làm thủ tục) mà không đổi giao diện.
  */
 import { AIRPORTS } from '../data/catalog';
-import type { BoardFlight, BoardSource, BookInput, SearchQuery } from '../types';
+import type { BoardFlight, BoardResult, BookInput, SearchQuery } from '../types';
 import { buildBoard } from './board';
 import { searchOffers } from './shop';
 import {
@@ -22,26 +22,65 @@ import {
 
 const SCHEDULE_AIRPORTS = new Set(['SGN', 'HAN', 'DAD', 'CXR', 'PQC']);
 
-async function loadBoard(code: string): Promise<{ arrivals: BoardFlight[]; departures: BoardFlight[]; source: BoardSource }> {
-  if (SCHEDULE_AIRPORTS.has(code)) {
-    try {
-      const response = await fetch(`/9fly/api/fids?airport=${encodeURIComponent(code)}`);
-      if (response.ok) {
-        const data = (await response.json()) as {
-          source?: string;
-          arrivals?: BoardFlight[];
-          departures?: BoardFlight[];
-        };
-        if (data.source === 'aerodatabox' && Array.isArray(data.arrivals) && Array.isArray(data.departures)) {
-          return { arrivals: data.arrivals, departures: data.departures, source: 'aerodatabox' };
-        }
-      }
-    } catch {
-      /* Không có khóa hoặc đang chạy Vite: giữ lịch mẫu. */
-    }
-  }
+function asFlights(rows: unknown): BoardFlight[] {
+  if (!Array.isArray(rows)) return [];
+  return rows.filter((row): row is BoardFlight => {
+    if (!row || typeof row !== 'object') return false;
+    const flight = row as BoardFlight;
+    return (
+      (flight.direction === 'arrival' || flight.direction === 'departure') &&
+      typeof flight.id === 'string' &&
+      typeof flight.flightNumber === 'string' &&
+      typeof flight.scheduledTime === 'string'
+    );
+  });
+}
+
+function sampleBoard(code: string, fallback = false, reason?: string): BoardResult {
   const board = buildBoard(code);
-  return { arrivals: board.arrivals, departures: board.departures, source: 'sample' };
+  return {
+    arrivals: board.arrivals,
+    departures: board.departures,
+    source: 'sample',
+    fallback,
+    reason,
+  };
+}
+
+async function loadBoard(code: string): Promise<BoardResult> {
+  if (!SCHEDULE_AIRPORTS.has(code)) return sampleBoard(code);
+  try {
+    const response = await fetch(`/9fly/api/board?airport=${encodeURIComponent(code)}`);
+    if (!response.ok) return sampleBoard(code, true, 'board_unavailable');
+    const data = (await response.json()) as {
+      source?: string;
+      fallback?: boolean;
+      reason?: string;
+      observedAt?: string;
+      flightDate?: string;
+      arrivals?: unknown;
+      departures?: unknown;
+    };
+    if (data.source === 'acv') {
+      return {
+        arrivals: asFlights(data.arrivals),
+        departures: asFlights(data.departures),
+        source: 'acv',
+        observedAt: typeof data.observedAt === 'string' ? data.observedAt : undefined,
+        flightDate: typeof data.flightDate === 'string' ? data.flightDate : undefined,
+      };
+    }
+    if (data.source === 'aerodatabox') {
+      return {
+        arrivals: asFlights(data.arrivals),
+        departures: asFlights(data.departures),
+        source: 'aerodatabox',
+      };
+    }
+    return sampleBoard(code, Boolean(data.fallback), typeof data.reason === 'string' ? data.reason : undefined);
+  } catch {
+    return sampleBoard(code);
+  }
 }
 
 export const flightApi = {
