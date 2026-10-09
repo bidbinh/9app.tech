@@ -1,0 +1,18 @@
+{
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "functions": {
+    "api/board.js": {
+      "maxDuration": 20
+    }
+  },
+  "rewrites": [
+    { "source": "/9fly/api/board", "destination": "/api/board" },
+    { "source": "/9fly", "destination": "/9fly/dist/index.html" },
+    { "source": "/9fly/", "destination": "/9fly/dist/index.html" },
+    { "source": "/9fly/assets/:path*", "destination": "/9fly/dist/assets/:path*" },
+    { "source": "/9fly/favicon.svg", "destination": "/9fly/dist/favicon.svg" },
+    { "source": "/9fly/manifest.webmanifest", "destination": "/9fly/dist/manifest.webmanifest" }
+  ]
+}

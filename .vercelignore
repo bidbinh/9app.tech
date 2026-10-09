@@ -1,0 +1,9 @@
+.git
+node_modules
+certs
+speed
+vannien
+nginx
+tools
+*.mp4
+*.webp

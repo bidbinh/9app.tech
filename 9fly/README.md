@@ -28,3 +28,22 @@ Cờ nhà cung cấp, đặt trước `npm start`:
 | `NINEFLY_BOARD_PROVIDER=aerodatabox` | Lịch AeroDataBox nếu có `AERODATABOX_API_KEY` hoặc `RAPIDAPI_KEY`. Thiếu khóa hoặc lỗi thì lịch mẫu. |
 
 `npm run dev` trong `9fly` chỉ phục vụ giao diện. Không có `/9fly/api/board` nên bảng hiển thị lịch mẫu.
+
+## Bản công khai
+
+Cùng mã nguồn này có `api/board.js`. Hàm đó gọi `resolveBoard` trong `lib/board.mjs`, giống `server.js`, nên bảng không rơi về lịch mẫu chỉ vì trang được host tĩnh.
+
+Môi trường này chưa đăng nhập Vercel. Lệnh sau tạo một URL ẩn danh (hết hạn sau khoảng 60 phút):
+
+```bash
+npx vercel deploy --temporary --yes --project 9fly
+```
+
+Bản vừa tạo: https://temporary-racing-mauve-d00mz4e.vercel.app/9fly/
+
+Để giữ một địa chỉ lâu dài:
+
+```bash
+npx vercel login
+npx vercel deploy --prod --yes --project 9fly
+```
