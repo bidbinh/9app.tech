@@ -73,4 +73,13 @@ var APPS = [
     category: 'life',
     ready: true,
   },
+  {
+    id: 'fly',
+    name: '9fly',
+    blurb: 'Theo dõi chuyến bay, mua vé và làm thủ tục',
+    href: '9fly/',
+    icon: 'icons/fly.svg?v=1',
+    category: 'life',
+    ready: true,
+  },
 ];

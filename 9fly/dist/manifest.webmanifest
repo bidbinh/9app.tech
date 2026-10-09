@@ -1,0 +1,13 @@
+{
+  "name": "9fly",
+  "short_name": "9fly",
+  "description": "Theo dõi chuyến bay, mua vé và làm thủ tục — 9app.tech",
+  "start_url": "/9fly/",
+  "display": "standalone",
+  "background_color": "#0c1c24",
+  "theme_color": "#0c1c24",
+  "lang": "vi",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -6,6 +6,7 @@
 //
 // /            launcher 9app (folder này)
 // /speed/...   app 9speed (../9speed.tech)
+// /9fly/...    app 9fly (bản build trong 9fly/dist)
 // /9pick/...   proxy 9pick.tech (cùng origin với launcher)
 // /9quy/...    proxy quỹ phụ huynh (uvicorn :8088)
 // /9fin/...    proxy sổ thu chi cá nhân (uvicorn :8080)
@@ -45,6 +46,12 @@ function resolvePath(urlPath) {
     if (rest === '/') rest = '/index.html';
     return { root: SPEED, file: path.join(SPEED, path.normalize(rest).replace(/^(\.\.[/\\])+/, '')) };
   }
+  if (urlPath === '/9fly' || urlPath.startsWith('/9fly/')) {
+    const dist = path.join(ROOT, '9fly', 'dist');
+    let rest = urlPath.slice('/9fly'.length) || '/';
+    if (rest === '/' || rest === '') rest = '/index.html';
+    return { root: dist, file: path.join(dist, path.normalize(rest).replace(/^(\.\.[/\\])+/, '')) };
+  }
   return { root: ROOT, file: path.join(ROOT, path.normalize(urlPath).replace(/^(\.\.[/\\])+/, '')) };
 }
 
@@ -76,6 +83,11 @@ function handler(req, res) {
   const { root, file: filePath } = resolvePath(urlPath);
   if (!inside(root, filePath)) {
     res.writeHead(403).end('Forbidden');
+    return;
+  }
+  if (root.endsWith(`${path.sep}9fly${path.sep}dist`) && !fs.existsSync(root)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
+      .end('Chưa có bản build 9fly. Trong thư mục 9fly chạy: npm install && npm run build');
     return;
   }
 
@@ -155,6 +167,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n9app đang chạy:`);
   console.log(`  ${scheme}://localhost:${PORT}`);
   console.log(`  ${scheme}://localhost:${PORT}/speed/`);
+  console.log(`  ${scheme}://localhost:${PORT}/9fly/`);
   for (const ip of localAddresses()) {
     console.log(`  ${scheme}://${ip}:${PORT}   (điện thoại cùng Wi-Fi)`);
   }
