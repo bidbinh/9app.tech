@@ -7,12 +7,12 @@
       "maxDuration": 20
     }
   },
-  "rewrites": [
-    { "source": "/9fly/api/board", "destination": "/api/board" },
-    { "source": "/9fly", "destination": "/9fly/dist/index.html" },
-    { "source": "/9fly/", "destination": "/9fly/dist/index.html" },
-    { "source": "/9fly/assets/:path*", "destination": "/9fly/dist/assets/:path*" },
-    { "source": "/9fly/favicon.svg", "destination": "/9fly/dist/favicon.svg" },
-    { "source": "/9fly/manifest.webmanifest", "destination": "/9fly/dist/manifest.webmanifest" }
+  "routes": [
+    { "src": "/9fly/api/board", "dest": "/api/board" },
+    { "src": "/9fly/assets/(.*)", "dest": "/9fly/dist/assets/$1" },
+    { "src": "/9fly/favicon.svg", "dest": "/9fly/dist/favicon.svg" },
+    { "src": "/9fly/manifest.webmanifest", "dest": "/9fly/dist/manifest.webmanifest" },
+    { "src": "/9fly/?", "dest": "/9fly/dist/index.html" },
+    { "handle": "filesystem" }
   ]
 }
