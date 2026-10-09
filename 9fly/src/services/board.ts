@@ -87,6 +87,7 @@ export function routeLabel(flight: BoardFlight): string {
 }
 
 export const STATUS_LABEL: Record<BoardFlight['status'], string> = {
+  scheduled: 'Theo lịch',
   ontime: 'Đúng giờ',
   delayed: 'Chậm',
   boarding: 'Lên máy bay',

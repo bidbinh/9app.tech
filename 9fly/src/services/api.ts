@@ -4,7 +4,7 @@
  * (bảng chuyến, tìm vé, đặt chỗ, làm thủ tục) mà không đổi giao diện.
  */
 import { AIRPORTS } from '../data/catalog';
-import type { BookInput, SearchQuery } from '../types';
+import type { BoardFlight, BoardSource, BookInput, SearchQuery } from '../types';
 import { buildBoard } from './board';
 import { searchOffers } from './shop';
 import {
@@ -20,16 +20,40 @@ import {
   togglePin,
 } from './store';
 
+const SCHEDULE_AIRPORTS = new Set(['SGN', 'HAN', 'DAD', 'CXR', 'PQC']);
+
+async function loadBoard(code: string): Promise<{ arrivals: BoardFlight[]; departures: BoardFlight[]; source: BoardSource }> {
+  if (SCHEDULE_AIRPORTS.has(code)) {
+    try {
+      const response = await fetch(`/9fly/api/fids?airport=${encodeURIComponent(code)}`);
+      if (response.ok) {
+        const data = (await response.json()) as {
+          source?: string;
+          arrivals?: BoardFlight[];
+          departures?: BoardFlight[];
+        };
+        if (data.source === 'aerodatabox' && Array.isArray(data.arrivals) && Array.isArray(data.departures)) {
+          return { arrivals: data.arrivals, departures: data.departures, source: 'aerodatabox' };
+        }
+      }
+    } catch {
+      /* Không có khóa hoặc đang chạy Vite: giữ lịch mẫu. */
+    }
+  }
+  const board = buildBoard(code);
+  return { arrivals: board.arrivals, departures: board.departures, source: 'sample' };
+}
+
 export const flightApi = {
   airports: async () => AIRPORTS,
-  board: async (code: string) => buildBoard(code),
+  board: async (code: string) => loadBoard(code),
   search: async (query: SearchQuery) => searchOffers(query),
   book: async (input: BookInput) => createBooking(input),
   bookings: async () => listBookings(),
   lookup: async (pnr: string, name: string) => lookupBooking(pnr, name),
   checkIn: async (pnr: string, passengerId: string, seat: string) => checkIn(pnr, passengerId, seat),
   pins: async () => listPins(),
-  togglePin: async (id: string) => togglePin(id),
+  togglePin: async (id: string, flight?: BoardFlight) => togglePin(id, flight),
   pinned: async () => pinnedFlights(),
   seatMap: async (pnr: string, passengerId: string) => {
     const booking = listBookings().find((item) => item.pnr.toUpperCase() === pnr.trim().toUpperCase());

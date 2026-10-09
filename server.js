@@ -18,6 +18,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { matchGate, proxyGate } from './js/gate.js';
+import { fetchAirportFids } from './lib/aerodatabox.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SPEED = path.resolve(ROOT, '..', '9speed.tech');
@@ -55,6 +56,33 @@ function resolvePath(urlPath) {
   return { root: ROOT, file: path.join(ROOT, path.normalize(urlPath).replace(/^(\.\.[/\\])+/, '')) };
 }
 
+function sendJson(res, status, body) {
+  const payload = JSON.stringify(body);
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-cache, no-store',
+    'Content-Length': Buffer.byteLength(payload),
+  });
+  res.end(payload);
+}
+
+function handleFids(req, res) {
+  const code = new URL(req.url, 'http://x').searchParams.get('airport') || '';
+  fetchAirportFids(code)
+    .then((board) => sendJson(res, 200, board))
+    .catch((error) => {
+      if (error?.code === 'missing_key') {
+        sendJson(res, 503, { ok: false, reason: 'missing_key' });
+        return;
+      }
+      if (error?.code === 'unsupported_airport') {
+        sendJson(res, 400, { ok: false, reason: 'unsupported_airport' });
+        return;
+      }
+      sendJson(res, 502, { ok: false, reason: 'upstream' });
+    });
+}
+
 function inside(root, file) {
   const prefix = root.endsWith(path.sep) ? root : root + path.sep;
   return file === root || file.startsWith(prefix);
@@ -71,6 +99,11 @@ function handler(req, res) {
 
   if (urlPath.startsWith('/certs/') || urlPath.startsWith('/.git') || urlPath === '/.gitignore') {
     res.writeHead(403).end('Forbidden');
+    return;
+  }
+
+  if (urlPath === '/9fly/api/fids') {
+    handleFids(req, res);
     return;
   }
 

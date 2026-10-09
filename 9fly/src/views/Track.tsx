@@ -3,7 +3,7 @@ import { airportByCode, cityOf } from '../data/catalog';
 import { flightApi } from '../services/api';
 import { routeLabel, STATUS_LABEL } from '../services/board';
 import { ictClock } from '../services/format';
-import type { BoardFlight } from '../types';
+import type { BoardFlight, BoardSource } from '../types';
 import { AirportSelect } from '../ui';
 
 export function TrackView() {
@@ -15,6 +15,7 @@ export function TrackView() {
   const [pins, setPins] = useState<string[]>([]);
   const [pinned, setPinned] = useState<BoardFlight[]>([]);
   const [clock, setClock] = useState(ictClock());
+  const [source, setSource] = useState<BoardSource>('sample');
 
   async function reload(code: string) {
     const [board, pinIds, pinnedRows] = await Promise.all([
@@ -24,6 +25,7 @@ export function TrackView() {
     ]);
     setArrivals(board.arrivals);
     setDepartures(board.departures);
+    setSource(board.source);
     setPins(pinIds);
     setPinned(pinnedRows);
     setClock(ictClock());
@@ -35,6 +37,7 @@ export function TrackView() {
       if (!alive) return;
       setArrivals(board.arrivals);
       setDepartures(board.departures);
+      setSource(board.source);
     });
     void flightApi.pins().then((ids) => alive && setPins(ids));
     void flightApi.pinned().then((rows) => alive && setPinned(rows));
@@ -47,8 +50,8 @@ export function TrackView() {
     };
   }, [airport]);
 
-  async function onToggle(id: string) {
-    const next = await flightApi.togglePin(id);
+  async function onToggle(flight: BoardFlight) {
+    const next = await flightApi.togglePin(flight.id, flight);
     setPins(next);
     setPinned(await flightApi.pinned());
   }
@@ -71,6 +74,15 @@ export function TrackView() {
       </div>
 
       <AirportSelect id="airport" label="Sân bay" value={airport} onChange={setAirport} />
+      {source === 'aerodatabox' ? (
+        <p className="attrib">
+          Lịch bay:{' '}
+          <a href="https://aerodatabox.com/" target="_blank" rel="noreferrer">
+            AeroDataBox
+          </a>
+          . Giờ theo lịch, chưa có trạng thái thực.
+        </p>
+      ) : null}
 
       <section className="pin-block" aria-label="Chuyến đã ghim">
         <div className="row-between">
@@ -123,7 +135,7 @@ function FlightCard({
 }: {
   flight: BoardFlight;
   pinned: boolean;
-  onToggle: (id: string) => void;
+  onToggle: (flight: BoardFlight) => void;
 }) {
   return (
     <article className={`card flight ${flight.status}`}>
@@ -168,7 +180,7 @@ function FlightCard({
         type="button"
         className={pinned ? 'pin on' : 'pin'}
         aria-pressed={pinned}
-        onClick={() => onToggle(flight.id)}
+        onClick={() => onToggle(flight)}
       >
         {pinned ? 'Bỏ ghim' : 'Ghim chuyến'}
       </button>

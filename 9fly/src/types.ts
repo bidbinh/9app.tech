@@ -6,6 +6,7 @@ export type Airport = {
 };
 
 export type FlightStatus =
+  | 'scheduled'
   | 'ontime'
   | 'delayed'
   | 'boarding'
@@ -13,6 +14,8 @@ export type FlightStatus =
   | 'arriving'
   | 'landed'
   | 'cancelled';
+
+export type BoardSource = 'aerodatabox' | 'sample';
 
 export type BoardDirection = 'arrival' | 'departure';
 

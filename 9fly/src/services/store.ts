@@ -1,4 +1,4 @@
-import type { BoardingPass, BookInput, Booking, LookupHit, Passenger } from '../types';
+import type { BoardFlight, BoardingPass, BookInput, Booking, LookupHit, Passenger } from '../types';
 import { flightFromId } from './board';
 import { addClock, foldName, gateFor, ictDate, ictNowMinutes } from './format';
 import { isVietnam } from '../data/catalog';
@@ -6,7 +6,9 @@ import { isVietnam } from '../data/catalog';
 const PIN_KEY = '9fly.pins';
 const BOOK_KEY = '9fly.bookings';
 
-const memory: { pins?: string[]; bookings?: Booking[] } = {};
+type PinRecord = { id: string; flight?: BoardFlight };
+
+const memory: { pins?: PinRecord[]; bookings?: Booking[] } = {};
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -58,24 +60,43 @@ function demoBooking(): Booking {
   };
 }
 
-export function listPins(): string[] {
-  if (!memory.pins) memory.pins = readJson<string[]>(PIN_KEY, []);
-  return memory.pins.slice();
+function loadPinRecords(): PinRecord[] {
+  if (!memory.pins) memory.pins = normalizePins(readJson<unknown>(PIN_KEY, []));
+  return memory.pins;
 }
 
-export function togglePin(id: string): string[] {
-  const current = listPins();
-  const next = current.includes(id) ? current.filter((item) => item !== id) : [id, ...current];
+function normalizePins(raw: unknown): PinRecord[] {
+  if (!Array.isArray(raw)) return [];
+  const out: PinRecord[] = [];
+  for (const item of raw) {
+    if (typeof item === 'string' && item) out.push({ id: item });
+    else if (item && typeof item === 'object' && typeof (item as PinRecord).id === 'string') {
+      const record = item as PinRecord;
+      out.push({ id: record.id, flight: record.flight });
+    }
+  }
+  return out;
+}
+
+export function listPins(): string[] {
+  return loadPinRecords().map((item) => item.id);
+}
+
+export function togglePin(id: string, flight?: BoardFlight): string[] {
+  const current = loadPinRecords();
+  const next = current.some((item) => item.id === id)
+    ? current.filter((item) => item.id !== id)
+    : [{ id, flight }, ...current];
   memory.pins = next;
   writeJson(PIN_KEY, next);
-  return next;
+  return next.map((item) => item.id);
 }
 
 export function pinnedFlights() {
   const now = ictNowMinutes();
-  return listPins()
-    .map((id) => flightFromId(id, now))
-    .filter((flight): flight is NonNullable<typeof flight> => flight !== null);
+  return loadPinRecords()
+    .map((item) => flightFromId(item.id, now) ?? item.flight ?? null)
+    .filter((flight): flight is BoardFlight => flight !== null);
 }
 
 function readStoredBookings(): Booking[] {
