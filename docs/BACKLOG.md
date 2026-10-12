@@ -33,9 +33,11 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 - [ ] Console: để app tự đăng ký chức năng vào launcher.
 - [ ] Hạ tầng dùng chung: điểm thành viên + ví chung; bộ khung đối tác dùng chung (tách từ lõi 9Ship); bộ khung app mới; nhập tài khoản 9Ship vào 9id; chặn người mời ở 9id.
 
+- [ ] **9ticket (duyệt 12/10/2026).** Giai đoạn 1 là trợ lý chuyến đi, không giữ tiền, chưa cần đối tác. Vé bay qua Datacom Master API (đã gửi báo giá 12/10): gói 2.999.000 đ/tháng (240k tìm kiếm, 2.400 đặt giữ chỗ, 1.800 xuất vé) đến 79.999.000 đ/tháng; vượt gói: tìm 5 đ, giữ chỗ 500 đ, xuất vé 1.000 đ; dùng thử 45 ngày; trả ngay giảm 5%. Hãng: VNA, Vietjet, Bamboo, Vietravel + Amadeus/Sabre/Travelport. Trang công khai không nêu sandbox, URL, xác thực, webhook, thời gian giữ chỗ: phải hỏi Datacom. Tài liệu: https://datacom.vn/document/huong-dan-tich-hop-api
+
 ## C. Đã thảo luận kỹ, chưa duyệt (phải brainstorm lại trước khi làm)
 
-9ticket, 9bill, 9shop, 9voucher, 9fit, 9car, 9payday (đề xuất 04/10). Chưa thảo luận: 9chung.
+9bill, 9shop, 9voucher, 9fit, 9car, 9payday (đề xuất 04/10). Chưa thảo luận: 9chung.
 Thứ tự theo API: bậc 1 affiliate (9shop, 9ticket giai đoạn đầu, 9voucher, 9rate); bậc 2 cần ký đối tác; bậc 3 rủi ro pháp lý cao. Mọi đối tác: xin sandbox và thử một giao dịch thật chi phí nhỏ trước khi mở bán.
 
 ## D. Kho ý tưởng
