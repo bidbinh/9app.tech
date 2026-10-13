@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="9ticket">
+  <rect width="512" height="512" rx="112" fill="#0e7490"/>
+  <path d="M96 168a24 24 0 0 1 24-24h272a24 24 0 0 1 24 24v44a44 44 0 0 0 0 88v44a24 24 0 0 1-24 24H120a24 24 0 0 1-24-24v-44a44 44 0 0 0 0-88z" fill="#ffffff"/>
+  <text x="256" y="320" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="176" font-weight="900" fill="#0e7490">9</text>
+</svg>
