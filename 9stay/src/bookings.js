@@ -108,3 +108,34 @@ export async function unitAvailability(c, { orgId, unitId, from, to }) {
     return { night, state: kinds.get(night) || 'closed' };
   });
 }
+
+async function lockBooking(c, orgId, bookingId) {
+  const [b] = await c.query('SELECT id, status, version FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
+  if (!b) throw new AppError('booking_not_found', 'Không tìm thấy đơn', 404);
+  return b;
+}
+
+export async function cancelBooking(c, { orgId, bookingId, reason = null }) {
+  const b = await lockBooking(c, orgId, bookingId);
+  if (b.status === 'huy') return { id: b.id, status: 'huy' };
+  if (['da_nhan', 'da_tra'].includes(b.status)) throw new AppError('cannot_cancel', 'Đơn đã nhận phòng, không hủy được', 409);
+  if (['khong_den', 'het_han'].includes(b.status)) throw new AppError('booking_closed', 'Đơn đã đóng', 409);
+  await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active', [b.id]);
+  await c.query("UPDATE bookings SET status = 'huy', version = version + 1 WHERE id = $1", [b.id]);
+  await addEvent(c, b.id, 'cancelled', { reasonGiven: reason !== null && reason !== '' });
+  return { id: b.id, status: 'huy' };
+}
+
+export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checkout, expectedVersion = null }, { now = new Date() } = {}) {
+  const b = await lockBooking(c, orgId, bookingId);
+  if (!['giu', 'da_coc'].includes(b.status)) throw new AppError('cannot_move', 'Chỉ dời được đơn đang giữ chỗ hoặc đã cọc', 409);
+  if (expectedVersion !== null && expectedVersion !== b.version) throw new AppError('stale', 'Đơn vừa được người khác sửa, hãy tải lại', 409);
+  const [g] = await c.query('SELECT adults, children FROM bookings WHERE id = $1', [b.id]);
+  const { nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults: g.adults, children: g.children }, now);
+  const before = await c.query('SELECT unit_id, min(night) AS first, max(night) AS last FROM room_nights WHERE booking_id = $1 AND active GROUP BY unit_id', [b.id]);
+  await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active', [b.id]);
+  await claimNights(c, { bookingId: b.id, unitId, nights });
+  const [row] = await c.query('UPDATE bookings SET version = version + 1 WHERE id = $1 RETURNING version', [b.id]);
+  await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout } });
+  return { id: b.id, version: row.version, nights };
+}
