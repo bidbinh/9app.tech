@@ -15,6 +15,7 @@ export const DEFAULTS = {
   'pricing.depositPct': 30,
   'pricing.quoteHours': 24,
   'pricing.roundTo': 1000,
+  'ops.cleaningFee': 150000,
 };
 
 const SCOPES = ['unit', 'owner', 'building', 'org'];

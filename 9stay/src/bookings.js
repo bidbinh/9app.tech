@@ -173,7 +173,7 @@ export async function unitAvailability(c, { orgId, unitId, from, to }) {
 export async function lockBooking(c, orgId, bookingId) {
   assertUuid(orgId, 'org');
   assertUuid(bookingId, 'đơn');
-  const [b] = await c.query('SELECT id, status, version, hold_until FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
+  const [b] = await c.query('SELECT id, status, version, hold_until, agent_id FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
   if (!b) throw new AppError('booking_not_found', 'Không tìm thấy đơn', 404);
   return b;
 }
