@@ -1,0 +1,19 @@
+{
+  "name": "9stay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9stay: phân phối phòng của nhiều chủ qua sale và cộng tác viên.",
+  "scripts": {
+    "test": "node scripts/test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^18.4.0-beta.17"
+  }
+}
