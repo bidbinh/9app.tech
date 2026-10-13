@@ -9,12 +9,12 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 - **Đã lên 9app.tech (tĩnh):** 9race, 9unit, 9english, 9license, 9scanner, Vạn Niên (văn khấn, mâm cúng), launcher có tìm kiếm chức năng.
 - **Đã lên (Node + DB):** 9lunch, 9swap, 9hire, 9interview (AI tắt, chưa có khóa Gemini).
 - **Có từ trước:** 9Ship (GHTK; Nhanh.vn tắt mặc định), 9app Console, 9speed, 9Fin, 9quy.
-- **Đã code, chưa lên server:** 9family, 9tutor, 9id, Osin.
+- **Đã code, đã vào `main`, chưa lên server:** 9family, 9tutor, 9id, Osin, 9ticket (giai đoạn 1).
 - **Khung có sẵn, chưa rõ mức hoàn thiện:** `car`, `fit`, `gift`, `payday`.
 
 ## A. Đang dở, cần chốt (ưu tiên cao nhất)
 
-- [x] **A1. Commit** xong 05/10/2026 (12 commit trên `feat/new-apps`, chưa push, chưa merge vào main). Ảnh chụp (`shots/`), `9app-site.tar`, bản sao lưu và `js/apps.js.local` được bỏ qua trong `.gitignore`.
+- [x] **A1. Commit** xong 05/10/2026; đã push và merge vào `main` ngày 13/10/2026 qua PR #2 (a3ebd83). Ảnh chụp (`shots/`), `9app-site.tar`, bản sao lưu và `js/apps.js.local` được bỏ qua trong `.gitignore`.
 - [ ] **A2. 9id lên server:** role + DB trong `9ship-db`, nginx `/id/`, cổng OTP eSMS. Chốt câu hỏi mở mục 13 của spec (ngưỡng 2000 SMS/ngày, chi phí).
 - [ ] **A3. 9family chuyển sang 9id** (có dữ liệu thật; sao lưu `/home/tms/backups-9app/family-20261004-1647.dump`). Làm theo `9family/docs/CUTOVER-9ID.md`: dry-run, thử trên bản sao, sao lưu trước. Bản xem thử công khai không dùng tên thật của con.
 - [ ] **A4. Osin lên `osin.9app.tech`:** DNS + chứng chỉ, nginx, `apps.json` (`secret` + `receiptSecret`), `INTERNAL_KEYS` ở 9id, ô Osin ở launcher, gắn SDK vào từng app. Còn khóa Gemini, điều khoản dữ liệu, ý kiến luật sư.
@@ -33,7 +33,7 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 - [ ] Console: để app tự đăng ký chức năng vào launcher.
 - [ ] Hạ tầng dùng chung: điểm thành viên + ví chung; bộ khung đối tác dùng chung (tách từ lõi 9Ship); bộ khung app mới; nhập tài khoản 9Ship vào 9id; chặn người mời ở 9id.
 
-- [ ] **9ticket (duyệt 12/10/2026).** Giai đoạn 1 là trợ lý chuyến đi, không giữ tiền, chưa cần đối tác. Vé bay qua Datacom Master API (đã gửi báo giá 12/10): gói 2.999.000 đ/tháng (240k tìm kiếm, 2.400 đặt giữ chỗ, 1.800 xuất vé) đến 79.999.000 đ/tháng; vượt gói: tìm 5 đ, giữ chỗ 500 đ, xuất vé 1.000 đ; dùng thử 45 ngày; trả ngay giảm 5%. Hãng: VNA, Vietjet, Bamboo, Vietravel + Amadeus/Sabre/Travelport. Trang công khai không nêu sandbox, URL, xác thực, webhook, thời gian giữ chỗ: phải hỏi Datacom. Tài liệu: https://datacom.vn/document/huong-dan-tich-hop-api
+- [ ] **9ticket (duyệt 12/10/2026; giao diện giai đoạn 1 đã vào `main` 13/10).** Giai đoạn 1 là trợ lý chuyến đi, không giữ tiền, chưa cần đối tác. Vé bay qua Datacom Master API (đã gửi báo giá 12/10): gói 2.999.000 đ/tháng (240k tìm kiếm, 2.400 đặt giữ chỗ, 1.800 xuất vé) đến 79.999.000 đ/tháng; vượt gói: tìm 5 đ, giữ chỗ 500 đ, xuất vé 1.000 đ; dùng thử 45 ngày; trả ngay giảm 5%. Hãng: VNA, Vietjet, Bamboo, Vietravel + Amadeus/Sabre/Travelport. Trang công khai không nêu sandbox, URL, xác thực, webhook, thời gian giữ chỗ: phải hỏi Datacom. Tài liệu: https://datacom.vn/document/huong-dan-tich-hop-api
   - Giao diện giai đoạn 1 (Chuyến của tôi) đã xong trong `ticket/` (13/10/2026): chưa deploy, chưa đăng ký launcher/Console, trạng thái chuyến là dữ liệu mẫu. Nối Datacom ở `ticket/js/status.js` khi có sandbox.
   - [ ] 9ticket: tìm vé + đặt qua Datacom (cần sandbox, hợp đồng)
   - [ ] 9ticket: sân bay đi/đến, hành khách gia đình
