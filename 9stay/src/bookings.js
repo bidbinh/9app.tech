@@ -170,7 +170,7 @@ export async function unitAvailability(c, { orgId, unitId, from, to }) {
   });
 }
 
-async function lockBooking(c, orgId, bookingId) {
+export async function lockBooking(c, orgId, bookingId) {
   assertUuid(orgId, 'org');
   assertUuid(bookingId, 'đơn');
   const [b] = await c.query('SELECT id, status, version, hold_until FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
