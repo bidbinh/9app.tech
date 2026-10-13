@@ -5,7 +5,7 @@ import { validateTrip, cleanTrip, newId, sortTrips, splitUpcoming, countdown, tr
 const base = () => ({
   id: 'abc1', mode: 'bay', operator: 'Vietjet Air', code: 'vj123',
   from: { code: 'han', name: 'Hà Nội' }, to: { code: 'SGN', name: 'TP. Hồ Chí Minh' },
-  departAt: '2026-11-15T06:30:00Z', arriveAt: '2026-11-15T08:40:00+07:00',
+  departAt: '2026-11-14T22:30:00Z', arriveAt: '2026-11-15T08:40:00+07:00',
 });
 
 test('validateTrip: chuẩn hóa mã, viết hoa, ghi lại giờ dạng chuẩn', () => {
@@ -13,7 +13,7 @@ test('validateTrip: chuẩn hóa mã, viết hoa, ghi lại giờ dạng chuẩn
   assert.deepEqual(errors, []);
   assert.equal(trip.code, 'VJ123');
   assert.equal(trip.from.code, 'HAN');
-  assert.equal(trip.departAt, '2026-11-15T06:30:00+00:00');
+  assert.equal(trip.departAt, '2026-11-14T22:30:00+00:00');
   assert.equal(trip.arriveAt, '2026-11-15T08:40:00+07:00');
   assert.deepEqual(trip.passengers, []);
   assert.equal(trip.leadMin, null);
@@ -27,7 +27,7 @@ test('validateTrip: báo từng lỗi bằng tiếng Việt', () => {
 });
 
 test('validateTrip: giờ đến phải sau giờ đi; thiếu giờ đến thì cho phép', () => {
-  assert.equal(validateTrip({ ...base(), arriveAt: '2026-11-15T05:00:00Z' }).trip, null);
+  assert.equal(validateTrip({ ...base(), arriveAt: '2026-11-14T20:00:00Z' }).trip, null);
   assert.equal(validateTrip({ ...base(), arriveAt: '' }).trip.arriveAt, null);
 });
 
