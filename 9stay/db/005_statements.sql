@@ -10,6 +10,7 @@ CREATE TABLE owner_statements (
   total_room bigint NOT NULL,
   total_owner bigint NOT NULL,
   total_cleaning bigint NOT NULL,
+  total_carried bigint NOT NULL DEFAULT 0,
   payable bigint NOT NULL,
   line_count int NOT NULL CHECK (line_count > 0),
   frozen_by uuid,
@@ -18,6 +19,14 @@ CREATE TABLE owner_statements (
   UNIQUE (org_id, id),
   FOREIGN KEY (org_id, owner_id) REFERENCES owners (org_id, id)
 );
+
+-- Bản kê âm (chủ còn nợ) được mang sang bản kê kế tiếp đúng một lần.
+CREATE TABLE owner_statement_carries (
+  from_statement_id uuid PRIMARY KEY REFERENCES owner_statements(id),
+  into_statement_id uuid NOT NULL REFERENCES owner_statements(id),
+  amount bigint NOT NULL CHECK (amount < 0)
+);
+CREATE TRIGGER owner_statement_carries_append_only BEFORE UPDATE OR DELETE ON owner_statement_carries FOR EACH ROW EXECUTE FUNCTION forbid_change();
 CREATE TRIGGER owner_statements_append_only BEFORE UPDATE OR DELETE ON owner_statements FOR EACH ROW EXECUTE FUNCTION forbid_change();
 
 CREATE TABLE owner_statement_lines (

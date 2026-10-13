@@ -135,7 +135,7 @@ CREATE TABLE room_nights (
   unit_id uuid NOT NULL,
   night date NOT NULL,
   active boolean NOT NULL DEFAULT true,
-  FOREIGN KEY (org_id, booking_id) REFERENCES bookings (org_id, id) ON DELETE CASCADE,
+  FOREIGN KEY (org_id, booking_id) REFERENCES bookings (org_id, id),
   FOREIGN KEY (org_id, unit_id) REFERENCES units (org_id, id)
 );
 CREATE UNIQUE INDEX room_nights_active_unit_night ON room_nights (unit_id, night) WHERE active;
@@ -143,7 +143,7 @@ CREATE INDEX room_nights_booking ON room_nights (booking_id);
 
 CREATE TABLE booking_events (
   id bigserial PRIMARY KEY,
-  booking_id uuid NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+  booking_id uuid NOT NULL REFERENCES bookings(id),
   kind text NOT NULL,
   data jsonb NOT NULL DEFAULT '{}',
   at timestamptz NOT NULL DEFAULT now()

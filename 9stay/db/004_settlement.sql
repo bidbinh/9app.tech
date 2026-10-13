@@ -12,12 +12,15 @@ CREATE TABLE agents (
 );
 
 ALTER TABLE bookings ADD CONSTRAINT bookings_agent_fk FOREIGN KEY (org_id, agent_id) REFERENCES agents (org_id, id);
+-- Tỉ lệ hoa hồng chụp lúc đặt: đổi tỉ lệ hoặc khóa sale sau đó không ảnh hưởng đơn đã đặt.
+ALTER TABLE bookings ADD COLUMN commission_pct int CHECK (commission_pct BETWEEN 0 AND 100);
 
 -- Mỗi đơn đúng một quyết toán, bất biến. Mọi bản kê tính từ bảng này.
 CREATE TABLE settlements (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id uuid NOT NULL,
   booking_id uuid NOT NULL UNIQUE,
+  kind text NOT NULL DEFAULT 'stay' CHECK (kind IN ('stay', 'cancel')),
   owner_id uuid NOT NULL,
   unit_id uuid NOT NULL,
   agent_id uuid,

@@ -2,6 +2,9 @@ import { AppError } from './errors.js';
 import { nightsBetween, todayVN, addDays } from './time.js';
 import { getSetting } from './settings.js';
 import { assertUuid } from './ids.js';
+import { postTransaction } from './ledger.js';
+import { bookingBalance } from './balance.js';
+import { contractFor } from './contracts.js';
 
 const GUEST_NAME_MAX = 120;
 const CANCEL_REASON_MAX = 500;
@@ -42,12 +45,15 @@ export async function validateStay(c, { orgId, unitId, checkin, checkout, adults
 }
 
 // Nhả các đơn giu quá hạn: đơn thành het_han, các đêm được trả. SKIP LOCKED: không chờ đơn đang bị giao dịch khác khóa.
+// Đơn đã nhận bất kỳ khoản tiền nào KHÔNG bị nhả tự động (khách đã chuyển tiền): nằm trong listOverdueHolds để nhân viên
+// quyết định hủy (giữ hay hoàn) hoặc thu nốt.
 export async function expireHolds(c, { orgId, now = new Date() }) {
   assertUuid(orgId, 'org');
   const rows = await c.query(
     `UPDATE bookings SET status = 'het_han', version = version + 1
-      WHERE id IN (SELECT id FROM bookings WHERE org_id = $1 AND status = 'giu' AND hold_until IS NOT NULL AND hold_until < $2::timestamptz
-                   ORDER BY id FOR UPDATE SKIP LOCKED)
+      WHERE id IN (SELECT b.id FROM bookings b WHERE b.org_id = $1 AND b.status = 'giu' AND b.hold_until IS NOT NULL AND b.hold_until < $2::timestamptz
+                      AND NOT EXISTS (SELECT 1 FROM payments p WHERE p.booking_id = b.id)
+                   ORDER BY b.id FOR UPDATE OF b SKIP LOCKED)
       RETURNING id`,
     [orgId, now],
   );
@@ -57,6 +63,19 @@ export async function expireHolds(c, { orgId, now = new Date() }) {
     for (const id of ids) await addEvent(c, id, 'expired', {});
   }
   return ids;
+}
+
+// Đơn giữ chỗ đã quá hạn nhưng đã nhận tiền (không tự nhả): cần nhân viên xử lý.
+export async function listOverdueHolds(c, { orgId, now = new Date() }) {
+  assertUuid(orgId, 'org');
+  return c.query(
+    `SELECT b.id, b.code, b.hold_until,
+            COALESCE((SELECT SUM(CASE WHEN p.kind = 'refund' THEN -p.amount ELSE p.amount END) FROM payments p WHERE p.booking_id = b.id), 0)::bigint AS paid
+       FROM bookings b
+      WHERE b.org_id = $1 AND b.status = 'giu' AND b.hold_until < $2::timestamptz AND EXISTS (SELECT 1 FROM payments p WHERE p.booking_id = b.id)
+      ORDER BY b.hold_until`,
+    [orgId, now],
+  );
 }
 
 // Giữ các đêm cho đơn: khóa dòng owner_releases (tuần tự hóa với đặt khác và với chủ chặn ngày), kiểm mở bán,
@@ -102,6 +121,7 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
   const { unit, nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults, children }, now);
   const today = todayVN(now);
   const quote = quoteId ? await loadUsableQuote(c, { orgId, quoteId, unit, checkin, checkout, adults, children, now }) : null;
+  const commissionPct = agentId ? await agentCommissionPct(c, orgId, agentId) : null;
 
   let holdUntil = null;
   if (status === 'giu') {
@@ -112,18 +132,48 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
   let row;
   try {
     [row] = await c.query(
-      `INSERT INTO bookings(org_id, code, guest_name, guest_phone, adults, children, source, agent_id, created_by, status, hold_until, deposit_required, quote_id)
-       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id, version`,
-      [orgId, code, name, phone, adults, children, source, agentId, createdBy, status, holdUntil, quote ? quote.deposit : 0, quote ? quote.id : null],
+      `INSERT INTO bookings(org_id, code, guest_name, guest_phone, adults, children, source, agent_id, commission_pct, created_by, status, hold_until, deposit_required, quote_id)
+       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id, version`,
+      [orgId, code, name, phone, adults, children, source, agentId, commissionPct, createdBy, status, holdUntil, quote ? quote.deposit : 0, quote ? quote.id : null],
     );
   } catch (e) {
     if (e.code === '23505' && e.constraint === 'bookings_quote_unique') throw new AppError('quote_used', 'Báo giá này đã được dùng cho một đơn khác', 409);
     throw e;
   }
+  if (quote) await markQuoteUsed(c, quote.id, row.id);
   await claimNights(c, { orgId, bookingId: row.id, unitId, nights, now });
   if (quote) await writePriceLines(c, { orgId, bookingId: row.id, quote });
   await addEvent(c, row.id, 'created', { unitId, checkin, checkout, status });
   return { id: row.id, code, status, version: row.version, holdUntil, checkin, checkout, nights, total: quote ? quote.total : 0, depositRequired: quote ? quote.deposit : 0 };
+}
+
+// Sale/CTV phải thuộc org và đang hoạt động; tỉ lệ hoa hồng được chụp vào đơn lúc đặt.
+async function agentCommissionPct(c, orgId, agentId) {
+  assertUuid(agentId, 'sale/CTV');
+  const [a] = await c.query('SELECT commission_pct, status FROM agents WHERE id = $1 AND org_id = $2', [agentId, orgId]);
+  if (!a) throw new AppError('agent_not_found', 'Không tìm thấy sale/CTV', 404);
+  if (a.status !== 'active') throw new AppError('agent_inactive', 'Sale/CTV này đang bị tạm dừng hoặc khóa', 409);
+  return a.commission_pct;
+}
+
+// Mỗi báo giá chỉ được dùng một lần trong đời (đặt mới hoặc dời đơn).
+async function markQuoteUsed(c, quoteId, bookingId) {
+  try {
+    await c.query('INSERT INTO quote_uses(quote_id, booking_id) VALUES($1, $2)', [quoteId, bookingId]);
+  } catch (e) {
+    if (e.code === '23505') throw new AppError('quote_used', 'Báo giá này đã được dùng cho một đơn khác', 409);
+    throw e;
+  }
+}
+
+// Đảo toàn bộ dòng giá hiện có (dòng âm, vì dòng giá bất biến) trước khi ghi giá mới khi dời đơn.
+async function reversePriceLines(c, { orgId, bookingId }) {
+  const nights = await c.query("SELECT night, SUM(amount)::bigint AS amount FROM price_lines WHERE booking_id = $1 AND kind = 'night' GROUP BY night HAVING SUM(amount) <> 0 ORDER BY night", [bookingId]);
+  for (const l of nights) {
+    await c.query("INSERT INTO price_lines(org_id, booking_id, kind, night, label, amount) VALUES($1, $2, 'night', $3::date, $4, $5)", [orgId, bookingId, l.night, `Hoàn đêm ${l.night} (dời đơn)`, -l.amount]);
+  }
+  const [v] = await c.query("SELECT COALESCE(SUM(amount), 0)::bigint AS vat FROM price_lines WHERE booking_id = $1 AND kind = 'vat'", [bookingId]);
+  if (v.vat !== 0) await c.query("INSERT INTO price_lines(org_id, booking_id, kind, night, label, amount) VALUES($1, $2, 'vat', NULL, 'Hoàn VAT (dời đơn)', $3)", [orgId, bookingId, -v.vat]);
 }
 
 // Báo giá phải còn hạn và khớp ngày, số khách, trẻ em, loại phòng của căn.
@@ -173,31 +223,65 @@ export async function unitAvailability(c, { orgId, unitId, from, to }) {
 export async function lockBooking(c, orgId, bookingId) {
   assertUuid(orgId, 'org');
   assertUuid(bookingId, 'đơn');
-  const [b] = await c.query('SELECT id, status, version, hold_until, agent_id FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
+  const [b] = await c.query('SELECT id, status, version, hold_until, agent_id, commission_pct FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
   if (!b) throw new AppError('booking_not_found', 'Không tìm thấy đơn', 404);
   return b;
 }
 
-export async function cancelBooking(c, { orgId, bookingId, reason = null }) {
+// Giữ lại một phần tiền khách đã thu khi hủy: chia chủ/Anstay theo hợp đồng của đêm đầu (không có hợp đồng hoặc thuê lại
+// cố định thì toàn bộ về Anstay), ghi bảng settlements loại 'cancel' để vào bản kê chủ. Không có hoa hồng, không có VAT
+// (cách xử lý thuế cho khoản giữ cọc chờ kế toán xác nhận). Phần còn lại của tiền đã thu được hoàn tay bằng recordPayment.
+async function settleCancellation(c, { orgId, booking, retain, now }) {
+  const [first] = await c.query('SELECT unit_id, night FROM room_nights WHERE booking_id = $1 AND active ORDER BY night LIMIT 1', [booking.id]);
+  if (!first) throw new AppError('no_nights', 'Đơn không còn đêm nào', 409);
+  const [unit] = await c.query('SELECT owner_id FROM units WHERE id = $1 AND org_id = $2', [first.unit_id, orgId]);
+  const k = await contractFor(c, first.unit_id, first.night);
+  const owner = k && k.kind === 'revenue_share' ? Math.floor((retain * k.owner_share_pct) / 100) : 0;
+  const entries = [{ account: 'guest_deposit_liability', amount: retain }];
+  if (owner > 0) entries.push({ account: 'held_for_owner', partyId: unit.owner_id, amount: -owner });
+  if (retain - owner > 0) entries.push({ account: 'anstay_revenue', amount: -(retain - owner) });
+  const tx = await postTransaction(c, { orgId, kind: 'cancel_retain', bookingId: booking.id, ref: 'cancel:' + booking.id, entries });
+  await c.query(
+    `INSERT INTO settlements(org_id, booking_id, kind, owner_id, unit_id, agent_id, checkout_date, room_revenue, vat, owner_amount, anstay_amount, commission, cleaning_fee, cleaning_payer, ledger_tx_id)
+     VALUES($1, $2, 'cancel', $3, $4, NULL, $5::date, $6, 0, $7, $8, 0, 0, 'guest', $9)`,
+    [orgId, booking.id, unit.owner_id, first.unit_id, todayVN(now), retain, owner, retain - owner, tx.id],
+  );
+}
+
+// Hủy đơn. Đơn đã thu tiền phải nói rõ giữ lại bao nhiêu (retainAmount, 0 = hoàn hết) để tiền cọc không bị kẹt.
+export async function cancelBooking(c, { orgId, bookingId, reason = null, retainAmount }, { now = new Date() } = {}) {
   const why = typeof reason === 'string' ? reason.trim() : '';
   if (why.length > CANCEL_REASON_MAX) throw new AppError('bad_reason', `Lý do hủy tối đa ${CANCEL_REASON_MAX} ký tự`);
+  if (retainAmount !== undefined && (!Number.isSafeInteger(retainAmount) || retainAmount < 0)) throw new AppError('bad_retain', 'Số tiền giữ lại không hợp lệ');
   const b = await lockBooking(c, orgId, bookingId);
   if (b.status === 'huy') return { id: b.id, status: 'huy' };
   if (['da_nhan', 'da_tra'].includes(b.status)) throw new AppError('cannot_cancel', 'Đơn đã nhận phòng, không hủy được', 409);
   if (['khong_den', 'het_han'].includes(b.status)) throw new AppError('booking_closed', 'Đơn đã đóng', 409);
+  const bal = await bookingBalance(c, { orgId, bookingId });
+  if (bal.paid > 0 && retainAmount === undefined) {
+    throw new AppError('payments_exist', 'Đơn đã thu tiền: hãy chọn số tiền giữ lại (0 nếu hoàn hết)', 409, { paid: bal.paid });
+  }
+  const retain = retainAmount ?? 0;
+  if (retain > bal.paid) throw new AppError('bad_retain', 'Số tiền giữ lại lớn hơn số đã thu', 409, { paid: bal.paid });
+  if (retain > 0) await settleCancellation(c, { orgId, booking: b, retain, now });
   await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active', [b.id]);
   await c.query("UPDATE bookings SET status = 'huy', version = version + 1, cancel_reason = $2 WHERE id = $1", [b.id, why || null]);
   await addEvent(c, b.id, 'cancelled', { reasonGiven: why !== '' });
   return { id: b.id, status: 'huy' };
 }
 
-export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checkout, expectedVersion = null }, { now = new Date() } = {}) {
+// Dời đơn. Đơn đã có dòng giá bắt buộc kèm báo giá mới (quoteId) cho kỳ ở mới: dòng giá cũ được đảo bằng dòng âm,
+// dòng giá mới được ghi, cọc yêu cầu theo báo giá mới. Đơn chưa có dòng giá dời như trước.
+export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checkout, expectedVersion = null, quoteId = null }, { now = new Date() } = {}) {
   const b = await lockBooking(c, orgId, bookingId);
   if (!['giu', 'da_coc'].includes(b.status)) throw new AppError('cannot_move', 'Chỉ dời được đơn đang giữ chỗ hoặc đã cọc', 409);
   if (b.status === 'giu' && b.hold_until && new Date(b.hold_until) < now) throw new AppError('hold_expired', 'Đơn giữ chỗ đã hết hạn', 409);
   if (expectedVersion !== null && expectedVersion !== b.version) throw new AppError('stale', 'Đơn vừa được người khác sửa, hãy tải lại', 409);
   const [g] = await c.query('SELECT adults, children FROM bookings WHERE id = $1', [b.id]);
-  const { nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults: g.adults, children: g.children }, now);
+  const { unit, nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults: g.adults, children: g.children }, now);
+  const [hasLines] = await c.query('SELECT 1 FROM price_lines WHERE booking_id = $1 LIMIT 1', [b.id]);
+  if (hasLines && !quoteId) throw new AppError('quote_required', 'Đơn đã có giá: dời đơn cần báo giá mới cho kỳ ở mới', 409);
+  const quote = quoteId ? await loadUsableQuote(c, { orgId, quoteId, unit, checkin, checkout, adults: g.adults, children: g.children, now }) : null;
   // Khóa TRƯỚC mọi dòng owner_releases liên quan (đêm cũ và đêm mới), theo thứ tự (căn, đêm), rồi mới đụng room_nights.
   // Nếu vô hiệu room_nights trước khi giữ khóa release, một đặt phòng khác đang giữ khóa release sẽ chờ dòng room_nights
   // của ta trong khi ta chờ khóa release của nó: deadlock.
@@ -213,7 +297,13 @@ export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checko
   const before = await c.query('SELECT unit_id, min(night) AS first, max(night) AS last FROM room_nights WHERE booking_id = $1 AND active GROUP BY unit_id', [b.id]);
   await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active', [b.id]);
   await claimNights(c, { orgId, bookingId: b.id, unitId, nights, now });
+  if (quote) {
+    await markQuoteUsed(c, quote.id, b.id);
+    await reversePriceLines(c, { orgId, bookingId: b.id });
+    await writePriceLines(c, { orgId, bookingId: b.id, quote });
+    await c.query('UPDATE bookings SET quote_id = $2, deposit_required = $3 WHERE id = $1', [b.id, quote.id, quote.deposit]);
+  }
   const [row] = await c.query('UPDATE bookings SET version = version + 1 WHERE id = $1 RETURNING version', [b.id]);
-  await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout } });
+  await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout }, quoteId: quote ? quote.id : null });
   return { id: b.id, version: row.version, nights };
 }

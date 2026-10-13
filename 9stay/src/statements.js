@@ -43,20 +43,32 @@ export async function ownerStatement(c, { orgId, ownerId, from, to }) {
     owner: lines.reduce((s, l) => s + l.owner_amount, 0),
     cleaning: lines.reduce((s, l) => s + l.cleaning_fee, 0),
   };
-  totals.payable = totals.owner - totals.cleaning;
-  return { lines, totals };
+  // Bản kê âm trước đó (chủ còn nợ) chưa được mang sang thì mang vào bản kê này, đúng một lần.
+  const carries = await c.query(
+    `SELECT s.id, s.payable FROM owner_statements s
+      WHERE s.org_id = $1 AND s.owner_id = $2 AND s.payable < 0
+        AND NOT EXISTS (SELECT 1 FROM owner_statement_carries x WHERE x.from_statement_id = s.id)
+      ORDER BY s.frozen_at, s.id`,
+    [orgId, ownerId],
+  );
+  totals.carried = carries.reduce((s, x) => s + x.payable, 0);
+  totals.payable = totals.owner - totals.cleaning + totals.carried;
+  return { lines, totals, carries };
 }
 
 // Đóng băng bản kê: khóa chủ phòng để hai lần đóng băng đồng thời không nhặt trùng quyết toán.
 export async function freezeOwnerStatement(c, { orgId, ownerId, from, to, by = null }) {
   await requireOwner(c, orgId, ownerId);
-  const { lines, totals } = await ownerStatement(c, { orgId, ownerId, from, to });
+  const { lines, totals, carries } = await ownerStatement(c, { orgId, ownerId, from, to });
   if (!lines.length) throw new AppError('empty_statement', 'Kỳ này không có quyết toán mới để đưa vào bản kê', 409);
   const [st] = await c.query(
-    `INSERT INTO owner_statements(org_id, owner_id, period_start, period_end, total_room, total_owner, total_cleaning, payable, line_count, frozen_by)
-     VALUES($1, $2, $3::date, $4::date, $5, $6, $7, $8, $9, $10) RETURNING id`,
-    [orgId, ownerId, from, to, totals.room, totals.owner, totals.cleaning, totals.payable, lines.length, by],
+    `INSERT INTO owner_statements(org_id, owner_id, period_start, period_end, total_room, total_owner, total_cleaning, total_carried, payable, line_count, frozen_by)
+     VALUES($1, $2, $3::date, $4::date, $5, $6, $7, $8, $9, $10, $11) RETURNING id`,
+    [orgId, ownerId, from, to, totals.room, totals.owner, totals.cleaning, totals.carried, totals.payable, lines.length, by],
   );
+  for (const x of carries) {
+    await c.query('INSERT INTO owner_statement_carries(from_statement_id, into_statement_id, amount) VALUES($1, $2, $3)', [x.id, st.id, x.payable]);
+  }
   for (const l of lines) {
     await c.query(
       `INSERT INTO owner_statement_lines(org_id, statement_id, settlement_id, booking_code, checkout_date, room_revenue, owner_amount, cleaning_fee, amount)
@@ -152,12 +164,15 @@ export async function recordAgentPayout(c, { orgId, statementId, paidOn, ref, by
 
 // ---- CSV ----
 
+// Ô bắt đầu (sau khoảng trắng/ký tự điều khiển) bằng = + - @ | hoặc bắt đầu bằng tab/CR bị bảng tính hiểu là công thức.
+const FORMULA_START = new RegExp('^[\\s\\u0000-\\u001f\\u2028\\u2029]*[=+\\-@|]|^[\\t\\r]');
+
 // Thuần. Ô chuỗi bắt đầu bằng = + - @ hoặc tab/CR được thêm dấu ' phía trước để bảng tính không hiểu là công thức.
 export function toCsv(rows, columns, { bom = false } = {}) {
   const cell = (v) => {
     if (v === null || v === undefined) return '';
     let s = String(v);
-    if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (typeof v === 'string' && FORMULA_START.test(s)) s = "'" + s;
     return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
   const out = [columns.map((col) => cell(col.header)).join(',')];
@@ -178,9 +193,10 @@ export async function statementCsv(c, { orgId, kind, statementId, bom = false })
   assertUuid(orgId, 'org');
   assertUuid(statementId, 'bản kê');
   if (kind === 'owner') {
-    const [st] = await c.query('SELECT id, total_room, total_owner, total_cleaning, payable FROM owner_statements WHERE id = $1 AND org_id = $2', [statementId, orgId]);
+    const [st] = await c.query('SELECT id, total_room, total_owner, total_cleaning, total_carried, payable FROM owner_statements WHERE id = $1 AND org_id = $2', [statementId, orgId]);
     if (!st) throw new AppError('statement_not_found', 'Không tìm thấy bản kê', 404);
     const lines = await c.query('SELECT booking_code, checkout_date, room_revenue, owner_amount, cleaning_fee, amount FROM owner_statement_lines WHERE statement_id = $1 ORDER BY checkout_date, booking_code', [statementId]);
+    if (st.total_carried !== 0) lines.push({ booking_code: 'CHUYỂN KỲ TRƯỚC', checkout_date: null, room_revenue: null, owner_amount: null, cleaning_fee: null, amount: st.total_carried });
     lines.push({ booking_code: 'TỔNG', checkout_date: null, room_revenue: st.total_room, owner_amount: st.total_owner, cleaning_fee: st.total_cleaning, amount: st.payable });
     return toCsv(lines, OWNER_COLS, { bom });
   }

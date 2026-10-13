@@ -94,7 +94,7 @@ test('hoàn tiền: không vượt số đã thu; hoàn thử lại cùng ref kh
 
 test('đơn đã hủy: không nhận thu thêm, nhưng vẫn hoàn được số đã thu', async () => {
   await pay();
-  await db.tx((c) => cancelBooking(c, { orgId: w.orgId, bookingId: booking.id }));
+  await db.tx((c) => cancelBooking(c, { orgId: w.orgId, bookingId: booking.id, retainAmount: 0 }));
   await fail(pay({ ref: 'late', kind: 'payment', amount: 1000 }), 'booking_closed');
   const r = await pay({ kind: 'refund', amount: 644000, ref: 'rf' });
   assert.equal(r.paid, 0);

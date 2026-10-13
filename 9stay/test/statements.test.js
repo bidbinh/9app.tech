@@ -35,7 +35,7 @@ test('xem trước kỳ A: hai quyết toán đầu, tổng đúng', async () =>
   const { lines, totals } = await db.tx((c) => ownerStatement(c, owner(w, A)));
   assert.equal(lines.length, 2);
   assert.deepEqual(lines.map((l) => l.checkout_date), ['2026-11-15', '2026-11-22']);
-  assert.deepEqual(totals, { room: 3250000, owner: 2275000, cleaning: 300000, payable: 1975000 });
+  assert.deepEqual(totals, { room: 3250000, owner: 2275000, cleaning: 300000, carried: 0, payable: 1975000 });
   // xem trước không lưu gì
   assert.equal((await db.query('SELECT count(*)::int AS n FROM owner_statements'))[0].n, 0);
 });

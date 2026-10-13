@@ -155,12 +155,9 @@ test('đơn không có dòng giá (không đặt từ báo giá): no_price', asy
   await fail(out(w), 'no_price', 409);
 });
 
-test('đơn đã dời sau khi có dòng giá: price_mismatch, không quyết toán sai', async () => {
+test('đêm của đơn lệch dòng giá (sửa trực tiếp CSDL): price_mismatch, không quyết toán sai', async () => {
   const w = await stayed();
-  // dời cần đơn đang giữ/cọc; mô phỏng bằng cách đổi trạng thái tạm để dời rồi nhận phòng lại
-  await db.query("UPDATE bookings SET status='da_coc' WHERE id=$1", [w.booking.id]);
-  await db.tx((c) => moveBooking(c, { orgId: w.orgId, bookingId: w.booking.id, unitId: w.unitId, checkin: '2026-11-20', checkout: '2026-11-23' }, { now: NOW }));
-  await db.query("UPDATE bookings SET status='da_nhan' WHERE id=$1", [w.booking.id]);
+  await db.query("UPDATE room_nights SET night = night + 8 WHERE booking_id = $1", [w.booking.id]); // 20, 21, 22/11: không khớp dòng giá 12, 13, 14/11
   await fail(out(w), 'price_mismatch', 409);
   assert.equal((await db.query('SELECT count(*)::int AS n FROM settlements'))[0].n, 0);
 });

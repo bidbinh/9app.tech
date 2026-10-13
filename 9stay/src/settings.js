@@ -20,11 +20,30 @@ export const DEFAULTS = {
 
 const SCOPES = ['unit', 'owner', 'building', 'org'];
 
+// Kiểm kiểu và khoảng giá trị khi ghi: giá trị sai (chuỗi thay vì số, 0 làm bước làm tròn, % ngoài 0..100) bị từ chối ngay.
+const int = (min, max = Number.MAX_SAFE_INTEGER) => (v) => Number.isSafeInteger(v) && v >= min && v <= max;
+const VALID = {
+  'booking.maxNights': int(1, 366),
+  'booking.maxAdvanceDays': int(0, 3650),
+  'booking.holdMinutesStaff': int(0, 525600),
+  'org.codePrefix': (v) => typeof v === 'string' && /^[A-Za-z0-9]{1,6}$/.test(v),
+  'pricing.vatPct': int(0, 100),
+  'pricing.extraAdultFee': int(0),
+  'pricing.childFee': int(0),
+  'pricing.childFreeMaxAge': int(0, 17),
+  'pricing.childAdultMinAge': int(1, 18),
+  'pricing.depositPct': int(0, 100),
+  'pricing.quoteHours': int(1, 720),
+  'pricing.roundTo': int(1, 1000000),
+  'ops.cleaningFee': int(0),
+};
+
 export async function setSetting(c, { orgId, scopeType, scopeId = null, key, value, effectiveFrom }) {
   if (!SCOPES.includes(scopeType) || (scopeType === 'org') !== (scopeId === null)) {
     throw new AppError('bad_scope', 'Phạm vi cài đặt không hợp lệ');
   }
   if (!(key in DEFAULTS)) throw new AppError('unknown_setting', 'Cài đặt không tồn tại: ' + key);
+  if (!VALID[key](value)) throw new AppError('bad_setting', 'Giá trị không hợp lệ cho cài đặt ' + key);
   await c.query(
     'INSERT INTO settings(org_id, scope_type, scope_id, key, value, effective_from) VALUES($1, $2, $3, $4, $5::jsonb, $6::date)',
     [orgId, scopeType, scopeId, key, JSON.stringify(value), effectiveFrom],

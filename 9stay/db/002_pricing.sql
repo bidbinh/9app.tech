@@ -90,6 +90,13 @@ CREATE TABLE quotes (
   FOREIGN KEY (org_id, plan_id) REFERENCES rate_plans (org_id, id)
 );
 
+-- Mỗi báo giá chỉ được dùng một lần trong đời (đặt mới hoặc dời đơn), kể cả khi đơn đã chuyển sang báo giá khác.
+CREATE TABLE quote_uses (
+  quote_id uuid PRIMARY KEY REFERENCES quotes(id),
+  booking_id uuid NOT NULL,
+  at timestamptz NOT NULL DEFAULT now()
+);
+
 ALTER TABLE bookings ADD COLUMN deposit_required bigint NOT NULL DEFAULT 0 CHECK (deposit_required >= 0);
 ALTER TABLE bookings ADD COLUMN quote_id uuid REFERENCES quotes(id);
 CREATE UNIQUE INDEX bookings_quote_unique ON bookings (quote_id) WHERE quote_id IS NOT NULL;
@@ -104,7 +111,7 @@ CREATE TABLE price_lines (
   label text NOT NULL,
   amount bigint NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
-  FOREIGN KEY (org_id, booking_id) REFERENCES bookings (org_id, id) ON DELETE CASCADE
+  FOREIGN KEY (org_id, booking_id) REFERENCES bookings (org_id, id)
 );
 CREATE INDEX price_lines_booking ON price_lines (booking_id);
 CREATE TRIGGER price_lines_append_only BEFORE UPDATE OR DELETE ON price_lines FOR EACH ROW EXECUTE FUNCTION forbid_change();
