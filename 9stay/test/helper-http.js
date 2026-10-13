@@ -39,7 +39,7 @@ export class Api {
     let payload;
     if (raw !== undefined) { payload = raw; h['content-type'] = 'application/json'; } else if (body !== undefined) { payload = JSON.stringify(body); h['content-type'] = 'application/json'; }
     const r = await fetch(this.srv.base + path, { method, headers: h, body: payload });
-    const text = await r.text();
+    const text = Buffer.from(await r.arrayBuffer()).toString('utf8'); // giữ nguyên BOM (r.text() sẽ cắt BOM)
     let json = null;
     try { json = JSON.parse(text); } catch { /* không phải JSON */ }
     return { status: r.status, json, text, headers: r.headers };
