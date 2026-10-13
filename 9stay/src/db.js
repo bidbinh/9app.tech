@@ -76,10 +76,11 @@ export async function migrate() {
 }
 
 export async function resetForTests() {
-  await query(`DO $$ DECLARE r record; BEGIN
-    FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename <> 'schema_migrations' LOOP
-      EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' RESTART IDENTITY CASCADE';
-    END LOOP; END $$`);
+  // Một câu TRUNCATE duy nhất cho mọi bảng (nhanh hơn nhiều so với từng bảng một).
+  await query(`DO $$ DECLARE names text; BEGIN
+    SELECT string_agg(quote_ident(tablename), ', ') INTO names FROM pg_tables WHERE schemaname='public' AND tablename <> 'schema_migrations';
+    IF names IS NOT NULL THEN EXECUTE 'TRUNCATE TABLE ' || names || ' RESTART IDENTITY CASCADE'; END IF;
+  END $$`);
 }
 
 export async function close() {
