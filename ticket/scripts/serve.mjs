@@ -16,7 +16,7 @@ export function startServer(port = 0) {
     let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     if (p.endsWith('/')) p += 'index.html';
     const file = path.normalize(path.join(root, p));
-    if (!file.startsWith(root) || /[\/](tests|scripts|shots|node_modules)[\/]/.test(file)) { res.writeHead(404); res.end('404'); return; }
+    if (!file.startsWith(root) || /[\\/](tests|scripts|shots|node_modules)[\\/]/.test(file)) { res.writeHead(404); res.end('404'); return; }
     fs.readFile(file, (err, buf) => {
       if (err) { res.writeHead(404); res.end('404'); return; }
       res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
