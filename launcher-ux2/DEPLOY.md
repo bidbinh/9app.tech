@@ -15,21 +15,21 @@
 cd D:/9app.tech/launcher-ux2
 node tools/test.mjs      # phải in "TAT CA DAT"
 S=/home/tms/ops/certbot/www/9app ; K="-i ~/.ssh/9log_deploy"
-ssh $K root@103.176.20.95 "cd $S && md5sum index.html css/style.css js/launcher.js js/apps.js js/search.js"
+ssh $K root@<MAY-CHU> "cd $S && md5sum index.html css/style.css js/launcher.js js/apps.js js/search.js"
 md5sum orig/index.html orig/css/style.css orig/js/launcher.js orig/js/apps.js orig/js/search.js
 ```
 Từng cặp phải khớp. Nếu lệch, máy chủ đã đổi sau khi sao: KHÔNG ghi đè, tải bản mới về `orig/` và gộp trước.
 
 ## 1. Sao lưu
 ```
-ssh $K root@103.176.20.95 "cd $S && cp -a index.html index.html.bak-ux2 && cp -a css/style.css css/style.css.bak-ux2 && cp -a js/launcher.js js/launcher.js.bak-ux2"
+ssh $K root@<MAY-CHU> "cd $S && cp -a index.html index.html.bak-ux2 && cp -a css/style.css css/style.css.bak-ux2 && cp -a js/launcher.js js/launcher.js.bak-ux2"
 ```
 ## 2. Chép (tệp phụ trước, index.html sau cùng)
 ```
-scp $K icons/soon-osin.svg root@103.176.20.95:$S/icons/
-scp $K js/home-config.js js/launcher.js root@103.176.20.95:$S/js/
-scp $K css/style.css root@103.176.20.95:$S/css/
-scp $K index.html root@103.176.20.95:$S/
+scp $K icons/soon-osin.svg root@<MAY-CHU>:$S/icons/
+scp $K js/home-config.js js/launcher.js root@<MAY-CHU>:$S/js/
+scp $K css/style.css root@<MAY-CHU>:$S/css/
+scp $K index.html root@<MAY-CHU>:$S/
 ```
 ## 3. Kiểm sau
 Mở `https://9app.tech/` bằng cửa sổ ẩn danh (người mới) và trình duyệt có dữ liệu cũ (người cũ): ghim/ẩn/lượt dùng còn nguyên; thử tìm "văn khấn" (phải ra Vạn Niên > Văn khấn; chỉ mục thật có ở máy chủ), "bằng lái"; chạm 4 lối tắt, 5 mục thanh dưới; vuốt hero. Index mới nạp `style.css?v=18`, `launcher.js?v=18` nên không lệch cặp với cache.
@@ -39,7 +39,7 @@ curl -sI "https://9app.tech/js/home-config.js?v=1" | head -1
 ```
 ## 4. Hoàn tác
 ```
-ssh $K root@103.176.20.95 "cd $S && cp -a index.html.bak-ux2 index.html && cp -a css/style.css.bak-ux2 css/style.css && cp -a js/launcher.js.bak-ux2 js/launcher.js"
+ssh $K root@<MAY-CHU> "cd $S && cp -a index.html.bak-ux2 index.html && cp -a css/style.css.bak-ux2 css/style.css && cp -a js/launcher.js.bak-ux2 js/launcher.js"
 ```
 Hai tệp mới nằm lại không hại gì (index cũ không nạp). Dữ liệu người dùng không đổi định dạng.
 

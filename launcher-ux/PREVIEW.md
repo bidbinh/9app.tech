@@ -22,13 +22,13 @@ node tools/make-preview.mjs
 Chép (chỉ thêm 3 tệp mới, không ghi đè tệp có sẵn):
 ```
 S=/home/tms/ops/certbot/www/9app
-scp -i ~/.ssh/9log_deploy preview/home2.html root@103.176.20.95:$S/home2.html
-scp -i ~/.ssh/9log_deploy preview/css/home2.css root@103.176.20.95:$S/css/home2.css
-scp -i ~/.ssh/9log_deploy preview/js/home2.js root@103.176.20.95:$S/js/home2.js
+scp -i ~/.ssh/9log_deploy preview/home2.html root@<MAY-CHU>:$S/home2.html
+scp -i ~/.ssh/9log_deploy preview/css/home2.css root@<MAY-CHU>:$S/css/home2.css
+scp -i ~/.ssh/9log_deploy preview/js/home2.js root@<MAY-CHU>:$S/js/home2.js
 ```
 Gỡ bản xem thử:
 ```
-ssh -i ~/.ssh/9log_deploy root@103.176.20.95 "rm -f $S/home2.html $S/css/home2.css $S/js/home2.js"
+ssh -i ~/.ssh/9log_deploy root@<MAY-CHU> "rm -f $S/home2.html $S/css/home2.css $S/js/home2.js"
 ```
 Kiểm `curl -I https://9app.tech/home2.html` trả 200 (nếu nginx chặn tệp lạ ở gốc thì báo lại). Khi sửa tiếp, chạy lại `make-preview.mjs`, chép lại, tải lại bằng "làm mới cứng" (hoặc tăng `?v=` trong `make-preview.mjs`).
 

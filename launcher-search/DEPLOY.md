@@ -31,11 +31,11 @@ node tests/e2e.mjs                       # 27 kịch bản trình duyệt thật
 node tools/build-search-index.mjs --check  # search/*.json khớp bộ sinh
 
 S=/home/tms/ops/certbot/www/9app
-ssh root@103.176.20.95 "cp -a $S/index.html $S/index.html.bak-timkiem; cp -a $S/js/apps.js $S/js/apps.js.bak-timkiem; cp -a $S/js/launcher.js $S/js/launcher.js.bak-timkiem; cp -a $S/css/style.css $S/css/style.css.bak-timkiem"
-scp index.html root@103.176.20.95:$S/
-scp js/apps.js js/launcher.js js/search.js root@103.176.20.95:$S/js/
-scp css/style.css root@103.176.20.95:$S/css/
-scp -r search root@103.176.20.95:$S/
+ssh root@<MAY-CHU> "cp -a $S/index.html $S/index.html.bak-timkiem; cp -a $S/js/apps.js $S/js/apps.js.bak-timkiem; cp -a $S/js/launcher.js $S/js/launcher.js.bak-timkiem; cp -a $S/css/style.css $S/css/style.css.bak-timkiem"
+scp index.html root@<MAY-CHU>:$S/
+scp js/apps.js js/launcher.js js/search.js root@<MAY-CHU>:$S/js/
+scp css/style.css root@<MAY-CHU>:$S/css/
+scp -r search root@<MAY-CHU>:$S/
 ```
 
 Thứ tự an toàn: chép `search/` và `js/search.js` trước, rồi `css`, `js/apps.js`, `js/launcher.js`, cuối cùng `index.html`. Nếu `index.html` mới mà `js/search.js` chưa có, launcher vẫn chạy như cũ (mã kiểm `window.NineSearch`), chỉ không có tìm chức năng.

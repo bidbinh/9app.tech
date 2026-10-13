@@ -14,14 +14,14 @@ Gói trong `preview/`, dùng tên tệp riêng (`home3`), nạp lại `js/apps.j
 cd D:/9app.tech/launcher-ux2
 node tools/make-preview.mjs        # sinh lại gói từ bản đang sửa
 S=/home/tms/ops/certbot/www/9app ; K="-i ~/.ssh/9log_deploy"
-scp $K preview/home3.html root@103.176.20.95:$S/home3.html
-scp $K preview/css/home3.css root@103.176.20.95:$S/css/home3.css
-scp $K preview/js/home3.js preview/js/home3-config.js root@103.176.20.95:$S/js/
-scp $K preview/icons/soon-osin.svg root@103.176.20.95:$S/icons/soon-osin.svg
+scp $K preview/home3.html root@<MAY-CHU>:$S/home3.html
+scp $K preview/css/home3.css root@<MAY-CHU>:$S/css/home3.css
+scp $K preview/js/home3.js preview/js/home3-config.js root@<MAY-CHU>:$S/js/
+scp $K preview/icons/soon-osin.svg root@<MAY-CHU>:$S/icons/soon-osin.svg
 ```
 Xem: `https://9app.tech/home3.html` (có `noindex`). Gỡ:
 ```
-ssh $K root@103.176.20.95 "rm -f $S/home3.html $S/css/home3.css $S/js/home3.js $S/js/home3-config.js $S/icons/soon-osin.svg"
+ssh $K root@<MAY-CHU> "rm -f $S/home3.html $S/css/home3.css $S/js/home3.js $S/js/home3-config.js $S/icons/soon-osin.svg"
 ```
 Chỉ thêm tệp mới, không ghi đè tệp sẵn có. Nếu nginx chặn tệp lạ ở gốc thì báo lại.
 
