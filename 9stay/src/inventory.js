@@ -1,6 +1,7 @@
 import { AppError } from './errors.js';
 import { isDate, nightsBetween } from './time.js';
 import { assertUuid } from './ids.js';
+import { expireHolds } from './bookings.js';
 
 // Căn phải thuộc đúng org: chặn việc org này mở/chặn đêm của căn org khác dù biết id.
 async function requireUnit(c, orgId, unitId) {
@@ -55,7 +56,7 @@ const BLOCK_KINDS = ['owner_use', 'blocked_by_owner', 'blocked_by_anstay'];
 
 // Chặn các đêm. Phải chạy trong db.tx: ghi dòng chặn trước (giữ khóa dòng) rồi mới kiểm đêm đã có khách,
 // nên một đặt phòng chạy đồng thời hoặc thấy đêm đã bị chặn, hoặc bị chặn lại ở đây. Có khách thì ném lỗi để hoàn tác.
-export async function blockNights(c, { orgId, unitId, nights, kind = 'blocked_by_owner', source = 'app', by = null }) {
+export async function blockNights(c, { orgId, unitId, nights, kind = 'blocked_by_owner', source = 'app', by = null, now = new Date() }) {
   if (!BLOCK_KINDS.includes(kind)) throw new AppError('bad_kind', 'Loại chặn không hợp lệ');
   if (!Array.isArray(nights) || !nights.length || !nights.every(isDate)) throw new AppError('bad_dates', 'Danh sách đêm không hợp lệ');
   await requireUnit(c, orgId, unitId);
@@ -66,6 +67,8 @@ export async function blockNights(c, { orgId, unitId, nights, kind = 'blocked_by
      ON CONFLICT (unit_id, night) DO UPDATE SET kind = EXCLUDED.kind, source = EXCLUDED.source, created_by = EXCLUDED.created_by, updated_at = now()`,
     [unitId, list, kind, source, by],
   );
+  // Nhả đơn giữ chỗ quá hạn sau khi đã giữ khóa release, rồi mới kiểm đêm còn khách.
+  await expireHolds(c, { orgId, now });
   const booked = await c.query('SELECT night FROM room_nights WHERE unit_id = $1 AND active AND night = ANY($2::date[]) ORDER BY night', [unitId, list]);
   if (booked.length) throw new AppError('night_booked', 'Đêm đã có khách, không chặn được', 409, { nights: booked.map((r) => r.night) });
 }

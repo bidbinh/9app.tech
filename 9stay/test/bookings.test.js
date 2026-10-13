@@ -143,7 +143,7 @@ test('lỗi giữa chừng không để lại dữ liệu nửa vời: đặt tr
 });
 
 test('unitAvailability: open, booked, chủ tự dùng, chặn, chưa mở bán', async () => {
-  const b = await book({ checkin: '2026-11-12', checkout: '2026-11-14' });
+  const b = await book({ checkin: '2026-11-12', checkout: '2026-11-14', status: 'da_coc' });
   await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-14'], kind: 'owner_use' }));
   await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-15'], kind: 'blocked_by_anstay' }));
   const av = await db.tx((c) => unitAvailability(c, { orgId: w.orgId, unitId: w.unitId, from: '2026-11-11', to: '2026-11-17' }));

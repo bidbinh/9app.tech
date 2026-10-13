@@ -41,10 +41,30 @@ export async function validateStay(c, { orgId, unitId, checkin, checkout, adults
   return { unit, nights };
 }
 
+// Nhả các đơn giu quá hạn: đơn thành het_han, các đêm được trả. SKIP LOCKED: không chờ đơn đang bị giao dịch khác khóa.
+export async function expireHolds(c, { orgId, now = new Date() }) {
+  assertUuid(orgId, 'org');
+  const rows = await c.query(
+    `UPDATE bookings SET status = 'het_han', version = version + 1
+      WHERE id IN (SELECT id FROM bookings WHERE org_id = $1 AND status = 'giu' AND hold_until IS NOT NULL AND hold_until < $2::timestamptz
+                   ORDER BY id FOR UPDATE SKIP LOCKED)
+      RETURNING id`,
+    [orgId, now],
+  );
+  const ids = rows.map((r) => r.id);
+  if (ids.length) {
+    await c.query('UPDATE room_nights SET active = false WHERE booking_id = ANY($1::uuid[]) AND active', [ids]);
+    for (const id of ids) await addEvent(c, id, 'expired', {});
+  }
+  return ids;
+}
+
 // Giữ các đêm cho đơn: khóa dòng owner_releases (tuần tự hóa với đặt khác và với chủ chặn ngày), kiểm mở bán,
 // rồi chèn room_nights. Chỉ mục duy nhất từng phần là hàng rào cuối.
-export async function claimNights(c, { orgId, bookingId, unitId, nights }) {
+export async function claimNights(c, { orgId, bookingId, unitId, nights, now = new Date() }) {
   const rel = await c.query('SELECT night, kind FROM owner_releases WHERE unit_id = $1 AND night = ANY($2::date[]) ORDER BY night FOR UPDATE', [unitId, nights]);
+  // Quét lười các đơn giữ chỗ quá hạn SAU khi đã giữ khóa release (thứ tự: release → bookings, không chờ đơn bị khóa).
+  await expireHolds(c, { orgId, now });
   const byNight = new Map(rel.map((r) => [r.night, r.kind]));
   for (const night of nights) {
     const kind = byNight.get(night);
@@ -93,7 +113,7 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
      VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id, version`,
     [orgId, code, name, phone, adults, children, source, agentId, createdBy, status, holdUntil],
   );
-  await claimNights(c, { orgId, bookingId: row.id, unitId, nights });
+  await claimNights(c, { orgId, bookingId: row.id, unitId, nights, now });
   await addEvent(c, row.id, 'created', { unitId, checkin, checkout, status });
   return { id: row.id, code, status, version: row.version, holdUntil, checkin, checkout, nights };
 }
@@ -106,11 +126,16 @@ export async function unitAvailability(c, { orgId, unitId, from, to }) {
   const [unit] = await c.query('SELECT id FROM units WHERE id = $1 AND org_id = $2', [unitId, orgId]);
   if (!unit) throw new AppError('unit_not_found', 'Không tìm thấy căn', 404);
   const rel = await c.query('SELECT night, kind FROM owner_releases WHERE unit_id = $1 AND night = ANY($2::date[])', [unitId, nights]);
-  const rn = await c.query('SELECT night, booking_id FROM room_nights WHERE unit_id = $1 AND active AND night = ANY($2::date[])', [unitId, nights]);
+  const rn = await c.query(
+    `SELECT rn.night, rn.booking_id, b.status, b.hold_until FROM room_nights rn JOIN bookings b ON b.id = rn.booking_id
+      WHERE rn.unit_id = $1 AND rn.active AND rn.night = ANY($2::date[])`,
+    [unitId, nights],
+  );
   const kinds = new Map(rel.map((r) => [r.night, r.kind]));
-  const booked = new Map(rn.map((r) => [r.night, r.booking_id]));
+  const booked = new Map(rn.map((r) => [r.night, r]));
   return nights.map((night) => {
-    if (booked.has(night)) return { night, state: 'booked', bookingId: booked.get(night) };
+    const r = booked.get(night);
+    if (r) return r.status === 'giu' ? { night, state: 'held', bookingId: r.booking_id, holdUntil: r.hold_until } : { night, state: 'booked', bookingId: r.booking_id };
     return { night, state: kinds.get(night) || 'closed' };
   });
 }
@@ -118,7 +143,7 @@ export async function unitAvailability(c, { orgId, unitId, from, to }) {
 async function lockBooking(c, orgId, bookingId) {
   assertUuid(orgId, 'org');
   assertUuid(bookingId, 'đơn');
-  const [b] = await c.query('SELECT id, status, version FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
+  const [b] = await c.query('SELECT id, status, version, hold_until FROM bookings WHERE id = $1 AND org_id = $2 FOR UPDATE', [bookingId, orgId]);
   if (!b) throw new AppError('booking_not_found', 'Không tìm thấy đơn', 404);
   return b;
 }
@@ -139,6 +164,7 @@ export async function cancelBooking(c, { orgId, bookingId, reason = null }) {
 export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checkout, expectedVersion = null }, { now = new Date() } = {}) {
   const b = await lockBooking(c, orgId, bookingId);
   if (!['giu', 'da_coc'].includes(b.status)) throw new AppError('cannot_move', 'Chỉ dời được đơn đang giữ chỗ hoặc đã cọc', 409);
+  if (b.status === 'giu' && b.hold_until && new Date(b.hold_until) < now) throw new AppError('hold_expired', 'Đơn giữ chỗ đã hết hạn', 409);
   if (expectedVersion !== null && expectedVersion !== b.version) throw new AppError('stale', 'Đơn vừa được người khác sửa, hãy tải lại', 409);
   const [g] = await c.query('SELECT adults, children FROM bookings WHERE id = $1', [b.id]);
   const { nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults: g.adults, children: g.children }, now);
@@ -156,7 +182,7 @@ export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checko
   );
   const before = await c.query('SELECT unit_id, min(night) AS first, max(night) AS last FROM room_nights WHERE booking_id = $1 AND active GROUP BY unit_id', [b.id]);
   await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active', [b.id]);
-  await claimNights(c, { orgId, bookingId: b.id, unitId, nights });
+  await claimNights(c, { orgId, bookingId: b.id, unitId, nights, now });
   const [row] = await c.query('UPDATE bookings SET version = version + 1 WHERE id = $1 RETURNING version', [b.id]);
   await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout } });
   return { id: b.id, version: row.version, nights };
