@@ -1,0 +1,32 @@
+{
+  "name": "9family",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9family — lịch học của con, điều phối đưa đón có nhắc leo thang, ngày quan trọng âm lịch, việc chung của cả nhà.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node scripts/dev.js",
+    "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js",
+    "e2e:menu": "node scripts/e2e-menu.js",
+    "sync-menu": "node scripts/sync-menu-data.js",
+    "e2e:id": "node scripts/e2e-id.js",
+    "e2e:hm": "node scripts/e2e-hm.js",
+    "e2e:journey": "node scripts/e2e-journey.js",
+    "e2e:cutover": "node scripts/e2e-cutover.js",
+    "docker-sim": "node scripts/docker-sim.mjs",
+    "vapid": "node scripts/vapid.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "pg": "^8.13.0",
+    "qrcode": "^1.5.4",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^18.4.0-beta.17",
+    "jsqr": "^1.4.0",
+    "pngjs": "^7.0.0"
+  }
+}

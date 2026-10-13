@@ -1,0 +1,21 @@
+# Triển khai 9id lên máy chủ dùng chung. Dùng lại PostgreSQL của 9Ship (container 9ship-db) với CSDL "id" và vai trò riêng.
+# Chuẩn bị một lần: tạo vai trò + CSDL (xem README), rồi:
+#   cp .env.example .env && docker compose -f docker-compose.server.yml up -d --build
+name: 9id
+services:
+  id:
+    build: .
+    image: 9id:latest
+    container_name: 9id
+    restart: unless-stopped
+    env_file: .env
+    mem_limit: 160m
+    # Các app khác gọi http://9id:8102/id/internal/v1/... qua mạng docker này (KHÔNG publish cổng ra máy chủ)
+    networks: [shipdb, tms]
+networks:
+  shipdb:
+    external: true
+    name: 9ship_internal
+  tms:
+    external: true
+    name: ops_tms-network

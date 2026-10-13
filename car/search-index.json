@@ -1,0 +1,339 @@
+[
+ {
+  "name": "Hôm nay",
+  "keywords": [
+   "hôm nay",
+   "hom nay",
+   "nhắc hạn",
+   "nhac han",
+   "ghi nhanh",
+   "đổ xăng",
+   "do xang",
+   "xe"
+  ],
+  "path": "#/",
+  "blurb": "Hạn sắp tới xanh vàng đỏ và ghi nhanh đổ xăng, sạc cho xe của bạn."
+ },
+ {
+  "name": "Xe của bạn",
+  "keywords": [
+   "xe của bạn",
+   "xe cua ban",
+   "xe",
+   "hồ sơ xe",
+   "ho so xe",
+   "biển số",
+   "bien so",
+   "ô tô",
+   "o to",
+   "xe máy",
+   "xe may",
+   "thêm xe",
+   "them xe"
+  ],
+  "path": "#/xe",
+  "blurb": "Hồ sơ ô tô, xe máy: biển số, năm sản xuất, số km, ảnh."
+ },
+ {
+  "name": "Thêm xe",
+  "keywords": [
+   "thêm xe",
+   "them xe",
+   "xe mới",
+   "xe moi",
+   "đăng ký xe",
+   "dang ky xe",
+   "biển số",
+   "bien so"
+  ],
+  "path": "#/xe/moi",
+  "blurb": "Thêm ô tô hoặc xe máy mới vào sổ tay xe."
+ },
+ {
+  "name": "Nhật ký xăng, sạc, bảo dưỡng",
+  "keywords": [
+   "nhật ký xăng, sạc, bảo dưỡng",
+   "nhat ky xang, sac, bao duong",
+   "nhật ký",
+   "nhat ky",
+   "sổ bảo dưỡng",
+   "so bao duong",
+   "đổ xăng",
+   "do xang",
+   "sạc",
+   "sac",
+   "bảo dưỡng",
+   "bao duong",
+   "sửa xe",
+   "sua xe",
+   "gửi xe",
+   "gui xe",
+   "rửa xe",
+   "rua xe"
+  ],
+  "path": "#/nhat-ky",
+  "blurb": "Danh sách lần đổ xăng, sạc điện, bảo dưỡng, sửa chữa, gửi xe."
+ },
+ {
+  "name": "Ghi khoản mới",
+  "keywords": [
+   "ghi khoản mới",
+   "ghi khoan moi",
+   "ghi xăng",
+   "ghi xang",
+   "đổ xăng",
+   "do xang",
+   "ghi chi phí",
+   "ghi chi phi",
+   "nói để ghi",
+   "noi de ghi",
+   "giọng nói",
+   "giong noi",
+   "tiêu hao",
+   "tieu hao"
+  ],
+  "path": "#/nhat-ky/moi",
+  "blurb": "Ghi lần đổ xăng, sạc, bảo dưỡng, phí cầu đường; hỗ trợ gõ câu và giọng nói."
+ },
+ {
+  "name": "Chi phí xe",
+  "keywords": [
+   "chi phí xe",
+   "chi phi xe",
+   "chi phí",
+   "chi phi",
+   "chi phí mỗi km",
+   "chi phi moi km",
+   "tiêu hao",
+   "tieu hao",
+   "tổng chi phí sở hữu",
+   "tong chi phi so huu",
+   "xăng bao nhiêu",
+   "xang bao nhieu"
+  ],
+  "path": "#/chi-phi",
+  "blurb": "Biểu đồ chi phí theo tháng, theo hạng mục, chi phí mỗi km, tổng chi phí sở hữu."
+ },
+ {
+  "name": "Nhắc đăng kiểm",
+  "keywords": [
+   "nhắc đăng kiểm",
+   "nhac dang kiem",
+   "đăng kiểm",
+   "dang kiem",
+   "kiểm định",
+   "kiem dinh",
+   "khí thải",
+   "khi thai",
+   "chu kỳ đăng kiểm",
+   "chu ky dang kiem",
+   "tem đăng kiểm",
+   "tem dang kiem"
+  ],
+  "path": "#/nhac/dang-kiem",
+  "blurb": "Nhắc hạn đăng kiểm ô tô, kiểm định khí thải xe máy theo chu kỳ hiện hành."
+ },
+ {
+  "name": "Nhắc bảo hiểm xe",
+  "keywords": [
+   "nhắc bảo hiểm xe",
+   "nhac bao hiem xe",
+   "bảo hiểm xe",
+   "bao hiem xe",
+   "tnds",
+   "bảo hiểm bắt buộc",
+   "bao hiem bat buoc",
+   "bảo hiểm vật chất",
+   "bao hiem vat chat",
+   "gia hạn bảo hiểm",
+   "gia han bao hiem"
+  ],
+  "path": "#/nhac/tnds",
+  "blurb": "Nhắc hạn bảo hiểm trách nhiệm dân sự bắt buộc và bảo hiểm vật chất."
+ },
+ {
+  "name": "Nhắc giấy phép lái xe",
+  "keywords": [
+   "nhắc giấy phép lái xe",
+   "nhac giay phep lai xe",
+   "bằng lái",
+   "bang lai",
+   "gplx",
+   "giấy phép lái xe",
+   "giay phep lai xe",
+   "hết hạn bằng lái",
+   "het han bang lai"
+  ],
+  "path": "#/nhac/gplx",
+  "blurb": "Nhắc hạn bằng lái xe hạng B, C, D."
+ },
+ {
+  "name": "Nhắc phí đường bộ",
+  "keywords": [
+   "nhắc phí đường bộ",
+   "nhac phi duong bo",
+   "phí đường bộ",
+   "phi duong bo",
+   "phí bảo trì đường bộ",
+   "phi bao tri duong bo"
+  ],
+  "path": "#/nhac/phi-duong",
+  "blurb": "Nhắc hạn phí sử dụng đường bộ."
+ },
+ {
+  "name": "Nhắc thay dầu nhớt",
+  "keywords": [
+   "nhắc thay dầu nhớt",
+   "nhac thay dau nhot",
+   "thay dầu",
+   "thay dau",
+   "thay nhớt",
+   "thay nhot",
+   "dầu nhớt",
+   "dau nhot",
+   "bảo dưỡng định kỳ",
+   "bao duong dinh ky",
+   "lốp",
+   "lop",
+   "ắc quy",
+   "ac quy"
+  ],
+  "path": "#/nhac/dau",
+  "blurb": "Nhắc thay dầu nhớt theo km hoặc theo thời gian."
+ },
+ {
+  "name": "Sạc xe điện",
+  "keywords": [
+   "sạc xe điện",
+   "sac xe dien",
+   "trạm sạc",
+   "tram sac",
+   "xe điện",
+   "xe dien",
+   "kwh",
+   "9charge",
+   "vinfast"
+  ],
+  "path": "#/sac",
+  "blurb": "Ghi buổi sạc, chi phí mỗi km so với xăng, mở bản đồ tìm trạm sạc."
+ },
+ {
+  "name": "Tra phạt nguội",
+  "keywords": [
+   "tra phạt nguội",
+   "tra phat nguoi",
+   "phạt nguội",
+   "phat nguoi",
+   "tra cứu phạt",
+   "tra cuu phat",
+   "vi phạm giao thông",
+   "vi pham giao thong",
+   "csgt"
+  ],
+  "path": "#/phat-nguoi",
+  "blurb": "Mở trang tra cứu phạt nguội chính thức và 9speed."
+ },
+ {
+  "name": "Kiểm tra trước chuyến đi xa",
+  "keywords": [
+   "kiểm tra trước chuyến đi xa",
+   "kiem tra truoc chuyen di xa",
+   "checklist",
+   "đi xa",
+   "di xa",
+   "kiểm tra xe",
+   "kiem tra xe",
+   "trước chuyến đi",
+   "truoc chuyen di"
+  ],
+  "path": "#/checklist",
+  "blurb": "Checklist lốp, dầu, nước, giấy tờ trước khi đi xa."
+ },
+ {
+  "name": "Sự cố, tai nạn, cứu hộ",
+  "keywords": [
+   "sự cố, tai nạn, cứu hộ",
+   "su co, tai nan, cuu ho",
+   "tai nạn",
+   "tai nan",
+   "va chạm",
+   "va cham",
+   "cứu hộ",
+   "cuu ho",
+   "113",
+   "114",
+   "115",
+   "sự cố",
+   "su co"
+  ],
+  "path": "#/tai-nan",
+  "blurb": "Số 113, 114, 115 và các bước xử lý va chạm, gọi cứu hộ."
+ },
+ {
+  "name": "Bảo hiểm xe",
+  "keywords": [
+   "bảo hiểm xe",
+   "bao hiem xe",
+   "mua bảo hiểm",
+   "mua bao hiem",
+   "so sánh bảo hiểm",
+   "so sanh bao hiem"
+  ],
+  "path": "#/bao-hiem",
+  "blurb": "Lưu ý khi mua và gia hạn bảo hiểm xe, nên so sánh nhiều nơi."
+ },
+ {
+  "name": "Sổ giao xe khi bán",
+  "keywords": [
+   "sổ giao xe khi bán",
+   "so giao xe khi ban",
+   "bán xe",
+   "ban xe",
+   "giao xe",
+   "biên bản giao xe",
+   "bien ban giao xe",
+   "sang tên",
+   "sang ten"
+  ],
+  "path": "#/ban-xe",
+  "blurb": "Biên bản bàn giao xe, in hoặc lưu PDF."
+ },
+ {
+  "name": "Dữ liệu của tôi",
+  "keywords": [
+   "dữ liệu của tôi",
+   "du lieu cua toi",
+   "dữ liệu",
+   "du lieu",
+   "sao lưu",
+   "sao luu",
+   "xuất json",
+   "xuat json",
+   "xóa dữ liệu",
+   "xoa du lieu",
+   "chữ lớn",
+   "chu lon",
+   "chế độ tối",
+   "che do toi"
+  ],
+  "path": "#/du-lieu",
+  "blurb": "Sao lưu, nhập lại, xóa sạch, chữ lớn, sáng tối. Dữ liệu chỉ trên máy."
+ },
+ {
+  "name": "Nguồn quy định",
+  "keywords": [
+   "nguồn quy định",
+   "nguon quy dinh",
+   "nguồn",
+   "nguon",
+   "thông tư 47",
+   "thong tu 47",
+   "quy định đăng kiểm",
+   "quy dinh dang kiem",
+   "luật trật tự an toàn giao thông",
+   "luat trat tu an toan giao thong"
+  ],
+  "path": "#/nguon",
+  "blurb": "Chu kỳ đăng kiểm, mức đã xác minh và chưa xác minh."
+ }
+]

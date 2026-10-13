@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb37a"/>
+      <stop offset=".5" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#c2410c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".18" cy=".08" r=".85">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ffe8d4"/></linearGradient>
+    <linearGradient id="left" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4ea"/><stop offset="1" stop-color="#ffd9b8"/></linearGradient>
+    <linearGradient id="right" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc999"/><stop offset="1" stop-color="#f59e5b"/></linearGradient>
+    <filter id="sh" x="-25%" y="-20%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="11" flood-color="#7c2d12" flood-opacity=".4"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="114" fill="url(#glow)"/>
+  <!-- đường tốc độ -->
+  <g stroke="#ffffff" stroke-linecap="round" stroke-width="14" opacity=".92">
+    <path d="M52 236h62"/><path d="M40 286h74" opacity=".8"/><path d="M60 336h56" opacity=".65"/>
+  </g>
+  <!-- kiện hàng -->
+  <g filter="url(#sh)">
+    <polygon points="140,190 256,252 256,396 140,332" fill="url(#left)"/>
+    <polygon points="372,190 256,252 256,396 372,332" fill="url(#right)"/>
+    <polygon points="256,128 372,190 256,252 140,190" fill="url(#top)"/>
+  </g>
+  <!-- băng keo -->
+  <polygon points="184,166 212,151 328,214 300,228" fill="#f97316" opacity=".95"/>
+  <polygon points="300,228 328,214 328,246 300,260" fill="#ea580c" opacity=".55"/>
+  <!-- nhãn trên mặt trái -->
+  <polygon points="160,236 214,265 214,300 160,271" fill="#ffffff" opacity=".85"/>
+  <path d="M170 252l34 18M170 262l24 12" stroke="#f97316" stroke-width="7" stroke-linecap="round"/>
+  <!-- dấu hoàn tất -->
+  <circle cx="378" cy="378" r="52" fill="#16a34a" stroke="#ffffff" stroke-width="12"/>
+  <path d="M355 380l17 17 32-36" fill="none" stroke="#ffffff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

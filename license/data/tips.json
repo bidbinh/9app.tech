@@ -1,0 +1,126 @@
+{
+  "ghi_chu": "Mẹo nhớ do 9license soạn, bám sát đáp án đúng của chính bộ câu hỏi. Chỉ để hỗ trợ ghi nhớ, luôn đối chiếu quy định chính thức.",
+  "chu_de": [
+    {
+      "id": "ruou-bia",
+      "tieu_de": "Rượu bia, ma túy: cấm tuyệt đối",
+      "noi_dung": "Đã lái xe thì không có mức nồng độ cồn 'nhẹ' được phép: bộ câu hỏi luôn chọn 'bị nghiêm cấm'. Ma túy cũng vậy. Xử phạt gồm phạt tiền và tước giấy phép lái xe, nên khi có ý 'cả hai ý trên' hãy đọc kỹ từng ý.",
+      "ids": [
+        23,
+        24,
+        25,
+        26
+      ]
+    },
+    {
+      "id": "khong-duoc-vuot",
+      "tieu_de": "Những nơi không được vượt",
+      "noi_dung": "Nhớ cụm: cầu hẹp một làn, đường cong tầm nhìn hạn chế, nơi đường giao nhau, giao cắt đường sắt, và khi xe phía trước là xe ưu tiên đang phát tín hiệu. Xe Cảnh sát giao thông không phát tín hiệu ưu tiên thì vượt được khi bảo đảm an toàn; xe cứu thương đang phát tín hiệu thì không được vượt.",
+      "ids": [
+        47,
+        53,
+        97,
+        98
+      ]
+    },
+    {
+      "id": "nhuong-duong",
+      "tieu_de": "Nhường đường",
+      "noi_dung": "Đường nhánh nhường đường chính từ mọi hướng. Xuống dốc nhường xe lên dốc. Vòng xuyến có báo hiệu: nhường xe đến từ bên trái; không có báo hiệu vòng xuyến: nhường xe đến từ bên phải. Người đi bộ đang qua vạch dành cho người đi bộ: giảm tốc độ và nhường đường (câu 198); nơi có vạch kẻ đường: quan sát, giảm tốc độ hoặc dừng lại (câu 34).",
+      "ids": [
+        34,
+        89,
+        91,
+        92,
+        93,
+        198,
+        253
+      ]
+    },
+    {
+      "id": "xe-may",
+      "tieu_de": "Xe mô tô, xe gắn máy",
+      "noi_dung": "Bị cấm khi lái xe máy: buông cả hai tay; đứng hoặc nằm trên xe; dùng chân chống quệt xuống đường; kéo hoặc đẩy xe khác; đi dàn hàng ngang; đi vào phần đường dành cho người đi bộ; dùng ô và thiết bị âm thanh (trừ thiết bị trợ thính). Người được chở cũng không được bám, kéo, đẩy phương tiện khác và không được dùng ô khi trời mưa. Cả người lái lẫn người ngồi sau đều phải đội mũ bảo hiểm đúng chuẩn và cài quai.",
+      "ids": [
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        70,
+        71,
+        72,
+        73,
+        74
+      ]
+    },
+    {
+      "id": "dien-thoai",
+      "tieu_de": "Điện thoại khi lái xe",
+      "noi_dung": "Không cầm tay sử dụng điện thoại khi lái xe. Cần dùng thì giảm tốc độ, dừng ở nơi được phép rồi mới liên lạc.",
+      "ids": [
+        52,
+        254
+      ]
+    },
+    {
+      "id": "lui-xe",
+      "tieu_de": "Lùi xe và quay đầu",
+      "noi_dung": "Lùi xe: quan sát hai bên và phía sau, có tín hiệu lùi, chỉ lùi khi an toàn. Tầm nhìn bị che khuất thì không lùi. Không quay đầu xe ở phần đường dành cho người đi bộ, trên cầu, đầu cầu, đường cao tốc và nơi đường bộ giao nhau cùng mức với đường sắt.",
+      "ids": [
+        55,
+        58,
+        85,
+        86,
+        246
+      ]
+    },
+    {
+      "id": "phanh-ga",
+      "tieu_de": "Phanh và ga xe máy",
+      "noi_dung": "Xuống dốc dài: giữ ga phù hợp, dùng cả phanh trước và phanh sau. Chỉ dùng phanh trước là thói quen dễ gây tai nạn. Đi xe tay ga: tăng ga từ từ, giảm ga thật nhanh.",
+      "ids": [
+        206,
+        255,
+        260
+      ]
+    },
+    {
+      "id": "troi-mua",
+      "tieu_de": "Trời mưa, đường trơn, đường cong",
+      "noi_dung": "Phản xạ chung: giảm tốc độ, tăng quan sát, tránh phanh gấp hay đánh lái đột ngột, đi đúng vệt bánh xe phía trước khi đường trơn, về số thấp khi vào đường vòng.",
+      "ids": [
+        215,
+        226,
+        245,
+        252
+      ]
+    },
+    {
+      "id": "cau-hep-duong-cong",
+      "tieu_de": "Đường cong, tầm nhìn hạn chế",
+      "noi_dung": "Quan sát, giảm tốc độ hoặc dừng lại để bảo đảm an toàn là đáp án chung cho các tình huống tầm nhìn bị hạn chế, gặp xe buýt đang đón khách, gặp biển báo nguy hiểm.",
+      "ids": [
+        90,
+        163,
+        165,
+        167
+      ]
+    },
+    {
+      "id": "bien-bao-nhom",
+      "tieu_de": "Năm nhóm biển báo",
+      "noi_dung": "Biển báo hiệu đường bộ có năm nhóm: biển báo cấm, biển báo nguy hiểm, biển hiệu lệnh, biển chỉ dẫn, biển phụ. Nhìn hình dạng và màu để đoán nhóm trước rồi mới đọc nội dung.",
+      "ids": [
+        33
+      ]
+    },
+    {
+      "id": "thieu-tuy-tien",
+      "tieu_de": "Câu có lựa chọn 'Cả hai/ba ý trên'",
+      "noi_dung": "Trong bộ 600 câu có 91 câu có lựa chọn 'Cả hai ý trên' hoặc 'Cả ba ý trên'; 59 câu trong số đó (khoảng 2/3) chính lựa chọn này là đáp án đúng. Nghĩa là thường đúng, nhưng vẫn còn 32 câu không phải: hãy kiểm từng ý một rồi mới chọn.",
+      "ids": []
+    }
+  ]
+}

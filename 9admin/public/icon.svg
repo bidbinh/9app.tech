@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b8ffa"/>
+      <stop offset=".5" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#312e9e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".18" cy=".08" r=".85">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset=".55" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8eaff"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="155%">
+      <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#1b1763" flood-opacity=".42"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="114" fill="url(#glow)"/>
+  <g filter="url(#sh)">
+    <rect x="108" y="108" width="142" height="142" rx="38" fill="url(#tile)"/>
+    <rect x="262" y="108" width="142" height="142" rx="38" fill="url(#tile)"/>
+    <rect x="108" y="262" width="142" height="142" rx="38" fill="url(#tile)"/>
+    <rect x="262" y="262" width="142" height="142" rx="38" fill="url(#amber)"/>
+  </g>
+  <!-- ô 1: chữ 9 -->
+  <circle cx="176" cy="170" r="30" fill="none" stroke="#4f46e5" stroke-width="16"/>
+  <path d="M206 170v38c0 14-9 24-24 24" fill="none" stroke="#4f46e5" stroke-width="16" stroke-linecap="round"/>
+  <!-- ô 2: cột số liệu -->
+  <rect x="294" y="196" width="22" height="30" rx="7" fill="#a5b4fc"/>
+  <rect x="326" y="168" width="22" height="58" rx="7" fill="#6366f1"/>
+  <rect x="358" y="140" width="22" height="86" rx="7" fill="#4338ca"/>
+  <!-- ô 3: biểu đồ tròn -->
+  <circle cx="179" cy="333" r="36" fill="none" stroke="#c7d2fe" stroke-width="18"/>
+  <circle cx="179" cy="333" r="36" fill="none" stroke="#4f46e5" stroke-width="18" stroke-linecap="round" stroke-dasharray="150 227" transform="rotate(-90 179 333)"/>
+  <!-- ô 4: xu hướng tăng -->
+  <path d="M292 368l32-34 24 20 36-44" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M352 310h32v32" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,8 @@
+# Chỉ chép các tệp/thư mục sau lên server (đường dẫn /scanner/). KHÔNG chép tests/, scripts/, shots/, package.json.
+index.html
+manifest.webmanifest
+sw.js
+css/
+js/
+icons/
+vendor/

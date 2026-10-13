@@ -1,0 +1,12 @@
+{
+  "name": "9race",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9race: lịch giải chạy bộ, trail, triathlon (webapp tĩnh PWA)",
+  "scripts": {
+    "test": "node --test tests/",
+    "e2e": "node scripts/e2e.mjs",
+    "serve": "node scripts/serve.mjs"
+  }
+}

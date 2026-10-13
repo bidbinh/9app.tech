@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Đăng nhập 9app",
+    "keywords": ["đăng nhập", "dang nhap", "đăng nhập tài khoản", "dang nhap tai khoan", "tài khoản 9app", "tai khoan 9app", "9id", "login", "số điện thoại", "so dien thoai", "mật khẩu", "mat khau"],
+    "path": "#/dang-nhap",
+    "blurb": "Đăng nhập một lần bằng số điện thoại và mật khẩu, dùng cho mọi app 9app."
+  },
+  {
+    "name": "Đăng ký tài khoản 9app",
+    "keywords": ["đăng ký", "dang ky", "tạo tài khoản", "tao tai khoan", "đăng ký tài khoản", "dang ky tai khoan", "tài khoản mới", "tai khoan moi", "mã otp", "ma otp", "xác minh số điện thoại", "xac minh so dien thoai", "register"],
+    "path": "#/dang-ky",
+    "blurb": "Tạo tài khoản mới bằng số điện thoại: nhận mã xác thực rồi đặt tên và mật khẩu."
+  },
+  {
+    "name": "Quên mật khẩu",
+    "keywords": ["quên mật khẩu", "quen mat khau", "đặt lại mật khẩu", "dat lai mat khau", "lấy lại mật khẩu", "lay lai mat khau", "khôi phục tài khoản", "khoi phuc tai khoan", "mã otp", "ma otp", "reset password"],
+    "path": "#/quen-mat-khau",
+    "blurb": "Đặt lại mật khẩu bằng mã xác thực gửi tới số điện thoại của bạn."
+  },
+  {
+    "name": "Tài khoản của tôi",
+    "keywords": ["tài khoản", "tai khoan", "tài khoản của tôi", "tai khoan cua toi", "đổi mật khẩu", "doi mat khau", "đổi tên", "doi ten", "thiết bị đăng nhập", "thiet bi dang nhap", "đăng xuất", "dang xuat", "xóa tài khoản", "xoa tai khoan", "tải dữ liệu cá nhân", "tai du lieu ca nhan"],
+    "path": "#/tai-khoan",
+    "blurb": "Đổi tên, đổi mật khẩu, xem thiết bị đang đăng nhập, đăng xuất, tải hoặc xóa dữ liệu cá nhân."
+  },
+  {
+    "name": "Lời mời gia đình",
+    "keywords": ["lời mời", "loi moi", "lời mời gia đình", "loi moi gia dinh", "chấp nhận lời mời", "chap nhan loi moi", "từ chối lời mời", "tu choi loi moi", "tham gia gia đình", "tham gia gia dinh", "nối tài khoản của con", "noi tai khoan cua con"],
+    "path": "#/loi-moi",
+    "blurb": "Xem và chấp nhận hoặc từ chối lời mời vào gia đình gửi tới số điện thoại của bạn."
+  },
+  {
+    "name": "Gia đình của tôi",
+    "keywords": ["gia đình", "gia dinh", "gia đình của tôi", "gia dinh cua toi", "tạo gia đình", "tao gia dinh", "thành viên gia đình", "thanh vien gia dinh", "thêm con", "them con", "hồ sơ con", "ho so con", "mời người thân", "moi nguoi than"],
+    "path": "#/gia-dinh",
+    "blurb": "Tạo gia đình, thêm hồ sơ con, mời ông bà, bố mẹ vào chung một gia đình cho mọi app."
+  }
+]

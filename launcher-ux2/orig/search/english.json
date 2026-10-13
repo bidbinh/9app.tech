@@ -1,0 +1,402 @@
+[
+ {
+  "name": "Hôm nay (kế hoạch học)",
+  "keywords": [
+   "hôm nay",
+   "kế hoạch hôm nay",
+   "nhiệm vụ hằng ngày",
+   "học tiếng anh"
+  ],
+  "path": "#/",
+  "blurb": "Các việc học hôm nay và chuỗi ngày học."
+ },
+ {
+  "name": "Từ vựng",
+  "keywords": [
+   "từ vựng",
+   "học từ",
+   "thẻ từ",
+   "flashcard",
+   "ôn từ"
+  ],
+  "path": "#/learn",
+  "blurb": "Học thẻ từ có phiên âm, ví dụ và nghĩa tiếng Việt, ôn theo lịch."
+ },
+ {
+  "name": "Học ngay các thẻ đến hạn",
+  "keywords": [
+   "ôn thẻ",
+   "thẻ đến hạn",
+   "học từ mới",
+   "bắt đầu học"
+  ],
+  "path": "#/learn/s/all",
+  "blurb": "Ôn thẻ đến hạn và học thêm từ mới."
+ },
+ {
+  "name": "Từ vựng: Email công sở",
+  "keywords": [
+   "từ vựng email",
+   "email công sở",
+   "viết email"
+  ],
+  "path": "#/learn/list/email",
+  "blurb": "Danh sách từ về email công sở."
+ },
+ {
+  "name": "Từ vựng: Tài chính cơ bản",
+  "keywords": [
+   "từ vựng tài chính",
+   "tài chính cơ bản",
+   "kế toán",
+   "budget",
+   "revenue"
+  ],
+  "path": "#/learn/list/finance",
+  "blurb": "Danh sách từ về tài chính cơ bản."
+ },
+ {
+  "name": "Từ vựng: Phỏng vấn và tuyển dụng",
+  "keywords": [
+   "từ vựng phỏng vấn",
+   "tuyển dụng",
+   "interview",
+   "resume"
+  ],
+  "path": "#/learn/list/interview",
+  "blurb": "Danh sách từ về phỏng vấn và tuyển dụng."
+ },
+ {
+  "name": "Từ vựng: Họp và thảo luận",
+  "keywords": [
+   "từ vựng họp",
+   "họp và thảo luận",
+   "meeting",
+   "agenda",
+   "minutes"
+  ],
+  "path": "#/learn/list/meeting",
+  "blurb": "Danh sách từ về họp và thảo luận."
+ },
+ {
+  "name": "Từ vựng: Báo cáo và số liệu",
+  "keywords": [
+   "từ vựng báo cáo",
+   "số liệu",
+   "report",
+   "chart",
+   "data"
+  ],
+  "path": "#/learn/list/report",
+  "blurb": "Danh sách từ về báo cáo và số liệu."
+ },
+ {
+  "name": "Từ vựng: Công nghệ nơi làm việc",
+  "keywords": [
+   "từ vựng công nghệ",
+   "công nghệ",
+   "it",
+   "software",
+   "laptop"
+  ],
+  "path": "#/learn/list/tech",
+  "blurb": "Danh sách từ về công nghệ nơi làm việc."
+ },
+ {
+  "name": "Từ vựng: Đi công tác",
+  "keywords": [
+   "từ vựng đi công tác",
+   "công tác",
+   "du lịch công tác",
+   "sân bay",
+   "khách sạn",
+   "travel"
+  ],
+  "path": "#/learn/list/travel",
+  "blurb": "Danh sách từ về đi công tác."
+ },
+ {
+  "name": "Giao tiếp công sở",
+  "keywords": [
+   "giao tiếp",
+   "mẫu câu",
+   "nói tiếng anh",
+   "luyện nói",
+   "speaking"
+  ],
+  "path": "#/talk",
+  "blurb": "Mẫu câu theo tình huống, đóng vai và email mẫu."
+ },
+ {
+  "name": "Mẫu câu: Viết email",
+  "keywords": [
+   "mẫu câu email",
+   "câu viết email"
+  ],
+  "path": "#/talk/c/email",
+  "blurb": "Mẫu câu để viết email."
+ },
+ {
+  "name": "Mẫu câu: Họp",
+  "keywords": [
+   "mẫu câu họp",
+   "nói trong cuộc họp",
+   "phát biểu"
+  ],
+  "path": "#/talk/c/meeting",
+  "blurb": "Mẫu câu dùng khi họp."
+ },
+ {
+  "name": "Mẫu câu: Nhờ giúp đỡ",
+  "keywords": [
+   "nhờ giúp đỡ",
+   "nhờ vả lịch sự",
+   "can you help"
+  ],
+  "path": "#/talk/c/help",
+  "blurb": "Mẫu câu nhờ đồng nghiệp giúp."
+ },
+ {
+  "name": "Mẫu câu: Từ chối lịch sự",
+  "keywords": [
+   "từ chối lịch sự",
+   "nói không",
+   "decline"
+  ],
+  "path": "#/talk/c/decline",
+  "blurb": "Mẫu câu từ chối khéo."
+ },
+ {
+  "name": "Mẫu câu: Gọi điện",
+  "keywords": [
+   "gọi điện",
+   "nói chuyện điện thoại",
+   "phone call"
+  ],
+  "path": "#/talk/c/phone",
+  "blurb": "Mẫu câu khi gọi điện."
+ },
+ {
+  "name": "Mẫu câu: Trò chuyện xã giao",
+  "keywords": [
+   "xã giao",
+   "trò chuyện",
+   "small talk",
+   "làm quen"
+  ],
+  "path": "#/talk/c/small",
+  "blurb": "Mẫu câu trò chuyện xã giao."
+ },
+ {
+  "name": "Đóng vai tình huống",
+  "keywords": [
+   "đóng vai",
+   "hội thoại",
+   "role play",
+   "luyện nói tình huống"
+  ],
+  "path": "#/talk/role",
+  "blurb": "Hội thoại có nhánh, nhận phản hồi cho từng lựa chọn."
+ },
+ {
+  "name": "Đóng vai: Xin lùi hạn nộp báo cáo",
+  "keywords": [
+   "xin lùi hạn",
+   "lùi deadline",
+   "gia hạn báo cáo"
+  ],
+  "path": "#/talk/role/extension",
+  "blurb": "Luyện xin lùi hạn nộp báo cáo."
+ },
+ {
+  "name": "Đóng vai: Từ chối lịch họp bị trùng",
+  "keywords": [
+   "lịch họp trùng",
+   "từ chối họp"
+  ],
+  "path": "#/talk/role/decline-meeting",
+  "blurb": "Luyện từ chối lịch họp bị trùng."
+ },
+ {
+  "name": "Đóng vai: Nhờ đồng nghiệp giúp",
+  "keywords": [
+   "nhờ đồng nghiệp",
+   "xin giúp đỡ"
+  ],
+  "path": "#/talk/role/ask-help",
+  "blurb": "Luyện nhờ đồng nghiệp giúp."
+ },
+ {
+  "name": "Đóng vai: Gặp đối tác lần đầu",
+  "keywords": [
+   "gặp đối tác",
+   "làm quen đối tác",
+   "giới thiệu bản thân"
+  ],
+  "path": "#/talk/role/meet-partner",
+  "blurb": "Luyện gặp đối tác lần đầu."
+ },
+ {
+  "name": "Đóng vai: Phỏng vấn xin việc",
+  "keywords": [
+   "phỏng vấn tiếng anh",
+   "phỏng vấn xin việc",
+   "job interview"
+  ],
+  "path": "#/talk/role/interview",
+  "blurb": "Luyện trả lời phỏng vấn xin việc bằng tiếng Anh."
+ },
+ {
+  "name": "Đóng vai: Khách hàng phàn nàn giao trễ",
+  "keywords": [
+   "khách phàn nàn",
+   "giao hàng trễ",
+   "complaint"
+  ],
+  "path": "#/talk/role/complaint",
+  "blurb": "Luyện xử lý khách hàng phàn nàn giao trễ."
+ },
+ {
+  "name": "Đóng vai: Nhận phòng khách sạn",
+  "keywords": [
+   "nhận phòng",
+   "check in",
+   "khách sạn công tác"
+  ],
+  "path": "#/talk/role/hotel",
+  "blurb": "Luyện nhận phòng khách sạn khi đi công tác."
+ },
+ {
+  "name": "Email mẫu",
+  "keywords": [
+   "email mẫu",
+   "khung email",
+   "viết email tiếng anh",
+   "template email"
+  ],
+  "path": "#/talk/email",
+  "blurb": "Khung email có chỗ điền, xem bản hoàn chỉnh và sao chép."
+ },
+ {
+  "name": "Email: Hẹn lịch họp",
+  "keywords": [
+   "email hẹn họp",
+   "đặt lịch họp",
+   "meeting request"
+  ],
+  "path": "#/talk/email/meeting-request",
+  "blurb": "Email đề nghị một cuộc họp."
+ },
+ {
+  "name": "Email: Nhắc việc, theo dõi",
+  "keywords": [
+   "email nhắc việc",
+   "follow up",
+   "theo dõi"
+  ],
+  "path": "#/talk/email/follow-up",
+  "blurb": "Email nhắc việc lịch sự."
+ },
+ {
+  "name": "Email: Từ chối lời mời",
+  "keywords": [
+   "email từ chối",
+   "từ chối lời mời"
+  ],
+  "path": "#/talk/email/decline-invite",
+  "blurb": "Email từ chối lời mời."
+ },
+ {
+  "name": "Email: Xin lỗi vì trả lời chậm",
+  "keywords": [
+   "xin lỗi trả lời chậm",
+   "trễ phản hồi"
+  ],
+  "path": "#/talk/email/late-reply",
+  "blurb": "Email xin lỗi vì trả lời chậm."
+ },
+ {
+  "name": "Email: Nhờ gửi tài liệu, số liệu",
+  "keywords": [
+   "nhờ gửi tài liệu",
+   "xin số liệu"
+  ],
+  "path": "#/talk/email/ask-help",
+  "blurb": "Email nhờ gửi tài liệu hoặc số liệu."
+ },
+ {
+  "name": "Email: Gửi báo cáo đính kèm",
+  "keywords": [
+   "gửi báo cáo",
+   "đính kèm",
+   "attachment"
+  ],
+  "path": "#/talk/email/send-report",
+  "blurb": "Email gửi báo cáo đính kèm."
+ },
+ {
+  "name": "Email: Xin nghỉ phép",
+  "keywords": [
+   "xin nghỉ phép",
+   "nghỉ phép",
+   "leave request"
+  ],
+  "path": "#/talk/email/leave-request",
+  "blurb": "Email xin nghỉ phép."
+ },
+ {
+  "name": "Email: Cảm ơn sau phỏng vấn",
+  "keywords": [
+   "cảm ơn sau phỏng vấn",
+   "thank you email"
+  ],
+  "path": "#/talk/email/thank-interview",
+  "blurb": "Email cảm ơn sau buổi phỏng vấn."
+ },
+ {
+  "name": "Email: Xin dời lịch",
+  "keywords": [
+   "xin dời lịch",
+   "đổi lịch",
+   "reschedule"
+  ],
+  "path": "#/talk/email/reschedule",
+  "blurb": "Email xin dời lịch hẹn."
+ },
+ {
+  "name": "Luyện nghe",
+  "keywords": [
+   "luyện nghe",
+   "bài nghe",
+   "nghe tiếng anh",
+   "listening"
+  ],
+  "path": "#/listen",
+  "blurb": "Bài nghe ngắn có câu hỏi trắc nghiệm."
+ },
+ {
+  "name": "Kiểm tra trình độ",
+  "keywords": [
+   "kiểm tra trình độ",
+   "test trình độ",
+   "xếp lớp",
+   "placement",
+   "level"
+  ],
+  "path": "#/test",
+  "blurb": "Bài kiểm tra ngắn để biết mức từ vựng nên học."
+ },
+ {
+  "name": "Cài đặt và nhắc học",
+  "keywords": [
+   "cài đặt",
+   "nhắc học",
+   "mục tiêu mỗi ngày",
+   "sao lưu",
+   "xuất dữ liệu",
+   "chế độ tối"
+  ],
+  "path": "#/more",
+  "blurb": "Mục tiêu mỗi ngày, nhắc học, giao diện, xuất dữ liệu."
+ }
+]

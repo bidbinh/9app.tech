@@ -1,0 +1,88 @@
+[
+ {
+  "name": "Việc làm gần bạn",
+  "keywords": [
+   "việc làm",
+   "việc làm thêm",
+   "tìm việc",
+   "tuyển nhanh",
+   "part time",
+   "việc gần nhà"
+  ],
+  "path": "",
+  "blurb": "Việc làm thêm và tuyển nhanh, có lọc tin lừa đảo."
+ },
+ {
+  "name": "Tin đã lưu",
+  "keywords": [
+   "tin đã lưu",
+   "việc đã lưu",
+   "lưu việc"
+  ],
+  "path": "#/saved",
+  "blurb": "Các việc làm bạn đã lưu."
+ },
+ {
+  "name": "Hồ sơ và đơn của tôi",
+  "keywords": [
+   "hồ sơ của tôi",
+   "hồ sơ ngắn",
+   "đơn ứng tuyển",
+   "việc tôi đã ứng tuyển"
+  ],
+  "path": "#/me",
+  "blurb": "Hồ sơ ngắn và các việc bạn đã ứng tuyển."
+ },
+ {
+  "name": "Đăng tuyển (nhà tuyển dụng)",
+  "keywords": [
+   "đăng tuyển",
+   "nhà tuyển dụng",
+   "tuyển nhân viên",
+   "đăng tin tuyển dụng"
+  ],
+  "path": "#/employer",
+  "blurb": "Dành cho nhà tuyển dụng: quản lý tin tuyển."
+ },
+ {
+  "name": "Đăng tin tuyển mới",
+  "keywords": [
+   "đăng tin tuyển",
+   "tạo tin tuyển dụng",
+   "tuyển người"
+  ],
+  "path": "#/employer/new",
+  "blurb": "Tạo một tin tuyển dụng mới."
+ },
+ {
+  "name": "Nhận biết tin lừa đảo",
+  "keywords": [
+   "tin lừa đảo",
+   "lừa đảo việc làm",
+   "an toàn khi tìm việc",
+   "việc làm giả",
+   "đa cấp"
+  ],
+  "path": "#/safety",
+  "blurb": "Dấu hiệu tin tuyển dụng lừa đảo và cách tự bảo vệ."
+ },
+ {
+  "name": "Điều khoản sử dụng 9hire",
+  "keywords": [
+   "điều khoản",
+   "điều khoản sử dụng"
+  ],
+  "path": "#/terms",
+  "blurb": "Điều khoản sử dụng."
+ },
+ {
+  "name": "Chính sách riêng tư 9hire",
+  "keywords": [
+   "chính sách riêng tư",
+   "bảo mật thông tin",
+   "dữ liệu cá nhân"
+  ],
+  "path": "#/privacy",
+  "blurb": "Cách 9hire xử lý dữ liệu cá nhân."
+ }
+]

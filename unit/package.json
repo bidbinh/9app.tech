@@ -1,0 +1,11 @@
+{
+  "name": "9unit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9unit - Tiện ích: máy tính giọng nói, đổi đơn vị, ngày tháng, vay lãi, chia tiền, đếm ngược, đọc số.",
+  "scripts": {
+    "test": "node --test test/",
+    "e2e": "node scripts/e2e.js"
+  }
+}

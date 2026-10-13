@@ -1,0 +1,43 @@
+# Triển khai lên máy chủ dùng chung (9app.tech): container 9ship cùng mạng với nginx, PostgreSQL riêng chỉ trong mạng nội bộ.
+# Không publish cổng ra host. Tên máy cơ sở dữ liệu là "9ship-db" (KHÔNG dùng "db": mạng ops_tms-network có thể có dịch vụ cùng tên).
+#   cp .env.example .env && docker compose -f docker-compose.server.yml up -d --build
+name: 9ship
+services:
+  ship-db:
+    image: postgres:16-alpine
+    container_name: 9ship-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ship
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?đặt DB_PASSWORD trong .env}
+      POSTGRES_DB: ship
+    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=30"]
+    volumes:
+      - ship-db:/var/lib/postgresql/data
+    mem_limit: 192m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ship -d ship"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [internal]
+  ship:
+    build: .
+    image: 9ship:latest
+    container_name: 9ship
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://ship:${DB_PASSWORD}@9ship-db:5432/ship
+    depends_on:
+      ship-db:
+        condition: service_healthy
+    mem_limit: 256m
+    networks: [internal, tms]
+networks:
+  internal: {}
+  tms:
+    external: true
+    name: ops_tms-network
+volumes:
+  ship-db:

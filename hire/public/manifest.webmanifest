@@ -1,0 +1,15 @@
+{
+  "name": "9hire",
+  "short_name": "9hire",
+  "description": "Việc làm thêm, bán thời gian, tuyển nhanh cho quán và cửa hàng nhỏ. Có cảnh báo lừa đảo.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f7f5",
+  "theme_color": "#0f766e",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

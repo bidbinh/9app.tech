@@ -1,0 +1,12 @@
+[
+  {
+    "id": "family",
+    "name": "9family",
+    "baseUrl": "http://9family:8101/family",
+    "keyId": "osin",
+    "secret": "DOI_CHUOI_NGAU_NHIEN_TOI_THIEU_32_KY_TU_RIENG_CHO_KENH_NAY",
+    "receiptSecret": "DOI_CHUOI_KHAC_HAN_SECRET_TREN_TOI_THIEU_32_KY_TU_BIEN_NHAN",
+    "linkPrefix": "/family/",
+    "readOnlyTools": ["lich_hom_nay", "lich_tuan", "danh_sach_di_cho"]
+  }
+]

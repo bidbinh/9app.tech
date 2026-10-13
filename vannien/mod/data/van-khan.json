@@ -1,0 +1,540 @@
+{
+  "meta": {
+    "version": 1,
+    "disclaimer": "Các bài khấn dưới đây mang tính tham khảo theo phong tục truyền thống. Cách xưng hô, tên các vị thần linh, thứ tự và lời lẽ có thể khác nhau theo vùng miền, tôn giáo và gia đình. Bạn có thể thay đổi cho phù hợp với gia đình mình; điều quan trọng nhất là lòng thành kính.",
+    "categories": [
+      { "id": "dinh-ky", "label": "Cúng định kỳ" },
+      { "id": "tet", "label": "Dịp Tết" },
+      { "id": "gia-dinh", "label": "Gia đình và giỗ chạp" },
+      { "id": "su-kien", "label": "Việc lớn trong nhà" },
+      { "id": "tam-linh", "label": "Chùa chiền và tâm linh" }
+    ],
+    "blocks": {
+      "namo": ["Nam mô A Di Đà Phật! Nam mô A Di Đà Phật! Nam mô A Di Đà Phật!"],
+      "chin-phuong": ["Con xin lạy chín phương trời, mười phương chư Phật, chư Phật mười phương."],
+      "thanh-than": [
+        "Con kính lạy Hoàng thiên Hậu thổ cùng chư vị Tôn thần.",
+        "Con kính lạy ngài Bản cảnh Thành hoàng, ngài Bản xứ Thổ địa, ngài Định phúc Táo quân và các vị thần linh cai quản trong xứ này."
+      ],
+      "gia-tien": [
+        "Con kính lạy tổ tiên nội ngoại họ {{ho}}: các cụ, các ông bà, cha mẹ cùng toàn thể hương linh trong dòng tộc."
+      ],
+      "tin-chu": [
+        "Tín chủ con là {{ho_ten}}, ngụ tại {{dia_chi}}.",
+        "Hôm nay là ngày {{ngay_am}} tháng {{thang_am}} năm {{nam_cc}} (âm lịch)."
+      ],
+      "ket": [
+        "Chúng con lễ mọn lòng thành, kính xin các ngài chứng giám.",
+        "Cúi xin ban cho gia đình chúng con sức khỏe, bình an, công việc hanh thông, con cháu hòa thuận, học hành tiến bộ.",
+        "Cẩn cáo!",
+        "Nam mô A Di Đà Phật! (ba lần)"
+      ]
+    }
+  },
+  "items": [
+    {
+      "id": "ram-mung-1",
+      "name": "Cúng Rằm và mùng Một hằng tháng",
+      "short": "Dâng hương thần linh và gia tiên vào mùng Một và Rằm âm lịch.",
+      "category": "dinh-ky",
+      "occasion": "Mùng Một và Rằm hằng tháng (âm lịch), tại bàn thờ gia tiên trong nhà.",
+      "when": { "kind": "monthly", "days": [1, 15] },
+      "whenText": "Mùng Một và ngày Rằm (15) mỗi tháng âm lịch. Phần mềm tự tính ngày dương lịch.",
+      "goodTime": "Nhiều gia đình cúng buổi sáng, khoảng 7 đến 11 giờ, hoặc buổi chiều cùng ngày. Chọn giờ cả nhà sắp xếp được, không cần quá cầu kỳ.",
+      "offerings": [
+        "Hương (nhang), nến hoặc đèn dầu",
+        "Hoa tươi",
+        "Mâm ngũ quả hoặc một đĩa trái cây tươi",
+        "Trầu cau, rượu hoặc nước trong, trà",
+        "Xôi, chè hoặc bánh kẹo; nếu cúng mặn thì thêm gà luộc hoặc món mặn của gia đình"
+      ],
+      "mamId": "mam-ram-mung-1",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "@thanh-than",
+        "@gia-tien",
+        "@tin-chu",
+        "Nhân {{ngay_le}}, tín chủ con thành tâm sắm sửa hương hoa, trà quả, lễ vật, dâng lên trước án.",
+        "Kính mời các ngài thần linh, kính mời gia tiên nội ngoại về nơi đây chứng giám tấm lòng thành của con cháu, thụ hưởng lễ vật.",
+        "Con cháu xin được nhờ ơn che chở, phù hộ độ trì cho cả nhà mạnh khỏe, bình an, mọi việc hanh thông.",
+        "@ket"
+      ],
+      "notes": [
+        "Đồ cúng nên tươi và sạch; thông thường không nếm trước khi cúng.",
+        "Cúng xong, đợi hương cháy gần hết rồi hạ lễ, cả nhà cùng dùng."
+      ]
+    },
+    {
+      "id": "than-tai-tho-dia",
+      "name": "Cúng Thần Tài, Thổ Địa",
+      "short": "Dâng lễ ông Thần Tài, ông Địa tại nhà hoặc cửa hàng.",
+      "category": "dinh-ky",
+      "occasion": "Mùng Một, Rằm, hoặc ngày vía Thần Tài (mùng 10 tháng Giêng); với nhiều nhà buôn bán là cúng mỗi ngày.",
+      "when": { "kind": "monthly", "days": [1, 15] },
+      "whenText": "Thường cúng mùng Một và Rằm; ngày vía Thần Tài là mùng 10 tháng Giêng âm lịch.",
+      "goodTime": "Thường cúng vào buổi sáng, trước khi mở cửa hàng hoặc đầu giờ làm việc.",
+      "offerings": [
+        "Hương, nước sạch, rượu, trà",
+        "Hoa tươi, trái cây",
+        "Bánh kẹo, trầu cau",
+        "Ngày vía có thể thêm món mặn (gà luộc hoặc heo quay) và xôi"
+      ],
+      "mamId": "mam-than-tai",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy ngài Thần Tài, ngài Thổ Địa cùng chư vị thần linh cai quản nơi này.",
+        "@tin-chu",
+        "Nhân {{ngay_le_tt}}, tín chủ con thành tâm sắm lễ gồm hương hoa, trà quả, đồ lễ, dâng lên trước án.",
+        "Kính mời các ngài về chứng giám lòng thành, thụ hưởng lễ vật, che chở cho gia đình và việc làm ăn của con được thuận lợi, buôn bán hanh thông, gặp nhiều may mắn.",
+        "Con xin hứa làm ăn lương thiện, giữ chữ tín, biết san sẻ với người khó khăn.",
+        "@ket"
+      ],
+      "notes": [
+        "Bàn thờ Thần Tài, Thổ Địa thường đặt thấp, sát đất, ở hướng nhìn ra cửa chính; vị trí cụ thể tùy từng nhà.",
+        "Nên giữ bàn thờ gọn gàng, sạch bụi, không để đồ lễ héo úa quá lâu."
+      ]
+    },
+    {
+      "id": "gio",
+      "name": "Cúng giỗ người thân",
+      "short": "Lễ cúng ngày mất hằng năm (kỵ nhật) cho ông bà, cha mẹ. Tự tính ngày giỗ theo âm lịch.",
+      "category": "gia-dinh",
+      "occasion": "Ngày mất hằng năm tính theo âm lịch của ông bà, cha mẹ, người thân.",
+      "when": { "kind": "custom", "field": "gio" },
+      "whenText": "Nhập ngày và tháng âm lịch người mất vào mục Ngày giỗ trong trang này; ngày dương lịch tự được tính cho các năm sau.",
+      "goodTime": "Thường cúng chính vào buổi sáng hoặc trưa của ngày giỗ, rồi cả nhà quây quần dùng bữa. Một số nhà còn cúng thêm buổi chiều tối hôm trước (gọi là tiên thường); tùy gia đình và địa phương.",
+      "offerings": [
+        "Hương, nến, hoa tươi, trầu cau, rượu, trà, nước",
+        "Mâm ngũ quả",
+        "Cỗ mặn: xôi, gà luộc, giò chả, canh, các món người mất lúc sinh thời ưa thích",
+        "Vàng mã, nếu gia đình có dùng"
+      ],
+      "mamId": "co-gio",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "@thanh-than",
+        "@gia-tien",
+        "@tin-chu",
+        "Hôm nay là ngày giỗ của {{quan_he}} {{ten_nguoi_mat}}. {{loi_nho}} thành tâm sắm sửa hương hoa, lễ vật, cơm canh, dâng lên trước án.",
+        "{{xung_ho}} kính mời hương linh {{quan_he}} {{ten_nguoi_mat}} cùng các vị tiên linh nội ngoại về nơi này, chứng giám lòng thành và thụ hưởng lễ vật.",
+        "Cúi xin {{quan_he}} và các vị tiên linh {{loi_xin}}",
+        "@ket"
+      ],
+      "notes": [
+        "Có nhà gọi là cúng kỵ; tên gọi và trình tự có thể khác theo dòng họ.",
+        "Phần đọc nên đọc chậm, rõ; người cao tuổi trong nhà thường là người đọc."
+      ]
+    },
+    {
+      "id": "ong-cong-ong-tao",
+      "name": "Cúng ông Công, ông Táo",
+      "short": "Lễ tiễn Táo quân về trời ngày 23 tháng Chạp.",
+      "category": "tet",
+      "occasion": "Ngày 23 tháng Chạp (âm lịch), tiễn Táo quân lên chầu Trời.",
+      "when": { "kind": "yearly", "month": 12, "day": 23 },
+      "whenText": "Ngày 23 tháng Chạp âm lịch hằng năm.",
+      "goodTime": "Nhiều nhà cúng từ sáng sớm đến trước giờ trưa. Chọn giờ thuận tiện trong ngày 23.",
+      "offerings": [
+        "Bộ mũ áo Táo quân (hai mũ ông, một mũ bà), vàng mã",
+        "Cá chép (thường ba con) để thả sau khi cúng",
+        "Hương, hoa, trầu cau, rượu, nước",
+        "Xôi, chè hoặc mâm cơm; gà luộc, bánh kẹo, trái cây"
+      ],
+      "mamId": "ong-cong-ong-tao",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy ngài Đông trù Tư mệnh Táo phủ Thần quân.",
+        "@tin-chu",
+        "Nhân dịp tiễn ngài về chầu Trời, tín chủ con thành tâm sắm lễ gồm hương hoa, trà quả, xôi chè, mũ áo, vàng mã, dâng lên trước án.",
+        "Một năm qua nhờ ơn ngài cai quản bếp lửa, gia đình chúng con được yên ổn. Nay xin tiễn ngài lên chầu Thiên đình, kính mong ngài tâu lên những điều tốt lành của gia đình, bỏ qua những điều sơ suất.",
+        "Sang năm mới, xin ngài lại về trông coi bếp núc, ban cho gia đình sức khỏe, tài lộc, hòa thuận.",
+        "@ket"
+      ],
+      "notes": [
+        "Cá chép nên thả ở nơi có nước sạch (sông, hồ), nhớ gỡ bỏ túi nilon và không vứt túi xuống nước.",
+        "Mũ áo và vàng mã thường được hóa sau khi hương cháy hết."
+      ]
+    },
+    {
+      "id": "tat-nien",
+      "name": "Cúng tất niên",
+      "short": "Lễ cúng cuối năm, báo với tổ tiên một năm đã qua và mời về ăn Tết.",
+      "category": "tet",
+      "occasion": "Chiều hoặc tối cuối năm âm lịch (29 hoặc 30 tháng Chạp), mời tổ tiên về ăn Tết cùng con cháu.",
+      "when": { "kind": "yearEnd" },
+      "whenText": "Ngày cuối năm âm lịch (30 tháng Chạp, năm thiếu thì 29). Nhiều nhà cúng tất niên vào những ngày cuối tháng Chạp.",
+      "goodTime": "Thường cúng vào buổi chiều của ngày tất niên, trước bữa cơm cuối năm của gia đình.",
+      "offerings": [
+        "Hương, nến, hoa tươi, mâm ngũ quả",
+        "Bánh chưng hoặc bánh tét, giò chả, xôi, gà luộc",
+        "Cơm canh các món Tết của vùng miền",
+        "Rượu, trà, trầu cau, vàng mã"
+      ],
+      "mamId": "cung-tet-bac",
+      "mamIds": ["cung-tet-bac", "cung-tet-nam"],
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "@thanh-than",
+        "@gia-tien",
+        "@tin-chu",
+        "Năm cũ sắp hết, xuân mới sắp về. Con cháu sum họp đông đủ, thành tâm sắm sửa hương hoa, lễ vật, mâm cơm tất niên, dâng lên trước án.",
+        "Kính mời các ngài thần linh, kính mời gia tiên nội ngoại về chứng giám, cùng con cháu đón năm mới.",
+        "Xin tạ ơn các ngài đã che chở cho gia đình trong năm qua, và xin tiếp tục phù hộ cho cả nhà năm mới được bình an, khỏe mạnh, mọi việc suôn sẻ.",
+        "@ket"
+      ],
+      "notes": ["Thứ tự và tên các món trong mâm cơm cuối năm khác nhau nhiều giữa ba miền."]
+    },
+    {
+      "id": "giao-thua-trong-nha",
+      "name": "Cúng giao thừa trong nhà",
+      "short": "Lễ đón năm mới đúng khoảnh khắc chuyển giao, đặt trong nhà.",
+      "category": "tet",
+      "occasion": "Đêm giao thừa, thời khắc chuyển từ năm cũ sang năm mới.",
+      "when": { "kind": "yearEnd" },
+      "whenText": "Đêm ngày cuối năm âm lịch (đêm 30 tháng Chạp, năm thiếu thì đêm 29).",
+      "goodTime": "Giờ Tý, từ khoảng 23 giờ đêm đến 1 giờ sáng; khoảnh khắc giao thừa là 0 giờ. Nhiều nhà chuẩn bị mâm lễ từ trước 23 giờ.",
+      "offerings": [
+        "Hương, nến, hoa, mâm ngũ quả",
+        "Mâm cỗ mặn nhẹ hoặc chay: bánh chưng, giò, xôi, gà luộc",
+        "Rượu, trà, nước, trầu cau, bánh kẹo, mứt",
+        "Vàng mã (nếu gia đình có dùng)"
+      ],
+      "mamId": "mam-giao-thua",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy ngài Đương niên Hành khiển Thái Tuế chí đức Tôn thần.",
+        "Con kính lạy các ngài Hành binh, Phán quan cùng chư vị thần linh cai quản năm cũ và năm mới.",
+        "Con kính lạy ngài Bản cảnh Thành hoàng, ngài Bản xứ Thổ địa, ngài Định phúc Táo quân cùng chư vị Tôn thần.",
+        "@tin-chu",
+        "Giờ phút giao thừa, năm cũ qua đi, năm mới đến. Gia đình chúng con thành tâm sắm sửa hương hoa, lễ vật, bày trước án, kính mời các ngài về chứng giám.",
+        "Xin tiễn các ngài của năm cũ, xin đón các ngài của năm mới. Cúi xin các ngài ban phước, giải trừ điều rủi, cho cả nhà năm mới sức khỏe, bình an, vạn sự hanh thông.",
+        "@ket"
+      ],
+      "notes": [
+        "Tên các vị thần năm (Thái Tuế, Hành khiển, Phán quan) được gọi giống nhau khá phổ biến nhưng không hoàn toàn thống nhất giữa các nhà.",
+        "Cúng giao thừa có hai kiểu: ngoài trời và trong nhà; nhiều gia đình thực hiện cả hai."
+      ]
+    },
+    {
+      "id": "giao-thua-ngoai-troi",
+      "name": "Cúng giao thừa ngoài trời",
+      "short": "Lễ đón giao thừa đặt ở sân, hiên nhà hoặc ban công, hướng ra ngoài.",
+      "category": "tet",
+      "occasion": "Đêm giao thừa, thường đặt bàn lễ ngoài sân hoặc trước cửa.",
+      "when": { "kind": "yearEnd" },
+      "whenText": "Đêm ngày cuối năm âm lịch, đúng khoảnh khắc 0 giờ.",
+      "goodTime": "Giờ Tý (23 đến 1 giờ); lễ thường bắt đầu trước 0 giờ một chút và kết thúc khi hương tàn.",
+      "offerings": [
+        "Hương, nến, hoa tươi, mâm ngũ quả",
+        "Bánh chưng hoặc bánh tét, giò, xôi, gà luộc hoặc món chay",
+        "Rượu, trà, nước, trầu cau, bánh kẹo, mứt",
+        "Vàng mã (nếu gia đình có dùng)"
+      ],
+      "mamId": "mam-giao-thua",
+      "paragraphs": [
+        "@namo",
+        "Con xin lạy chín phương trời, mười phương đất, chư Phật mười phương.",
+        "Con kính lạy ngài Đương niên Hành khiển Thái Tuế chí đức Tôn thần, ngài Hành binh, ngài Phán quan cùng chư vị thần linh trời đất.",
+        "Con kính lạy các ngài Thổ công, Thổ địa, Táo quân và các vị thần cai quản trong xứ này.",
+        "@tin-chu",
+        "Nhân giờ phút giao thừa, năm cũ đã qua, năm mới đã đến, tín chủ con thành tâm bày lễ ngoài trời, kính mời các ngài chứng giám.",
+        "Cúi xin các ngài phù hộ cho gia đình chúng con năm mới được an khang, thịnh vượng, người người mạnh khỏe, việc việc hanh thông.",
+        "@ket"
+      ],
+      "notes": ["Nếu thời tiết xấu hoặc không có sân, nhiều gia đình đặt lễ ngay trước cửa hoặc chỉ cúng trong nhà."]
+    },
+    {
+      "id": "cung-tet-gia-tien",
+      "name": "Cúng gia tiên sáng mùng Một Tết",
+      "short": "Lễ cúng tổ tiên đầu năm mới, chúc Tết ông bà.",
+      "category": "tet",
+      "occasion": "Sáng mùng Một Tết (mùng Một tháng Giêng âm lịch).",
+      "when": { "kind": "yearly", "month": 1, "day": 1 },
+      "whenText": "Mùng Một tháng Giêng âm lịch hằng năm; có nhà cúng thêm mùng Hai, mùng Ba.",
+      "goodTime": "Thường cúng buổi sáng sớm, sau khi cả nhà dậy, mặc đẹp, chúc Tết nhau.",
+      "offerings": [
+        "Hương, nến, hoa tươi, mâm ngũ quả",
+        "Bánh chưng hoặc bánh tét, giò chả, xôi, gà luộc",
+        "Rượu, trà, mứt, bánh kẹo, trầu cau"
+      ],
+      "mamId": "cung-tet-bac",
+      "mamIds": ["cung-tet-bac", "cung-tet-nam"],
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "@thanh-than",
+        "@gia-tien",
+        "@tin-chu",
+        "Nhân sáng mùng Một Tết, con cháu sum vầy bên nhau, thành tâm sắm sửa hương hoa, lễ vật, dâng lên trước án, kính chúc các cụ, các ông bà, cha mẹ nơi suối vàng năm mới an lành.",
+        "Kính mời các ngài thần linh, kính mời gia tiên nội ngoại cùng về hưởng Tết với con cháu.",
+        "Xin phù hộ cho con cháu trong nhà một năm mạnh khỏe, hạnh phúc, công việc thuận lợi, học hành tiến bộ.",
+        "@ket"
+      ],
+      "notes": []
+    },
+    {
+      "id": "tan-gia",
+      "name": "Cúng nhập trạch, tân gia",
+      "short": "Lễ báo thần linh và gia tiên khi dọn về nhà mới.",
+      "category": "su-kien",
+      "occasion": "Khi dọn về ở nhà mới (mua mới, xây xong, chuyển chỗ ở).",
+      "when": { "kind": "none" },
+      "whenText": "Không có ngày cố định. Bạn nên chọn ngày tốt theo tuổi gia chủ ở mục Xem ngày, chọn việc Nhập trạch · an cư.",
+      "goodTime": "Nhiều nhà chọn buổi sáng của ngày đã chọn, đón gia chủ bước vào nhà trước. Giờ cụ thể nên xem thêm ở mục Xem ngày.",
+      "offerings": [
+        "Hương, nến, hoa, mâm ngũ quả, trầu cau, rượu, trà, nước",
+        "Gà luộc hoặc món mặn, xôi, bánh kẹo",
+        "Gạo, muối, nước, đồ dùng đầu tiên mang vào nhà (tùy tục của từng nơi)",
+        "Vàng mã (nếu gia đình có dùng)"
+      ],
+      "mamId": "mam-tan-gia",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "@thanh-than",
+        "Con kính lạy các vị tiền chủ, hậu chủ cùng các vị thần linh cai quản trong khu đất này.",
+        "@tin-chu",
+        "Nay gia đình con vừa chuyển về ngôi nhà mới tại {{dia_chi}}. Nhân ngày lành, chúng con thành tâm sắm lễ gồm hương hoa, trà quả, đồ lễ, dâng lên trước án.",
+        "Kính mời các ngài chứng giám tấm lòng thành, cho phép gia đình chúng con an cư lạc nghiệp nơi đây.",
+        "Cúi xin các ngài phù hộ cho gia đạo yên vui, người người mạnh khỏe, làm ăn phát đạt, con cháu hiếu thuận.",
+        "@ket"
+      ],
+      "notes": ["Nhiều gia đình mời họ hàng, bạn bè đến dự để chung vui sau lễ."]
+    },
+    {
+      "id": "khai-truong",
+      "name": "Cúng khai trương",
+      "short": "Lễ cầu buôn bán thuận lợi khi mở cửa hàng, công ty.",
+      "category": "su-kien",
+      "occasion": "Ngày mở cửa hàng, văn phòng, xưởng, cơ sở kinh doanh.",
+      "when": { "kind": "none" },
+      "whenText": "Không có ngày cố định. Nên chọn ngày tốt ở mục Xem ngày, chọn việc Khai trương · nạp tài.",
+      "goodTime": "Thường cúng vào buổi sáng của ngày khai trương, trước khi đón khách đầu tiên. Giờ cụ thể xem thêm ở mục Xem ngày.",
+      "offerings": [
+        "Hương, nến, hoa tươi, mâm ngũ quả",
+        "Heo quay hoặc gà luộc, xôi, bánh kẹo",
+        "Rượu, trà, nước, trầu cau",
+        "Vàng mã (nếu gia đình có dùng)"
+      ],
+      "mamId": "mam-khai-truong",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy ngài Thần Tài, ngài Thổ Địa, ngài Bản xứ Thổ thần cùng chư vị thần linh cai quản nơi này.",
+        "@tin-chu",
+        "Nay tín chủ con khai trương {{ten_co_so}} tại {{dia_chi}}. Nhân ngày lành, con thành tâm sắm lễ gồm hương hoa, trà quả, đồ lễ, dâng lên trước án.",
+        "Kính mời các ngài về chứng giám, phù hộ cho việc kinh doanh của con được thuận buồm xuôi gió, khách đến đông đủ, tiền vào đều đặn.",
+        "Con xin giữ chữ tín, làm ăn chân chính, không để ai thiệt thòi.",
+        "@ket"
+      ],
+      "notes": []
+    },
+    {
+      "id": "dong-tho",
+      "name": "Cúng động thổ",
+      "short": "Lễ xin phép thần linh trước khi đào móng, xây nhà.",
+      "category": "su-kien",
+      "occasion": "Trước khi bắt đầu đào móng, san nền hoặc xây dựng công trình.",
+      "when": { "kind": "none" },
+      "whenText": "Không có ngày cố định. Nên chọn ngày tốt ở mục Xem ngày, chọn việc Động thổ · khởi tạo.",
+      "goodTime": "Thường cúng vào buổi sáng, trước khi thợ bắt tay vào việc. Giờ cụ thể xem thêm ở mục Xem ngày.",
+      "offerings": [
+        "Hương, nến, hoa, mâm ngũ quả, trầu cau",
+        "Gà luộc, xôi, rượu, nước, bánh kẹo",
+        "Vàng mã (nếu gia đình có dùng)"
+      ],
+      "mamId": "mam-dong-tho",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy Hoàng thiên Hậu thổ, chư vị Tôn thần, ngài Bản cảnh Thành hoàng, ngài Bản xứ Thổ địa và các vị thần linh cai quản trong khu đất này.",
+        "@tin-chu",
+        "Gia đình chúng con dự định xây dựng nhà ở tại {{dia_chi}}. Hôm nay ngày lành, chúng con thành tâm sắm lễ, kính cáo các ngài, xin phép được động thổ khởi công.",
+        "Cúi xin các ngài cho phép gia đình chúng con làm nhà, phù hộ cho công việc xây dựng thuận lợi, thợ thuyền bình an, công trình bền chắc, sớm hoàn thành.",
+        "@ket"
+      ],
+      "notes": ["Nhiều nơi nhờ người am hiểu phong tục chủ trì buổi lễ."]
+    },
+    {
+      "id": "cung-xe",
+      "name": "Cúng xe mới",
+      "short": "Lễ cầu bình an khi mua xe, nhận xe mới.",
+      "category": "su-kien",
+      "occasion": "Khi nhận xe mới (ô tô, xe máy), trước khi đi đường.",
+      "when": { "kind": "none" },
+      "whenText": "Không có ngày cố định. Nhiều người chọn ngày lấy xe theo mục Xem ngày, chọn việc Lập khế · giao dịch hoặc Xuất hành · cầu quan.",
+      "goodTime": "Thường cúng ngay khi lấy xe về hoặc vào buổi sáng đẹp trời. Không cần quá cầu kỳ.",
+      "offerings": [
+        "Hương, hoa, trái cây, bánh kẹo",
+        "Rượu hoặc nước, trà",
+        "Xôi hoặc gà luộc (nếu cúng mặn)",
+        "Vàng mã (nếu gia đình có dùng)"
+      ],
+      "mamId": "mam-cung-xe",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy ngài Bản xứ Thổ địa, ngài Thần linh cai quản đường sá và các vị Tôn thần.",
+        "@tin-chu",
+        "Nay gia đình con vừa mua chiếc xe {{ten_xe}}, biển số {{bien_so}}. Con thành tâm sắm lễ gồm hương hoa, trà quả, dâng lên trước xe.",
+        "Kính mời các ngài chứng giám, phù hộ cho xe cùng người ngồi trên xe luôn đi đường bình an, tránh mọi rủi ro, đi về thuận lợi.",
+        "Con xin lái xe cẩn thận, chấp hành luật giao thông, giữ an toàn cho mình và mọi người.",
+        "@ket"
+      ],
+      "notes": ["Xe để cúng thường rửa sạch, đặt hướng ra đường; đồ lễ đặt trước đầu xe."]
+    },
+    {
+      "id": "day-thang",
+      "name": "Cúng đầy tháng cho bé",
+      "short": "Lễ tạ ơn mười hai bà Mụ và gia tiên khi bé tròn một tháng.",
+      "category": "gia-dinh",
+      "occasion": "Khi bé tròn một tháng tuổi.",
+      "when": { "kind": "none" },
+      "whenText": "Khi bé tròn một tháng; gia đình thường chọn một ngày gần đó để mời họ hàng. Có thể xem ngày ở mục Xem ngày.",
+      "goodTime": "Thường cúng buổi sáng, trước khi khách tới. Tùy gia đình.",
+      "offerings": [
+        "Hương, hoa tươi, trái cây, bánh kẹo",
+        "Xôi, chè, trứng, gà luộc",
+        "Quần áo giấy cho các bà Mụ (tùy vùng)",
+        "Rượu, nước, trầu cau"
+      ],
+      "mamId": "co-day-thang",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy mười hai bà Mụ, các vị nương nương che chở cho trẻ nhỏ.",
+        "@gia-tien",
+        "@tin-chu",
+        "Gia đình con có bé {{ten_be}}, con của {{cha_me}}, sinh ngày {{ngay_sinh_be}}. Hôm nay bé tròn một tháng tuổi, gia đình thành tâm sắm lễ gồm hương hoa, xôi chè, trà quả, dâng lên trước án.",
+        "Xin tạ ơn các bà Mụ đã nặn nên và che chở cho bé suốt một tháng qua. Kính mời gia tiên về chứng giám, cùng vui với con cháu.",
+        "Cúi xin các ngài tiếp tục phù hộ cho bé ăn ngoan, ngủ ngon, mau lớn, khỏe mạnh, bình an và sau này hiếu thảo.",
+        "@ket"
+      ],
+      "notes": ["Số lượng bà Mụ và cách bày lễ khác nhau theo từng vùng; mười hai là con số được nhắc phổ biến."]
+    },
+    {
+      "id": "thoi-noi",
+      "name": "Cúng thôi nôi (bé tròn một tuổi)",
+      "short": "Lễ mừng bé một tuổi, tạ ơn bà Mụ và gia tiên, có thể bày bốc đồ cho bé.",
+      "category": "gia-dinh",
+      "occasion": "Khi bé tròn một tuổi.",
+      "when": { "kind": "none" },
+      "whenText": "Khi bé tròn một tuổi; gia đình chọn ngày gần sinh nhật bé.",
+      "goodTime": "Thường cúng buổi sáng rồi mời khách dự tiệc. Tùy gia đình.",
+      "offerings": [
+        "Hương, hoa, trái cây, xôi, chè, gà luộc, bánh kẹo",
+        "Mâm đồ để bé bốc (bút, sách, tiền, đồ chơi...), nếu gia đình có tổ chức",
+        "Rượu, nước, trầu cau"
+      ],
+      "mamId": "co-thoi-noi",
+      "paragraphs": [
+        "@namo",
+        "@chin-phuong",
+        "Con kính lạy mười hai bà Mụ, các vị nương nương che chở cho trẻ nhỏ.",
+        "@gia-tien",
+        "@tin-chu",
+        "Gia đình con có bé {{ten_be}}, con của {{cha_me}}, sinh ngày {{ngay_sinh_be}}. Hôm nay bé tròn một tuổi, gia đình thành tâm sắm lễ gồm hương hoa, xôi chè, trà quả, dâng lên trước án.",
+        "Xin tạ ơn các ngài đã phù hộ cho bé qua một năm khỏe mạnh, bình an. Kính mời gia tiên về chứng giám, chung vui cùng con cháu.",
+        "Cúi xin các ngài tiếp tục che chở cho bé lớn khôn, học hành giỏi giang, sống tử tế, hiếu thảo với ông bà, cha mẹ.",
+        "@ket"
+      ],
+      "notes": ["Trò bốc đồ chỉ mang ý vui và dự đoán nghề nghiệp, không có ý bói toán."]
+    },
+    {
+      "id": "co-hon",
+      "name": "Cúng chúng sinh, cô hồn (rằm tháng Bảy)",
+      "short": "Lễ cúng ngoài sân vào rằm tháng Bảy, xá tội vong nhân.",
+      "category": "tam-linh",
+      "occasion": "Rằm tháng Bảy (âm lịch), lễ Vu Lan; thường cúng ngoài sân hoặc trước cửa nhà.",
+      "when": { "kind": "yearly", "month": 7, "day": 15 },
+      "whenText": "Rằm tháng Bảy âm lịch hằng năm. Nhiều nhà cúng trong cả tháng Bảy, nhất là ngày Rằm.",
+      "goodTime": "Thường cúng vào buổi chiều, sau khi đã cúng gia tiên trên bàn thờ.",
+      "offerings": [
+        "Cháo loãng, bỏng gạo, ngô khoai luộc",
+        "Muối, gạo, bánh kẹo, trái cây, nước",
+        "Hương, nến, quần áo giấy, tiền vàng cho cô hồn",
+        "Hoa, bánh kẹo cho trẻ nhỏ (nhiều nơi có tục rải kẹo bánh)"
+      ],
+      "mamId": "mam-co-hon",
+      "paragraphs": [
+        "@namo",
+        "Con xin lạy chín phương trời, mười phương chư Phật, chư Phật mười phương.",
+        "Con kính lạy ngài Hoàng thiên Hậu thổ, ngài Bản xứ Thổ địa cùng chư vị thần linh cai quản trong xứ này.",
+        "@tin-chu",
+        "Nhân tháng Bảy, tháng xá tội vong nhân, tín chủ con thành tâm sắm sửa lễ vật, cháo lá đa, bỏng gạo, trái cây, bánh kẹo, tiền vàng, bày ra đây để cúng dường.",
+        "Kính mời các vị hương linh không nơi nương tựa, các vong nhân lang thang, các linh hồn mắc oan khuất, về đây thọ nhận lễ vật, nghe lời Phật dạy, buông bỏ sân hận, sớm được siêu thoát.",
+        "Xin cho gia đình chúng con được bình yên, không bị quấy nhiễu, người người mạnh khỏe, bình an.",
+        "@ket"
+      ],
+      "notes": [
+        "Lễ cô hồn thường đặt ngoài sân hoặc trước cửa, không đặt chung trên bàn thờ gia tiên.",
+        "Gia đình theo đạo Phật thường làm lễ Vu Lan báo hiếu cha mẹ tại chùa vào dịp này."
+      ]
+    },
+    {
+      "id": "le-chua",
+      "name": "Khấn khi lễ chùa",
+      "short": "Lời khấn đơn giản khi đi lễ Phật, dâng hương ở chùa.",
+      "category": "tam-linh",
+      "occasion": "Đi lễ chùa vào mùng Một, Rằm, đầu năm hoặc dịp khác.",
+      "when": { "kind": "monthly", "days": [1, 15] },
+      "whenText": "Nhiều người đi lễ chùa vào mùng Một và Rằm hằng tháng, đầu năm mới.",
+      "goodTime": "Thường đi buổi sáng, khi chùa vắng hơn. Nên đi nhẹ nhàng, giữ yên lặng, ăn mặc kín đáo, gọn gàng.",
+      "offerings": [
+        "Hương (nhang), hoa tươi, trái cây",
+        "Bánh kẹo chay hoặc nước, tiền công đức tùy tâm",
+        "Không cần mang lễ mặn vào chính điện"
+      ],
+      "mamId": "mam-chay",
+      "paragraphs": [
+        "Nam mô A Di Đà Phật! Nam mô A Di Đà Phật! Nam mô A Di Đà Phật!",
+        "Nam mô Bổn sư Thích Ca Mâu Ni Phật!",
+        "Con xin lạy chín phương trời, mười phương chư Phật, chư Phật mười phương.",
+        "Con kính lạy Đức Phật, chư vị Bồ Tát, chư vị Hiền Thánh Tăng.",
+        "Tín chủ con là {{ho_ten}}, ngụ tại {{dia_chi}}.",
+        "Hôm nay là ngày {{ngay_am}} tháng {{thang_am}} năm {{nam_cc}} (âm lịch), con đến chùa {{ten_chua}}, thành tâm dâng hương hoa, lễ Phật, lễ Tam bảo.",
+        "Cúi xin Đức Phật từ bi gia hộ cho gia đình con bình an, sức khỏe, tâm tính hiền hòa, tránh điều ác, làm nhiều điều thiện.",
+        "Con xin hồi hướng công đức này đến cha mẹ, tổ tiên và tất cả chúng sinh, nguyện cho muôn loài cùng được an vui.",
+        "Nam mô A Di Đà Phật! (ba lần)"
+      ],
+      "notes": [
+        "Mỗi chùa có nghi thức riêng; bạn nên làm theo hướng dẫn của chùa.",
+        "Khi lễ Phật có thể khấn thầm trong lòng thay vì đọc to."
+      ]
+    },
+    {
+      "id": "tao-mo",
+      "name": "Khấn khi tảo mộ, thăm mộ",
+      "short": "Lời khấn khi thăm và dọn dẹp phần mộ người thân.",
+      "category": "gia-dinh",
+      "occasion": "Dịp Thanh minh (đầu tháng Tư dương lịch), cuối năm trước Tết, hoặc ngày giỗ.",
+      "when": { "kind": "none" },
+      "whenText": "Thường vào khoảng tiết Thanh minh (đầu tháng Tư dương lịch), hoặc những ngày cuối năm âm lịch trước Tết. Tùy từng nhà.",
+      "goodTime": "Thường đi buổi sáng. Tránh đi buổi tối.",
+      "offerings": [
+        "Hương, hoa tươi",
+        "Trái cây, bánh kẹo, nước",
+        "Dụng cụ dọn dẹp: chổi, liềm, găng tay, túi rác",
+        "Vàng mã (nếu gia đình có dùng, tại nghĩa trang cần tuân thủ quy định)"
+      ],
+      "mamId": "mam-tao-mo",
+      "paragraphs": [
+        "@namo",
+        "Con kính lạy các ngài Hoàng thiên Hậu thổ, ngài Thổ địa và các vị thần linh cai quản khu nghĩa trang này.",
+        "@tin-chu",
+        "Hôm nay con cùng gia đình đến đây thăm viếng, dọn dẹp, sửa sang phần mộ của {{quan_he}} {{ten_nguoi_mat}}, thành tâm sắm lễ gồm hương hoa, trái cây.",
+        "Xin các ngài cho phép gia đình con được dọn dẹp, chăm sóc phần mộ.",
+        "{{xung_ho}} kính thăm hương linh {{quan_he}} {{ten_nguoi_mat}}. {{loi_nho}} nay đến thăm viếng, dọn dẹp phần mộ.",
+        "Cúi xin hương linh {{loi_xin}}",
+        "@ket"
+      ],
+      "notes": ["Nghĩa trang hiện đại có quy định riêng về hương, vàng mã và rác; nên làm theo quy định."]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+[
+ {
+  "name": "Gửi hàng, so giá cước",
+  "keywords": [
+   "gửi hàng",
+   "so sánh cước",
+   "cước vận chuyển",
+   "ghtk",
+   "giao hàng nội địa",
+   "in bill"
+  ],
+  "path": "",
+  "blurb": "Gửi hàng nội địa: so sánh cước các hãng, in bill, theo dõi."
+ },
+ {
+  "name": "Đơn hàng đã gửi",
+  "keywords": [
+   "đơn hàng",
+   "theo dõi đơn",
+   "tra đơn",
+   "vận đơn",
+   "in lại bill"
+  ],
+  "path": "#/orders",
+  "blurb": "Danh sách đơn đã gửi và trạng thái."
+ },
+ {
+  "name": "Sổ địa chỉ",
+  "keywords": [
+   "sổ địa chỉ",
+   "địa chỉ nhận hàng",
+   "người nhận"
+  ],
+  "path": "#/book",
+  "blurb": "Lưu địa chỉ người gửi, người nhận."
+ },
+ {
+  "name": "Tài khoản và ví 9Ship",
+  "keywords": [
+   "tài khoản",
+   "ví",
+   "nạp tiền",
+   "số dư"
+  ],
+  "path": "#/me",
+  "blurb": "Ví, số dư và tài khoản 9Ship."
+ }
+]

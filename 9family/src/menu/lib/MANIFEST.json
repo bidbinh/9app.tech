@@ -1,0 +1,18 @@
+{
+  "source": "menu-data",
+  "hash": "961bd1ba4a7dead41f57d87c74c3b9f4c7b4c0759111672fc2acbd312d24a383",
+  "dishes": 277,
+  "dataVersion": 1,
+  "region": "bac",
+  "files": {
+    "src/common.js": "d707c1fd1bbdfeec1d96c46207dc5a90ab22a30dffb533b6eb4e90a6644098cd",
+    "src/index.js": "fed6483b0853b331e50b6afb0345f1f293466135a9831dce2a906975e7f2c3f3",
+    "src/load-node.js": "95e9e1b3ae4efd4ae98389f45932391ca1d28a5e39cc00aad1b1edd2ea527df8",
+    "src/normalize.js": "44f5d5993cc918658de2cec4b7ad277467981f2c2fe35ecdd7bbb056c9d1ccfb",
+    "src/planner.js": "13137f5feeac59f476af546f5f13a50865021dba1830e17ffadd1b8ba53eb75e",
+    "src/shopping.js": "bfcb4f0efb7754faf72fcd1443f58cb28fddeaf11ccf2d683eca6cf926c3b02e",
+    "data/dishes.json": "44df79e4729278edad4125656671a7f2622dfb62561d1a65784a84009fca6d9f",
+    "data/ingredients.json": "976183e3b32638d3335080a9ff0ffd7d6d0ce96e8659d0c7e6aca2f80dbb609c",
+    "data/seasonal.json": "a9e96c707cebdfe260c175f9fc48553e97ca71f642aab1377c4ee92b8b5993a9"
+  }
+}

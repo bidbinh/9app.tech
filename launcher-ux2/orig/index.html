@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)"><meta name="color-scheme" content="light dark"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="9app">
+<meta name="description" content="Không gian ứng dụng của bạn — 9speed, 9log, Gia phả, 9Sport, Hội phụ huynh.">
+<title>9app</title><link rel="manifest" href="manifest.webmanifest?v=13"><link rel="icon" href="icons/mark.svg?v=13" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=13"><link rel="icon" href="icons/icon-192.png?v=13" type="image/png" sizes="192x192"><link rel="stylesheet" href="css/style.css?v=17">
+</head>
+<body>
+<svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.4"/><rect x="14" y="4" width="6" height="6" rx="1.4"/><rect x="4" y="14" width="6" height="6" rx="1.4"/><rect x="14" y="14" width="6" height="6" rx="1.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 19c.8-3.4 3.2-5 7-5s6.2 1.6 7 5"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18.5" cy="12" r="1.4"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></symbol>
+</defs></svg>
+
+<div id="phone" class="workspace">
+<header class="top">
+<a class="brand" href="./" aria-label="9app — Trang chủ"><img src="icons/mark.svg?v=13" width="32" height="32" alt=""><span>app</span></a>
+<label class="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span class="visually">Tìm ứng dụng hoặc chức năng</span><input id="search" type="search" placeholder="Tìm app, chức năng…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-controls="fn-wrap view-home"><button class="search-clear" id="search-clear" type="button" aria-label="Xóa tìm kiếm" hidden><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></label>
+<button class="round-btn tb" id="btn-account" type="button" aria-label="Tài khoản">TB</button>
+</header>
+
+<main class="main" id="view-home">
+<!-- Lời chào: chỉ người mới, đóng được, nhớ lựa chọn (9app.ui) -->
+<section class="welcome" id="welcome" hidden>
+<img src="icons/mark.svg?v=13" width="40" height="40" alt="">
+<div class="welcome-copy"><h1>Chào mừng đến 9app</h1><p>Mọi thứ của bạn, một chỗ. Chạm một ứng dụng để bắt đầu.</p></div>
+<button class="icon-btn" id="welcome-x" type="button" aria-label="Đóng lời chào"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+</section>
+
+<section class="block" id="fn-wrap" aria-labelledby="fn-title" hidden>
+<div class="block-head">
+<div class="block-title"><span class="mark mark-fn"><svg class="icon"><use href="#i-bolt"/></svg></span><h2 id="fn-title">Chức năng</h2></div>
+</div>
+<p class="fn-note" id="fn-note" hidden></p>
+<div class="fn-suggest" id="fn-suggest" hidden></div>
+<ul class="fn-list" id="fn-list"></ul>
+<button class="fn-more" id="fn-more" type="button" hidden></button>
+</section>
+
+<section class="block" id="quick-wrap" aria-labelledby="quick-title" hidden>
+<div class="block-head"><h2 id="quick-title">Dùng nhanh</h2></div>
+<div id="quick" class="strip"></div>
+</section>
+
+<section class="block" id="suggest-wrap" aria-labelledby="suggest-title" hidden>
+<div class="block-head"><h2 id="suggest-title">Gợi ý cho bạn</h2><button class="text-btn" id="suggest-x" type="button">Ẩn gợi ý</button></div>
+<div id="suggest" class="strip"></div>
+</section>
+
+<section class="block" id="library" aria-labelledby="apps-title">
+<div class="block-head"><h2 id="apps-title">Tất cả ứng dụng</h2><button class="text-btn" id="btn-all-mine" type="button">Thư viện<svg class="icon" aria-hidden="true"><use href="#i-chev"/></svg></button></div>
+<div class="chips" id="chips" role="group" aria-label="Lọc theo nhóm" hidden></div>
+<div id="list" class="grid" aria-busy="true">
+<span class="sk"></span><span class="sk"></span><span class="sk"></span><span class="sk"></span><span class="sk"></span><span class="sk"></span><span class="sk"></span><span class="sk"></span>
+</div>
+<button class="more-btn" id="list-more" type="button" hidden></button>
+<div class="empty" id="empty" hidden><h3 id="empty-title">Chưa có ứng dụng</h3><p id="empty-message">Mở Thư viện để thêm ứng dụng vào trang chủ.</p><button class="pill-btn" id="empty-go" type="button">Mở Thư viện</button></div>
+</section>
+</main>
+
+<section class="page" id="unused" hidden>
+<div class="page-head"><h1>Thư viện</h1><p id="lib-sub">Tất cả ứng dụng của 9app.</p></div>
+<label class="lib-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span class="visually">Lọc ứng dụng trong thư viện</span><input id="lib-q" type="search" placeholder="Lọc ứng dụng…" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+<div class="chips" id="lib-chips" role="group" aria-label="Lọc thư viện"></div>
+<div id="lib-list"></div>
+<div class="empty" id="unused-empty" hidden><h3>Không có ứng dụng phù hợp</h3><p>Thử từ khóa khác hoặc chọn “Tất cả”.</p></div>
+<div id="lib-soon" class="lib-soon" hidden></div>
+</section>
+
+<section class="page" id="notify" hidden>
+<div class="page-head"><h1>Thông báo</h1></div>
+<div class="empty"><h3>Chưa có thông báo</h3><p>Khi có cập nhật từ các ứng dụng, sẽ hiện ở đây.</p></div>
+</section>
+
+<section class="page" id="account" hidden>
+<div class="page-head"><h1>Tài khoản</h1></div>
+<div class="card-note">
+<p>9app lưu ứng dụng ghim và ứng dụng vừa dùng trên máy này, không cần đăng nhập.</p>
+<p class="muted" id="account-note"></p>
+<button class="pill-btn" id="reset-ui" type="button">Hiện lại lời chào và gợi ý</button>
+</div>
+</section>
+
+<nav class="tabbar" aria-label="Điều hướng">
+<button class="tab on" id="tab-home" type="button"><svg class="icon"><use href="#i-home"/></svg>Trang chủ</button>
+<button class="tab" id="tab-lib" type="button"><svg class="icon"><use href="#i-grid"/></svg>Thư viện</button>
+<button class="tab" id="tab-bell" type="button"><svg class="icon"><use href="#i-bell"/></svg>Thông báo</button>
+<button class="tab" id="tab-user" type="button"><svg class="icon"><use href="#i-user"/></svg>Tài khoản</button>
+</nav>
+</div>
+
+<p class="visually" id="sr-status" role="status" aria-live="polite"></p>
+<p class="toast" id="toast" role="status" hidden></p>
+<div class="sheet-backdrop" id="act-backdrop" hidden></div>
+<aside class="sheet act" id="act" hidden role="dialog" aria-modal="true" aria-labelledby="act-name"><h2 class="act-name" id="act-name"></h2><button type="button" id="act-fav"></button><button type="button" class="danger" id="act-hide">Ẩn khỏi trang chủ</button><button type="button" class="ghost" id="act-cancel">Đóng</button></aside>
+<script src="js/apps.js?v=32"></script>
+<script src="js/search.js?v=1"></script>
+<script src="js/launcher.js?v=17"></script>
+</body>
+</html>

@@ -1,0 +1,1195 @@
+{
+ "version": 1,
+ "sources": {
+  "soyte-hatinh-andam": {
+   "name": "Sở Y tế Hà Tĩnh - Những điều nên và không nên khi cho bé ăn dặm lần đầu (theo PGS.TS.BS Nguyễn Thị Lâm; WHO/Viện Dinh dưỡng)",
+   "url": "https://soyte.hatinh.gov.vn/tin-tuc-su-kien/thong-tin-y-te/nhung-dieu-nen-va-khong-nen-khi-cho-be-an-dam-lan-dau.html",
+   "kind": "health",
+   "access": "fetch",
+   "accessed": "2026-10-04"
+  },
+  "alobacsi-giavi": {
+   "name": "Alobacsi - Nên nêm gia vị cho bé ăn dặm khi nào",
+   "url": "https://alobacsi.com/nen-nem-gia-vi-cho-be-an-dam-khi-nao-cac-loai-gia-vi-an-toan-cho-be.html",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vinmec-muoi-who": {
+   "name": "Vinmec - Khuyến nghị của WHO về sử dụng muối ăn",
+   "url": "https://www.vinmec.com/vie/bai-viet/khuyen-nghi-cua-who-ve-su-dung-muoi-vi",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cdc-qn-muoi": {
+   "name": "CDC Quảng Ninh - Lượng muối cho bé theo từng độ tuổi",
+   "url": "https://www.quangninhcdc.vn/luong-muoi-cho-be-theo-tung-do-tuoi/",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vinmec-caotuoi": {
+   "name": "Vinmec - Lời khuyên dinh dưỡng cho người cao tuổi",
+   "url": "https://www.vinmec.com/vie/bai-viet/loi-khuyen-dinh-duong-cho-nguoi-cao-tuoi-vi",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "skds-monmem": {
+   "name": "Sức khỏe & Đời sống - Gợi ý một số món ăn mềm dễ nấu cho người cao tuổi",
+   "url": "https://suckhoedoisong.vn/goi-y-mot-so-mon-an-mem-de-nau-cho-nguoi-cao-tuoi-169250808222724827.htm",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vinmec-rauluoc": {
+   "name": "Vinmec - Các món rau luộc ngon",
+   "url": "https://www.vinmec.com/vie/bai-viet/cac-mon-rau-luoc-ngon-vi",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "yte-nghean-raucumuadong": {
+   "name": "Sở Y tế Nghệ An - 7 loại rau củ mùa đông tốt nhất cho sức khỏe",
+   "url": "https://yte.nghean.gov.vn/cam-nang-suc-khoe/7-loai-rau-cu-mua-dong-tot-nhat-cho-suc-khoe-703907",
+   "kind": "health",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hatgiongtot-lichtrongrau": {
+   "name": "Hạt giống tốt - Lịch trồng rau ở miền Bắc theo mùa xuân - hạ - thu - đông",
+   "url": "https://hatgiongtot.net/lich-trong-rau-o-mien-bac.html",
+   "kind": "season",
+   "access": "fetch",
+   "accessed": "2026-10-04"
+  },
+  "sinhhocaq-lichtrongrau": {
+   "name": "Sinh học AQ - Lịch trồng rau miền Bắc theo từng tháng",
+   "url": "https://nguyenlieusinhhoc.com/lich-trong-rau-mien-bac/",
+   "kind": "season",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "kingbio-lichtrongrau": {
+   "name": "Kingbio - Lịch trồng rau miền Bắc theo tháng",
+   "url": "https://kingbio.vn/lich-trong-rau-mien-bac-theo-thang",
+   "kind": "season",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hachi-lichtrongrau": {
+   "name": "Hachi - Lịch trồng rau miền Bắc theo tháng dương lịch",
+   "url": "https://hachi.com.vn/lich-trong-rau-mien-bac/",
+   "kind": "season",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vuonxanh-lichtrongrau": {
+   "name": "Vườn Xanh Của Bạn - Lịch trồng rau miền Bắc",
+   "url": "https://vuonxanhcuaban.com/detail/lich-trong-rau-mien-bac.html",
+   "kind": "season",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "shophoaqua-miennam": {
+   "name": "Shophoaqua - Gợi ý trái cây miền Bắc theo mùa",
+   "url": "https://shophoaqua.vn/goi-y-trai-cay-mien-bac-theo-mua-phu-hop-theo-so-thich-va-nhu-cau/ar114.html",
+   "kind": "season",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "shophoaqua-lichmua": {
+   "name": "Shophoaqua - Trái cây vào mùa từ tháng 1-12",
+   "url": "https://shophoaqua.vn/lich-trai-cay-vao-mua-tai-viet-nam-tu-thang-1-den-thang-12/ar125.html",
+   "kind": "season",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "kidsplaza-chao-bo-7t": {
+   "name": "KidsPlaza - Các loại cháo thịt bò ăn dặm cho bé 7 tháng",
+   "url": "https://www.kidsplaza.vn/blog/mach-me-top-chao-thit-bo-an-dam-cho-be-7-thang-tuoi.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "eva-chao-carot": {
+   "name": "Eva - 9 cách nấu cháo cà rốt cho bé 6 tháng ăn dặm",
+   "url": "https://eva.vn/nuoi-con/9-cach-nau-chao-ca-rot-cho-be-6-thang-an-dam-don-gian-nhat-c13a481230.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "longchau-chao-ga": {
+   "name": "Nhà thuốc Long Châu - 7 công thức nấu cháo gà cho bé ăn dặm",
+   "url": "https://nhathuoclongchau.com.vn/bai-viet/7-cong-thuc-nau-chao-ga-cho-be-an-dam-don-gian-de-lam-62743.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "longchau-chao-bido": {
+   "name": "Nhà thuốc Long Châu - Cách nấu cháo bí đỏ cho bé ăn dặm",
+   "url": "https://nhathuoclongchau.com.vn/bai-viet/mach-me-cach-nau-chao-bi-do-cho-be-an-dam-sieu-hap-dan-63391.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "monte-chao-ga-bido": {
+   "name": "Monte - Cháo gà bí đỏ cho bé ăn dặm",
+   "url": "https://www.monte.com/vn/thong-tin-dinh-duong/chi-tiet/chao-ga-bi-do-cho-be-an-dam/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-canhcua": {
+   "name": "Điện máy xanh - Cách nấu canh cua rau đay mướp",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-nau-canh-cua-rau-day-muop-ngot-mat-thom-lung-giai-nhiet-13271",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookpad-canhcua": {
+   "name": "Cookpad - Canh cua rau đay mướp (JinSu Mommy)",
+   "url": "https://cookpad.com/vn/cong-thuc/16995077",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-bidao-thitbam": {
+   "name": "Điện máy xanh - Cách nấu canh bí đao thịt bằm",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-nau-canh-bi-dao-thit-bam-thom-ngon-thanh-dam-ngay-tai-11767",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-bidao": {
+   "name": "FPT Shop - Cách nấu canh bí đao với thịt heo, xương heo",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/cach-nau-canh-bi-dao-164646",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-ngot-thitbam": {
+   "name": "Cookbeo - Cách nấu canh rau ngót thịt bằm",
+   "url": "https://cookbeo.com/recipes/cach-nau-canh-rau-ngot-thit-bam",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-cai-thitbam": {
+   "name": "Cookbeo - Cách nấu canh cải thịt băm",
+   "url": "https://cookbeo.com/recipes/cach-nau-canh-cai-thit-bam",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-cai-cuc": {
+   "name": "VnExpress Cooking - Canh cải cúc thịt băm",
+   "url": "https://vnexpress.net/doi-song-cooking-canh-cai-cuc-thit-bam-4534981.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mnmn-khoaiso": {
+   "name": "Món Ngon Mỗi Ngày - Canh sườn khoai sọ",
+   "url": "https://monngonmoingay.com/canh-suon-khoai-so/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cet-khoaiso": {
+   "name": "CET - Cách nấu canh khoai sọ",
+   "url": "https://www.cet.edu.vn/cach-nau-canh-khoai-so",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-canhbautom": {
+   "name": "VnExpress Cooking - Canh bầu tôm",
+   "url": "https://vnexpress.net/doi-song-cooking-canh-bau-tom-4481255.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-canhbau-tomkho": {
+   "name": "Điện máy xanh - Canh bầu nấu với tôm khô",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-nau-canh-bau-nau-voi-tom-kho-thom-ngon-thanh-dam-kho-13223",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-canhbau": {
+   "name": "Cookbeo - Canh bầu nấu tôm khô",
+   "url": "https://cookbeo.com/recipes/canh-bau-nau-tom-kho",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mnmn-canhchua-mang": {
+   "name": "Món Ngon Mỗi Ngày - Canh chua măng",
+   "url": "https://monngonmoingay.com/canh-chua-mang/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mnmn-canhchuaca-mang": {
+   "name": "Món Ngon Mỗi Ngày - Canh chua cá nấu măng",
+   "url": "https://monngonmoingay.com/canh-chua-ca-nau-mang/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mnmn-canhga-mangchua": {
+   "name": "Món Ngon Mỗi Ngày - Canh gà măng chua",
+   "url": "https://monngonmoingay.com/canh-ga-mang-chua/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-canhca-mang": {
+   "name": "VnExpress Cooking - Canh cá nấu măng chua",
+   "url": "https://vnexpress.net/doi-song-cooking-canh-ca-nau-mang-chua-mua-mua-bao-4791815.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookpad-susucarot": {
+   "name": "Cookpad - Canh su cà rốt",
+   "url": "https://cookpad.com/vn/tim-kiem/canh%20su%20c%C3%A0%20r%E1%BB%91t",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookpad-canhsuonchua": {
+   "name": "Cookpad - Canh sườn nấu chua",
+   "url": "https://cookpad.com/vn/tim-kiem/canh%20s%C6%B0%E1%BB%9Dn%20n%E1%BA%A5u%20chua",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "huongnghiep-thitkho": {
+   "name": "Hướng nghiệp Á Âu - Cách nấu thịt kho tàu",
+   "url": "https://www.huongnghiepaau.com/thit-kho-tau",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tiki-thitkho": {
+   "name": "Tiki - Cách làm thịt kho tàu",
+   "url": "https://tiki.vn/blog/thit-kho-tau/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "bluestone-thitkho": {
+   "name": "Bluestone - Cách nấu thịt kho tàu",
+   "url": "https://www.bluestone.com.vn/blogs/vao-bep/thit-kho-tau",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-cakhorieng": {
+   "name": "Điện máy xanh - Cách nấu cá kho riềng chuẩn vị miền Bắc",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-nau-ca-kho-rieng-dam-da-chac-thit-chuan-vi-mien-bac-voi-23079",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-catramrieng": {
+   "name": "VnExpress Cooking - Cá trắm kho riềng kiểu phố cổ Hà Nội",
+   "url": "https://vnexpress.net/doi-song-cooking-ca-tram-kho-rieng-kieu-pho-co-ha-noi-4700557.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-cakhorieng": {
+   "name": "VietNamNet - Cách làm cá kho riềng",
+   "url": "https://vietnamnet.vn/cach-lam-ca-kho-rieng-thom-bui-cuc-ngon-2194461.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-daus": {
+   "name": "Cookbeo - Đậu phụ sốt cà chua",
+   "url": "https://cookbeo.com/recipes/dau-sot-ca-chua",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "afamily-dausot": {
+   "name": "Afamily - Đậu phụ sốt cà chua",
+   "url": "https://afamily.vn/mon-dau-phu-sot-ca-chua-cho-them-mot-nguyen-lieu-se-khien-huong-vi-bung-no-ngap-tran-vi-ngon-ngot-236260322220903495.chn",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cellphones-daus": {
+   "name": "CellphoneS - 3 cách làm đậu sốt cà chua chay, mặn",
+   "url": "https://cellphones.com.vn/sforum/cach-lam-dau-sot-ca-chua",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-thitrang": {
+   "name": "VietNamNet - Cách làm thịt rang cháy cạnh mềm ngon",
+   "url": "https://vietnamnet.vn/cach-lam-thit-rang-chay-canh-mem-ngon-va-khong-bi-kho-2079147.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-thitrang": {
+   "name": "VnExpress Cooking - Thịt ba chỉ rang cháy cạnh",
+   "url": "https://vnexpress.net/doi-song-cooking-cach-lam-thit-ba-chi-rang-chay-canh-don-gian-4298428.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-thitrang": {
+   "name": "Pasgo - Thịt rang cháy cạnh kiểu Bắc",
+   "url": "https://pasgo.vn/blog/cach-lam-thit-rang-chay-canh-chuan-vi-bac-dung-dieu-ngon-3052",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-chalalot": {
+   "name": "VietNamNet - Cách làm chả lá lốt",
+   "url": "https://vietnamnet.vn/cach-lam-cha-la-lot-dam-vi-thom-ngon-tai-nha-2166907.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-chalalot": {
+   "name": "FPT Shop - Cách làm chả lá lốt thịt heo",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/cach-lam-cha-la-lot-162760",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hnaau-chalalot-chay": {
+   "name": "Hướng nghiệp Á Âu - Chả lá lốt chay",
+   "url": "https://www.huongnghiepaau.com/cha-la-lot-chay",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-chatrunghap": {
+   "name": "VietNamNet - Cách làm chả trứng hấp",
+   "url": "https://vietnamnet.vn/cach-lam-cha-trung-hap-thom-ngon-cho-ngay-ban-ron-2093127.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-trungducthit": {
+   "name": "VietNamNet - Cách làm trứng đúc thịt",
+   "url": "https://vietnamnet.vn/cach-lam-trung-duc-thit-don-gian-ma-ngon-tai-nha-2246671.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-trungducthit": {
+   "name": "VnExpress Cooking - Trứng đúc thịt",
+   "url": "https://vnexpress.net/doi-song-cooking-trung-duc-thit-4860439.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-trungchungthit": {
+   "name": "FPT Shop - Trứng chưng thịt",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/trung-chung-thit-179766",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-trungchungthit": {
+   "name": "Điện máy xanh - Trứng chưng thịt băm",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-lam-trung-chung-thit-bam-mem-min-bang-noi-com-dien-tai-23353",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-rantrung": {
+   "name": "VnExpress Cooking - Bí quyết rán trứng mềm xốp",
+   "url": "https://vnexpress.net/doi-song-cooking-ran-trung-4651981.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-trungchienhanhtay": {
+   "name": "Điện máy xanh - Trứng chiên hành tây",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-lam-trung-chien-hanh-tay-thom-ngon-danh-cho-cac-ban-10664",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "phunutoday-dauphunhoi": {
+   "name": "Phụ nữ Today - Đậu phụ nhồi thịt tẩm hành",
+   "url": "https://phunutoday.vn/cach-lam-dau-phu-nhoi-thit-tam-hanh-thom-ngon-d506529.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vinid-dauphunhoi": {
+   "name": "VinID - 3 cách chế biến đậu phụ nhồi thịt",
+   "url": "https://vinid.net/blog/3-cach-che-bien-mon-dau-phu-nhoi-thit-cho-bua-com-hang-ngay/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "bepanvanphong-bundau": {
+   "name": "Bếp ăn văn phòng - Bún đậu mắm tôm Hà Nội",
+   "url": "https://bepanvanphong.vn/Cach-lam-mon-bun-dau-mam-tom-Ha-Noi",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "wiki-nemran": {
+   "name": "Wikipedia tiếng Việt - Nem rán",
+   "url": "https://vi.wikipedia.org/wiki/Nem_r%C3%A1n",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookpad-chagio": {
+   "name": "Cookpad - Chả giò (nem rán) của Vomi Khanh",
+   "url": "https://cookpad.com/vn/cong-thuc/6445579",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "rapido-nemran": {
+   "name": "Rapido - 4 cách làm nem rán truyền thống",
+   "url": "https://rapido.vn/4-cach-lam-nem-ran-truyen-thong-gion-ngon-don-gian-tai-nha/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-suonxao": {
+   "name": "VietNamNet - Sườn xào chua ngọt",
+   "url": "https://vietnamnet.vn/cach-lam-suon-xao-chua-ngot-vo-cung-don-gian-tai-nha-2067168.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-suonxao": {
+   "name": "Điện máy xanh - Sườn xào chua ngọt",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-lam-suon-xao-chua-ngot-cho-mam-com-hang-ngay-00689",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mnmn-carokhoto": {
+   "name": "Món Ngon Mỗi Ngày - Cá rô kho tộ",
+   "url": "https://monngonmoingay.com/ca-ro-kho-to/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-carokhoto": {
+   "name": "VnExpress Cooking - Cá rô kho tộ",
+   "url": "https://vnexpress.net/doi-song-cooking-ca-ro-kho-to-kieu-nam-bo-4511289.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-carokhoto": {
+   "name": "Pasgo - Cá rô kho tộ",
+   "url": "https://pasgo.vn/blog/cach-lam-ca-ro-kho-to-ngon-khong-tanh-mem-ruc-xuong-hoamkt-1123-5553",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hnaau-caichepomdua": {
+   "name": "Hướng nghiệp Á Âu - Cá chép om dưa",
+   "url": "https://www.huongnghiepaau.com/ca-chep-om-dua",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cakhobakien-ca-ro-phi-om-dua": {
+   "name": "Cá kho Bà Kiên - Cá rô phi om dưa",
+   "url": "https://cakhobakien.com/ca-kho/ca-ro-phi-om-dua/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-gakholachanh": {
+   "name": "Cookbeo - Gà kho lá chanh",
+   "url": "https://cookbeo.com/recipes/ga-kho-la-chanh",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "chefstudio-gakhogung": {
+   "name": "Chef Studio - 6 cách làm gà kho gừng",
+   "url": "https://chefstudio.vn/cach-lam-ga-kho-gung-don-gian-ma-ngon-xuyt-xoa.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-gaxaosaot": {
+   "name": "Cookbeo - Gà xào sả ớt",
+   "url": "https://cookbeo.com/recipes/ga-xao-sa-ot",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-garanglachanh": {
+   "name": "FPT Shop - Gà rang lá chanh",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/ga-rang-la-chanh-mon-163874",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-boxaohanhtay": {
+   "name": "Cookbeo - Thịt bò xào hành tây",
+   "url": "https://cookbeo.com/recipes/cach-lam-thit-bo-xao-hanh-tay",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-boxaohanhtay": {
+   "name": "Pasgo - Thịt bò xào hành tây",
+   "url": "https://pasgo.vn/blog/cach-lam-thit-bo-xao-hanh-tay-khong-hang-ngot-mem-nhanh-gon-thumkt-1023-5518",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "bluestone-boxaocantay": {
+   "name": "Bluestone - Thịt bò xào hành tây cần tây",
+   "url": "https://www.bluestone.com.vn/blogs/vao-bep/thit-bo-xao-hanh-tay-can-tay",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hnaau-rauxaotoi": {
+   "name": "Hướng nghiệp Á Âu - Rau muống xào tỏi",
+   "url": "https://www.huongnghiepaau.com/rau-muong-xao-toi",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tuoitre-rauxaotoi": {
+   "name": "Tuổi Trẻ - Rau muống xào tỏi lọt top 100 món xào ngon nhất thế giới",
+   "url": "https://tuoitre.vn/rau-muong-xao-toi-mien-xao-cua-lot-top-100-mon-xao-ngon-nhat-the-gioi-20240729181929525.htm",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "kingfood-ramuongbo": {
+   "name": "Kingfoodmart - Rau muống xào thịt bò",
+   "url": "https://kingfoodmart.com/bai-viet/cong-thuc-rau-muong-xao-thit-bo-dam-da-dua-com",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "websosanh-ramuong": {
+   "name": "Websosanh - 34 món ăn từ rau muống",
+   "url": "https://websosanh.vn/tin-tuc/34-mon-an-tu-rau-muong-tron-xao-nau-canh-deu-ngon-hon-nha-hang-c36-20200701033255892.htm",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "nongsan-rauLang": {
+   "name": "Nông sản Dũng Hà - Cách luộc rau khoai lang",
+   "url": "https://nongsandungha.com/bi-quyet-vang-cach-luoc-rau-khoai-lang-khong-bi-den/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-luoc-ramuong": {
+   "name": "VnExpress Cooking - Luộc rau muống kiểu Hà Nội",
+   "url": "https://vnexpress.net/doi-song-cooking-cach-luoc-rau-muong-kieu-ha-noi-theo-loi-xua-4752379.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "laodongthudo-luocramuong": {
+   "name": "Lao động Thủ đô - Cách luộc rau muống giòn ngon",
+   "url": "https://laodongthudo.vn/cach-luoc-rau-muong-gion-ngon-khong-bi-tham-92453.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tiki-luocrau": {
+   "name": "Tiki - Cách luộc rau ngon, xanh giòn",
+   "url": "https://tiki.vn/blog/cach-luoc-rau/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "lemon8-luoccaingot": {
+   "name": "Lemon8 - Luộc rau cải ngọt xanh tươi",
+   "url": "https://www.lemon8-app.com/@gon0phaicuaai/7349380813986759169?region=vn",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "sohuutritue-nom": {
+   "name": "Sở hữu trí tuệ - Cách làm 5 món nộm rau củ",
+   "url": "https://sohuutritue.net.vn/cach-lam-5-mon-nom-rau-cu-ngon-xuat-sac-cho-bua-com-gia-dinh-d37815.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-nom": {
+   "name": "Pasgo - Cách làm 14 món nộm ngon",
+   "url": "https://pasgo.vn/blog/cach-lam-14-mon-nom-ngon-de-lam-an-mai-khong-ngan-3272",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "btaskee-nom": {
+   "name": "bTaskee - 19 cách làm các món nộm",
+   "url": "https://www.btaskee.com/kinh-nghiem-hay/cac-mon-nom-ngon/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-caphao": {
+   "name": "Điện máy xanh - Cà pháo muối xổi",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-lam-ca-phao-muoi-xoi-an-lien-chua-cay-gion-ngon-don-gian-13205",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "beptruong-caphao": {
+   "name": "Bếp trưởng - Cà pháo muối xổi chua ngọt chuẩn vị Bắc",
+   "url": "https://beptruong.edu.vn/cach-lam-ca-muoi-xoi",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-duamuoi": {
+   "name": "Pasgo - 15 cách làm dưa muối",
+   "url": "https://pasgo.vn/blog/tong-hop-15-cach-lam-dua-muoi-gion-ngon-cuc-hap-dan-3511",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "blog-cookpad-muoidua": {
+   "name": "Cookpad blog - Cách muối dưa giòn ngon",
+   "url": "https://blog.cookpad.com/vn/cach-muoi-dua-gion-ngon/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-kimchi": {
+   "name": "FPT Shop - 3 cách muối kim chi cải thảo",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/3-cach-muoi-kim-chi-cai-thao-chuan-vi-han-quoc-169743",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "genk-kimchi-duachuot": {
+   "name": "GenK - Kim chi dưa chuột",
+   "url": "https://genk.vn/cong-thuc-lam-kim-chi-dua-chuot-muoi-chuan-vi-han-20180730220500066.chn",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-bunthang": {
+   "name": "VnExpress Cooking - Cách làm bún thang kiểu Hà Nội cổ",
+   "url": "https://vnexpress.net/doi-song-cooking-bun-thang-4566080.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-bunthang": {
+   "name": "Điện máy xanh - 2 cách nấu bún thang chuẩn vị Hà Nội",
+   "url": "https://www.dienmayxanh.com/vao-bep/huong-dan-cach-nau-bun-thang-ngon-chuan-vi-ha-noi-01298",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tuoitre-bunthang": {
+   "name": "Tuổi Trẻ - Bếp bà Hòa chỉ cách nấu bún thang chuẩn Hà Nội",
+   "url": "https://tuoitre.vn/bep-ba-hoa-chi-cach-nau-bun-thang-chuan-ha-noi-chinh-thuc-het-tet-20250217212744693.htm",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-bunrieu": {
+   "name": "FPT Shop - Cách nấu bún riêu cua Hà Nội",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/cach-nau-bun-rieu-cua-ha-noi-159240",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mmvn-bunrieu": {
+   "name": "MM Mega Market - Cách nấu bún riêu cua",
+   "url": "https://online.mmvietnam.com/blog/cach-nau-bun-rieu-cua",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "mnmn-bunrieu": {
+   "name": "Món Ngon Mỗi Ngày - Bún riêu cua",
+   "url": "https://monngonmoingay.com/bun-rieu-cua/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fpt-bunoc": {
+   "name": "FPT Shop - Cách nấu bún ốc",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/cach-nau-bun-oc-thom-ngon-hap-dan-175272",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "elmich-bunoc": {
+   "name": "Elmich - Công thức nấu bún ốc",
+   "url": "https://shop.elmich.vn/bun-oc",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-bunoc": {
+   "name": "VietNamNet - Cách nấu bún ốc Hà Nội",
+   "url": "https://vietnamnet.vn/cach-nau-bun-oc-ha-noi-chuan-vi-2028976.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-buncha": {
+   "name": "VnExpress - Cách làm bún chả Hà Nội",
+   "url": "https://vnexpress.net/cach-lam-bun-cha-chuan-vi-ha-noi-4218318.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-pho": {
+   "name": "Điện máy xanh - Cách nấu phở bò Hà Nội",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-nau-pho-bo-ha-noi-chuan-vi-nuoc-dung-ngot-thanh-don-gian-22475",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-pho": {
+   "name": "VnExpress Cooking - Cách nấu phở bò truyền thống",
+   "url": "https://vnexpress.net/doi-song-cooking-cach-nau-pho-bo-truyen-thong-chuan-vi-ha-noi-4965047.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "elmich-pho": {
+   "name": "Elmich - 2 cách nấu phở bò",
+   "url": "https://shop.elmich.vn/pho-bo",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-chehatsen": {
+   "name": "VietNamNet - Chè hạt sen đậu xanh",
+   "url": "https://vietnamnet.vn/cach-nau-che-hat-sen-dau-xanh-thom-mat-va-bo-duong-2144083.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-chedauxanh-hatsen": {
+   "name": "Điện máy xanh - Chè đậu xanh hạt sen",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-nau-che-dau-xanh-hat-sen-thom-mat-bui-ngot-cho-ca-gia-08341",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cet-chebido": {
+   "name": "CET - Cách nấu chè bí đỏ",
+   "url": "https://www.cet.edu.vn/cach-nau-che-bi-do",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-chebido": {
+   "name": "VietNamNet - 3 cách nấu chè bí đỏ",
+   "url": "https://vietnamnet.vn/3-cach-nau-che-bi-do-thom-ngon-bo-duong-giai-nhiet-ngay-he-755722.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cachnauche-chebido": {
+   "name": "Cách nấu chè - chè bí đỏ đậu xanh",
+   "url": "https://cachnauche.com/cach-nau-che-bi-do-dau-xanh-ngon/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-che": {
+   "name": "Pasgo - Tất tần tật các món chè",
+   "url": "https://pasgo.vn/blog/tat-tan-tat-cac-mon-che-ngon-duoc-yeu-thich-nhat-kem-cach-lam-3207",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "eva-xoi-dauxanh": {
+   "name": "Eva - Cách nấu xôi đậu xanh bằng nồi cơm điện, bếp ga",
+   "url": "https://eva.vn/bep-eva/cach-nau-xoi-dau-xanh-bang-noi-com-dien-bep-ga-deo-thom-khong-lo-nhao-c162a515451.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vtv-xoigac": {
+   "name": "VTV - Cách nấu xôi gấc đỗ xanh",
+   "url": "https://vtv.vn/doi-song/cach-nau-xoi-gac-do-xanh-vua-ngon-vua-dep-mat-20240412103610609.htm",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-xoigac": {
+   "name": "VnExpress Cooking - Cách nấu xôi gấc",
+   "url": "https://vnexpress.net/doi-song-cooking-xoi-gac-4686519.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "chefstudio-xoigac": {
+   "name": "Chef Studio - 3 cách nấu xôi gấc",
+   "url": "https://chefstudio.vn/cach-nau-xoi-gac-ngon.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "xoi-tonghop": {
+   "name": "Tổng hợp cách nấu 33 món xôi (Vietfoodshop)",
+   "url": "https://vietfoodshop.com/tong-hop-cach-nau-33-mon-xoi-dac-biet-mem-deo-thom-ngon/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-chaosuon": {
+   "name": "VnExpress Cooking - Cháo sườn Hà Nội",
+   "url": "https://vnexpress.net/doi-song-cooking-chao-suon-ha-noi-4816507.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hnaau-chaosuon": {
+   "name": "Hướng nghiệp Á Âu - Cách nấu cháo sườn",
+   "url": "https://www.huongnghiepaau.com/cach-nau-chao-suon",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-cathusot": {
+   "name": "VnExpress Cooking - Cá thu sốt cà chua",
+   "url": "https://vnexpress.net/doi-song-cooking-ca-thu-sot-ca-chua-4555370.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-cathusot": {
+   "name": "VietNamNet - 3 cách làm cá thu sốt cà chua",
+   "url": "https://vietnamnet.vn/3-cach-lam-ca-thu-sot-ca-chua-ngon-dam-da-tai-nha-2215085.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "infonet-mienga": {
+   "name": "Infonet - Cách nấu miến gà nấm hương",
+   "url": "https://infonet.vietnamnet.vn/cach-nau-mien-ga-nam-huong-thom-ngon-ngay-tet-120228.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dienmayhtech-mienga": {
+   "name": "Dienmayhtech - Cách nấu miến gà nấm hương mộc nhĩ",
+   "url": "https://dienmayhtech.com/tin-tuc/bep/cach-nau-mien-ga-don-gian-tai-nha-voi-voi-nam-huong-moc-nhi-chi-1h15p",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookpad-mienga": {
+   "name": "Cookpad - Miến gà nấm hương (Lan Vy)",
+   "url": "https://cookpad.com/vn/cong-thuc/24368203",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-canhngao": {
+   "name": "Điện máy xanh - Canh ngao nấu chua",
+   "url": "https://www.dienmayxanh.com/vao-bep/3-cach-lam-mon-canh-ngao-ngheu-nau-chua-ngon-mieng-dua-com-01495",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "eva-canhngao": {
+   "name": "Eva - Canh ngao rau muống nấu chua",
+   "url": "https://eva.vn/bep-eva/canh-ngao-rau-muong-nau-chua-c162a138270.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-galuoc": {
+   "name": "Điện máy xanh - Cách làm gà luộc lá chanh",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-lam-ga-luoc-la-chanh-thom-ngon-da-vang-gion-khong-bi-nut-24337",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cooponline-galuoc": {
+   "name": "Co.opOnline - Gà luộc lá chanh",
+   "url": "https://cooponline.vn/cong-thuc-nau-an/ga-luoc-la-chanh-mon-an-truyen-thong-thom-ngon-chuan-vi-viet/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-bunmoc": {
+   "name": "VnExpress Cooking - Cách nấu bún mọc",
+   "url": "https://vnexpress.net/doi-song-cooking-bun-moc-4215257.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tiki-bunmoc": {
+   "name": "Tiki - 4 cách nấu bún mọc",
+   "url": "https://tiki.vn/blog/bun-moc/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "hnaau-canhbido": {
+   "name": "Hướng nghiệp Á Âu - Canh bí đỏ thịt bằm",
+   "url": "https://www.huongnghiepaau.com/canh-bi-do-thit-bam",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookbeo-canhbido": {
+   "name": "Cookbeo - Canh bí đỏ thịt bằm",
+   "url": "https://cookbeo.com/recipes/canh-bi-do-thit-bam",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cet-canhbido": {
+   "name": "CET - Canh bí đỏ hầm xương, thịt bằm, tôm khô",
+   "url": "https://www.cet.edu.vn/cach-nau-canh-bi-do-ham-xuong",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "kingfood-canhkhoaitay": {
+   "name": "Kingfoodmart - Canh cà rốt khoai tây thịt bằm",
+   "url": "https://kingfoodmart.com/bai-viet/cong-thuc-nau-an/canh-ca-rot-khoai-tay-thit-bam",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "bluestone-canhkhoaitay": {
+   "name": "Bluestone - Canh khoai tây cà rốt thịt băm",
+   "url": "https://www.bluestone.com.vn/blogs/vao-bep/cach-nau-canh-khoai-tay-ca-rot-thit-bam",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tapchimonngon-canhsuonsuhao": {
+   "name": "Tạp chí món ngon - Canh sườn nấu su hào, cà rốt",
+   "url": "http://tapchimonngon.com/mon-ngon/ngay-thuong/1428-canh-suon-nau-su-hao-ca-rot.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "afamily-canhraucusuon": {
+   "name": "Afamily - Canh rau củ nấu sườn",
+   "url": "https://afamily.vn/canh-rau-cu-nau-suon-bo-duong-20101125090832162.chn",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-nemran": {
+   "name": "VietNamNet - Cách làm nem rán truyền thống Hà Nội",
+   "url": "https://vietnamnet.vn/bi-quyet-lam-nem-chuan-vi-ha-noi-cong-thuc-duoc-hang-nghin-nguoi-tan-dong-704296.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vinid-nemran": {
+   "name": "VinID - Làm nem rán Hà Nội ngon",
+   "url": "https://vinid.net/blog/lam-nem-ran-ha-noi-ngon-mon-an-co-truyen-cua-nguoi-ha-thanh/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-dauphunhoi": {
+   "name": "VnExpress Cooking - Đậu phụ nhồi thịt sốt cà chua",
+   "url": "https://vnexpress.net/doi-song-cooking-dau-phu-nhoi-thit-sot-ca-chua-4503398.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-dauphunhoi": {
+   "name": "FPT Shop - Đậu phụ nhồi thịt sốt cà chua",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/dau-phu-nhoi-thit-sot-ca-chua-173425",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "pasgo-tomhapsa": {
+   "name": "Pasgo - Tôm hấp bia sả",
+   "url": "https://pasgo.vn/blog/bat-mi-cach-lam-tom-hap-bia-sa-cuc-ngon-ma-rat-don-gian-4519",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-tomhap": {
+   "name": "Điện máy xanh - 3 cách chế biến món tôm hấp",
+   "url": "https://www.dienmayxanh.com/vao-bep/3-cach-che-bien-mon-tom-hap-ngon-don-gian-nhanh-chong-01741",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "afamily-tomhapsa": {
+   "name": "Afamily - Công thức làm tôm hấp sả",
+   "url": "https://afamily.vn/bat-mi-cong-thuc-lam-mon-tom-hap-sa-thom-nuc-mui-thit-ngon-ngot-20240229213021327.chn",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-tomrang": {
+   "name": "VnExpress Cooking - Tôm rang thịt ba chỉ",
+   "url": "https://vnexpress.net/doi-song-cooking-tom-rang-thit-mon-an-quoc-dan-ngay-nong-4455371.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-tomrang": {
+   "name": "Điện máy xanh - Tôm rang thịt ba chỉ",
+   "url": "https://www.dienmayxanh.com/vao-bep/3-cong-thuc-cho-mon-tom-rang-thit-la-ma-quen-dam-da-hao-com--01449",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "eva-tomrim": {
+   "name": "Eva - Tôm rim thịt",
+   "url": "https://eva.vn/bep-eva/tom-rim-thit-ngon-dam-da-cho-bua-com-gia-dinh-c162a399784.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-muchapgung": {
+   "name": "Điện máy xanh - Mực trứng hấp gừng",
+   "url": "https://www.dienmayxanh.com/vao-bep/huong-dan-cach-lam-mon-muc-hap-gung-thom-ngon-01423",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "gofood-muchapgung": {
+   "name": "Gofood - Cách làm mực hấp gừng",
+   "url": "https://gofood.vn/tin-tuc/cach-lam-muc-hap-gung.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "haisanloccantho-mucxaocantay": {
+   "name": "Hải sản Lộc Cần Thơ - Mực xào cần tây",
+   "url": "https://haisanloccantho.com/muc-xao-can-tay-mon-ngon-de-lam/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "phunuvagiadinh-mucxaocantay": {
+   "name": "Phụ nữ & Gia đình - Mực xào cần tây",
+   "url": "https://www.phunuvagiadinh.vn/vao-bep-346/huong-dan-cach-lam-muc-xao-can-tay-ngon-tuyet-dinh-cuc-chuan-vi-394302",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vne-ngaohapsa": {
+   "name": "VnExpress - Nghêu (ngao) hấp sả",
+   "url": "https://vnexpress.net/ngheu-ngao-hap-sa-thom-ngon-cho-ngay-cuoi-tuan-3555157.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "eva-ngaohapsagung": {
+   "name": "Eva - Ngao hấp sả gừng",
+   "url": "https://eva.vn/bep-eva/ngao-hap-sa-gung-cho-chi-em-nham-nhi-c162a230989.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "ivivu-vitluoc": {
+   "name": "iVIVU - Vịt luộc chấm mắm gừng",
+   "url": "https://www.ivivu.com/blog/2021/05/bi-quyet-lam-vit-luoc-cham-mam-gung-ngon-mien-ban/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "afamily-vitluoc": {
+   "name": "Afamily - Cách luộc vịt ngon, mềm, không hôi",
+   "url": "https://afamily.vn/cach-luoc-vit-ngon-thit-mem-ngot-khong-hoi-20250603105743078.chn",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "elmich-bohamkhoaitay": {
+   "name": "Elmich - Cách nấu bò hầm khoai tây",
+   "url": "https://shop.elmich.vn/bo-ham-khoai-tay",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "bluestone-bapbohamkhoaitay": {
+   "name": "Bluestone - Bắp bò hầm khoai tây",
+   "url": "https://www.bluestone.com.vn/blogs/vao-bep/bap-bo-ham-khoai-tay",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "cookpad-bokho": {
+   "name": "Cookpad - Bò kho khoai tây cà rốt (Doan Phuong)",
+   "url": "https://cookpad.com/vn/cong-thuc/14691880",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dmx-cahap": {
+   "name": "Điện máy xanh - Cá hấp với hành và gừng tươi",
+   "url": "https://www.dienmayxanh.com/vao-bep/cach-lam-mon-ca-hap-voi-hanh-va-gung-tuoi-an-lay-hen-dau-nam-00458",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "ivivu-canuchap": {
+   "name": "iVIVU - Cá nục hấp hành gừng",
+   "url": "https://www.ivivu.com/blog/2020/10/bi-quyet-lam-mon-ca-nuc-hap-hanh-gung-thom-ngon-khong-bi-tanh/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "eva-cahapgunghanh": {
+   "name": "Eva - Cá hấp gừng hành",
+   "url": "https://eva.vn/bep-eva/ca-hap-gung-hanh-nong-hoi-nhin-them-chay-nuoc-mieng-c162a295095.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "vietnamnet-thitkhotieu": {
+   "name": "VietNamNet - Cách làm thịt kho tiêu",
+   "url": "https://vietnamnet.vn/cach-lam-thit-kho-tieu-ngon-va-dam-da-cho-bua-com-gia-dinh-2074516.html",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "fptshop-thitkhotieu": {
+   "name": "FPT Shop - Thịt kho tiêu",
+   "url": "https://fptshop.com.vn/tin-tuc/dien-may/thit-kho-tieu-162725",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "tiki-thitkhotieu": {
+   "name": "Tiki - Thịt kho tiêu",
+   "url": "https://tiki.vn/blog/thit-kho-tieu/",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  },
+  "dienmaynewsun-thitvien": {
+   "name": "Điện máy Newsun - Thịt viên sốt cà chua",
+   "url": "https://dienmaynewsun.com/thit-vien-sot-ca-chua",
+   "kind": "recipe",
+   "access": "search",
+   "accessed": "2026-10-04"
+  }
+ }
+}

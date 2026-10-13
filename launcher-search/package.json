@@ -1,0 +1,1 @@
+{ "name": "9app-launcher-search", "private": true, "type": "commonjs", "scripts": { "test": "node --test tests/", "build:index": "node tools/build-search-index.mjs", "e2e": "node tests/e2e.mjs" } }

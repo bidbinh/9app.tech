@@ -1,0 +1,85 @@
+[
+ {
+  "name": "Trang chủ luyện phỏng vấn",
+  "keywords": [
+   "luyện phỏng vấn",
+   "phỏng vấn xin việc",
+   "chuẩn bị phỏng vấn"
+  ],
+  "path": "",
+  "blurb": "Luyện phỏng vấn, làm CV và thư xin việc."
+ },
+ {
+  "name": "Ngân hàng câu hỏi phỏng vấn",
+  "keywords": [
+   "câu hỏi phỏng vấn",
+   "ngân hàng câu hỏi",
+   "câu hỏi thường gặp",
+   "trả lời phỏng vấn",
+   "câu trả lời mẫu"
+  ],
+  "path": "#/hoi",
+  "blurb": "Câu hỏi thường gặp, ý đồ nhà tuyển dụng và ví dụ trả lời."
+ },
+ {
+  "name": "Luyện nói phỏng vấn",
+  "keywords": [
+   "luyện nói",
+   "luyện trả lời",
+   "mô phỏng phỏng vấn",
+   "ghi âm trả lời",
+   "ai chấm"
+  ],
+  "path": "#/luyen",
+  "blurb": "Luyện trả lời từng câu, có thể nhờ AI nhận xét."
+ },
+ {
+  "name": "Tạo CV",
+  "keywords": [
+   "tạo cv",
+   "làm cv",
+   "viết cv",
+   "mẫu cv",
+   "sơ yếu lý lịch",
+   "xuất pdf cv",
+   "resume"
+  ],
+  "path": "#/cv",
+  "blurb": "Điền thông tin, chọn mẫu và in hoặc lưu PDF."
+ },
+ {
+  "name": "Thư xin việc",
+  "keywords": [
+   "thư xin việc",
+   "cover letter",
+   "viết thư xin việc",
+   "đơn xin việc"
+  ],
+  "path": "#/cv/thu",
+  "blurb": "Soạn thư xin việc theo mẫu."
+ },
+ {
+  "name": "Chuẩn bị phỏng vấn",
+  "keywords": [
+   "chuẩn bị phỏng vấn",
+   "checklist phỏng vấn",
+   "đàm phán lương",
+   "hỏi lại nhà tuyển dụng",
+   "cách dùng star",
+   "câu hỏi nhạy cảm"
+  ],
+  "path": "#/chuanbi",
+  "blurb": "Checklist, câu hỏi nên hỏi lại, đàm phán lương, phương pháp STAR."
+ },
+ {
+  "name": "Dữ liệu và quyền riêng tư",
+  "keywords": [
+   "quyền riêng tư",
+   "xóa dữ liệu",
+   "sao lưu",
+   "cài đặt phỏng vấn"
+  ],
+  "path": "#/caidat",
+  "blurb": "Dữ liệu lưu trên máy bạn, sao lưu và xóa."
+ }
+]

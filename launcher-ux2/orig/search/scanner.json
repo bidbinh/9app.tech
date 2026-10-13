@@ -1,0 +1,64 @@
+[
+ {
+  "name": "Quét tài liệu bằng camera",
+  "keywords": [
+   "quét tài liệu",
+   "scan",
+   "chụp tài liệu",
+   "scanner",
+   "camera",
+   "chụp giấy tờ"
+  ],
+  "path": "",
+  "blurb": "Chụp giấy tờ, tự cắt góc và làm nét. Mở app rồi bấm Chụp."
+ },
+ {
+  "name": "Xuất PDF",
+  "keywords": [
+   "xuất pdf",
+   "lưu pdf",
+   "tạo pdf",
+   "ảnh sang pdf",
+   "gộp pdf",
+   "chia sẻ pdf"
+  ],
+  "path": "",
+  "blurb": "Gộp nhiều trang thành một tệp PDF. Mở một tài liệu rồi bấm Xuất."
+ },
+ {
+  "name": "Đọc chữ trên ảnh (OCR)",
+  "keywords": [
+   "ocr",
+   "đọc chữ",
+   "nhận dạng chữ",
+   "trích chữ từ ảnh",
+   "chữ tiếng việt"
+  ],
+  "path": "",
+  "blurb": "Đọc chữ tiếng Việt từ ảnh chụp. Mở tài liệu rồi bấm Đọc chữ (OCR)."
+ },
+ {
+  "name": "Chữ ký của tôi",
+  "keywords": [
+   "chữ ký",
+   "ký tên",
+   "ký tài liệu",
+   "chèn chữ ký"
+  ],
+  "path": "",
+  "blurb": "Lưu chữ ký và chèn vào tài liệu. Bấm biểu tượng bút ở màn hình chính."
+ },
+ {
+  "name": "Ảnh thẻ, giấy tờ",
+  "keywords": [
+   "ảnh thẻ",
+   "ảnh căn cước",
+   "căn cước",
+   "cccd",
+   "chụp hai mặt",
+   "giấy tờ tùy thân"
+  ],
+  "path": "",
+  "blurb": "Chụp ảnh thẻ, căn cước hai mặt trên một trang. Bấm biểu tượng thẻ."
+ }
+]

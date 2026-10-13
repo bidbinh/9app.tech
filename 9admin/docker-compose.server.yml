@@ -1,0 +1,20 @@
+# Triển khai 9app Console lên máy chủ dùng chung. Dùng lại PostgreSQL của 9Ship (container 9ship-db) với CSDL "console" và vai trò riêng.
+# Chuẩn bị một lần (xem README): tạo vai trò + CSDL, rồi:
+#   cp .env.example .env && docker compose -f docker-compose.server.yml up -d --build
+name: 9admin
+services:
+  admin:
+    build: .
+    image: 9admin:latest
+    container_name: 9admin
+    restart: unless-stopped
+    env_file: .env
+    mem_limit: 160m
+    networks: [shipdb, tms]
+networks:
+  shipdb:
+    external: true
+    name: 9ship_internal
+  tms:
+    external: true
+    name: ops_tms-network

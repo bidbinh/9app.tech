@@ -1,0 +1,15 @@
+{
+  "name": "9tutor",
+  "short_name": "9tutor",
+  "description": "Sổ dạy kèm cho gia sư: học sinh, lịch dạy, điểm danh, học phí QR và báo cáo cho phụ huynh.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f6ff",
+  "theme_color": "#6d28d9",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

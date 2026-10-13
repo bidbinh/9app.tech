@@ -1,0 +1,6 @@
+{
+  "name": "9english",
+  "private": true,
+  "type": "commonjs",
+  "scripts": { "test": "node --test tests/", "e2e": "node scripts/e2e.js" }
+}

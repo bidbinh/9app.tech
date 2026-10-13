@@ -1,0 +1,342 @@
+[
+  {
+    "name": "9gift: Sắp tới 30 ngày",
+    "keywords": [
+      "sắp tới",
+      "sap toi",
+      "nhắc ngày",
+      "nhac ngay",
+      "nhắc sinh nhật",
+      "nhac sinh nhat",
+      "ngày quan trọng",
+      "ngay quan trong",
+      "việc cần làm",
+      "viec can lam",
+      "nhắc quà",
+      "nhac qua",
+      "9gift",
+      "sổ lễ",
+      "so le"
+    ],
+    "path": "#/",
+    "blurb": "Việc cần chuẩn bị và các dịp trong 30 ngày tới: sinh nhật, ngày giỗ, kỷ niệm, lễ Tết."
+  },
+  {
+    "name": "9gift: Sổ lễ",
+    "keywords": [
+      "sổ lễ",
+      "so le",
+      "sổ mừng",
+      "so mung",
+      "mừng cưới",
+      "mung cuoi",
+      "phong bì",
+      "phong bi",
+      "phong bì cưới",
+      "phong bi cuoi",
+      "hiếu hỉ",
+      "hieu hi",
+      "sổ mừng cưới",
+      "so mung cuoi",
+      "xuất csv sổ lễ",
+      "xuat csv so le",
+      "in sổ lễ",
+      "in so le"
+    ],
+    "path": "#/le",
+    "blurb": "Sổ ghi phong bì mừng cưới, hiếu hỉ đã đi và đã nhận, lọc theo năm, xuất CSV, in."
+  },
+  {
+    "name": "9gift: Ghi khoản lễ",
+    "keywords": [
+      "ghi khoản lễ",
+      "ghi khoan le",
+      "ghi phong bì",
+      "ghi phong bi",
+      "phúng viếng",
+      "phung vieng",
+      "tân gia",
+      "tan gia",
+      "đầy tháng",
+      "day thang",
+      "thôi nôi",
+      "thoi noi",
+      "ghi bằng giọng nói",
+      "ghi bang giong noi",
+      "nói để ghi",
+      "noi de ghi",
+      "thêm khoản mừng",
+      "them khoan mung"
+    ],
+    "path": "#/le/moi",
+    "blurb": "Ghi nhanh một khoản mừng hoặc phúng viếng bằng một câu nói hoặc biểu mẫu."
+  },
+  {
+    "name": "9gift: Nợ lễ",
+    "keywords": [
+      "nợ lễ",
+      "no le",
+      "đáp lễ",
+      "dap le",
+      "chưa đáp lễ",
+      "chua dap le",
+      "trả lễ",
+      "tra le",
+      "có đi có lại",
+      "co di co lai",
+      "ai mừng mình",
+      "ai mung minh",
+      "mức mừng",
+      "muc mung",
+      "mừng bao nhiêu",
+      "mung bao nhieu"
+    ],
+    "path": "#/le/no",
+    "blurb": "Ai đã mừng mình mà chưa đáp lễ, ai mình đã mừng mà chưa nhận lại, gợi ý mức đáp lễ tham khảo."
+  },
+  {
+    "name": "9gift: Thống kê sổ lễ",
+    "keywords": [
+      "thống kê",
+      "thong ke",
+      "tổng chi mừng",
+      "tong chi mung",
+      "chi mừng cưới theo năm",
+      "chi mung cuoi theo nam",
+      "biểu đồ phong bì",
+      "bieu do phong bi",
+      "đã chi đã nhận",
+      "da chi da nhan"
+    ],
+    "path": "#/le/thong-ke",
+    "blurb": "Tổng chi mừng theo năm và theo loại sự kiện, biểu đồ."
+  },
+  {
+    "name": "9gift: Danh bạ người thân",
+    "keywords": [
+      "danh bạ",
+      "danh ba",
+      "người thân",
+      "nguoi than",
+      "bạn bè",
+      "ban be",
+      "đồng nghiệp",
+      "dong nghiep",
+      "họ nội",
+      "ho noi",
+      "họ ngoại",
+      "ho ngoai",
+      "ngày sinh",
+      "ngay sinh",
+      "dị ứng",
+      "di ung",
+      "sở thích",
+      "so thich"
+    ],
+    "path": "#/ban",
+    "blurb": "Danh bạ người thân, bạn bè, đồng nghiệp với ngày sinh dương hoặc âm, sở thích, dị ứng."
+  },
+  {
+    "name": "9gift: Thêm người vào danh bạ",
+    "keywords": [
+      "thêm người",
+      "them nguoi",
+      "thêm người thân",
+      "them nguoi than",
+      "sinh nhật âm lịch",
+      "sinh nhat am lich",
+      "ngày sinh âm",
+      "ngay sinh am",
+      "thêm bạn",
+      "them ban"
+    ],
+    "path": "#/ban/moi",
+    "blurb": "Thêm người thân với ngày sinh dương lịch hoặc âm lịch để được nhắc sinh nhật."
+  },
+  {
+    "name": "9gift: Gợi ý quà",
+    "keywords": [
+      "gợi ý quà",
+      "goi y qua",
+      "tặng quà gì",
+      "tang qua gi",
+      "quà sinh nhật",
+      "qua sinh nhat",
+      "quà tân gia",
+      "qua tan gia",
+      "quà 8/3",
+      "qua 8/3",
+      "quà 20/10",
+      "qua 20/10",
+      "quà 20/11",
+      "qua 20/11",
+      "quà tết",
+      "qua tet",
+      "quà trung thu",
+      "qua trung thu",
+      "quà tặng",
+      "qua tang",
+      "mua gì tặng",
+      "mua gi tang"
+    ],
+    "path": "#/qua",
+    "blurb": "Gợi ý quà theo người nhận, dịp và ngân sách, kèm mẹo nhỏ. Không liên kết bán hàng."
+  },
+  {
+    "name": "9gift: Lời chúc",
+    "keywords": [
+      "lời chúc",
+      "loi chuc",
+      "chúc sinh nhật",
+      "chuc sinh nhat",
+      "chúc mừng đám cưới",
+      "chuc mung dam cuoi",
+      "chúc tết",
+      "chuc tet",
+      "chúc mừng năm mới",
+      "chuc mung nam moi",
+      "lời chia buồn",
+      "loi chia buon",
+      "phân ưu",
+      "phan uu",
+      "chúc 8/3",
+      "chuc 8/3",
+      "chúc 20/11",
+      "chuc 20/11",
+      "chúc tân gia",
+      "chuc tan gia",
+      "chúc khai trương",
+      "chuc khai truong",
+      "chúc thăng chức",
+      "chuc thang chuc"
+    ],
+    "path": "#/qua/chuc",
+    "blurb": "Lời chúc mẫu theo dịp và giọng văn: trang trọng, thân mật, hài hước nhẹ; lời chia buồn đúng chuẩn."
+  },
+  {
+    "name": "9gift: Quà của tôi",
+    "keywords": [
+      "quà của tôi",
+      "qua cua toi",
+      "ý tưởng quà",
+      "y tuong qua",
+      "quà đã tặng",
+      "qua da tang",
+      "tránh tặng trùng",
+      "tranh tang trung",
+      "danh sách quà",
+      "danh sach qua"
+    ],
+    "path": "#/qua/cua-toi",
+    "blurb": "Ý tưởng quà muốn tặng và quà đã tặng cho từng người, tránh tặng trùng."
+  },
+  {
+    "name": "9gift: Ngày quan trọng",
+    "keywords": [
+      "ngày giỗ",
+      "ngay gio",
+      "giỗ",
+      "gio",
+      "kỷ niệm ngày cưới",
+      "ky niem ngay cuoi",
+      "ngày cưới",
+      "ngay cuoi",
+      "nhắc giỗ",
+      "nhac gio",
+      "giỗ âm lịch",
+      "gio am lich",
+      "kỷ niệm",
+      "ky niem"
+    ],
+    "path": "#/them/ngay",
+    "blurb": "Ngày giỗ, ngày cưới, kỷ niệm theo dương hoặc âm lịch, nhắc lại mỗi năm."
+  },
+  {
+    "name": "9gift: Dịp lễ cần nhắc",
+    "keywords": [
+      "dịp lễ",
+      "dip le",
+      "8/3",
+      "20/10",
+      "20/11",
+      "trung thu",
+      "vu lan",
+      "ngày của mẹ",
+      "ngay cua me",
+      "ngày của cha",
+      "ngay cua cha",
+      "valentine"
+    ],
+    "path": "#/them/dip",
+    "blurb": "Bật nhắc 8/3, 20/10, 20/11, Tết, Trung thu, Vu Lan, Ngày của Mẹ, Ngày của Cha."
+  },
+  {
+    "name": "9gift: Nhắc qua lịch điện thoại",
+    "keywords": [
+      "ics",
+      "nhắc qua lịch",
+      "nhac qua lich",
+      "thêm vào google calendar",
+      "them vao google calendar",
+      "lịch điện thoại",
+      "lich dien thoai",
+      "báo thức sinh nhật",
+      "bao thuc sinh nhat",
+      "xuất lịch",
+      "xuat lich"
+    ],
+    "path": "#/them/nhac",
+    "blurb": "Tải tệp .ics có lời nhắc để điện thoại báo đúng ngày sinh nhật, ngày giỗ."
+  },
+  {
+    "name": "9gift: Dữ liệu của tôi",
+    "keywords": [
+      "dữ liệu của tôi",
+      "du lieu cua toi",
+      "sao lưu",
+      "sao luu",
+      "nhập sao lưu",
+      "nhap sao luu",
+      "xóa dữ liệu",
+      "xoa du lieu",
+      "xuất dữ liệu",
+      "xuat du lieu",
+      "riêng tư",
+      "rieng tu",
+      "quyền riêng tư",
+      "quyen rieng tu"
+    ],
+    "path": "#/them/du-lieu",
+    "blurb": "Sao lưu, nhập lại, xuất CSV và xóa sạch dữ liệu. Dữ liệu chỉ nằm trên máy."
+  },
+  {
+    "name": "9gift: Giao diện, chữ lớn",
+    "keywords": [
+      "chữ lớn",
+      "chu lon",
+      "chế độ tối",
+      "che do toi",
+      "giao diện",
+      "giao dien",
+      "ẩn số tiền",
+      "an so tien"
+    ],
+    "path": "#/them/giao-dien",
+    "blurb": "Chữ lớn dễ đọc, chế độ sáng tối, ẩn số tiền."
+  },
+  {
+    "name": "9gift: Về 9gift",
+    "keywords": [
+      "giới thiệu",
+      "gioi thieu",
+      "về 9gift",
+      "ve 9gift",
+      "nguồn nội dung",
+      "nguon noi dung",
+      "lưu ý",
+      "luu y"
+    ],
+    "path": "#/them/gioi-thieu",
+    "blurb": "Riêng tư, cách nhắc ngày âm, nguồn nội dung và lưu ý."
+  }
+]

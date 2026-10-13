@@ -1,0 +1,9 @@
+Thư viện bên thứ ba (vendor hóa, không nạp từ CDN):
+- tesseract.js 7.0.0 (Apache-2.0)        : tesseract.min.js, worker.min.js
+- tesseract.js-core 7.0.0 (Apache-2.0)    : tesseract-core-lstm.wasm.js, tesseract-core-simd-lstm.wasm.js
+- @tesseract.js-data/vie 4.0.0_best_int   : vie.traineddata.gz (Apache-2.0, dữ liệu tiếng Việt của Tesseract)
+Lấy từ npm (registry.npmjs.org). Chỉ lấy biến thể LSTM (đủ cho tiếng Việt), bản SIMD và bản thường để chạy được trên máy cũ.
+
+Một chỉnh sửa duy nhất: trong worker.min.js thêm tùy chọn  printErr:function(){}  vào lời gọi khởi tạo TesseractCore
+để lõi không in cảnh báo "Parameter not found: language_model_ngram_on ..." ra console của trình duyệt (vô hại, do nạp mô hình LSTM-only).
+Khi nâng cấp thư viện, áp dụng lại chỉnh sửa này (tìm chuỗi  TesseractProgress:function(t){ ).

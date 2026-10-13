@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f4f7fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
+<meta name="description" content="9fit - Tập bổ trợ cho cầu lông, pickleball, bóng đá, chạy bộ và nhật ký buổi tập. Chạy ngoại tuyến, dữ liệu chỉ nằm trên máy bạn.">
+<title>Tập luyện - 9fit</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="9fit">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a id="ve-9app" class="pill9" href="https://9app.tech/" aria-label="Về 9app"><span aria-hidden="true">‹</span> 9app</a>
+    <a class="brand" href="#/" aria-label="9fit, về màn Hôm nay"><span class="brand-9">9</span><span class="brand-n">fit</span></a>
+    <div id="tieu-de" class="page-title" aria-live="polite">Hôm nay</div>
+  </div>
+</header>
+<main id="view" class="view" tabindex="-1"></main>
+<footer class="foot">9fit không phải tư vấn y tế. Dữ liệu của bạn chỉ nằm trên máy này.</footer>
+<nav class="tabbar" aria-label="Điều hướng chính"><div class="tabbar-in" id="tabbar"></div></nav>
+<noscript><p class="nojs">9fit cần bật JavaScript để chạy.</p></noscript>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

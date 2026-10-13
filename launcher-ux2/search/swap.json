@@ -1,0 +1,28 @@
+[
+ {
+  "name": "Tặng và trao đổi đồ cũ",
+  "keywords": [
+   "đồ cũ",
+   "tặng đồ",
+   "trao đổi đồ",
+   "đồ cũ chung cư",
+   "chợ đồ cũ",
+   "tòa nhà",
+   "công ty"
+  ],
+  "path": "",
+  "blurb": "Tặng và trao đổi đồ cũ trong công ty, tòa nhà."
+ },
+ {
+  "name": "Quy tắc cộng đồng 9swap",
+  "keywords": [
+   "quy tắc",
+   "luật chơi",
+   "đồ cấm",
+   "gặp mặt an toàn",
+   "cộng đồng"
+  ],
+  "path": "#/rules",
+  "blurb": "Quy tắc cộng đồng: không đăng đồ cấm, gặp mặt an toàn."
+ }
+]

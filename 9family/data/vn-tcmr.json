@@ -1,0 +1,29 @@
+{
+  "title": "Lịch tiêm chủng mở rộng (TCMR) của Việt Nam cho trẻ em",
+  "legal": "Thông tư 10/2024/TT-BYT ngày 13/06/2024 của Bộ Y tế, Điều 1 khoản 1 (hiệu lực từ 01/08/2024, thay Thông tư 38/2017/TT-BYT).",
+  "retrieved": "2026-10-05",
+  "verification": "Nội dung bảng lịch được đọc từ bản đăng lại văn bản Thông tư 10/2024/TT-BYT (hethongphapluat.com) và đối chiếu với bản Thông tư 38/2017/TT-BYT (caselaw.vn) ở các mũi không đổi; mốc 2-3-4 tháng của vắc xin DPT-VGB-Hib được đối chiếu với tài liệu hỏi đáp của HCDC TP.HCM. CHƯA đối chiếu với bản gốc trên cổng Bộ Y tế/Công báo, cần người có chuyên môn xác nhận trước khi dùng rộng rãi.",
+  "note": "Khoảng cách 1 tháng giữa các mũi được tính ít nhất 28 ngày. Nếu chưa tiêm đúng lịch hoặc chưa đủ liều thì tiêm bù càng sớm càng tốt theo hướng dẫn của cơ sở tiêm chủng (Thông tư 10/2024/TT-BYT, Điều 1 khoản 2). Đây là lịch miễn phí của chương trình quốc gia; vắc xin dịch vụ (phế cầu, cúm, thủy đậu, HPV...) hãy theo tư vấn của bác sĩ, app KHÔNG nhập sẵn lịch dịch vụ vì chưa xác minh được từ nguồn chính thức.",
+  "doses": [
+    { "code": "vgb0", "name": "Viêm gan B sơ sinh", "dose": 1, "of": 1, "rule": { "days": 0 }, "text": "Tiêm trong vòng 24 giờ sau khi sinh" },
+    { "code": "lao", "name": "Lao (BCG)", "dose": 1, "of": 1, "rule": { "days": 0 }, "windowDays": 30, "text": "Tiêm một lần trong vòng 1 tháng sau khi sinh" },
+    { "code": "dpt1", "name": "Bạch hầu - ho gà - uốn ván - viêm gan B - Hib (vắc xin phối hợp)", "dose": 1, "of": 3, "rule": { "months": 2 }, "text": "Lần 1: khi trẻ đủ 2 tháng tuổi" },
+    { "code": "dpt2", "name": "Bạch hầu - ho gà - uốn ván - viêm gan B - Hib (vắc xin phối hợp)", "dose": 2, "of": 3, "rule": { "months": 3, "after": "dpt1", "minDays": 28 }, "text": "Lần 2: ít nhất 1 tháng sau lần 1" },
+    { "code": "dpt3", "name": "Bạch hầu - ho gà - uốn ván - viêm gan B - Hib (vắc xin phối hợp)", "dose": 3, "of": 3, "rule": { "months": 4, "after": "dpt2", "minDays": 28 }, "text": "Lần 3: ít nhất 1 tháng sau lần 2" },
+    { "code": "opv1", "name": "Bại liệt uống", "dose": 1, "of": 3, "rule": { "months": 2 }, "text": "Uống lần 1: khi trẻ đủ 2 tháng tuổi" },
+    { "code": "opv2", "name": "Bại liệt uống", "dose": 2, "of": 3, "rule": { "months": 3, "after": "opv1", "minDays": 28 }, "text": "Uống lần 2: ít nhất 1 tháng sau lần 1" },
+    { "code": "opv3", "name": "Bại liệt uống", "dose": 3, "of": 3, "rule": { "months": 4, "after": "opv2", "minDays": 28 }, "text": "Uống lần 3: ít nhất 1 tháng sau lần 2" },
+    { "code": "rota1", "name": "Rota (uống)", "dose": 1, "of": 2, "rule": { "months": 2 }, "text": "Uống lần 1: khi trẻ đủ 2 tháng tuổi" },
+    { "code": "rota2", "name": "Rota (uống)", "dose": 2, "of": 2, "rule": { "months": 3, "after": "rota1", "minDays": 28 }, "text": "Uống lần 2: ít nhất 1 tháng sau lần 1" },
+    { "code": "ipv1", "name": "Bại liệt tiêm", "dose": 1, "of": 2, "rule": { "months": 5 }, "text": "Tiêm lần 1: khi trẻ đủ 5 tháng tuổi" },
+    { "code": "ipv2", "name": "Bại liệt tiêm", "dose": 2, "of": 2, "rule": { "months": 9 }, "text": "Tiêm lần 2: khi trẻ đủ 9 tháng tuổi" },
+    { "code": "soi9", "name": "Sởi (vắc xin có thành phần sởi)", "dose": 1, "of": 1, "rule": { "months": 9 }, "text": "Tiêm khi trẻ đủ 9 tháng tuổi" },
+    { "code": "jev1", "name": "Viêm não Nhật Bản B", "dose": 1, "of": 3, "rule": { "months": 12 }, "text": "Tiêm lần 1: khi trẻ đủ 1 tuổi" },
+    { "code": "jev2", "name": "Viêm não Nhật Bản B", "dose": 2, "of": 3, "rule": { "days": 14, "after": "jev1", "minDays": 7 }, "text": "Tiêm lần 2: 1 - 2 tuần sau lần 1" },
+    { "code": "jev3", "name": "Viêm não Nhật Bản B", "dose": 3, "of": 3, "rule": { "days": 365, "after": "jev1", "minDays": 365 }, "text": "Tiêm lần 3: 1 năm sau lần 1" },
+    { "code": "dpt18", "name": "Nhắc lại bạch hầu - ho gà - uốn ván", "dose": 1, "of": 1, "rule": { "months": 18 }, "text": "Tiêm nhắc lại khi trẻ đủ 18 tháng tuổi" },
+    { "code": "mr18", "name": "Sởi - rubella (vắc xin phối hợp có thành phần sởi và rubella)", "dose": 1, "of": 1, "rule": { "months": 18 }, "text": "Tiêm khi trẻ đủ 18 tháng tuổi" },
+    { "code": "td7", "name": "Nhắc lại bạch hầu giảm liều - uốn ván", "dose": 1, "of": 1, "rule": { "months": 84 }, "text": "Tiêm nhắc lại khi trẻ đủ 7 tuổi" }
+  ],
+  "customSuggestions": ["Phế cầu", "Cúm mùa", "Thủy đậu", "Viêm gan A", "Não mô cầu", "HPV", "Sởi - quai bị - rubella (MMR)", "Tiêm bù / mũi khác"]
+}

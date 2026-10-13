@@ -1,0 +1,14 @@
+{
+  "name": "9fit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9fit - Tập bổ trợ cho môn bạn chơi và nhật ký tập. Webapp tĩnh PWA, chạy ngoại tuyến, dữ liệu chỉ trên máy.",
+  "scripts": {
+    "test": "node --test test/",
+    "e2e": "node scripts/e2e.js",
+    "icons": "node scripts/make-icons.js",
+    "index": "node scripts/make-search-index.js",
+    "sw": "node scripts/make-sw.js"
+  }
+}

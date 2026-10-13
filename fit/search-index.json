@@ -1,0 +1,2619 @@
+[
+ {
+  "name": "Hôm nay",
+  "keywords": [
+   "hôm nay",
+   "hom nay",
+   "buổi tập hôm nay",
+   "buoi tap hom nay",
+   "bắt đầu nhanh",
+   "bat dau nhanh",
+   "tải tuần",
+   "tai tuan"
+  ],
+  "path": "#/",
+  "blurb": "Buổi tập hôm nay, tải tập tuần này và nút bắt đầu nhanh."
+ },
+ {
+  "name": "Tập",
+  "keywords": [
+   "tập",
+   "tap",
+   "luyện tập",
+   "luyen tap",
+   "chương trình và nhật ký",
+   "chuong trinh va nhat ky"
+  ],
+  "path": "#/tap",
+  "blurb": "Chương trình đang theo, ghi buổi tập, lịch sử."
+ },
+ {
+  "name": "Tập: Ghi buổi tập",
+  "keywords": [
+   "ghi buổi tập",
+   "ghi buoi tap",
+   "nhật ký tập",
+   "nhat ky tap",
+   "ghi hiệp lần mức tạ",
+   "ghi hiep lan muc ta",
+   "hẹn giờ nghỉ",
+   "hen gio nghi",
+   "nghỉ giữa hiệp",
+   "nghi giua hiep",
+   "bản nháp",
+   "ban nhap"
+  ],
+  "path": "#/tap/ghi",
+  "blurb": "Chọn bài, ghi hiệp, lần, mức tạ hoặc RPE; hẹn giờ nghỉ giữa hiệp."
+ },
+ {
+  "name": "Tập: Lịch sử buổi tập",
+  "keywords": [
+   "lịch sử",
+   "lich su",
+   "buổi tập cũ",
+   "buoi tap cu",
+   "sao chép buổi",
+   "sao chep buoi",
+   "kỷ lục",
+   "ky luc",
+   "pr"
+  ],
+  "path": "#/tap/lich-su",
+  "blurb": "Xem, sửa, xóa và sao chép các buổi tập đã ghi."
+ },
+ {
+  "name": "Tập: Ghi buổi chơi thể thao",
+  "keywords": [
+   "buổi chơi",
+   "buoi choi",
+   "ghi buổi chơi",
+   "ghi buoi choi",
+   "cầu lông",
+   "cau long",
+   "pickleball",
+   "bóng đá",
+   "bong da",
+   "chạy bộ",
+   "chay bo",
+   "rpe"
+  ],
+  "path": "#/tap/choi",
+  "blurb": "Ghi nhanh môn, thời lượng và cường độ để tính tải tập tổng."
+ },
+ {
+  "name": "Tập: Chương trình mẫu",
+  "keywords": [
+   "chương trình",
+   "chuong trinh",
+   "chương trình mẫu",
+   "chuong trinh mau",
+   "lịch tập tuần",
+   "lich tap tuan",
+   "giảm tải trước giải",
+   "giam tai truoc giai"
+  ],
+  "path": "#/tap/chuong-trinh",
+  "blurb": "Chương trình 2 đến 4 tuần theo môn và theo mục tiêu."
+ },
+ {
+  "name": "Thư viện bài tập",
+  "keywords": [
+   "thư viện",
+   "thu vien",
+   "bài tập",
+   "bai tap",
+   "tại nhà không dụng cụ",
+   "tai nha khong dung cu",
+   "lọc bài tập",
+   "loc bai tap",
+   "nhóm cơ",
+   "nhom co",
+   "dụng cụ",
+   "dung cu"
+  ],
+  "path": "#/thu-vien",
+  "blurb": "149 bài tập tiếng Việt, lọc theo nhóm cơ, dụng cụ, mức độ, môn."
+ },
+ {
+  "name": "Tiến độ",
+  "keywords": [
+   "tiến độ",
+   "tien do",
+   "biểu đồ",
+   "bieu do",
+   "theo dõi",
+   "theo doi"
+  ],
+  "path": "#/tien-do",
+  "blurb": "Tải tập, khối lượng, cân nặng, vòng đo và bài kiểm tra thể lực."
+ },
+ {
+  "name": "Tiến độ: Tải tập tuần",
+  "keywords": [
+   "tải tập",
+   "tai tap",
+   "tải tuần",
+   "tai tuan",
+   "srpe",
+   "quá tải",
+   "qua tai",
+   "tăng tải",
+   "tang tai",
+   "acute chronic"
+  ],
+  "path": "#/tien-do/tai",
+  "blurb": "Tải tập tổng (buổi tập và buổi chơi) và cảnh báo nhẹ khi tăng tải nhanh."
+ },
+ {
+  "name": "Tiến độ: Khối lượng theo nhóm cơ",
+  "keywords": [
+   "khối lượng",
+   "khoi luong",
+   "khối lượng tập",
+   "khoi luong tap",
+   "hiệp lần kg",
+   "hiep lan kg",
+   "nhóm cơ mỗi tuần",
+   "nhom co moi tuan"
+  ],
+  "path": "#/tien-do/khoi-luong",
+  "blurb": "Số hiệp và khối lượng theo nhóm cơ mỗi tuần."
+ },
+ {
+  "name": "Tiến độ: Cân nặng và vòng đo",
+  "keywords": [
+   "cân nặng",
+   "can nang",
+   "vòng eo",
+   "vong eo",
+   "vòng đo",
+   "vong do",
+   "mục tiêu cân nặng",
+   "muc tieu can nang"
+  ],
+  "path": "#/tien-do/do",
+  "blurb": "Ghi cân nặng, vòng đo và xem biểu đồ."
+ },
+ {
+  "name": "Tiến độ: Kiểm tra thể lực",
+  "keywords": [
+   "kiểm tra thể lực",
+   "kiem tra the luc",
+   "chống đẩy tối đa",
+   "chong day toi da",
+   "plank",
+   "nhảy cao",
+   "nhay cao",
+   "chạy 12 phút",
+   "chay 12 phut",
+   "cooper",
+   "1,6 km",
+   "ngồi đứng 30 giây",
+   "ngoi dung 30 giay"
+  ],
+  "path": "#/tien-do/test",
+  "blurb": "Bài kiểm tra định kỳ, so sánh với chính bạn."
+ },
+ {
+  "name": "Thêm",
+  "keywords": [
+   "thêm",
+   "them",
+   "tiện ích khác",
+   "tien ich khac"
+  ],
+  "path": "#/them",
+  "blurb": "Hẹn giờ, khởi động, sức khỏe và dữ liệu."
+ },
+ {
+  "name": "Khởi động, giãn cơ, phục hồi",
+  "keywords": [
+   "khởi động",
+   "khoi dong",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi",
+   "hẹn giờ từng động tác",
+   "hen gio tung dong tac",
+   "đọc to",
+   "doc to",
+   "yoga"
+  ],
+  "path": "#/them/khoi-dong",
+  "blurb": "Chuỗi 5 đến 30 phút theo môn, có hẹn giờ và giọng đọc."
+ },
+ {
+  "name": "Sàng lọc sức khỏe (PAR-Q+)",
+  "keywords": [
+   "sàng lọc",
+   "sang loc",
+   "sức khỏe",
+   "suc khoe",
+   "par-q",
+   "parq",
+   "an toàn",
+   "an toan",
+   "khi nào dừng tập",
+   "khi nao dung tap",
+   "không phải tư vấn y tế",
+   "khong phai tu van y te"
+  ],
+  "path": "#/them/suc-khoe",
+  "blurb": "Câu hỏi sức khỏe lần đầu và hướng dẫn an toàn."
+ },
+ {
+  "name": "Dữ liệu của tôi",
+  "keywords": [
+   "dữ liệu",
+   "du lieu",
+   "xuất dữ liệu",
+   "xuat du lieu",
+   "nhập dữ liệu",
+   "nhap du lieu",
+   "sao lưu",
+   "sao luu",
+   "xóa dữ liệu",
+   "xoa du lieu",
+   "quyền riêng tư",
+   "quyen rieng tu",
+   "chữ lớn",
+   "chu lon"
+  ],
+  "path": "#/them/du-lieu",
+  "blurb": "Xuất, nhập, xóa dữ liệu; dữ liệu chỉ nằm trên máy bạn."
+ },
+ {
+  "name": "Giới thiệu và nguồn tham khảo",
+  "keywords": [
+   "giới thiệu",
+   "gioi thieu",
+   "nguồn",
+   "nguon",
+   "nguồn tham khảo",
+   "nguon tham khao",
+   "acsm",
+   "nsca",
+   "who"
+  ],
+  "path": "#/them/ve",
+  "blurb": "Nguồn kiến thức, giới hạn và cách 9fit xử lý dữ liệu."
+ },
+ {
+  "name": "Chương trình: Cầu lông: bước chân, vai và bật nhảy",
+  "keywords": [
+   "cầu lông: bước chân, vai và bật nhảy",
+   "cau long: buoc chan, vai va bat nhay",
+   "cau long",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/cau-long-4t",
+  "blurb": "Bổ trợ cho người chơi cầu lông: chân bước nhanh, vai và cổ tay khỏe, xoay thân, bật nhảy tiếp đất êm."
+ },
+ {
+  "name": "Chương trình: Pickleball: cổ chân, vai và bước chân",
+  "keywords": [
+   "pickleball: cổ chân, vai và bước chân",
+   "pickleball: co chan, vai va buoc chan",
+   "pickleball",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/pickleball-3t",
+  "blurb": "Dành cho người chơi pickleball: cổ chân vững, chân bước thấp, vai và cổ tay khỏe, xoay thân."
+ },
+ {
+  "name": "Chương trình: Bóng đá: đùi sau, háng, tốc độ",
+  "keywords": [
+   "bóng đá: đùi sau, háng, tốc độ",
+   "bong da: dui sau, hang, toc do",
+   "bong da",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/bong-da-4t",
+  "blurb": "Tập bổ trợ cho bóng đá, tập trung các vùng hay bị chấn thương: đùi sau, háng, đầu gối, cổ chân; thêm bật nhảy và đổi hướng."
+ },
+ {
+  "name": "Chương trình: Chạy bộ: chân vững, hông và gân gót",
+  "keywords": [
+   "chạy bộ: chân vững, hông và gân gót",
+   "chay bo: chan vung, hong va gan got",
+   "chay bo",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/chay-bo-4t",
+  "blurb": "Bổ trợ cho người chạy bộ: bắp chân, gân gót, hông và core để giảm nguy cơ đau gối, ống đồng."
+ },
+ {
+  "name": "Chương trình: Sức mạnh toàn thân tại nhà",
+  "keywords": [
+   "sức mạnh toàn thân tại nhà",
+   "suc manh toan than tai nha",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/suc-manh-tai-nha-4t",
+  "blurb": "Chương trình không cần dụng cụ phức tạp: chỉ cần thảm, ghế chắc và có thể thêm tạ đơn hoặc dây."
+ },
+ {
+  "name": "Chương trình: Giảm mỡ bằng vận động nhẹ",
+  "keywords": [
+   "giảm mỡ bằng vận động nhẹ",
+   "giam mo bang van dong nhe",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/van-dong-nhe-3t",
+  "blurb": "Mạch bài tập ít va chạm (không bật nhảy), khoảng 30 phút mỗi buổi, 3 buổi mỗi tuần."
+ },
+ {
+  "name": "Chương trình: Sức bền cơ và tim phổi",
+  "keywords": [
+   "sức bền cơ và tim phổi",
+   "suc ben co va tim phoi",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/suc-ben-3t",
+  "blurb": "Tăng sức bền cơ bắp và thể lực chung bằng các bài số lần cao, nghỉ ngắn."
+ },
+ {
+  "name": "Chương trình: Linh hoạt: giãn cơ cả người",
+  "keywords": [
+   "linh hoạt: giãn cơ cả người",
+   "linh hoat: gian co ca nguoi",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/linh-hoat-2t",
+  "blurb": "Chương trình ngắn, nhẹ để cải thiện độ linh hoạt hông, đùi sau, vai và lưng."
+ },
+ {
+  "name": "Chương trình: Phục hồi sau tuần nặng",
+  "keywords": [
+   "phục hồi sau tuần nặng",
+   "phuc hoi sau tuan nang",
+   "chương trình",
+   "chuong trinh"
+  ],
+  "path": "#/tap/chuong-trinh/phuc-hoi-2t",
+  "blurb": "Dành cho tuần sau giải hoặc sau thời gian chơi nhiều: vận động nhẹ, giãn cơ và thở."
+ },
+ {
+  "name": "Khởi động: Khởi động cầu lông 10 phút",
+  "keywords": [
+   "khởi động cầu lông 10 phút",
+   "khoi dong cau long 10 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-cau-long-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động cầu lông 20 phút",
+  "keywords": [
+   "khởi động cầu lông 20 phút",
+   "khoi dong cau long 20 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-cau-long-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi cầu lông 10 phút",
+  "keywords": [
+   "giãn cơ, phục hồi cầu lông 10 phút",
+   "gian co, phuc hoi cau long 10 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-cau-long-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi cầu lông 20 phút",
+  "keywords": [
+   "giãn cơ, phục hồi cầu lông 20 phút",
+   "gian co, phuc hoi cau long 20 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-cau-long-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động pickleball 10 phút",
+  "keywords": [
+   "khởi động pickleball 10 phút",
+   "khoi dong pickleball 10 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-pickleball-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động pickleball 20 phút",
+  "keywords": [
+   "khởi động pickleball 20 phút",
+   "khoi dong pickleball 20 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-pickleball-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi pickleball 10 phút",
+  "keywords": [
+   "giãn cơ, phục hồi pickleball 10 phút",
+   "gian co, phuc hoi pickleball 10 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-pickleball-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi pickleball 20 phút",
+  "keywords": [
+   "giãn cơ, phục hồi pickleball 20 phút",
+   "gian co, phuc hoi pickleball 20 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-pickleball-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động bóng đá 10 phút",
+  "keywords": [
+   "khởi động bóng đá 10 phút",
+   "khoi dong bong da 10 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-bong-da-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động bóng đá 20 phút",
+  "keywords": [
+   "khởi động bóng đá 20 phút",
+   "khoi dong bong da 20 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-bong-da-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi bóng đá 10 phút",
+  "keywords": [
+   "giãn cơ, phục hồi bóng đá 10 phút",
+   "gian co, phuc hoi bong da 10 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-bong-da-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi bóng đá 20 phút",
+  "keywords": [
+   "giãn cơ, phục hồi bóng đá 20 phút",
+   "gian co, phuc hoi bong da 20 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-bong-da-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động chạy bộ 10 phút",
+  "keywords": [
+   "khởi động chạy bộ 10 phút",
+   "khoi dong chay bo 10 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-chay-bo-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động chạy bộ 20 phút",
+  "keywords": [
+   "khởi động chạy bộ 20 phút",
+   "khoi dong chay bo 20 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-chay-bo-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi chạy bộ 10 phút",
+  "keywords": [
+   "giãn cơ, phục hồi chạy bộ 10 phút",
+   "gian co, phuc hoi chay bo 10 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-chay-bo-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi chạy bộ 20 phút",
+  "keywords": [
+   "giãn cơ, phục hồi chạy bộ 20 phút",
+   "gian co, phuc hoi chay bo 20 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-chay-bo-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động chung 10 phút",
+  "keywords": [
+   "khởi động chung 10 phút",
+   "khoi dong chung 10 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-chung-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Khởi động: Khởi động chung 20 phút",
+  "keywords": [
+   "khởi động chung 20 phút",
+   "khoi dong chung 20 phut",
+   "khởi động",
+   "khoi dong"
+  ],
+  "path": "#/them/khoi-dong/kd-chung-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi chung 10 phút",
+  "keywords": [
+   "giãn cơ, phục hồi chung 10 phút",
+   "gian co, phuc hoi chung 10 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-chung-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Phục hồi: Giãn cơ, phục hồi chung 20 phút",
+  "keywords": [
+   "giãn cơ, phục hồi chung 20 phút",
+   "gian co, phuc hoi chung 20 phut",
+   "giãn cơ",
+   "gian co",
+   "phục hồi",
+   "phuc hoi"
+  ],
+  "path": "#/them/khoi-dong/ph-chung-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Yoga: Yoga, giãn cơ cơ bản 10 phút",
+  "keywords": [
+   "yoga, giãn cơ cơ bản 10 phút",
+   "yoga, gian co co ban 10 phut",
+   "yoga",
+   "giãn cơ",
+   "gian co"
+  ],
+  "path": "#/them/khoi-dong/yoga-10",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Yoga: Yoga, giãn cơ cơ bản 20 phút",
+  "keywords": [
+   "yoga, giãn cơ cơ bản 20 phút",
+   "yoga, gian co co ban 20 phut",
+   "yoga",
+   "giãn cơ",
+   "gian co"
+  ],
+  "path": "#/them/khoi-dong/yoga-20",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Yoga: Yoga, giãn cơ cơ bản 30 phút",
+  "keywords": [
+   "yoga, giãn cơ cơ bản 30 phút",
+   "yoga, gian co co ban 30 phut",
+   "yoga",
+   "giãn cơ",
+   "gian co"
+  ],
+  "path": "#/them/khoi-dong/yoga-30",
+  "blurb": "Chuỗi có hẹn giờ từng động tác, chạy được khi mất mạng."
+ },
+ {
+  "name": "Bài tập: Squat bằng trọng lượng cơ thể",
+  "keywords": [
+   "squat bằng trọng lượng cơ thể",
+   "squat bang trong luong co the",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/squat-than-nguoi",
+  "blurb": "Đùi trước. Đứng hai chân rộng bằng vai, mũi chân hơi mở ra ngoài."
+ },
+ {
+  "name": "Bài tập: Squat chạm ghế",
+  "keywords": [
+   "squat chạm ghế",
+   "squat cham ghe",
+   "đùi trước",
+   "dui truoc",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/squat-cham-ghe",
+  "blurb": "Đùi trước. Đặt ghế chắc sau lưng, đứng cách ghế một bước nhỏ."
+ },
+ {
+  "name": "Bài tập: Squat ôm tạ trước ngực",
+  "keywords": [
+   "squat ôm tạ trước ngực",
+   "squat om ta truoc nguc",
+   "đùi trước",
+   "dui truoc",
+   "tạ đơn",
+   "ta don",
+   "tạ ấm",
+   "ta am"
+  ],
+  "path": "#/thu-vien/squat-goblet",
+  "blurb": "Đùi trước. Hai tay ôm một đầu tạ đơn (hoặc tạ ấm) sát ngực, khuỷu tay hướng xuống."
+ },
+ {
+  "name": "Bài tập: Squat với dây kháng lực",
+  "keywords": [
+   "squat với dây kháng lực",
+   "squat voi day khang luc",
+   "đùi trước",
+   "dui truoc",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/squat-day",
+  "blurb": "Đùi trước. Đặt dây kháng lực vòng quanh hai đùi, ngay trên đầu gối."
+ },
+ {
+  "name": "Bài tập: Squat tách chân (split squat)",
+  "keywords": [
+   "squat tách chân (split squat)",
+   "squat tach chan (split squat)",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/squat-tach-chan",
+  "blurb": "Đùi trước. Bước một chân ra trước, chân sau để lên mũi chân, hai chân cách nhau khoảng một sải bước dài."
+ },
+ {
+  "name": "Bài tập: Squat Bulgaria (chân sau gác ghế)",
+  "keywords": [
+   "squat bulgaria (chân sau gác ghế)",
+   "squat bulgaria (chan sau gac ghe)",
+   "đùi trước",
+   "dui truoc",
+   "ghế chắc",
+   "ghe chac",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/squat-bulgaria",
+  "blurb": "Đùi trước. Đứng quay lưng về ghế, gác mu bàn chân sau lên mặt ghế."
+ },
+ {
+  "name": "Bài tập: Bước chùng lùi",
+  "keywords": [
+   "bước chùng lùi",
+   "buoc chung lui",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/lunge-lui",
+  "blurb": "Đùi trước. Đứng thẳng, hai tay chống hông."
+ },
+ {
+  "name": "Bài tập: Bước chùng tiến",
+  "keywords": [
+   "bước chùng tiến",
+   "buoc chung tien",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/lunge-tien",
+  "blurb": "Đùi trước. Đứng thẳng, bàn chân rộng bằng hông."
+ },
+ {
+  "name": "Bài tập: Bước chùng ngang",
+  "keywords": [
+   "bước chùng ngang",
+   "buoc chung ngang",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/lunge-ngang",
+  "blurb": "Đùi trước. Đứng thẳng, chân rộng bằng hông, hai tay đan trước ngực."
+ },
+ {
+  "name": "Bài tập: Bước lên ghế (step-up)",
+  "keywords": [
+   "bước lên ghế (step-up)",
+   "buoc len ghe (step-up)",
+   "đùi trước",
+   "dui truoc",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/buoc-len-ghe",
+  "blurb": "Đùi trước. Đặt ghế chắc hoặc bậc thấp (cao ngang gối hoặc thấp hơn) trước mặt."
+ },
+ {
+  "name": "Bài tập: Nâng mông (glute bridge)",
+  "keywords": [
+   "nâng mông (glute bridge)",
+   "nang mong (glute bridge)",
+   "mông",
+   "mong",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/cau-mong",
+  "blurb": "Mông. Nằm ngửa, gập gối, bàn chân đặt sát mông, rộng bằng hông."
+ },
+ {
+  "name": "Bài tập: Nâng mông một chân",
+  "keywords": [
+   "nâng mông một chân",
+   "nang mong mot chan",
+   "mông",
+   "mong",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/cau-mong-1-chan",
+  "blurb": "Mông. Nằm ngửa, một chân gập, bàn chân đặt sát mông; chân kia duỗi thẳng lên."
+ },
+ {
+  "name": "Bài tập: Hip thrust tựa ghế",
+  "keywords": [
+   "hip thrust tựa ghế",
+   "hip thrust tua ghe",
+   "mông",
+   "mong",
+   "ghế chắc",
+   "ghe chac",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/hip-thrust-ghe",
+  "blurb": "Mông. Ngồi sàn, đặt lưng trên (dưới bả vai) tựa vào cạnh ghế chắc, gối gập."
+ },
+ {
+  "name": "Bài tập: Gập thân kéo tạ đơn (Romanian deadlift)",
+  "keywords": [
+   "gập thân kéo tạ đơn (romanian deadlift)",
+   "gap than keo ta don (romanian deadlift)",
+   "đùi sau",
+   "dui sau",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/rdl-ta-don",
+  "blurb": "Đùi sau. Đứng chân rộng bằng hông, mỗi tay cầm một tạ đơn trước đùi."
+ },
+ {
+  "name": "Bài tập: Gập thân một chân",
+  "keywords": [
+   "gập thân một chân",
+   "gap than mot chan",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/rdl-1-chan",
+  "blurb": "Đùi sau. Đứng một chân, gối hơi chùng; tay cầm tạ nhẹ (hoặc không)."
+ },
+ {
+  "name": "Bài tập: Nhấc tạ ấm từ sàn",
+  "keywords": [
+   "nhấc tạ ấm từ sàn",
+   "nhac ta am tu san",
+   "đùi sau",
+   "dui sau",
+   "tạ ấm",
+   "ta am"
+  ],
+  "path": "#/thu-vien/deadlift-ta-am",
+  "blurb": "Đùi sau. Đặt tạ ấm giữa hai bàn chân, đứng chân rộng bằng vai."
+ },
+ {
+  "name": "Bài tập: Nhón gót hai chân",
+  "keywords": [
+   "nhón gót hai chân",
+   "nhon got hai chan",
+   "bắp chân",
+   "bap chan",
+   "không dụng cụ",
+   "khong dung cu",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/kiem-got-2-chan",
+  "blurb": "Bắp chân. Đứng chân rộng bằng hông, một tay vịn tường nếu cần."
+ },
+ {
+  "name": "Bài tập: Nhón gót một chân",
+  "keywords": [
+   "nhón gót một chân",
+   "nhon got mot chan",
+   "bắp chân",
+   "bap chan",
+   "không dụng cụ",
+   "khong dung cu",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/kiem-got-1-chan",
+  "blurb": "Bắp chân. Đứng một chân, tay vịn nhẹ vào tường để giữ thăng bằng."
+ },
+ {
+  "name": "Bài tập: Hạ gót chậm ở mép bậc",
+  "keywords": [
+   "hạ gót chậm ở mép bậc",
+   "ha got cham o mep bac",
+   "bắp chân",
+   "bap chan",
+   "bục, bậc thang chắc",
+   "buc, bac thang chac",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/ha-got-cham",
+  "blurb": "Bắp chân. Đứng bằng phần bàn chân trước trên mép bậc thấp, gót thò ra ngoài, tay vịn tường."
+ },
+ {
+  "name": "Bài tập: Ngồi tựa tường (wall sit)",
+  "keywords": [
+   "ngồi tựa tường (wall sit)",
+   "ngoi tua tuong (wall sit)",
+   "đùi trước",
+   "dui truoc",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/ngoi-tuong",
+  "blurb": "Đùi trước. Tựa lưng vào tường, bước chân ra trước khoảng nửa mét."
+ },
+ {
+  "name": "Bài tập: Kéo gót trượt (đùi sau)",
+  "keywords": [
+   "kéo gót trượt (đùi sau)",
+   "keo got truot (dui sau)",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/keo-dui-sau-khan",
+  "blurb": "Đùi sau. Nằm ngửa trên sàn trơn hoặc đặt khăn dưới gót chân, gối gập."
+ },
+ {
+  "name": "Bài tập: Hạ thân Nordic có hỗ trợ",
+  "keywords": [
+   "hạ thân nordic có hỗ trợ",
+   "ha than nordic co ho tro",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nordic-ho-tro",
+  "blurb": "Đùi sau. Quỳ trên thảm, nhờ bạn giữ cổ chân (hoặc móc gót dưới một đồ vật rất nặng và chắc)."
+ },
+ {
+  "name": "Bài tập: Đi ngang với dây kháng lực",
+  "keywords": [
+   "đi ngang với dây kháng lực",
+   "di ngang voi day khang luc",
+   "hông, háng",
+   "hong, hang",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/buoc-ngang-day",
+  "blurb": "Hông, háng. Vòng dây qua hai đùi hoặc cổ chân, chân rộng bằng vai, gối hơi chùng."
+ },
+ {
+  "name": "Bài tập: Vỏ sò (clamshell)",
+  "keywords": [
+   "vỏ sò (clamshell)",
+   "vo so (clamshell)",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/vo-so",
+  "blurb": "Hông, háng. Nằm nghiêng, hai chân gập, gót chân thẳng hàng với mông."
+ },
+ {
+  "name": "Bài tập: Nâng chân ngang nằm nghiêng",
+  "keywords": [
+   "nâng chân ngang nằm nghiêng",
+   "nang chan ngang nam nghieng",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nang-chan-ngang",
+  "blurb": "Hông, háng. Nằm nghiêng, chân dưới gập nhẹ, chân trên duỗi thẳng."
+ },
+ {
+  "name": "Bài tập: Plank nghiêng Copenhagen",
+  "keywords": [
+   "plank nghiêng copenhagen",
+   "plank nghieng copenhagen",
+   "hông, háng",
+   "hong, hang",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/kep-dui-copenhagen",
+  "blurb": "Hông, háng. Nằm nghiêng, đặt cẳng chân trên lên mặt ghế, chân dưới để lơ lửng."
+ },
+ {
+  "name": "Bài tập: Ép gối vào nhau (khép háng)",
+  "keywords": [
+   "ép gối vào nhau (khép háng)",
+   "ep goi vao nhau (khep hang)",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/ep-goi",
+  "blurb": "Hông, háng. Nằm ngửa, gối gập, bàn chân đặt trên sàn."
+ },
+ {
+  "name": "Bài tập: Squat một chân xuống ghế",
+  "keywords": [
+   "squat một chân xuống ghế",
+   "squat mot chan xuong ghe",
+   "đùi trước",
+   "dui truoc",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/squat-1-chan-ghe",
+  "blurb": "Đùi trước. Đứng quay lưng về ghế, nâng một chân ra trước."
+ },
+ {
+  "name": "Bài tập: Hít đất",
+  "keywords": [
+   "hít đất",
+   "hit dat",
+   "ngực",
+   "nguc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/hit-dat",
+  "blurb": "Ngực. Chống hai tay rộng hơn vai một chút, thân thẳng từ đầu đến gót."
+ },
+ {
+  "name": "Bài tập: Hít đất nghiêng (tay trên ghế)",
+  "keywords": [
+   "hít đất nghiêng (tay trên ghế)",
+   "hit dat nghieng (tay tren ghe)",
+   "ngực",
+   "nguc",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/hit-dat-nghieng",
+  "blurb": "Ngực. Đặt hai tay lên mép ghế chắc hoặc bậc, rộng hơn vai, ghế tựa vào tường."
+ },
+ {
+  "name": "Bài tập: Hít đất quỳ gối",
+  "keywords": [
+   "hít đất quỳ gối",
+   "hit dat quy goi",
+   "ngực",
+   "nguc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/hit-dat-quy",
+  "blurb": "Ngực. Quỳ trên thảm, hai tay chống rộng hơn vai."
+ },
+ {
+  "name": "Bài tập: Hít đất tay hẹp (kim cương)",
+  "keywords": [
+   "hít đất tay hẹp (kim cương)",
+   "hit dat tay hep (kim cuong)",
+   "tay sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/hit-dat-kim-cuong",
+  "blurb": "Tay sau. Chống hai tay hẹp, hai ngón cái và trỏ chạm nhau thành hình thoi."
+ },
+ {
+  "name": "Bài tập: Hít đất chữ V (pike)",
+  "keywords": [
+   "hít đất chữ v (pike)",
+   "hit dat chu v (pike)",
+   "vai",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/hit-dat-pike",
+  "blurb": "Vai. Chống hai tay và bàn chân, nâng hông cao thành hình chữ V ngược."
+ },
+ {
+  "name": "Bài tập: Đẩy tạ đơn trên sàn",
+  "keywords": [
+   "đẩy tạ đơn trên sàn",
+   "day ta don tren san",
+   "ngực",
+   "nguc",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/ep-nguc-ta",
+  "blurb": "Ngực. Nằm ngửa, gối gập, mỗi tay cầm một tạ đơn trên ngực."
+ },
+ {
+  "name": "Bài tập: Kéo dây khi ngồi (chèo dây)",
+  "keywords": [
+   "kéo dây khi ngồi (chèo dây)",
+   "keo day khi ngoi (cheo day)",
+   "lưng trên",
+   "lung tren",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/keo-day-ngoi",
+  "blurb": "Lưng trên. Ngồi duỗi chân, quấn dây qua lòng bàn chân, hai tay cầm hai đầu dây."
+ },
+ {
+  "name": "Bài tập: Chèo tạ đơn một tay",
+  "keywords": [
+   "chèo tạ đơn một tay",
+   "cheo ta don mot tay",
+   "lưng trên",
+   "lung tren",
+   "tạ đơn",
+   "ta don",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/keo-ta-1-tay",
+  "blurb": "Lưng trên. Một tay và một gối chống lên ghế chắc, lưng song song với sàn."
+ },
+ {
+  "name": "Bài tập: Kéo giãn dây ngang ngực",
+  "keywords": [
+   "kéo giãn dây ngang ngực",
+   "keo gian day ngang nguc",
+   "lưng trên",
+   "lung tren",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/keo-rong-day",
+  "blurb": "Lưng trên. Đứng thẳng, hai tay cầm dây trước ngực, tay duỗi thẳng."
+ },
+ {
+  "name": "Bài tập: Kéo dây về mặt (face pull)",
+  "keywords": [
+   "kéo dây về mặt (face pull)",
+   "keo day ve mat (face pull)",
+   "vai",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/face-pull-day",
+  "blurb": "Vai. Móc dây vào điểm chắc ngang tầm mặt (cửa có móc)."
+ },
+ {
+  "name": "Bài tập: Đẩy tạ đơn qua đầu",
+  "keywords": [
+   "đẩy tạ đơn qua đầu",
+   "day ta don qua dau",
+   "vai",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/day-vai-ta",
+  "blurb": "Vai. Đứng hoặc ngồi thẳng, mỗi tay cầm một tạ ở ngang vai."
+ },
+ {
+  "name": "Bài tập: Nâng tạ sang ngang",
+  "keywords": [
+   "nâng tạ sang ngang",
+   "nang ta sang ngang",
+   "vai",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/nang-vai-ben",
+  "blurb": "Vai. Đứng thẳng, mỗi tay cầm một tạ nhẹ hai bên người."
+ },
+ {
+  "name": "Bài tập: Dang tạ ra sau (vai sau)",
+  "keywords": [
+   "dang tạ ra sau (vai sau)",
+   "dang ta ra sau (vai sau)",
+   "vai",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/nang-vai-sau",
+  "blurb": "Vai. Đứng gập thân về trước khoảng 45 độ, lưng phẳng, tay cầm tạ nhẹ buông xuống."
+ },
+ {
+  "name": "Bài tập: Gập tay trước (curl)",
+  "keywords": [
+   "gập tay trước (curl)",
+   "gap tay truoc (curl)",
+   "tay trước",
+   "tay truoc",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/curl-tay-truoc",
+  "blurb": "Tay trước. Đứng thẳng, mỗi tay cầm một tạ, lòng bàn tay hướng ra trước."
+ },
+ {
+  "name": "Bài tập: Gập tay kiểu búa",
+  "keywords": [
+   "gập tay kiểu búa",
+   "gap tay kieu bua",
+   "tay trước",
+   "tay truoc",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/curl-bua",
+  "blurb": "Tay trước. Đứng thẳng, cầm tạ với lòng bàn tay hướng vào đùi."
+ },
+ {
+  "name": "Bài tập: Duỗi tay sau qua đầu",
+  "keywords": [
+   "duỗi tay sau qua đầu",
+   "duoi tay sau qua dau",
+   "tay sau",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/duoi-tay-sau",
+  "blurb": "Tay sau. Ngồi hoặc đứng thẳng, hai tay giữ một tạ đơn, nâng thẳng trên đầu."
+ },
+ {
+  "name": "Bài tập: Hạ người trên ghế (dips)",
+  "keywords": [
+   "hạ người trên ghế (dips)",
+   "ha nguoi tren ghe (dips)",
+   "tay sau",
+   "ghế chắc",
+   "ghe chac"
+  ],
+  "path": "#/thu-vien/ha-tay-ghe",
+  "blurb": "Tay sau. Ngồi mép ghế chắc, hai tay nắm mép cạnh hông, rời mông khỏi ghế."
+ },
+ {
+  "name": "Bài tập: Đẩy dây xuống (tay sau)",
+  "keywords": [
+   "đẩy dây xuống (tay sau)",
+   "day day xuong (tay sau)",
+   "tay sau",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/day-xuong-day",
+  "blurb": "Tay sau. Móc dây vào điểm cao chắc (trên cửa), đứng đối diện."
+ },
+ {
+  "name": "Bài tập: Kéo dây từ trên xuống",
+  "keywords": [
+   "kéo dây từ trên xuống",
+   "keo day tu tren xuong",
+   "lưng trên",
+   "lung tren",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/keo-xuong-day",
+  "blurb": "Lưng trên. Móc dây vào điểm cao chắc, quỳ hoặc ngồi bên dưới."
+ },
+ {
+  "name": "Bài tập: Nằm sấp nâng người (superman)",
+  "keywords": [
+   "nằm sấp nâng người (superman)",
+   "nam sap nang nguoi (superman)",
+   "lưng dưới",
+   "lung duoi",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/sieu-nhan",
+  "blurb": "Lưng dưới. Nằm sấp, hai tay duỗi qua đầu, cổ thẳng."
+ },
+ {
+  "name": "Bài tập: Nằm sấp nâng tay chữ Y-T-W",
+  "keywords": [
+   "nằm sấp nâng tay chữ y-t-w",
+   "nam sap nang tay chu y-t-w",
+   "lưng trên",
+   "lung tren",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nam-sap-yt-w",
+  "blurb": "Lưng trên. Nằm sấp, trán đặt lên thảm."
+ },
+ {
+  "name": "Bài tập: Xoay ngoài vai với dây",
+  "keywords": [
+   "xoay ngoài vai với dây",
+   "xoay ngoai vai voi day",
+   "vai",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/xoay-ngoai-vai-day",
+  "blurb": "Vai. Buộc dây ngang eo vào cạnh cửa; đứng nghiêng, khuỷu tay gập 90 độ kẹp khăn nhỏ ở hông."
+ },
+ {
+  "name": "Bài tập: Xoay trong vai với dây",
+  "keywords": [
+   "xoay trong vai với dây",
+   "xoay trong vai voi day",
+   "vai",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/xoay-trong-vai-day",
+  "blurb": "Vai. Buộc dây ngang eo vào cạnh cửa; đứng nghiêng, tay gần cửa gập khuỷu 90 độ."
+ },
+ {
+  "name": "Bài tập: Gập cổ tay với tạ nhẹ",
+  "keywords": [
+   "gập cổ tay với tạ nhẹ",
+   "gap co tay voi ta nhe",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/gap-co-tay",
+  "blurb": "Cẳng tay, cổ tay. Ngồi, tựa cẳng tay lên đùi, lòng bàn tay hướng lên, cổ tay thò khỏi đầu gối."
+ },
+ {
+  "name": "Bài tập: Duỗi cổ tay với tạ nhẹ",
+  "keywords": [
+   "duỗi cổ tay với tạ nhẹ",
+   "duoi co tay voi ta nhe",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/duoi-co-tay",
+  "blurb": "Cẳng tay, cổ tay. Ngồi, tựa cẳng tay lên đùi, lòng bàn tay hướng xuống."
+ },
+ {
+  "name": "Bài tập: Xoay cẳng tay với tạ nhẹ",
+  "keywords": [
+   "xoay cẳng tay với tạ nhẹ",
+   "xoay cang tay voi ta nhe",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/xoay-cang-tay",
+  "blurb": "Cẳng tay, cổ tay. Ngồi, tựa cẳng tay trên đùi, cầm tạ một đầu (như cái búa)."
+ },
+ {
+  "name": "Bài tập: Vắt khăn siết tay",
+  "keywords": [
+   "vắt khăn siết tay",
+   "vat khan siet tay",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/vat-khan",
+  "blurb": "Cẳng tay, cổ tay. Cầm một chiếc khăn bông cuộn tròn bằng hai tay."
+ },
+ {
+  "name": "Bài tập: Vung tạ ấm (kettlebell swing)",
+  "keywords": [
+   "vung tạ ấm (kettlebell swing)",
+   "vung ta am (kettlebell swing)",
+   "đùi sau",
+   "dui sau",
+   "tạ ấm",
+   "ta am"
+  ],
+  "path": "#/thu-vien/ta-am-vung",
+  "blurb": "Đùi sau. Đứng chân rộng hơn vai, tạ ấm đặt trước người một sải chân."
+ },
+ {
+  "name": "Bài tập: Đẩy ngực với dây",
+  "keywords": [
+   "đẩy ngực với dây",
+   "day nguc voi day",
+   "ngực",
+   "nguc",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/day-nguc-day",
+  "blurb": "Ngực. Quấn dây sau lưng trên bả vai, hai tay cầm hai đầu dây ở hai bên ngực."
+ },
+ {
+  "name": "Bài tập: Plank khuỷu tay",
+  "keywords": [
+   "plank khuỷu tay",
+   "plank khuyu tay",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/plank",
+  "blurb": "Bụng, core. Chống khuỷu tay dưới vai, bàn chân rộng bằng hông."
+ },
+ {
+  "name": "Bài tập: Plank nghiêng",
+  "keywords": [
+   "plank nghiêng",
+   "plank nghieng",
+   "cơ xoay thân",
+   "co xoay than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/plank-nghieng",
+  "blurb": "Cơ xoay thân. Nằm nghiêng, chống khuỷu tay dưới vai, hai chân chồng lên nhau."
+ },
+ {
+  "name": "Bài tập: Bọ chết (dead bug)",
+  "keywords": [
+   "bọ chết (dead bug)",
+   "bo chet (dead bug)",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/dead-bug",
+  "blurb": "Bụng, core. Nằm ngửa, hai tay giơ thẳng lên trần, hai gối gập 90 độ."
+ },
+ {
+  "name": "Bài tập: Chó săn (bird dog)",
+  "keywords": [
+   "chó săn (bird dog)",
+   "cho san (bird dog)",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/bird-dog",
+  "blurb": "Bụng, core. Quỳ chống bốn điểm, tay dưới vai, gối dưới hông."
+ },
+ {
+  "name": "Bài tập: Gập bụng cuộn",
+  "keywords": [
+   "gập bụng cuộn",
+   "gap bung cuon",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gap-bung",
+  "blurb": "Bụng, core. Nằm ngửa, gập gối, hai tay đặt sau tai hoặc trước ngực."
+ },
+ {
+  "name": "Bài tập: Gập bụng đạp xe",
+  "keywords": [
+   "gập bụng đạp xe",
+   "gap bung dap xe",
+   "cơ xoay thân",
+   "co xoay than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gap-bung-xe-dap",
+  "blurb": "Cơ xoay thân. Nằm ngửa, tay đặt sau tai, nhấc hai chân khỏi sàn."
+ },
+ {
+  "name": "Bài tập: Nâng chân nằm ngửa",
+  "keywords": [
+   "nâng chân nằm ngửa",
+   "nang chan nam ngua",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nang-chan-nam",
+  "blurb": "Bụng, core. Nằm ngửa, tay để dưới hông, hai chân duỗi."
+ },
+ {
+  "name": "Bài tập: Xoay thân ngồi (Russian twist)",
+  "keywords": [
+   "xoay thân ngồi (russian twist)",
+   "xoay than ngoi (russian twist)",
+   "cơ xoay thân",
+   "co xoay than",
+   "không dụng cụ",
+   "khong dung cu",
+   "tạ đơn",
+   "ta don"
+  ],
+  "path": "#/thu-vien/xoay-nga",
+  "blurb": "Cơ xoay thân. Ngồi, gập gối, nghiêng thân ra sau khoảng 45 độ, lưng thẳng."
+ },
+ {
+  "name": "Bài tập: Đẩy dây chống xoay (Pallof)",
+  "keywords": [
+   "đẩy dây chống xoay (pallof)",
+   "day day chong xoay (pallof)",
+   "cơ xoay thân",
+   "co xoay than",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/pallof-press",
+  "blurb": "Cơ xoay thân. Móc dây ở điểm chắc ngang ngực; đứng vuông góc với điểm móc."
+ },
+ {
+  "name": "Bài tập: Chặt dây chéo (wood chop)",
+  "keywords": [
+   "chặt dây chéo (wood chop)",
+   "chat day cheo (wood chop)",
+   "cơ xoay thân",
+   "co xoay than",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/chat-day-cheo",
+  "blurb": "Cơ xoay thân. Móc dây ở điểm cao bên người; đứng nghiêng, chân rộng bằng vai."
+ },
+ {
+  "name": "Bài tập: Giữ thân hình thuyền",
+  "keywords": [
+   "giữ thân hình thuyền",
+   "giu than hinh thuyen",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/hollow-hold",
+  "blurb": "Bụng, core. Nằm ngửa, hai tay duỗi qua đầu, hai chân duỗi."
+ },
+ {
+  "name": "Bài tập: Leo núi tại chỗ",
+  "keywords": [
+   "leo núi tại chỗ",
+   "leo nui tai cho",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/leo-nui",
+  "blurb": "Bụng, core. Chống hai tay dưới vai như hít đất, thân thẳng."
+ },
+ {
+  "name": "Bài tập: Plank chạm vai",
+  "keywords": [
+   "plank chạm vai",
+   "plank cham vai",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/plank-cham-vai",
+  "blurb": "Bụng, core. Vào tư thế plank trên hai tay, chân rộng hơn hông."
+ },
+ {
+  "name": "Bài tập: Cuộn hông ngược",
+  "keywords": [
+   "cuộn hông ngược",
+   "cuon hong nguoc",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gap-bung-nguoc",
+  "blurb": "Bụng, core. Nằm ngửa, hai gối gập 90 độ nâng lên, tay hai bên."
+ },
+ {
+  "name": "Bài tập: Đi xách tạ một bên",
+  "keywords": [
+   "đi xách tạ một bên",
+   "di xach ta mot ben",
+   "bụng, core",
+   "bung, core",
+   "tạ đơn",
+   "ta don",
+   "tạ ấm",
+   "ta am"
+  ],
+  "path": "#/thu-vien/di-xach-ta",
+  "blurb": "Bụng, core. Cầm một tạ ở một bên người."
+ },
+ {
+  "name": "Bài tập: Đi xách tạ hai bên",
+  "keywords": [
+   "đi xách tạ hai bên",
+   "di xach ta hai ben",
+   "bụng, core",
+   "bung, core",
+   "tạ đơn",
+   "ta don",
+   "tạ ấm",
+   "ta am"
+  ],
+  "path": "#/thu-vien/di-nong-dan",
+  "blurb": "Bụng, core. Cầm hai tạ ở hai bên người."
+ },
+ {
+  "name": "Bài tập: Squat bật nhảy",
+  "keywords": [
+   "squat bật nhảy",
+   "squat bat nhay",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/squat-nhay",
+  "blurb": "Đùi trước. Đứng chân rộng bằng vai, xuống squat nông."
+ },
+ {
+  "name": "Bài tập: Tập tiếp đất êm",
+  "keywords": [
+   "tập tiếp đất êm",
+   "tap tiep dat em",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/tiep-dat-em",
+  "blurb": "Đùi trước. Đứng, nhún nhẹ rồi nhảy lên vài cm."
+ },
+ {
+  "name": "Bài tập: Bật xa",
+  "keywords": [
+   "bật xa",
+   "bat xa",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nhay-xa",
+  "blurb": "Đùi sau. Đứng chân rộng bằng hông."
+ },
+ {
+  "name": "Bài tập: Nhảy ngang kiểu trượt băng",
+  "keywords": [
+   "nhảy ngang kiểu trượt băng",
+   "nhay ngang kieu truot bang",
+   "mông",
+   "mong",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nhay-ngang",
+  "blurb": "Mông. Đứng một chân, gối hơi gập."
+ },
+ {
+  "name": "Bài tập: Nhảy trên một chân",
+  "keywords": [
+   "nhảy trên một chân",
+   "nhay tren mot chan",
+   "bắp chân",
+   "bap chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nhay-1-chan",
+  "blurb": "Bắp chân. Đứng một chân, gối hơi gập."
+ },
+ {
+  "name": "Bài tập: Nảy cổ chân (pogo)",
+  "keywords": [
+   "nảy cổ chân (pogo)",
+   "nay co chan (pogo)",
+   "bắp chân",
+   "bap chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nhay-co-chan",
+  "blurb": "Bắp chân. Đứng thẳng, gối hơi mềm."
+ },
+ {
+  "name": "Bài tập: Nhảy dây",
+  "keywords": [
+   "nhảy dây",
+   "nhay day",
+   "bắp chân",
+   "bap chan",
+   "dây nhảy",
+   "day nhay"
+  ],
+  "path": "#/thu-vien/nhay-day",
+  "blurb": "Bắp chân. Cầm dây hai tay, khuỷu tay sát thân."
+ },
+ {
+  "name": "Bài tập: Nhảy qua vạch ngang",
+  "keywords": [
+   "nhảy qua vạch ngang",
+   "nhay qua vach ngang",
+   "bắp chân",
+   "bap chan",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/nhay-vach-ngang",
+  "blurb": "Bắp chân. Kẻ một vạch trên sàn (băng dính hoặc dây)."
+ },
+ {
+  "name": "Bài tập: Bật cao tại chỗ",
+  "keywords": [
+   "bật cao tại chỗ",
+   "bat cao tai cho",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/bat-cao",
+  "blurb": "Đùi trước. Đứng chân rộng bằng vai."
+ },
+ {
+  "name": "Bài tập: Bật lên bậc thấp",
+  "keywords": [
+   "bật lên bậc thấp",
+   "bat len bac thap",
+   "đùi trước",
+   "dui truoc",
+   "bục, bậc thang chắc",
+   "buc, bac thang chac"
+  ],
+  "path": "#/thu-vien/bat-len-bac",
+  "blurb": "Đùi trước. Đặt một bậc thấp hoặc hộp chắc (cao 20 đến 30 cm) trước mặt."
+ },
+ {
+  "name": "Bài tập: Hít đất vỗ tay",
+  "keywords": [
+   "hít đất vỗ tay",
+   "hit dat vo tay",
+   "ngực",
+   "nguc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/hit-dat-vo-tay",
+  "blurb": "Ngực. Vào tư thế hít đất, thân thẳng."
+ },
+ {
+  "name": "Bài tập: Nhảy đổi chân tách",
+  "keywords": [
+   "nhảy đổi chân tách",
+   "nhay doi chan tach",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nhay-tach-chan",
+  "blurb": "Đùi trước. Vào tư thế bước chùng, thân thẳng."
+ },
+ {
+  "name": "Bài tập: Bước tách chân (split step)",
+  "keywords": [
+   "bước tách chân (split step)",
+   "buoc tach chan (split step)",
+   "bắp chân",
+   "bap chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/buoc-tach-chan",
+  "blurb": "Bắp chân. Đứng tư thế sẵn sàng, chân rộng hơn vai, gối hơi chùng, trọng tâm trên mũi chân."
+ },
+ {
+  "name": "Bài tập: Di chuyển 6 góc sân (cầu lông)",
+  "keywords": [
+   "di chuyển 6 góc sân (cầu lông)",
+   "di chuyen 6 goc san (cau long)",
+   "đùi trước",
+   "dui truoc",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/di-chuyen-6-goc",
+  "blurb": "Đùi trước. Đặt 6 mốc theo 6 góc sân (hoặc 6 điểm trên sàn)."
+ },
+ {
+  "name": "Bài tập: Di chuyển lên lưới và về (pickleball)",
+  "keywords": [
+   "di chuyển lên lưới và về (pickleball)",
+   "di chuyen len luoi va ve (pickleball)",
+   "đùi trước",
+   "dui truoc",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/di-chuyen-bep",
+  "blurb": "Đùi trước. Đặt mốc ở vạch cuối sân, vạch giữa và vạch bếp (sát lưới)."
+ },
+ {
+  "name": "Bài tập: Trượt ngang (shuffle)",
+  "keywords": [
+   "trượt ngang (shuffle)",
+   "truot ngang (shuffle)",
+   "hông, háng",
+   "hong, hang",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/truot-ngang",
+  "blurb": "Hông, háng. Đặt hai mốc cách nhau 4 đến 5 mét."
+ },
+ {
+  "name": "Bài tập: Chạy chéo chân (carioca)",
+  "keywords": [
+   "chạy chéo chân (carioca)",
+   "chay cheo chan (carioca)",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/carioca",
+  "blurb": "Hông, háng. Đứng nghiêng, bước chân sau bắt chéo qua trước."
+ },
+ {
+  "name": "Bài tập: Bước nhanh vào-ra vạch",
+  "keywords": [
+   "bước nhanh vào-ra vạch",
+   "buoc nhanh vao-ra vach",
+   "bắp chân",
+   "bap chan",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/thang-voi-vach",
+  "blurb": "Bắp chân. Kẻ 6 ô vuông nhỏ dọc theo sàn, mỗi ô cỡ bàn chân dài."
+ },
+ {
+  "name": "Bài tập: Chạy chữ T",
+  "keywords": [
+   "chạy chữ t",
+   "chay chu t",
+   "hông, háng",
+   "hong, hang",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/chay-chu-t",
+  "blurb": "Hông, háng. Đặt 4 mốc theo hình chữ T: A ở gốc, B cách A 10 mét, C và D cách B 5 mét mỗi bên."
+ },
+ {
+  "name": "Bài tập: Chạy con thoi 5-10-5",
+  "keywords": [
+   "chạy con thoi 5-10-5",
+   "chay con thoi 5-10-5",
+   "hông, háng",
+   "hong, hang",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/chay-5-10-5",
+  "blurb": "Hông, háng. Đặt 3 mốc cách nhau 5 mét thẳng hàng; bắt đầu ở mốc giữa."
+ },
+ {
+  "name": "Bài tập: Chạy luồn mốc zigzag",
+  "keywords": [
+   "chạy luồn mốc zigzag",
+   "chay luon moc zigzag",
+   "mông",
+   "mong",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/chay-zigzag",
+  "blurb": "Mông. Đặt 5 mốc thẳng hàng, mỗi mốc cách nhau 2 đến 3 mét."
+ },
+ {
+  "name": "Bài tập: Nước rút 10 mét",
+  "keywords": [
+   "nước rút 10 mét",
+   "nuoc rut 10 met",
+   "mông",
+   "mong",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nuoc-rut-10m",
+  "blurb": "Mông. Đánh dấu đoạn 10 mét thẳng."
+ },
+ {
+  "name": "Bài tập: Tăng tốc dần (strides)",
+  "keywords": [
+   "tăng tốc dần (strides)",
+   "tang toc dan (strides)",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nuoc-rut-tang-toc",
+  "blurb": "Đùi sau. Chạy chậm vài bước."
+ },
+ {
+  "name": "Bài tập: Chạy lùi và quay người",
+  "keywords": [
+   "chạy lùi và quay người",
+   "chay lui va quay nguoi",
+   "đùi trước",
+   "dui truoc",
+   "mốc (nón, chai nước)",
+   "moc (non, chai nuoc)"
+  ],
+  "path": "#/thu-vien/chay-lung",
+  "blurb": "Đùi trước. Đặt 2 mốc cách nhau 8 mét."
+ },
+ {
+  "name": "Bài tập: Nâng gối bước nhún (A-skip)",
+  "keywords": [
+   "nâng gối bước nhún (a-skip)",
+   "nang goi buoc nhun (a-skip)",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/chay-a-skip",
+  "blurb": "Đùi trước. Đứng thẳng, nhún nhẹ một chân."
+ },
+ {
+  "name": "Bài tập: Phản xạ bắt vật rơi (với bạn)",
+  "keywords": [
+   "phản xạ bắt vật rơi (với bạn)",
+   "phan xa bat vat roi (voi ban)",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/phan-xa-roi-vat",
+  "blurb": "Cẳng tay, cổ tay. Nhờ bạn cầm một cây thước hoặc vật dài thả rơi từ ngang tầm mắt."
+ },
+ {
+  "name": "Bài tập: Đứng một chân",
+  "keywords": [
+   "đứng một chân",
+   "dung mot chan",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/dung-1-chan",
+  "blurb": "Cổ chân, bàn chân. Đứng bên cạnh tường, tay sẵn sàng vịn."
+ },
+ {
+  "name": "Bài tập: Đứng một chân nhắm mắt",
+  "keywords": [
+   "đứng một chân nhắm mắt",
+   "dung mot chan nham mat",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/dung-1-chan-nham-mat",
+  "blurb": "Cổ chân, bàn chân. Đứng cạnh tường hoặc cửa để dự phòng."
+ },
+ {
+  "name": "Bài tập: Đứng một chân trên khăn gấp",
+  "keywords": [
+   "đứng một chân trên khăn gấp",
+   "dung mot chan tren khan gap",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/dung-1-chan-khan",
+  "blurb": "Cổ chân, bàn chân. Gấp một chiếc khăn bông dày hoặc đệm mỏng đặt trên sàn."
+ },
+ {
+  "name": "Bài tập: Viết chữ cái bằng cổ chân",
+  "keywords": [
+   "viết chữ cái bằng cổ chân",
+   "viet chu cai bang co chan",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/chu-cai-co-chan",
+  "blurb": "Cổ chân, bàn chân. Ngồi thoải mái, nhấc một chân khỏi sàn."
+ },
+ {
+  "name": "Bài tập: Xoay cổ chân ra ngoài với dây",
+  "keywords": [
+   "xoay cổ chân ra ngoài với dây",
+   "xoay co chan ra ngoai voi day",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/co-chan-day-ngoai",
+  "blurb": "Cổ chân, bàn chân. Ngồi, duỗi chân, buộc dây quanh bàn chân, đầu kia giữ bằng tay hoặc móc vào ghế."
+ },
+ {
+  "name": "Bài tập: Xoay cổ chân vào trong với dây",
+  "keywords": [
+   "xoay cổ chân vào trong với dây",
+   "xoay co chan vao trong voi day",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/co-chan-day-trong",
+  "blurb": "Cổ chân, bàn chân. Ngồi, duỗi chân, dây buộc quanh bàn chân, đầu kia giữ cố định bên ngoài."
+ },
+ {
+  "name": "Bài tập: Kéo mũi chân lên với dây",
+  "keywords": [
+   "kéo mũi chân lên với dây",
+   "keo mui chan len voi day",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "dây kháng lực",
+   "day khang luc"
+  ],
+  "path": "#/thu-vien/co-chan-gap-len",
+  "blurb": "Cổ chân, bàn chân. Ngồi duỗi chân, dây buộc quanh bàn chân, đầu dây móc vào chân bàn."
+ },
+ {
+  "name": "Bài tập: Chạm chân ba hướng (Star)",
+  "keywords": [
+   "chạm chân ba hướng (star)",
+   "cham chan ba huong (star)",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/cham-chan-3-huong",
+  "blurb": "Cổ chân, bàn chân. Đứng một chân, tay chống hông."
+ },
+ {
+  "name": "Bài tập: Đi bằng gót chân",
+  "keywords": [
+   "đi bằng gót chân",
+   "di bang got chan",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/di-got-chan",
+  "blurb": "Cổ chân, bàn chân. Đứng thẳng, nhấc mũi chân khỏi sàn."
+ },
+ {
+  "name": "Bài tập: Đi bằng mũi chân",
+  "keywords": [
+   "đi bằng mũi chân",
+   "di bang mui chan",
+   "bắp chân",
+   "bap chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/di-mui-chan",
+  "blurb": "Bắp chân. Nhón gót cao, đứng trên mũi chân."
+ },
+ {
+  "name": "Bài tập: Gồng vòm bàn chân (short foot)",
+  "keywords": [
+   "gồng vòm bàn chân (short foot)",
+   "gong vom ban chan (short foot)",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/ban-chan-ngan",
+  "blurb": "Cổ chân, bàn chân. Đứng hoặc ngồi, bàn chân đặt phẳng trên sàn."
+ },
+ {
+  "name": "Bài tập: Chạy chậm tại chỗ",
+  "keywords": [
+   "chạy chậm tại chỗ",
+   "chay cham tai cho",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/chay-tai-cho",
+  "blurb": "Toàn thân. Đứng thẳng, hai tay co nhẹ bên người."
+ },
+ {
+  "name": "Bài tập: Xoay cổ chân",
+  "keywords": [
+   "xoay cổ chân",
+   "xoay co chan",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/xoay-co-chan",
+  "blurb": "Cổ chân, bàn chân. Đứng một chân (vịn tường nếu cần), nhấc chân kia lên."
+ },
+ {
+  "name": "Bài tập: Xoay hông tròn",
+  "keywords": [
+   "xoay hông tròn",
+   "xoay hong tron",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/xoay-hong",
+  "blurb": "Hông, háng. Đứng chân rộng bằng vai, hai tay chống hông."
+ },
+ {
+  "name": "Bài tập: Vung chân trước-sau",
+  "keywords": [
+   "vung chân trước-sau",
+   "vung chan truoc-sau",
+   "hông, háng",
+   "hong, hang",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/vung-chan-truoc-sau",
+  "blurb": "Hông, háng. Đứng nghiêng vịn tường, thân thẳng."
+ },
+ {
+  "name": "Bài tập: Vung chân sang ngang",
+  "keywords": [
+   "vung chân sang ngang",
+   "vung chan sang ngang",
+   "hông, háng",
+   "hong, hang",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/vung-chan-ngang",
+  "blurb": "Hông, háng. Đứng đối diện tường, hai tay vịn."
+ },
+ {
+  "name": "Bài tập: Xoay tay vòng lớn",
+  "keywords": [
+   "xoay tay vòng lớn",
+   "xoay tay vong lon",
+   "vai",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/xoay-vai-vong",
+  "blurb": "Vai. Đứng thẳng, hai tay dang ngang."
+ },
+ {
+  "name": "Bài tập: Bước chùng xoay thân",
+  "keywords": [
+   "bước chùng xoay thân",
+   "buoc chung xoay than",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/buoc-xoay-than",
+  "blurb": "Toàn thân. Đứng thẳng, bước một chân ra trước vào tư thế chùng."
+ },
+ {
+  "name": "Bài tập: Nâng gối cao",
+  "keywords": [
+   "nâng gối cao",
+   "nang goi cao",
+   "đùi trước",
+   "dui truoc",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nang-goi-cao",
+  "blurb": "Đùi trước. Đứng thẳng, tay đưa ra trước."
+ },
+ {
+  "name": "Bài tập: Đá gót chạm mông",
+  "keywords": [
+   "đá gót chạm mông",
+   "da got cham mong",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/chuyen-got-mong",
+  "blurb": "Đùi sau. Đứng thẳng, hai tay chống hông."
+ },
+ {
+  "name": "Bài tập: Bò giun (inchworm)",
+  "keywords": [
+   "bò giun (inchworm)",
+   "bo giun (inchworm)",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/bo-giun",
+  "blurb": "Toàn thân. Đứng thẳng, gập người đặt hai tay xuống sàn (gối gập nếu cần)."
+ },
+ {
+  "name": "Bài tập: Xoay cổ tay, bóp mở bàn tay",
+  "keywords": [
+   "xoay cổ tay, bóp mở bàn tay",
+   "xoay co tay, bop mo ban tay",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/xoay-co-tay-ban-tay",
+  "blurb": "Cẳng tay, cổ tay. Đứng hoặc ngồi, hai tay đưa ra trước."
+ },
+ {
+  "name": "Bài tập: Nhảy dang tay chân (jumping jack)",
+  "keywords": [
+   "nhảy dang tay chân (jumping jack)",
+   "nhay dang tay chan (jumping jack)",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/nhay-sao-nhe",
+  "blurb": "Toàn thân. Đứng khép chân, tay hai bên."
+ },
+ {
+  "name": "Bài tập: Bước cúi chạm sàn",
+  "keywords": [
+   "bước cúi chạm sàn",
+   "buoc cui cham san",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/buoc-cui-cham-san",
+  "blurb": "Đùi sau. Đứng thẳng, bước một bước, cúi người chạm sàn."
+ },
+ {
+  "name": "Bài tập: Giãn bắp chân tựa tường",
+  "keywords": [
+   "giãn bắp chân tựa tường",
+   "gian bap chan tua tuong",
+   "bắp chân",
+   "bap chan",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/gian-bap-chan-tuong",
+  "blurb": "Bắp chân. Đứng đối diện tường, hai tay chống tường."
+ },
+ {
+  "name": "Bài tập: Giãn đùi sau nằm ngửa",
+  "keywords": [
+   "giãn đùi sau nằm ngửa",
+   "gian dui sau nam ngua",
+   "đùi sau",
+   "dui sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-dui-sau-nam",
+  "blurb": "Đùi sau. Nằm ngửa, một chân gập, chân kia nâng lên."
+ },
+ {
+  "name": "Bài tập: Giãn đùi trước đứng",
+  "keywords": [
+   "giãn đùi trước đứng",
+   "gian dui truoc dung",
+   "đùi trước",
+   "dui truoc",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/gian-dui-truoc-dung",
+  "blurb": "Đùi trước. Đứng thẳng, tay vịn tường."
+ },
+ {
+  "name": "Bài tập: Giãn cơ gập hông (quỳ một gối)",
+  "keywords": [
+   "giãn cơ gập hông (quỳ một gối)",
+   "gian co gap hong (quy mot goi)",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-hong-co",
+  "blurb": "Hông, háng. Quỳ một gối (có đệm), chân kia đặt phía trước, gối 90 độ."
+ },
+ {
+  "name": "Bài tập: Giãn mông (số 4)",
+  "keywords": [
+   "giãn mông (số 4)",
+   "gian mong (so 4)",
+   "mông",
+   "mong",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-mong-so-4",
+  "blurb": "Mông. Nằm ngửa, gập gối, bàn chân đặt sàn."
+ },
+ {
+  "name": "Bài tập: Giãn háng tư thế bướm",
+  "keywords": [
+   "giãn háng tư thế bướm",
+   "gian hang tu the buom",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-khep-hong-buom",
+  "blurb": "Hông, háng. Ngồi thẳng, hai lòng bàn chân chạm nhau, gối mở ra hai bên."
+ },
+ {
+  "name": "Bài tập: Giãn ngực ở khung cửa",
+  "keywords": [
+   "giãn ngực ở khung cửa",
+   "gian nguc o khung cua",
+   "ngực",
+   "nguc",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/gian-nguc-cua",
+  "blurb": "Ngực. Đứng trong khung cửa, đặt cẳng tay hai bên khung, khuỷu 90 độ."
+ },
+ {
+  "name": "Bài tập: Giãn vai kéo tay chéo ngực",
+  "keywords": [
+   "giãn vai kéo tay chéo ngực",
+   "gian vai keo tay cheo nguc",
+   "vai",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-vai-cheo",
+  "blurb": "Vai. Đứng thẳng, đưa một tay duỗi ngang qua ngực."
+ },
+ {
+  "name": "Bài tập: Giãn tay sau (triceps)",
+  "keywords": [
+   "giãn tay sau (triceps)",
+   "gian tay sau (triceps)",
+   "tay sau",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-tay-sau",
+  "blurb": "Tay sau. Đưa một tay lên cao, gập khuỷu, bàn tay chạm giữa lưng."
+ },
+ {
+  "name": "Bài tập: Giãn cổ tay gập-duỗi",
+  "keywords": [
+   "giãn cổ tay gập-duỗi",
+   "gian co tay gap-duoi",
+   "cẳng tay, cổ tay",
+   "cang tay, co tay",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-co-tay",
+  "blurb": "Cẳng tay, cổ tay. Duỗi một tay ra trước, lòng bàn tay hướng xuống."
+ },
+ {
+  "name": "Bài tập: Giãn lưng tư thế em bé",
+  "keywords": [
+   "giãn lưng tư thế em bé",
+   "gian lung tu the em be",
+   "lưng dưới",
+   "lung duoi",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-lung-em-be",
+  "blurb": "Lưng dưới. Quỳ, ngồi lên gót chân, hai gối mở rộng bằng hông."
+ },
+ {
+  "name": "Bài tập: Mèo-bò",
+  "keywords": [
+   "mèo-bò",
+   "meo-bo",
+   "lưng dưới",
+   "lung duoi",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/meo-bo",
+  "blurb": "Lưng dưới. Quỳ chống bốn điểm, tay dưới vai, gối dưới hông."
+ },
+ {
+  "name": "Bài tập: Xoay cột sống nằm ngửa",
+  "keywords": [
+   "xoay cột sống nằm ngửa",
+   "xoay cot song nam ngua",
+   "lưng dưới",
+   "lung duoi",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/xoay-cot-song-nam",
+  "blurb": "Lưng dưới. Nằm ngửa, dang hai tay ngang vai."
+ },
+ {
+  "name": "Bài tập: Giãn cổ nghiêng bên",
+  "keywords": [
+   "giãn cổ nghiêng bên",
+   "gian co nghieng ben",
+   "cổ",
+   "co",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-co-ben",
+  "blurb": "Cổ. Ngồi hoặc đứng thẳng, vai thả lỏng."
+ },
+ {
+  "name": "Bài tập: Giãn bụng tư thế rắn",
+  "keywords": [
+   "giãn bụng tư thế rắn",
+   "gian bung tu the ran",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-bung-ran",
+  "blurb": "Bụng, core. Nằm sấp, hai tay đặt cạnh ngực."
+ },
+ {
+  "name": "Bài tập: Giãn bên hông đứng",
+  "keywords": [
+   "giãn bên hông đứng",
+   "gian ben hong dung",
+   "cơ xoay thân",
+   "co xoay than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/gian-gan-ngang-hong",
+  "blurb": "Cơ xoay thân. Đứng chân rộng bằng vai, một tay đưa lên cao."
+ },
+ {
+  "name": "Bài tập: Giãn bắp chân sâu (gập gối)",
+  "keywords": [
+   "giãn bắp chân sâu (gập gối)",
+   "gian bap chan sau (gap goi)",
+   "bắp chân",
+   "bap chan",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/gian-bap-chan-gap",
+  "blurb": "Bắp chân. Đứng đối diện tường, một chân sau."
+ },
+ {
+  "name": "Bài tập: Chó úp mặt (downward dog)",
+  "keywords": [
+   "chó úp mặt (downward dog)",
+   "cho up mat (downward dog)",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/cho-uop-mat",
+  "blurb": "Toàn thân. Chống hai tay và hai chân, nâng hông cao thành hình chữ V ngược."
+ },
+ {
+  "name": "Bài tập: Tư thế chiến binh 2",
+  "keywords": [
+   "tư thế chiến binh 2",
+   "tu the chien binh 2",
+   "hông, háng",
+   "hong, hang",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/chien-binh-2",
+  "blurb": "Hông, háng. Đứng chân rộng hơn vai, xoay một mũi chân ra ngoài."
+ },
+ {
+  "name": "Bài tập: Tư thế cái cây",
+  "keywords": [
+   "tư thế cái cây",
+   "tu the cai cay",
+   "cổ chân, bàn chân",
+   "co chan, ban chan",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/tu-the-cay",
+  "blurb": "Cổ chân, bàn chân. Đứng thẳng, chuyển trọng lượng lên một chân."
+ },
+ {
+  "name": "Bài tập: Thở bụng",
+  "keywords": [
+   "thở bụng",
+   "tho bung",
+   "bụng, core",
+   "bung, core",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/tho-bung",
+  "blurb": "Bụng, core. Nằm ngửa, gập gối, đặt tay lên bụng."
+ },
+ {
+  "name": "Bài tập: Gác chân lên tường",
+  "keywords": [
+   "gác chân lên tường",
+   "gac chan len tuong",
+   "bắp chân",
+   "bap chan",
+   "tường",
+   "tuong"
+  ],
+  "path": "#/thu-vien/gac-chan-tuong",
+  "blurb": "Bắp chân. Nằm ngửa, mông sát tường."
+ },
+ {
+  "name": "Bài tập: Đi bộ thả lỏng",
+  "keywords": [
+   "đi bộ thả lỏng",
+   "di bo tha long",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/di-bo-tha-long",
+  "blurb": "Toàn thân. Đi bộ chậm, tay đánh nhẹ."
+ },
+ {
+  "name": "Bài tập: Lắc thả lỏng",
+  "keywords": [
+   "lắc thả lỏng",
+   "lac tha long",
+   "toàn thân",
+   "toan than",
+   "không dụng cụ",
+   "khong dung cu"
+  ],
+  "path": "#/thu-vien/lac-tha-long",
+  "blurb": "Toàn thân. Đứng thẳng, chân rộng bằng hông."
+ },
+ {
+  "name": "Bài tập: Lăn con lăn xốp ở đùi",
+  "keywords": [
+   "lăn con lăn xốp ở đùi",
+   "lan con lan xop o dui",
+   "đùi trước",
+   "dui truoc",
+   "con lăn xốp",
+   "con lan xop"
+  ],
+  "path": "#/thu-vien/lan-con-lan-dui",
+  "blurb": "Đùi trước. Nằm sấp, đặt con lăn dưới đùi trước."
+ },
+ {
+  "name": "Bài tập: Lăn con lăn xốp ở bắp chân",
+  "keywords": [
+   "lăn con lăn xốp ở bắp chân",
+   "lan con lan xop o bap chan",
+   "bắp chân",
+   "bap chan",
+   "con lăn xốp",
+   "con lan xop"
+  ],
+  "path": "#/thu-vien/lan-con-lan-bap",
+  "blurb": "Bắp chân. Ngồi, đặt con lăn dưới bắp chân."
+ }
+]

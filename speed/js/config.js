@@ -146,7 +146,9 @@ export const MAP = {
   maxZoom: 19,
   // Toàn bộ lãnh thổ VN, gồm quần đảo Hoàng Sa và Trường Sa — không cắt khi zoom/pan
   maxBounds: [[6.0, 101.8], [23.6, 117.8]],
-  tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  tileUrl: 'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+  tileFallback: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  tileSubdomains: '',
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 };
 

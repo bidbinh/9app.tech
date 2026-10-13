@@ -1,0 +1,25 @@
+{
+  "name": "9ship",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9Ship — gửi chuyển phát nhanh nội địa cho cá nhân, tổng hợp nhiều hãng.",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test --test-concurrency=1 test/",
+    "demo": "node scripts/demo.js",
+    "totp": "node scripts/totp.js",
+    "db": "docker compose -f docker-compose.demo.yml up -d",
+    "ghtk:check": "node scripts/ghtk-check.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.13.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "jsbarcode": "^3.12.3"
+  }
+}

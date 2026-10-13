@@ -1,0 +1,13 @@
+{
+  "name": "9interview",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "9interview — luyện phỏng vấn xin việc, tạo CV và thư xin việc. Frontend tĩnh PWA kèm một máy chủ Node nhỏ chỉ để gọi AI.",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/",
+    "e2e": "node scripts/e2e.js"
+  },
+  "engines": { "node": ">=20" }
+}

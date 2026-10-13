@@ -1,0 +1,72 @@
+/* Life OS — stacked on style.css. Classic CSS. */
+.today-list { display: block; }
+.today-card {
+  display: block; width: 100%; text-align: left;
+  background: #fff; border-radius: 16px; padding: 14px 14px 12px;
+  margin-bottom: 10px; box-shadow: 0 6px 16px rgba(15, 40, 80, .06);
+}
+.today-card .kicker { font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+.today-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 800; }
+.today-card p { margin: 0 0 10px; font-size: 13px; color: #64748b; }
+.today-card .row { display: flex; gap: 8px; }
+.today-card .row button, .today-card .row a {
+  display: inline-flex; align-items: center; height: 32px; padding: 0 12px;
+  border-radius: 16px; font-size: 12px; font-weight: 700; background: #eef4ff; color: var(--brand);
+}
+.today-card.high { border-left: 4px solid #ef4444; }
+.today-card.mid { border-left: 4px solid #f59e0b; }
+.chip-row { overflow: hidden; margin: 0 -4px 8px; }
+.chip {
+  float: left; margin: 0 4px 8px; height: 32px; padding: 0 12px;
+  border-radius: 16px; background: #fff; font-size: 12px; font-weight: 650; color: #334155;
+  box-shadow: 0 2px 8px rgba(15, 40, 80, .06);
+}
+.chip.on { background: var(--brand); color: #fff; }
+.form { background: #fff; border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+.form label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin: 8px 0 4px; }
+.form input, .form select, .form textarea {
+  width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line);
+  border-radius: 12px; background: #f8fafc; outline: none;
+}
+.form textarea { height: 72px; padding: 10px 12px; resize: vertical; }
+.form .btn, .btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px; margin-top: 12px;
+  background: var(--brand); color: #fff; border-radius: 12px; font-weight: 750; font-size: 14px;
+}
+.btn-ghost { background: #f1f5f9; color: #334155; }
+.item-card {
+  background: #fff; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;
+}
+.item-card h3 { margin: 0 0 4px; font-size: 15px; }
+.item-card p { margin: 0; font-size: 12px; color: #64748b; }
+.item-card button, .item-card a { font-size: 12px; font-weight: 700; color: var(--brand); margin-top: 8px; display: inline-block; }
+.badge {
+  display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 4px;
+  border-radius: 9px; background: #ef4444; color: #fff; font-size: 10px; line-height: 18px; text-align: center;
+}
+.round-btn { position: relative; }
+.dot-badge {
+  position: absolute; top: 4px; right: 4px; width: 8px; height: 8px;
+  border-radius: 50%; background: #ef4444;
+}
+.module-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.module-head h1 { margin: 0; font-size: 22px; }
+.back-link { font-size: 14px; font-weight: 700; color: var(--brand); }
+.quick-grid { overflow: hidden; margin: 0 -4px; }
+.quick-grid button {
+  float: left; width: 50%; padding: 14px; margin: 0 0 8px;
+  background: #fff; border-radius: 14px; font-weight: 750; text-align: left;
+}
+.quick-grid button { width: calc(50% - 8px); margin: 0 4px 8px; }
+.search-hit { display: block; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.search-hit strong { display: block; font-size: 14px; }
+.search-hit span { font-size: 12px; color: #64748b; }
+.empty.ok p { margin: 0; }
+.house-prop h2 { margin: 0 0 4px; font-size: 18px; }
+.room-block {
+  background: #fff; border-radius: 16px; padding: 12px; margin: 10px 0;
+  box-shadow: 0 4px 12px rgba(15, 40, 80, .05);
+}
+.room-block h3 { margin: 0 0 8px; font-size: 14px; color: #334155; }
+.room-block .item-card { box-shadow: none; border: 1px solid var(--line); }

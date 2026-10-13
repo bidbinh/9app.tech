@@ -1,0 +1,5 @@
+.pv-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fdf0cf; color: #5c3205; font: 600 14px/1.35 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; padding: 8px 12px; padding-top: calc(8px + env(safe-area-inset-top)); }
+.pv-banner button { flex: none; min-height: 44px; padding: 0 14px; border-radius: 22px; border: 1.5px solid #8a4a06; background: #fff; color: #5c3205; font: 700 14px/1 inherit; cursor: pointer; }
+/* các mô-đun chưa có lớp giả API trong bản xem thử: ẩn ô dẫn tới (không để người xem rơi vào màn lỗi) */
+a.tile[href$="/menu"], a.tile[href$="/shop"], a.tile[href$="/health"], a.tile[href$="/money"], a.tile[href$="/school"], a.shopcard { display: none; }
+@media (prefers-color-scheme: dark) { .pv-banner { background: #3d2f0c; color: #fcd34d; } .pv-banner button { background: #12242a; color: #fcd34d; border-color: #7a5f1a; } }
