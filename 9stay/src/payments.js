@@ -45,9 +45,10 @@ export async function recordPayment(c, { orgId, bookingId, kind, amount, receive
 
   const paid = before.paid + (isRefund ? -amount : amount);
   let status = b.status;
-  if (!isRefund && b.status === 'giu' && paid > 0 && paid >= before.depositRequired) {
+  // Chỉ đơn có cọc yêu cầu (từ báo giá) mới tự chuyển da_coc; đơn không có giá không thể "được cọc" bằng 1 đồng.
+  if (!isRefund && b.status === 'giu' && before.depositRequired > 0 && paid >= before.depositRequired) {
     await c.query("UPDATE bookings SET status = 'da_coc', hold_until = NULL, version = version + 1 WHERE id = $1", [bookingId]);
-    await addEvent(c, bookingId, 'deposit_received', { paymentId: pay.id });
+    await addEvent(c, bookingId, 'deposit_received', { paymentId: pay.id }, by);
     status = 'da_coc';
   }
   return { paymentId: pay.id, bookingStatus: status, paid, due: before.due - (isRefund ? -amount : amount), created: true };

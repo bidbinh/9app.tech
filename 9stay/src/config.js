@@ -14,6 +14,11 @@ export const config = {
   rateLimitPerMin: int(env.RATE_LIMIT_PER_MIN, 1200),
   redeemLimitPerMin: int(env.REDEEM_LIMIT_PER_MIN, 10),
   maxBodyBytes: 64 * 1024,
+  // Số proxy tin cậy phía trước: IP khách lấy từ phần tử thứ n tính từ CUỐI của X-Forwarded-For (nginx đặt = $remote_addr).
+  // 0 = không tin X-Forwarded-For, dùng địa chỉ kết nối.
+  trustedProxyHops: int(env.TRUSTED_PROXY_HOPS, 1),
+  // Bí mật nginx gắn vào mọi yêu cầu (X-Edge-Secret); đặt thì thiếu hoặc sai bị từ chối, nên không ai gọi thẳng cổng nội bộ để giả IP.
+  edgeSecret: env.EDGE_SECRET || '',
 };
 
 // Cấu hình production không an toàn thì từ chối khởi động.
@@ -23,5 +28,7 @@ export function productionProblems(c = config, e = env) {
   if (!e.DATABASE_URL || /stay@localhost/.test(e.DATABASE_URL)) out.push('DATABASE_URL thiếu hoặc còn là giá trị mẫu');
   if (!c.nineIdSecret || c.nineIdSecret.length < 32) out.push('NINE_ID_SECRET thiếu hoặc ngắn hơn 32 ký tự');
   if (!/^https?:\/\//.test(c.nineIdUrl)) out.push('NINE_ID_URL không hợp lệ');
+  if (!c.edgeSecret || c.edgeSecret.length < 32) out.push('EDGE_SECRET thiếu hoặc ngắn hơn 32 ký tự');
+  if (!(c.trustedProxyHops >= 1)) out.push('TRUSTED_PROXY_HOPS phải >= 1 trong production');
   return out;
 }

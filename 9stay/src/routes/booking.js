@@ -63,6 +63,8 @@ export function bookingRoutes(app) {
     const b = ctx.body;
     const agent = isAgentRole(m.role);
     if (agent && b.unitId) throw new AppError('forbidden', 'Bạn chỉ được đặt theo loại phòng', 403);
+    // Chỉ quản lý được gán đơn cho một sale/CTV (đơn gắn hoa hồng); lễ tân thì không.
+    if (!agent && b.agentId && m.role !== 'quanly') throw new AppError('forbidden', 'Chỉ quản lý được gán đơn cho sale/CTV', 403);
     const input = {
       orgId: m.orgId, checkin: b.checkin, checkout: b.checkout, guestName: b.guestName, guestPhone: b.guestPhone ?? null,
       adults: b.adults ?? 1, children: b.children ?? 0, quoteId: b.quoteId ?? null, createdBy: m.id,
@@ -121,26 +123,25 @@ export function bookingRoutes(app) {
         row = await getBooking(c, { orgId: m.orgId, bookingId: ctx.params.id, agentId: m.agentId });
       } else requirePerm(ctx, 'booking.cancel');
       if (!row) throw new AppError('not_found', 'Không tìm thấy đơn', 404);
-      // Lễ tân và sale/CTV không xử lý tiền cọc: đơn đã thu tiền phải do quản lý hủy (chọn giữ lại/hoàn).
-      if (m.role !== 'quanly' && row.paid > 0) throw new AppError('forbidden', 'Đơn đã thu tiền, cần quản lý hủy', 403);
-      return cancelBooking(c, { orgId: m.orgId, bookingId: row.id, reason: b.reason ?? null, retainAmount: b.retainAmount }, { now: ctx.now });
+      // Lễ tân và sale/CTV không xử lý tiền cọc: đơn đã thu tiền phải do quản lý hủy (chọn giữ lại/hoàn). Kiểm ngay trong cancelBooking, sau khi khóa đơn.
+      return cancelBooking(c, { orgId: m.orgId, bookingId: row.id, reason: b.reason ?? null, retainAmount: b.retainAmount, by: m.id, requireNoPayments: m.role !== 'quanly' }, { now: ctx.now });
     });
   });
 
   app.route('POST', '/api/bookings/:id/move', async (ctx) => {
     requirePerm(ctx, 'booking.move');
     const b = ctx.body;
-    return tx((c) => moveBooking(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id, unitId: b.unitId, checkin: b.checkin, checkout: b.checkout, expectedVersion: b.expectedVersion ?? null, quoteId: b.quoteId ?? null }, { now: ctx.now }));
+    return tx((c) => moveBooking(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id, unitId: b.unitId, checkin: b.checkin, checkout: b.checkout, expectedVersion: b.expectedVersion ?? null, quoteId: b.quoteId ?? null, by: ctx.member.id }, { now: ctx.now }));
   });
 
   app.route('POST', '/api/bookings/:id/checkin', async (ctx) => {
     requirePerm(ctx, 'booking.checkin');
-    return tx((c) => checkIn(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id }));
+    return tx((c) => checkIn(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id, by: ctx.member.id }));
   });
 
   app.route('POST', '/api/bookings/:id/checkout', async (ctx) => {
     requirePerm(ctx, 'booking.checkout');
-    return tx((c) => checkOut(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id }, { now: ctx.now }));
+    return tx((c) => checkOut(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id, by: ctx.member.id }, { now: ctx.now }));
   });
 
   // Thu/hoàn tiền thủ công. Hoàn tiền chỉ quản lý. Phương thức luôn là manual_bank: client không được tự nhận là webhook.

@@ -112,8 +112,11 @@ test('hai CTV tranh nhau căn cuối cùng cùng đêm: đúng một người đ
   // chặn bớt để chỉ còn đúng một căn Deluxe trống đêm 20/11
   ok(await qm.post(`/api/units/${w.unitId}/release`, { action: 'block', from: '2026-11-20', to: '2026-11-21', kind: 'blocked_by_anstay' }), 'block 1');
   ok(await qm.post(`/api/units/${w.unit2Id}/release`, { action: 'block', from: '2026-11-20', to: '2026-11-21', kind: 'blocked_by_anstay' }), 'block 2');
-  const body = (name) => ({ roomTypeId: w.roomTypeId, checkin: '2026-11-20', checkout: '2026-11-21', guestName: name, adults: 1 });
-  const rs = await Promise.all([as(srv, w, 'ctv1').post('/api/bookings', body('A')), as(srv, w, 'ctv2').post('/api/bookings', body('B')), as(srv, w, 'letan').post('/api/bookings', body('C'))]);
+  const body = (name, quoteId) => ({ roomTypeId: w.roomTypeId, checkin: '2026-11-20', checkout: '2026-11-21', guestName: name, adults: 1, ...(quoteId ? { quoteId } : {}) });
+  const quoteFor = async (api) => ok(await api.post('/api/quotes', { roomTypeId: w.roomTypeId, checkin: '2026-11-20', checkout: '2026-11-21', adults: 1 }), 'quote').id;
+  const [ctv1, ctv2, letan] = [as(srv, w, 'ctv1'), as(srv, w, 'ctv2'), as(srv, w, 'letan')];
+  const [q1, q2] = [await quoteFor(ctv1), await quoteFor(ctv2)];
+  const rs = await Promise.all([ctv1.post('/api/bookings', body('A', q1)), ctv2.post('/api/bookings', body('B', q2)), letan.post('/api/bookings', body('C'))]);
   assert.equal(rs.filter((r) => r.status === 200).length, 1);
   for (const r of rs.filter((x) => x.status !== 200)) {
     assert.equal(r.status, 409);

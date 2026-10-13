@@ -99,8 +99,9 @@ export async function claimNights(c, { orgId, bookingId, unitId, nights, now = n
 }
 
 // Sự kiện chỉ chứa id và ngày, không chứa tên hay SĐT.
-export async function addEvent(c, bookingId, kind, data = {}) {
-  await c.query('INSERT INTO booking_events(booking_id, kind, data) VALUES($1, $2, $3::jsonb)', [bookingId, kind, JSON.stringify(data)]);
+// actor: members.id của người thực hiện (null = hệ thống).
+export async function addEvent(c, bookingId, kind, data = {}, actor = null) {
+  await c.query('INSERT INTO booking_events(booking_id, kind, data, actor) VALUES($1, $2, $3::jsonb, $4)', [bookingId, kind, JSON.stringify(data), actor]);
 }
 
 async function nextBookingCode(c, orgId, today) {
@@ -120,13 +121,26 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
   const phone = normalizePhone(guestPhone);
   const { unit, nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults, children }, now);
   const today = todayVN(now);
+  const fromAgent = source === 'agent';
+  // Đơn do sale/CTV tạo: bắt buộc có báo giá do chính họ lập (không thể đặt "trống giá" để giữ phòng, hay dùng báo giá gói khác).
+  if (fromAgent && !agentId) throw new AppError('bad_guest', 'Đơn của sale/CTV phải gắn sale/CTV');
+  if (fromAgent && !quoteId) throw new AppError('quote_required', 'Sale/CTV cần báo giá trước khi giữ phòng', 400);
   const quote = quoteId ? await loadUsableQuote(c, { orgId, quoteId, unit, checkin, checkout, adults, children, now }) : null;
+  if (fromAgent && quote.created_by !== createdBy) throw new AppError('quote_mismatch', 'Báo giá này không phải do bạn lập', 409);
   const commissionPct = agentId ? await agentCommissionPct(c, orgId, agentId) : null;
 
   let holdUntil = null;
   if (status === 'giu') {
-    const minutes = await getSetting(c, { orgId, key: 'booking.holdMinutesStaff', unitId, asOf: today });
+    const key = fromAgent ? 'booking.holdMinutesAgent' : 'booking.holdMinutesStaff';
+    const minutes = await getSetting(c, { orgId, key, unitId, asOf: today });
     holdUntil = new Date(now.getTime() + minutes * 60 * 1000);
+  }
+  if (fromAgent) {
+    // Khóa dòng sale/CTV để hai yêu cầu đồng thời không cùng vượt giới hạn số đơn đang giữ chỗ.
+    await c.query('SELECT 1 FROM agents WHERE id = $1 FOR UPDATE', [agentId]);
+    const max = await getSetting(c, { orgId, key: 'booking.maxHeldPerAgent', asOf: today });
+    const [held] = await c.query("SELECT count(*)::int AS n FROM bookings WHERE agent_id = $1 AND status = 'giu' AND (hold_until IS NULL OR hold_until >= $2::timestamptz)", [agentId, now]);
+    if (held.n >= max) throw new AppError('too_many_holds', `Bạn đang giữ tối đa ${max} đơn chưa cọc, hãy chốt hoặc hủy bớt`, 409, { max });
   }
   const code = await nextBookingCode(c, orgId, today);
   let row;
@@ -143,7 +157,7 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
   if (quote) await markQuoteUsed(c, quote.id, row.id);
   await claimNights(c, { orgId, bookingId: row.id, unitId, nights, now });
   if (quote) await writePriceLines(c, { orgId, bookingId: row.id, quote });
-  await addEvent(c, row.id, 'created', { unitId, checkin, checkout, status });
+  await addEvent(c, row.id, 'created', { unitId, checkin, checkout, status }, createdBy);
   return { id: row.id, code, status, version: row.version, holdUntil, checkin, checkout, nights, total: quote ? quote.total : 0, depositRequired: quote ? quote.deposit : 0 };
 }
 
@@ -180,7 +194,7 @@ async function reversePriceLines(c, { orgId, bookingId }) {
 async function loadUsableQuote(c, { orgId, quoteId, unit, checkin, checkout, adults, children, now }) {
   assertUuid(quoteId, 'báo giá');
   const [q] = await c.query(
-    'SELECT id, room_type_id, checkin, checkout, adults, child_ages, lines, vat, total, deposit, expires_at FROM quotes WHERE id = $1 AND org_id = $2',
+    'SELECT id, room_type_id, checkin, checkout, adults, child_ages, lines, vat, total, deposit, expires_at, created_by FROM quotes WHERE id = $1 AND org_id = $2',
     [quoteId, orgId],
   );
   if (!q) throw new AppError('quote_not_found', 'Không tìm thấy báo giá', 404);
@@ -249,7 +263,9 @@ async function settleCancellation(c, { orgId, booking, retain, now }) {
 }
 
 // Hủy đơn. Đơn đã thu tiền phải nói rõ giữ lại bao nhiêu (retainAmount, 0 = hoàn hết) để tiền cọc không bị kẹt.
-export async function cancelBooking(c, { orgId, bookingId, reason = null, retainAmount }, { now = new Date() } = {}) {
+// requireNoPayments: vai không được xử lý tiền (lễ tân, sale/CTV) chỉ hủy được đơn chưa thu đồng nào. Kiểm SAU khi khóa đơn
+// nên không bị đua với một khoản tiền vừa được ghi.
+export async function cancelBooking(c, { orgId, bookingId, reason = null, retainAmount, by = null, requireNoPayments = false }, { now = new Date() } = {}) {
   const why = typeof reason === 'string' ? reason.trim() : '';
   if (why.length > CANCEL_REASON_MAX) throw new AppError('bad_reason', `Lý do hủy tối đa ${CANCEL_REASON_MAX} ký tự`);
   if (retainAmount !== undefined && (!Number.isSafeInteger(retainAmount) || retainAmount < 0)) throw new AppError('bad_retain', 'Số tiền giữ lại không hợp lệ');
@@ -258,6 +274,7 @@ export async function cancelBooking(c, { orgId, bookingId, reason = null, retain
   if (['da_nhan', 'da_tra'].includes(b.status)) throw new AppError('cannot_cancel', 'Đơn đã nhận phòng, không hủy được', 409);
   if (['khong_den', 'het_han'].includes(b.status)) throw new AppError('booking_closed', 'Đơn đã đóng', 409);
   const bal = await bookingBalance(c, { orgId, bookingId });
+  if (requireNoPayments && bal.paid > 0) throw new AppError('forbidden', 'Đơn đã thu tiền, cần quản lý hủy', 403);
   if (bal.paid > 0 && retainAmount === undefined) {
     throw new AppError('payments_exist', 'Đơn đã thu tiền: hãy chọn số tiền giữ lại (0 nếu hoàn hết)', 409, { paid: bal.paid });
   }
@@ -266,13 +283,13 @@ export async function cancelBooking(c, { orgId, bookingId, reason = null, retain
   if (retain > 0) await settleCancellation(c, { orgId, booking: b, retain, now });
   await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active', [b.id]);
   await c.query("UPDATE bookings SET status = 'huy', version = version + 1, cancel_reason = $2 WHERE id = $1", [b.id, why || null]);
-  await addEvent(c, b.id, 'cancelled', { reasonGiven: why !== '' });
+  await addEvent(c, b.id, 'cancelled', { reasonGiven: why !== '', retained: retain }, by);
   return { id: b.id, status: 'huy' };
 }
 
 // Dời đơn. Đơn đã có dòng giá bắt buộc kèm báo giá mới (quoteId) cho kỳ ở mới: dòng giá cũ được đảo bằng dòng âm,
 // dòng giá mới được ghi, cọc yêu cầu theo báo giá mới. Đơn chưa có dòng giá dời như trước.
-export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checkout, expectedVersion = null, quoteId = null }, { now = new Date() } = {}) {
+export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checkout, expectedVersion = null, quoteId = null, by = null }, { now = new Date() } = {}) {
   const b = await lockBooking(c, orgId, bookingId);
   if (!['giu', 'da_coc'].includes(b.status)) throw new AppError('cannot_move', 'Chỉ dời được đơn đang giữ chỗ hoặc đã cọc', 409);
   if (b.status === 'giu' && b.hold_until && new Date(b.hold_until) < now) throw new AppError('hold_expired', 'Đơn giữ chỗ đã hết hạn', 409);
@@ -304,6 +321,6 @@ export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checko
     await c.query('UPDATE bookings SET quote_id = $2, deposit_required = $3 WHERE id = $1', [b.id, quote.id, quote.deposit]);
   }
   const [row] = await c.query('UPDATE bookings SET version = version + 1, checkin = $2::date, checkout = $3::date, unit_id = $4 WHERE id = $1 RETURNING version', [b.id, checkin, checkout, unitId]);
-  await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout }, quoteId: quote ? quote.id : null });
+  await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout }, quoteId: quote ? quote.id : null }, by);
   return { id: b.id, version: row.version, nights };
 }

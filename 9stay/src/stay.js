@@ -7,19 +7,19 @@ import { contractFor, ownerShareForNight } from './contracts.js';
 import { lockBooking, addEvent } from './bookings.js';
 
 // Nhận phòng: chỉ đơn đã cọc. Idempotent.
-export async function checkIn(c, { orgId, bookingId }) {
+export async function checkIn(c, { orgId, bookingId, by = null }) {
   const b = await lockBooking(c, orgId, bookingId);
   if (b.status === 'da_nhan') return { id: b.id, status: 'da_nhan', changed: false };
   if (b.status !== 'da_coc') throw new AppError('cannot_check_in', 'Chỉ nhận phòng cho đơn đã cọc', 409);
   await c.query("UPDATE bookings SET status = 'da_nhan', version = version + 1 WHERE id = $1", [b.id]);
-  await addEvent(c, b.id, 'checked_in', {});
+  await addEvent(c, b.id, 'checked_in', {}, by);
   return { id: b.id, status: 'da_nhan', changed: true };
 }
 
 // Trả phòng: chỉ khi đã nhận phòng và không còn nợ. Quyết toán chia tiền theo từng đêm và hợp đồng của đêm đó,
 // ghi sổ và bảng settlements trong cùng giao dịch. Gọi lại là idempotent. Khách đi sớm vẫn trả đủ tiền theo đơn,
 // nhưng các đêm từ ngày trả thực tế trở đi được nhả để bán lại.
-export async function checkOut(c, { orgId, bookingId }, { now = new Date() } = {}) {
+export async function checkOut(c, { orgId, bookingId, by = null }, { now = new Date() } = {}) {
   const b = await lockBooking(c, orgId, bookingId);
   if (b.status === 'da_tra') {
     const [s] = await c.query('SELECT id FROM settlements WHERE booking_id = $1', [b.id]);
@@ -96,6 +96,6 @@ export async function checkOut(c, { orgId, bookingId }, { now = new Date() } = {
   // Đi sớm: nhả các đêm từ ngày trả thực tế (tiền vẫn tính đủ theo đơn).
   await c.query('UPDATE room_nights SET active = false WHERE booking_id = $1 AND active AND night >= $2::date', [b.id, checkoutDate]);
   await c.query("UPDATE bookings SET status = 'da_tra', version = version + 1 WHERE id = $1", [b.id]);
-  await addEvent(c, b.id, 'checked_out', { settlementId: s.id });
+  await addEvent(c, b.id, 'checked_out', { settlementId: s.id }, by);
   return { id: b.id, status: 'da_tra', settlementId: s.id, created: true };
 }

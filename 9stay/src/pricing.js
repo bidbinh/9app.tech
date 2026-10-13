@@ -122,7 +122,10 @@ export async function createPromotion(c, { orgId, name, kind, value, minNights =
   if (!Number.isInteger(minNights) || minNights < 1) throw new AppError('bad_promotion', 'Số đêm tối thiểu không hợp lệ');
   if (!isDate(stayFrom) || !isDate(stayTo) || stayTo <= stayFrom) throw new AppError('bad_dates', 'Khoảng áp dụng không hợp lệ');
   if (planId) assertUuid(planId, 'gói giá');
-  if (roomTypeId) assertUuid(roomTypeId, 'loại phòng');
+  if (roomTypeId) {
+    assertUuid(roomTypeId, 'loại phòng');
+    if (!(await c.query('SELECT 1 FROM room_types WHERE id = $1 AND org_id = $2', [roomTypeId, orgId])).length) throw new AppError('room_type_not_found', 'Không tìm thấy loại phòng', 404);
+  }
   const [row] = await c.query(
     `INSERT INTO promotions(org_id, name, kind, value, min_nights, stay_from, stay_to, plan_id, room_type_id)
      VALUES($1, $2, $3, $4, $5, $6::date, $7::date, $8, $9) RETURNING id`,

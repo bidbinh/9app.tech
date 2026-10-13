@@ -9,6 +9,7 @@ import {
   ownerStatement, freezeOwnerStatement, recordOwnerPayout, agentStatement, freezeAgentStatement, recordAgentPayout, statementCsv,
 } from '../statements.js';
 import { rawResponse } from '../http.js';
+import { audit } from '../audit.js';
 
 const notFound = () => new AppError('not_found', 'Không tìm thấy', 404);
 
@@ -25,7 +26,8 @@ export function ownerRoutes(app) {
       // căn của chủ khác cũng 404: không lộ sự tồn tại
       if (!u || (!any && u.owner_id !== m.ownerId)) throw notFound();
       if (b.action === 'open') {
-        const n = await openNights(c, { orgId: m.orgId, unitId: ctx.params.id, from: b.from, to: b.to, by: m.id });
+        const n = await openNights(c, { orgId: m.orgId, unitId: ctx.params.id, from: b.from, to: b.to, by: m.id, protectAnstay: !any });
+        await audit(c, { orgId: m.orgId, actor: m.id, action: 'release.open', target: ctx.params.id, data: { from: b.from, to: b.to } });
         return { ok: true, nights: n };
       }
       if (b.action === 'block') {
@@ -34,6 +36,7 @@ export function ownerRoutes(app) {
         const allowed = any ? ['owner_use', 'blocked_by_owner', 'blocked_by_anstay'] : ['owner_use', 'blocked_by_owner'];
         if (!allowed.includes(kind)) throw new AppError('forbidden', 'Loại chặn này không dành cho bạn', 403);
         await blockNights(c, { orgId: m.orgId, unitId: ctx.params.id, nights, kind, by: m.id, now: ctx.now });
+        await audit(c, { orgId: m.orgId, actor: m.id, action: 'release.block', target: ctx.params.id, data: { kind, nights: nights.length } });
         return { ok: true, nights: nights.length };
       }
       throw new AppError('bad_action', 'Hành động không hợp lệ (open hoặc block)');
@@ -77,13 +80,21 @@ export function ownerRoutes(app) {
   app.route('POST', '/api/statements/owner/freeze', async (ctx) => {
     requirePerm(ctx, 'statement.freeze');
     const b = ctx.body;
-    return tx((c) => freezeOwnerStatement(c, { orgId: ctx.member.orgId, ownerId: b.ownerId, from: b.from, to: b.to, by: ctx.member.id }));
+    return tx(async (c) => {
+      const r = await freezeOwnerStatement(c, { orgId: ctx.member.orgId, ownerId: b.ownerId, from: b.from, to: b.to, by: ctx.member.id });
+      await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'statement.owner.freeze', target: r.id, data: { ownerId: b.ownerId, payable: r.payable } });
+      return r;
+    });
   });
 
   app.route('POST', '/api/statements/owner/:id/payout', async (ctx) => {
     requirePerm(ctx, 'statement.payout');
     const b = ctx.body;
-    return tx((c) => recordOwnerPayout(c, { orgId: ctx.member.orgId, statementId: ctx.params.id, paidOn: b.paidOn, ref: b.ref, by: ctx.member.id }));
+    return tx(async (c) => {
+      const r = await recordOwnerPayout(c, { orgId: ctx.member.orgId, statementId: ctx.params.id, paidOn: b.paidOn, ref: b.ref, by: ctx.member.id });
+      if (r.created) await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'statement.owner.payout', target: ctx.params.id, data: { amount: r.amount } });
+      return r;
+    });
   });
 
   app.route('GET', '/api/statements/owner/:id/csv', async (ctx) => {
@@ -124,12 +135,20 @@ export function ownerRoutes(app) {
   app.route('POST', '/api/statements/agent/freeze', async (ctx) => {
     requirePerm(ctx, 'statement.freeze');
     const b = ctx.body;
-    return tx((c) => freezeAgentStatement(c, { orgId: ctx.member.orgId, agentId: b.agentId, from: b.from, to: b.to, by: ctx.member.id }));
+    return tx(async (c) => {
+      const r = await freezeAgentStatement(c, { orgId: ctx.member.orgId, agentId: b.agentId, from: b.from, to: b.to, by: ctx.member.id });
+      await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'statement.agent.freeze', target: r.id, data: { agentId: b.agentId, payable: r.payable } });
+      return r;
+    });
   });
 
   app.route('POST', '/api/statements/agent/:id/payout', async (ctx) => {
     requirePerm(ctx, 'statement.payout');
     const b = ctx.body;
-    return tx((c) => recordAgentPayout(c, { orgId: ctx.member.orgId, statementId: ctx.params.id, paidOn: b.paidOn, ref: b.ref, by: ctx.member.id }));
+    return tx(async (c) => {
+      const r = await recordAgentPayout(c, { orgId: ctx.member.orgId, statementId: ctx.params.id, paidOn: b.paidOn, ref: b.ref, by: ctx.member.id });
+      if (r.created) await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'statement.agent.payout', target: ctx.params.id, data: { amount: r.amount } });
+      return r;
+    });
   });
 }

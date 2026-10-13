@@ -15,6 +15,12 @@ test.afterEach(async () => { if (srv) await srv.close(); srv = null; });
 
 const book = (api, over = {}) => api.post('/api/bookings', { roomTypeId: w.roomTypeId, checkin: '2026-11-12', checkout: '2026-11-14', guestName: 'Nguyễn Văn Lan', guestPhone: '0901234567', adults: 2, ...over });
 const status = async (p) => (await p).status;
+// CTV phải báo giá rồi mới đặt (bắt buộc quoteId do chính họ lập)
+const bookQ = async (api, over = {}) => {
+  const d = { roomTypeId: w.roomTypeId, checkin: '2026-11-12', checkout: '2026-11-14', adults: 2, ...over };
+  const q = await api.post('/api/quotes', { roomTypeId: d.roomTypeId, checkin: d.checkin, checkout: d.checkout, adults: d.adults });
+  return book(api, { ...over, quoteId: q.json.id });
+};
 
 test('buồng phòng chưa có quyền nghiệp vụ nào: mọi route đều 403', async () => {
   const b = as(srv, w, 'buongphong');
@@ -53,7 +59,7 @@ test('CTV không đặt theo căn cụ thể, không đặt hộ người khác,
   const r = await book(c1, { unitId: w.unitId, roomTypeId: undefined });
   assert.equal(r.status, 403);
   // agentId do client gửi bị bỏ qua: luôn là sale/CTV của chính họ
-  const ok = await book(c1, { agentId: w.ag2 });
+  const ok = await bookQ(c1, { agentId: w.ag2 });
   assert.equal(ok.status, 200);
   assert.equal((await db.query('SELECT agent_id FROM bookings WHERE id=$1', [ok.json.booking.id]))[0].agent_id, w.ag1);
   for (const p of [
@@ -66,9 +72,9 @@ test('CTV không đặt theo căn cụ thể, không đặt hộ người khác,
 test('CTV khác đoán id đơn: 404 (không lộ sự tồn tại), danh sách chỉ có đơn của mình', async () => {
   const c1 = as(srv, w, 'ctv1');
   const c2 = as(srv, w, 'ctv2');
-  const mine = (await book(c1)).json.booking;
+  const mine = (await bookQ(c1)).json.booking;
   const staff = (await book(as(srv, w, 'letan'), { checkin: '2026-11-20', checkout: '2026-11-21' })).json.booking;
-  const theirs = (await book(c2, { checkin: '2026-11-25', checkout: '2026-11-26' })).json.booking;
+  const theirs = (await bookQ(c2, { checkin: '2026-11-25', checkout: '2026-11-26' })).json.booking;
   assert.equal((await c1.get(`/api/bookings/${mine.id}`)).status, 200);
   for (const id of [theirs.id, staff.id, '00000000-0000-0000-0000-000000000000']) {
     const r = await c1.get(`/api/bookings/${id}`);
@@ -85,9 +91,9 @@ test('CTV khác đoán id đơn: 404 (không lộ sự tồn tại), danh sách 
 test('CTV hủy đơn của mình khi chưa thu tiền được; đã thu tiền thì 403', async () => {
   const c1 = as(srv, w, 'ctv1');
   const q = as(srv, w, 'quanly');
-  const a = (await book(c1)).json.booking;
+  const a = (await bookQ(c1)).json.booking;
   assert.equal((await c1.post(`/api/bookings/${a.id}/cancel`, { reason: 'khách đổi ý' })).status, 200);
-  const b = (await book(c1, { checkin: '2026-11-20', checkout: '2026-11-21' })).json.booking;
+  const b = (await bookQ(c1, { checkin: '2026-11-20', checkout: '2026-11-21' })).json.booking;
   assert.equal((await q.post(`/api/bookings/${b.id}/payments`, { kind: 'deposit', amount: 100000, receivedOn: '2026-10-14', ref: 'x1' })).status, 200);
   assert.equal((await c1.post(`/api/bookings/${b.id}/cancel`, {})).status, 403);
 });

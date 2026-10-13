@@ -38,15 +38,34 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
     let h = hits.get(key);
     if (!h || h.reset < now) { h = { n: 0, reset: now + 60_000 }; hits.set(key, h); }
     h.n += 1;
-    if (hits.size > 20000) for (const [k, v] of hits) if (v.reset < now) hits.delete(k);
+    if (hits.size > 20000) {
+      for (const [k, v] of hits) if (v.reset < now) hits.delete(k);
+      // vẫn quá lớn (nhiều IP/khóa giả trong 60 giây): bỏ khóa cũ nhất, bộ nhớ không phình vô hạn
+      for (const k of hits.keys()) { if (hits.size <= 20000) break; hits.delete(k); }
+    }
     return h.n > limit;
   }
 
-  // nginx đặt X-Forwarded-For = $remote_addr nên lấy phần tử đầu
+  // nginx đặt X-Forwarded-For = $remote_addr; lấy phần tử thứ n tính từ CUỐI (n = số proxy tin cậy), không lấy phần tử đầu
+  // vì phần tử đầu do khách tự khai.
   function clientIp(req) {
-    const xf = req.headers['x-forwarded-for'];
-    if (xf) return String(xf).split(',')[0].trim();
+    const hops = cfg.trustedProxyHops;
+    if (hops > 0) {
+      const xf = req.headers['x-forwarded-for'];
+      if (xf) {
+        const parts = String(xf).split(',').map((s) => s.trim()).filter(Boolean);
+        const ip = parts[parts.length - hops];
+        if (ip) return ip;
+      }
+    }
     return req.socket.remoteAddress || '';
+  }
+
+  function edgeOk(req) {
+    if (!cfg.edgeSecret) return true;
+    const got = Buffer.from(String(req.headers['x-edge-secret'] || ''));
+    const want = Buffer.from(cfg.edgeSecret);
+    return got.length === want.length && crypto.timingSafeEqual(got, want);
   }
 
   function readBody(req) {
@@ -75,6 +94,7 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
       const bp = cfg.basePath;
       if (bp && (pathname === bp || pathname.startsWith(bp + '/'))) pathname = pathname.slice(bp.length) || '/';
 
+      if (pathname !== '/healthz' && !edgeOk(req)) throw new AppError('forbidden', 'Yêu cầu không hợp lệ', 403);
       const ip = clientIp(req);
       if (rateLimited('g:' + ip, cfg.rateLimitPerMin)) throw new AppError('rate_limited', 'Bạn thao tác quá nhanh, đợi một chút rồi thử lại', 429);
 

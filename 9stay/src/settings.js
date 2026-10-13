@@ -1,11 +1,14 @@
 import { AppError } from './errors.js';
-import { todayVN } from './time.js';
+import { todayVN, isDate } from './time.js';
+import { assertUuid } from './ids.js';
 
 // Mặc định theo đặc tả; mọi giá trị đổi được bằng setSetting, không sửa mã.
 export const DEFAULTS = {
   'booking.maxNights': 60,
   'booking.maxAdvanceDays': 540,
   'booking.holdMinutesStaff': 1440,
+  'booking.holdMinutesAgent': 120,
+  'booking.maxHeldPerAgent': 5,
   'org.codePrefix': 'ST',
   'pricing.vatPct': 10,
   'pricing.extraAdultFee': 100000,
@@ -26,6 +29,8 @@ const VALID = {
   'booking.maxNights': int(1, 366),
   'booking.maxAdvanceDays': int(0, 3650),
   'booking.holdMinutesStaff': int(0, 525600),
+  'booking.holdMinutesAgent': int(0, 525600),
+  'booking.maxHeldPerAgent': int(1, 1000),
   'org.codePrefix': (v) => typeof v === 'string' && /^[A-Za-z0-9]{1,6}$/.test(v),
   'pricing.vatPct': int(0, 100),
   'pricing.extraAdultFee': int(0),
@@ -44,6 +49,13 @@ export async function setSetting(c, { orgId, scopeType, scopeId = null, key, val
   }
   if (!(key in DEFAULTS)) throw new AppError('unknown_setting', 'Cài đặt không tồn tại: ' + key);
   if (!VALID[key](value)) throw new AppError('bad_setting', 'Giá trị không hợp lệ cho cài đặt ' + key);
+  if (!isDate(effectiveFrom)) throw new AppError('bad_dates', 'Ngày hiệu lực không hợp lệ');
+  assertUuid(orgId, 'org');
+  if (scopeId !== null) {
+    assertUuid(scopeId, 'phạm vi');
+    const table = { building: 'buildings', owner: 'owners', unit: 'units' }[scopeType];
+    if (!(await c.query(`SELECT 1 FROM ${table} WHERE id = $1 AND org_id = $2`, [scopeId, orgId])).length) throw new AppError('scope_not_found', 'Không tìm thấy đối tượng của phạm vi cài đặt', 404);
+  }
   await c.query(
     'INSERT INTO settings(org_id, scope_type, scope_id, key, value, effective_from) VALUES($1, $2, $3, $4, $5::jsonb, $6::date)',
     [orgId, scopeType, scopeId, key, JSON.stringify(value), effectiveFrom],

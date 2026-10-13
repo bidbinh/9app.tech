@@ -150,6 +150,7 @@ CREATE TABLE booking_events (
   booking_id uuid NOT NULL REFERENCES bookings(id),
   kind text NOT NULL,
   data jsonb NOT NULL DEFAULT '{}',
+  actor uuid, -- thành viên (members.id) thực hiện; NULL = hệ thống
   at timestamptz NOT NULL DEFAULT now()
 );
 

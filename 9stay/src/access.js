@@ -85,7 +85,7 @@ export async function redeemInvite(c, { code, userId, displayName }, { now = new
   const invalid = () => new AppError('invite_invalid', 'Mã mời không đúng hoặc đã hết hạn');
   if (norm.length !== 16) throw invalid();
   const [inv] = await c.query('SELECT id, org_id, role, owner_id, agent_id, expires_at, used_at FROM invites WHERE code_hash = $1 FOR UPDATE', [hashCode(norm)]);
-  if (!inv || inv.used_at || new Date(inv.expires_at) < now) throw invalid();
+  if (!inv || inv.used_at || new Date(inv.expires_at) <= now) throw invalid();
   if ((await c.query('SELECT 1 FROM members WHERE user_id = $1', [userId])).length) throw new AppError('already_member', 'Tài khoản này đã thuộc một tổ chức', 409);
   const [m] = await c.query(
     `INSERT INTO members(org_id, user_id, display_name, role, owner_id, agent_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING ${MEMBER_COLS}`,

@@ -40,14 +40,20 @@ export const createContract = (c, {
   [orgId, ownerId, unitId, kind, validFrom, validTo, ownerSharePct, ownerNetFloor, fixedRent, cleaningPayer, cancelPenaltyPct, statementCycle, payoutDelayDays, taxWithhold]);
 
 // Mở bán các đêm trong [from, to). Nếu đêm đang bị chặn thì thành mở (chủ nhả ngày).
-export async function openNights(c, { orgId, unitId, from, to, source = 'app', by = null }) {
+// protectAnstay: chủ phòng không được mở lại đêm Anstay đã khóa (bảo trì, tranh chấp). Quản lý thì được.
+export async function openNights(c, { orgId, unitId, from, to, source = 'app', by = null, protectAnstay = false }) {
   const nights = nightsBetween(from, to);
   await requireUnit(c, orgId, unitId);
+  if (protectAnstay) {
+    const locked = await c.query("SELECT night FROM owner_releases WHERE unit_id = $1 AND kind = 'blocked_by_anstay' AND night = ANY($2::date[]) ORDER BY night", [unitId, nights]);
+    if (locked.length) throw new AppError('blocked_by_anstay', 'Có đêm đang do Anstay khóa, chủ phòng không mở được', 409, { nights: locked.map((r) => r.night) });
+  }
   await c.query(
     `INSERT INTO owner_releases(unit_id, night, kind, source, created_by)
      SELECT $1::uuid, n, 'open', $3::text, $4::uuid FROM unnest($2::date[]) AS n
-     ON CONFLICT (unit_id, night) DO UPDATE SET kind = 'open', source = EXCLUDED.source, created_by = EXCLUDED.created_by, updated_at = now()`,
-    [unitId, nights, source, by],
+     ON CONFLICT (unit_id, night) DO UPDATE SET kind = 'open', source = EXCLUDED.source, created_by = EXCLUDED.created_by, updated_at = now()
+       WHERE $5::boolean IS NOT TRUE OR owner_releases.kind <> 'blocked_by_anstay'`,
+    [unitId, nights, source, by, protectAnstay],
   );
   return nights.length;
 }
