@@ -1,7 +1,20 @@
 import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
 import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { AppError } from './errors.js';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const PUBLIC = path.join(here, '..', 'public');
+const MIME = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
+  '.webmanifest': 'application/manifest+json; charset=utf-8', '.txt': 'text/plain; charset=utf-8',
+};
+// Giao diện chỉ dùng tệp cùng nguồn: không script/style nhúng, không tải gì từ ngoài.
+const CSP = "default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; manifest-src 'self'; font-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'";
 
 export const CSRF_HEADER = '9stay';
 export const COOKIE_SESSION = 'nine_sid'; // cookie phiên của 9id, cùng gốc 9app.tech
@@ -78,6 +91,30 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
     });
   }
 
+  let indexCache = null;
+  function sendIndex(res, head) {
+    if (!indexCache) indexCache = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
+    const html = indexCache.replaceAll('__BASE__', cfg.basePath + '/');
+    res.writeHead(200, { 'content-type': MIME['.html'], 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', 'cache-control': 'no-cache', 'content-security-policy': CSP });
+    res.end(head ? undefined : html);
+  }
+
+  // Tệp tĩnh: chỉ GET/HEAD, chỉ trong thư mục public. Đường không có đuôi tệp là đường của giao diện (SPA) nên trả trang chính.
+  function serveStatic(pathname, method, res) {
+    if (pathname.includes('\0')) return false;
+    const head = method === 'HEAD';
+    const ext = path.extname(pathname).toLowerCase();
+    if (pathname === '/' || pathname === '/index.html' || !ext) { sendIndex(res, head); return true; }
+    const file = path.resolve(PUBLIC, '.' + path.sep + pathname.replace(/^[/\\]+/, ''));
+    if (!file.startsWith(PUBLIC + path.sep)) return false;
+    let st;
+    try { st = fs.statSync(file); } catch { return false; }
+    if (!st.isFile()) return false;
+    res.writeHead(200, { 'content-type': MIME[ext] || 'application/octet-stream', 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', 'cache-control': 'no-cache' });
+    if (head) res.end(); else fs.createReadStream(file).pipe(res);
+    return true;
+  }
+
   function send(res, status, body, headers = {}) {
     res.writeHead(status, {
       'content-type': 'application/json; charset=utf-8', 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', 'cache-control': 'no-store', ...headers,
@@ -101,6 +138,8 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
       const method = req.method;
       const r = routes.find((x) => x.method === method && x.re.test(pathname));
       if (!r) {
+        // Không có route nào khớp: thử tệp tĩnh/giao diện (chỉ GET/HEAD, không đụng /api/).
+        if ((method === 'GET' || method === 'HEAD') && !pathname.startsWith('/api/') && serveStatic(pathname, method, res)) return;
         if (routes.some((x) => x.re.test(pathname))) throw new AppError('method_not_allowed', 'Phương thức không được hỗ trợ', 405);
         throw new AppError('not_found', 'Không tìm thấy', 404);
       }

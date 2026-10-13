@@ -4,7 +4,7 @@ Phân phối phòng của nhiều chủ qua sale và cộng tác viên (khách �
 
 ## Trạng thái
 
-Lát 1A (nền dữ liệu, đặt phòng chống trùng) và lát 1B (bảng giá, báo giá, sổ kép, cọc ghi tay, nhận/trả phòng, quyết toán, bản kê chủ và hoa hồng, CSV) xong, đều đã qua review độc lập và sửa. Chưa có HTTP, đăng nhập 9id, giao diện. Các lát tiếp theo xem mục 14 của đặc tả.
+Lát 1A (nền dữ liệu, đặt phòng chống trùng), 1B (giá, sổ kép, quyết toán, bản kê), 1C (API HTTP, đăng nhập 9id, phân quyền theo vai) và 1D (giao diện web/PWA cho quản lý, lễ tân, CTV/sale, chủ phòng) đã xong, đều qua review độc lập và sửa. **Chưa deploy, chưa có VietQR/webhook, hóa đơn điện tử, trang đặt phòng công khai cho khách** (các lát sau, xem mục 14 của đặc tả).
 
 ## Chạy kiểm thử
 
@@ -14,6 +14,34 @@ npm test
 ```
 
 `npm test` tự dựng PostgreSQL thật tạm thời (embedded-postgres) nếu không có `DATABASE_URL`.
+
+## Chạy giao diện kiểm thử trình duyệt
+
+```
+set PUPPETEER_CORE=<đường dẫn puppeteer-core/lib/esm/puppeteer/puppeteer-core.js>
+npm run e2e
+```
+
+Cần Chrome (`CHROME_PATH`, mặc định `C:/Program Files/Google/Chrome/Application/chrome.exe`). Kịch bản chạy PostgreSQL tạm, máy chủ thật và 9id giả; đi qua các vai quản lý, lễ tân, CTV, chủ phòng ở 390x844, 360x740 và 1280x800, sáng và tối; bắt lỗi console và vi phạm CSP; ảnh chụp vào `shots/` (đã gitignore).
+
+## Biến môi trường
+
+Xem `.env.example`. Quan trọng: `DATABASE_URL`, `NINE_ID_URL/KEY/SECRET` (cặp khóa app `stay` trong `INTERNAL_KEYS` của 9id), `EDGE_SECRET` (nginx đặt header `X-Edge-Secret`), `TRUSTED_PROXY_HOPS` (nginx đặt `X-Forwarded-For = $remote_addr` thì để 1). Production từ chối khởi động nếu thiếu hoặc yếu các biến này.
+
+## Yêu cầu nginx (khi deploy)
+
+```
+location /stay/ {
+    proxy_pass http://9stay:8110;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;       # KHÔNG dùng $proxy_add_x_forwarded_for
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Edge-Secret "<giá trị EDGE_SECRET>";
+    client_max_body_size 128k;
+}
+```
+
+Cổng 8110 chỉ được gọi từ nginx qua mạng docker. Cookie `nine_sid` của 9id dùng chung tên miền `9app.tech`; 9stay xác minh mỗi yêu cầu với 9id (không cache), nên khóa người dùng ở 9id hoặc khóa thành viên ở 9stay có hiệu lực ngay.
 
 ## Cấu trúc
 
@@ -27,7 +55,9 @@ npm test
 - `src/ledger.js`, `src/balance.js`, `src/payments.js`: sổ kép bất biến (cân bằng bằng ràng buộc hoãn ở CSDL, idempotent theo ref), ghi cọc/hoàn bằng tay, số dư đơn.
 - `src/agents.js`, `src/contracts.js`, `src/stay.js`: sale/CTV, hợp đồng chủ theo đêm, nhận phòng, trả phòng và quyết toán chia chủ/Anstay/hoa hồng/phí dọn.
 - `src/statements.js`: bản kê chủ phòng và hoa hồng đóng băng, chi trả, CSV, báo cáo tiền giữ hộ.
-- `db/001..005`: lược đồ; mọi bảng tiền và bản kê chỉ thêm (trigger `forbid_change`).
+- `src/http.js`, `src/server.js`, `src/auth.js`, `src/routes/*.js`: HTTP, xác thực 9id, phân quyền theo vai (`src/access.js`), route; `src/search.js` (căn trống, đặt theo loại phòng), `src/calendar.js`, `src/queries.js`.
+- `public/`: giao diện (JS thuần, không build; không script/style nội tuyến vì CSP chặt). `sw.js` chỉ lưu vỏ giao diện, không lưu API.
+- `db/001..006`: lược đồ; mọi bảng tiền và bản kê chỉ thêm (trigger `forbid_change`).
 
 ## Triển khai (khi tới lúc)
 

@@ -1,0 +1,21 @@
+# Triển khai 9stay lên máy chủ dùng chung (CHƯA triển khai; xem README mục "Triển khai"). Dùng lại PostgreSQL của 9Ship
+# (container 9ship-db) với CSDL "stay" và vai trò riêng.
+# Chuẩn bị một lần: tạo vai trò + CSDL, tạo .env từ .env.example, rồi:
+#   docker compose -f docker-compose.server.yml up -d --build
+name: 9stay
+services:
+  stay:
+    build: .
+    image: 9stay:latest
+    container_name: 9stay
+    restart: unless-stopped
+    env_file: .env
+    mem_limit: 192m
+    networks: [shipdb, tms]
+networks:
+  shipdb:
+    external: true
+    name: 9ship_internal
+  tms:
+    external: true
+    name: ops_tms-network

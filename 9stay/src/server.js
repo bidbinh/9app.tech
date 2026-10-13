@@ -8,6 +8,7 @@ import { coreRoutes } from './routes/core.js';
 import { bookingRoutes } from './routes/booking.js';
 import { adminRoutes } from './routes/admin.js';
 import { ownerRoutes } from './routes/owner.js';
+import { catalogRoutes } from './routes/catalog.js';
 
 // idClient: { verify(token) -> { userId, displayName } | null }. Test truyền bản giả; production dùng máy khách 9id.
 export function buildApp({ idClient, cfg = config, clock } = {}) {
@@ -17,6 +18,7 @@ export function buildApp({ idClient, cfg = config, clock } = {}) {
   bookingRoutes(app);
   adminRoutes(app);
   ownerRoutes(app);
+  catalogRoutes(app);
   return app;
 }
 
