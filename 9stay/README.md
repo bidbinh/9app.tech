@@ -4,7 +4,7 @@ Phân phối phòng của nhiều chủ qua sale và cộng tác viên (khách �
 
 ## Trạng thái
 
-Lát 1A (nền dữ liệu và động cơ đặt phòng chống trùng) xong, đã qua review độc lập và sửa. Chưa có HTTP, đăng nhập 9id, giao diện, tiền, báo giá. Các lát tiếp theo xem mục 14 của đặc tả.
+Lát 1A (nền dữ liệu, đặt phòng chống trùng) và lát 1B (bảng giá, báo giá, sổ kép, cọc ghi tay, nhận/trả phòng, quyết toán, bản kê chủ và hoa hồng, CSV) xong, đều đã qua review độc lập và sửa. Chưa có HTTP, đăng nhập 9id, giao diện. Các lát tiếp theo xem mục 14 của đặc tả.
 
 ## Chạy kiểm thử
 
@@ -23,6 +23,17 @@ npm test
 - `src/inventory.js`: tòa, căn, chủ, hợp đồng, mở/chặn đêm của chủ.
 - `src/bookings.js`: đặt, hủy, dời, tình trạng căn.
 - `src/ids.js`: kiểm uuid sớm (`bad_id`) thay vì để PostgreSQL ném lỗi thô.
+- `src/money.js`, `src/pricing.js`: làm tròn half-up; bảng giá theo đêm (`setRates`, có lịch sử), ưu đãi, báo giá có hạn (`computeQuote` là hàm thuần).
+- `src/ledger.js`, `src/balance.js`, `src/payments.js`: sổ kép bất biến (cân bằng bằng ràng buộc hoãn ở CSDL, idempotent theo ref), ghi cọc/hoàn bằng tay, số dư đơn.
+- `src/agents.js`, `src/contracts.js`, `src/stay.js`: sale/CTV, hợp đồng chủ theo đêm, nhận phòng, trả phòng và quyết toán chia chủ/Anstay/hoa hồng/phí dọn.
+- `src/statements.js`: bản kê chủ phòng và hoa hồng đóng băng, chi trả, CSV, báo cáo tiền giữ hộ.
+- `db/001..005`: lược đồ; mọi bảng tiền và bản kê chỉ thêm (trigger `forbid_change`).
+
+## Triển khai (khi tới lúc)
+
+- Vai ứng dụng nên bị `REVOKE TRUNCATE` trên các bảng chỉ thêm (TRUNCATE không chạy trigger theo dòng).
+- Migration chạy bằng cùng role chủ như các app khác; `CREATE EXTENSION btree_gist` cần quyền tạo extension (btree_gist là extension "trusted" từ PostgreSQL 13).
+- Chưa có cơ chế gọi `expireHolds` định kỳ ngoài quét lười trong đặt/dời/chặn ngày: lớp HTTP nên thêm một job nhẹ mỗi vài phút.
 
 ## Khác biệt có chủ ý so với đặc tả, và việc còn lại cho lát sau
 

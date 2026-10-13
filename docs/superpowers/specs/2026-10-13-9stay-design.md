@@ -97,7 +97,9 @@ Mọi bảng có `org_id`/`property_id` thích hợp. Tiền là số nguyên VN
 - Báo giá = SELECT trên `rate_calendar`; quy tắc thứ/mùa/lễ chỉ sinh ô, ô sửa tay không bị ghi đè trừ khi tick riêng.
 - Ai đặt giá: **chủ đặt giá sàn/net theo đêm** (trong hợp đồng, đổi có hiệu lực từ ngày); **Anstay đặt giá bán**; sale/CTV không đặt giá, chỉ có ưu đãi trong hạn mức. Parity cứng: giá công khai = giá sale báo; CTV khác nhau ở hoa hồng, không ở giá khách trả.
 - Biên Anstay = giá bán − phần chủ − hoa hồng − phí dọn; cảnh báo khi âm. Giá net CTV phải ≥ giá sàn chủ + hoa hồng tối thiểu.
-- Đường tính cố định, từng đêm: giá nền → + phụ thu → − một ưu đãi → cộng đêm + dịch vụ thêm → + VAT → làm tròn nghìn một lần.
+- Đường tính cố định, từng đêm: giá nền → + phụ thu → − một ưu đãi → **làm tròn dòng đêm** (half-up tới nghìn) → cộng đêm → VAT trên tổng rồi làm tròn → tổng → cọc làm tròn riêng. Mỗi dòng lưu đã được làm tròn đúng một lần; tổng có thể lệch tổng "tính một lần cuối" tối đa vài lần bước làm tròn (đã chốt khi cài lát 1B: chấp nhận để mỗi dòng giá là số tròn, đối chiếu được với bản kê). Giá trong `rate_calendar` là **giá trước VAT**; khách thấy tổng đã gồm VAT.
+- Hủy đơn đã thu tiền: bắt buộc chọn số giữ lại (`retainAmount`, 0 = hoàn hết). Phần giữ lại chia chủ/Anstay theo hợp đồng của đêm đầu và vào bản kê chủ (loại `cancel`); phần còn lại hoàn tay. Đơn `giu` đã nhận tiền không bị tự nhả khi quá hạn, mà vào danh sách "quá hạn còn tiền". Dời đơn đã có giá bắt buộc kèm báo giá mới (dòng giá cũ được đảo bằng dòng âm).
+- Hoa hồng: tỉ lệ chụp vào đơn lúc đặt; sale/CTV phải đang hoạt động khi đặt. Bản kê chủ âm (chủ còn nợ phí dọn) được mang sang bản kê kế tiếp đúng một lần.
 - Báo giá có hạn (mặc định 24 giờ); giữ chỗ gắn `quote_id`; khóa thanh toán chỉ khóa tình trạng.
 - Dòng giá bất biến; sửa đơn bằng dòng điều chỉnh; chính sách hủy chụp vào đơn.
 - Lớp kiểm tra cấu hình: đêm chưa có giá, giá bằng 0, giá bán dưới giá sàn, giá CTV cao hơn công khai, mùa chồng mùa, phụ thu vượt sức chứa.
