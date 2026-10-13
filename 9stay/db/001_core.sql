@@ -119,6 +119,10 @@ CREATE TABLE bookings (
   created_by uuid,
   status text NOT NULL CHECK (status IN ('giu', 'da_coc', 'da_nhan', 'da_tra', 'huy', 'khong_den', 'het_han')),
   hold_until timestamptz,
+  -- kỳ ở hiện tại và căn (sao chép từ room_nights để đọc danh sách nhanh; create/move giữ đồng bộ)
+  checkin date,
+  checkout date,
+  unit_id uuid,
   cancel_reason text,
   cancel_policy jsonb NOT NULL DEFAULT '{}',
   version int NOT NULL DEFAULT 1,

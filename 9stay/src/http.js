@@ -1,0 +1,145 @@
+import http from 'node:http';
+import crypto from 'node:crypto';
+import { config } from './config.js';
+import { AppError } from './errors.js';
+
+export const CSRF_HEADER = '9stay';
+export const COOKIE_SESSION = 'nine_sid'; // cookie phiên của 9id, cùng gốc 9app.tech
+
+export function parseCookies(header) {
+  const out = {};
+  for (const part of String(header || '').split(';')) {
+    const i = part.indexOf('=');
+    if (i <= 0) continue;
+    try { out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim()); } catch { /* bỏ cookie hỏng */ }
+  }
+  return out;
+}
+
+function compilePath(p) {
+  const keys = [];
+  const re = p.replace(/:([a-zA-Z_]+)/g, (_, k) => { keys.push(k); return '([^/]+)'; });
+  return { re: new RegExp('^' + re + '$'), keys };
+}
+
+// Máy chủ HTTP mỏng, không phụ thuộc: bộ định tuyến, JSON, CSRF bằng header, giới hạn tần suất và kích thước, lỗi thống nhất.
+export function createApp({ cfg = config, clock = () => new Date() } = {}) {
+  const routes = [];
+  const hits = new Map();
+  let authResolver = async () => {};
+
+  function route(method, p, handler, opts = {}) {
+    const { re, keys } = compilePath(p);
+    routes.push({ method, re, keys, handler, opts });
+  }
+
+  function rateLimited(key, limit) {
+    const now = Date.now();
+    let h = hits.get(key);
+    if (!h || h.reset < now) { h = { n: 0, reset: now + 60_000 }; hits.set(key, h); }
+    h.n += 1;
+    if (hits.size > 20000) for (const [k, v] of hits) if (v.reset < now) hits.delete(k);
+    return h.n > limit;
+  }
+
+  // nginx đặt X-Forwarded-For = $remote_addr nên lấy phần tử đầu
+  function clientIp(req) {
+    const xf = req.headers['x-forwarded-for'];
+    if (xf) return String(xf).split(',')[0].trim();
+    return req.socket.remoteAddress || '';
+  }
+
+  function readBody(req) {
+    return new Promise((resolve, reject) => {
+      const chunks = [];
+      let size = 0; let tooBig = false;
+      req.on('data', (c) => { size += c.length; if (size > cfg.maxBodyBytes) { tooBig = true; return; } chunks.push(c); });
+      req.on('end', () => (tooBig ? reject(new AppError('too_large', 'Nội dung gửi lên quá lớn', 413)) : resolve(Buffer.concat(chunks).toString('utf8'))));
+      req.on('error', reject);
+    });
+  }
+
+  function send(res, status, body, headers = {}) {
+    res.writeHead(status, {
+      'content-type': 'application/json; charset=utf-8', 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', 'cache-control': 'no-store', ...headers,
+    });
+    res.end(JSON.stringify(body));
+  }
+
+  async function handle(req, res) {
+    const rid = crypto.randomBytes(6).toString('hex');
+    try {
+      const url = new URL(req.url, 'http://x');
+      let pathname;
+      try { pathname = decodeURIComponent(url.pathname); } catch { throw new AppError('bad_path', 'Đường dẫn không hợp lệ', 400); }
+      const bp = cfg.basePath;
+      if (bp && (pathname === bp || pathname.startsWith(bp + '/'))) pathname = pathname.slice(bp.length) || '/';
+
+      const ip = clientIp(req);
+      if (rateLimited('g:' + ip, cfg.rateLimitPerMin)) throw new AppError('rate_limited', 'Bạn thao tác quá nhanh, đợi một chút rồi thử lại', 429);
+
+      const method = req.method;
+      const r = routes.find((x) => x.method === method && x.re.test(pathname));
+      if (!r) {
+        if (routes.some((x) => x.re.test(pathname))) throw new AppError('method_not_allowed', 'Phương thức không được hỗ trợ', 405);
+        throw new AppError('not_found', 'Không tìm thấy', 404);
+      }
+      const m = pathname.match(r.re);
+      const params = {};
+      r.keys.forEach((k, i) => { params[k] = m[i + 1]; });
+
+      const mutating = method !== 'GET' && method !== 'HEAD';
+      if (mutating) {
+        if (req.headers['x-requested-with'] !== CSRF_HEADER) throw new AppError('csrf', 'Yêu cầu bị từ chối (thiếu header xác thực)', 403);
+        const origin = req.headers.origin;
+        if (origin) {
+          let oh = '';
+          try { oh = new URL(origin).host; } catch { /* sai định dạng */ }
+          if (oh !== req.headers.host && oh !== req.headers['x-forwarded-host']) throw new AppError('csrf', 'Yêu cầu từ nguồn không hợp lệ', 403);
+        }
+      }
+      if (r.opts.limit && rateLimited(r.re.source + ':' + ip, r.opts.limit)) throw new AppError('rate_limited', 'Bạn thao tác quá nhanh, đợi một chút rồi thử lại', 429);
+
+      let body = {};
+      if (mutating) {
+        const raw = await readBody(req);
+        if (raw) {
+          try { body = JSON.parse(raw); } catch { throw new AppError('bad_json', 'Dữ liệu gửi lên không hợp lệ', 400); }
+          if (body === null || typeof body !== 'object' || Array.isArray(body)) throw new AppError('bad_json', 'Dữ liệu gửi lên không hợp lệ', 400);
+        }
+      }
+
+      const ctx = { req, res, params, body, ip, rid, now: clock(), query: Object.fromEntries(url.searchParams), cookies: parseCookies(req.headers.cookie), user: null, member: null };
+      await authResolver(ctx, r.opts.auth || 'member');
+
+      const out = await r.handler(ctx);
+      if (res.writableEnded) return;
+      const headers = { 'x-request-id': rid };
+      if (out && out.__raw) {
+        res.writeHead(out.status || 200, { 'x-content-type-options': 'nosniff', 'cache-control': 'no-store', ...headers, ...out.headers });
+        res.end(out.body);
+        return;
+      }
+      send(res, 200, out ?? { ok: true }, headers);
+    } catch (e) {
+      if (res.writableEnded) return;
+      if (e instanceof AppError) {
+        send(res, e.status, { error: { code: e.code, message: e.message, ...(e.detail ? { detail: e.detail } : {}) } }, { 'x-request-id': rid });
+      } else {
+        console.error(`[${rid}]`, e && e.stack ? e.stack.split('\n').slice(0, 5).join(' | ') : e);
+        send(res, 500, { error: { code: 'internal', message: 'Lỗi hệ thống, hãy thử lại sau' } }, { 'x-request-id': rid });
+      }
+    }
+  }
+
+  const server = http.createServer((req, res) => { handle(req, res); });
+  return {
+    route,
+    setAuthResolver(fn) { authResolver = fn; },
+    listen(port) { return new Promise((resolve) => server.listen(port, () => resolve(server.address().port))); },
+    close() { return new Promise((resolve) => { server.close(() => resolve()); server.closeAllConnections?.(); }); },
+  };
+}
+
+// Kết quả dạng văn bản (CSV) cho route.
+export const rawResponse = (body, { status = 200, contentType = 'text/plain; charset=utf-8', headers = {} } = {}) => ({ __raw: true, status, body, headers: { 'content-type': contentType, ...headers } });

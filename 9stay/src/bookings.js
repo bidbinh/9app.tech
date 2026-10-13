@@ -132,9 +132,9 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
   let row;
   try {
     [row] = await c.query(
-      `INSERT INTO bookings(org_id, code, guest_name, guest_phone, adults, children, source, agent_id, commission_pct, created_by, status, hold_until, deposit_required, quote_id)
-       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id, version`,
-      [orgId, code, name, phone, adults, children, source, agentId, commissionPct, createdBy, status, holdUntil, quote ? quote.deposit : 0, quote ? quote.id : null],
+      `INSERT INTO bookings(org_id, code, guest_name, guest_phone, adults, children, source, agent_id, commission_pct, created_by, status, hold_until, deposit_required, quote_id, checkin, checkout, unit_id)
+       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15::date, $16::date, $17) RETURNING id, version`,
+      [orgId, code, name, phone, adults, children, source, agentId, commissionPct, createdBy, status, holdUntil, quote ? quote.deposit : 0, quote ? quote.id : null, checkin, checkout, unitId],
     );
   } catch (e) {
     if (e.code === '23505' && e.constraint === 'bookings_quote_unique') throw new AppError('quote_used', 'Báo giá này đã được dùng cho một đơn khác', 409);
@@ -303,7 +303,7 @@ export async function moveBooking(c, { orgId, bookingId, unitId, checkin, checko
     await writePriceLines(c, { orgId, bookingId: b.id, quote });
     await c.query('UPDATE bookings SET quote_id = $2, deposit_required = $3 WHERE id = $1', [b.id, quote.id, quote.deposit]);
   }
-  const [row] = await c.query('UPDATE bookings SET version = version + 1 WHERE id = $1 RETURNING version', [b.id]);
+  const [row] = await c.query('UPDATE bookings SET version = version + 1, checkin = $2::date, checkout = $3::date, unit_id = $4 WHERE id = $1 RETURNING version', [b.id, checkin, checkout, unitId]);
   await addEvent(c, b.id, 'moved', { from: before[0] ? { unitId: before[0].unit_id, first: before[0].first, last: before[0].last } : null, to: { unitId, checkin, checkout }, quoteId: quote ? quote.id : null });
   return { id: b.id, version: row.version, nights };
 }
