@@ -11,3 +11,4 @@ _snapshots/
 vannien.bak-*/
 js/apps.js.local
 .claude/scheduled_tasks.lock
+.superpowers/
