@@ -36,3 +36,10 @@ test('máy chủ tĩnh phục vụ index.html và chặn thư mục tests', asyn
     assert.equal(b.status, 404);
   } finally { s.close(); }
 });
+
+test('sw.js: mọi tệp trong SHELL đều tồn tại', () => {
+  const sw = read('sw.js');
+  const list = [...sw.match(/const SHELL = \[([\s\S]*?)\];/)[1].matchAll(/'\.\/([^']*)'/g)].map((m) => m[1]).filter(Boolean);
+  assert.ok(list.length > 10);
+  for (const f of list) assert.ok(fs.existsSync(new URL('../' + f, import.meta.url)), 'thiếu ' + f);
+});
