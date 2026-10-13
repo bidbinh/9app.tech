@@ -4,7 +4,7 @@ Phân phối phòng của nhiều chủ qua sale và cộng tác viên (khách �
 
 ## Trạng thái
 
-Lát 1A (nền dữ liệu, đặt phòng chống trùng), 1B (giá, sổ kép, quyết toán, bản kê), 1C (API HTTP, đăng nhập 9id, phân quyền theo vai) và 1D (giao diện web/PWA cho quản lý, lễ tân, CTV/sale, chủ phòng) đã xong, đều qua review độc lập và sửa. **Chưa deploy, chưa có VietQR/webhook, hóa đơn điện tử, trang đặt phòng công khai cho khách** (các lát sau, xem mục 14 của đặc tả).
+Lát 1A (nền dữ liệu, đặt phòng chống trùng), 1B (giá, sổ kép, quyết toán, bản kê), 1C (API HTTP, đăng nhập 9id, phân quyền theo vai) và 1D (giao diện web/PWA cho quản lý, lễ tân, CTV/sale, chủ phòng) đã xong, đều qua review độc lập và sửa. Lát 2 (VietQR + webhook ngân hàng, hàng chờ lệch thanh toán, QR trong đơn) cũng đã xong và qua review; tên trường/chữ ký của nhà cung cấp thật (SePay/Casso) chưa kiểm bằng sandbox. **Chưa deploy, chưa có hóa đơn điện tử, trang đặt phòng công khai cho khách** (các lát sau, xem mục 14 của đặc tả).
 
 ## Chạy kiểm thử
 
@@ -57,6 +57,7 @@ Cổng 8110 chỉ được gọi từ nginx qua mạng docker. Cookie `nine_sid`
 - `src/statements.js`: bản kê chủ phòng và hoa hồng đóng băng, chi trả, CSV, báo cáo tiền giữ hộ.
 - `src/http.js`, `src/server.js`, `src/auth.js`, `src/routes/*.js`: HTTP, xác thực 9id, phân quyền theo vai (`src/access.js`), route; `src/search.js` (căn trống, đặt theo loại phòng), `src/calendar.js`, `src/queries.js`.
 - `public/`: giao diện (JS thuần, không build; không script/style nội tuyến vì CSP chặt). `sw.js` chỉ lưu vỏ giao diện, không lưu API.
+- `src/bank.js`, `src/vietqr.js`, `src/routes/bank.js`, `db/007_bank.sql`: tài khoản nhận tiền, bank_inbox idempotent, tự ghép theo mã đơn (chỉ khi đủ cọc, không trùng khoản ghi tay), ghép tay/bỏ qua, QR. Biến `BANK_WEBHOOK_SECRET` dùng chung mọi org (việc còn lại: bí mật riêng từng org). Chuyển dư hoặc một lần chuyển cho hai đơn hiện chỉ xử lý bằng bỏ qua + hoàn tay.
 - `db/001..006`: lược đồ; mọi bảng tiền và bản kê chỉ thêm (trigger `forbid_change`).
 
 ## Triển khai (khi tới lúc)

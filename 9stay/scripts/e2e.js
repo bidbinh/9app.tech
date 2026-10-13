@@ -173,6 +173,39 @@ try {
   await waitText(mp, 'Đã lưu giá');
   check(true, 'lưu giá thành công');
   await snap(mp, 'quanly-gia');
+
+  // ngân hàng: tài khoản nhận tiền, hàng chờ lệch, mã QR trong chi tiết đơn
+  await hash(mp, '#/ngan-hang');
+  await waitText(mp, 'Tài khoản nhận tiền');
+  await setValue(mp, 'input[placeholder="970436"]', '970436');
+  await setValue(mp, 'input[placeholder="Số tài khoản"]', '0123456789');
+  await setValue(mp, 'input[placeholder="TEN CONG TY"]', 'CONG TY ANSTAY');
+  await clearToasts(mp);
+  await clickText(mp, 'button', 'Lưu tài khoản');
+  await waitText(mp, 'Đã lưu tài khoản nhận tiền');
+  check((await text(mp)).includes('/api/bank/webhook/'), 'hiện địa chỉ webhook sau khi lưu tài khoản');
+  const { ingestBankTx } = await import('../src/bank.js');
+  await db.tx((c) => ingestBankTx(c, { orgId: w.orgId, provider: 'webhook', bankTxId: 'e2e-1', amount: 500000, content: 'ck khong ro' }, { now: new Date() }));
+  await hash(mp, '#/lich');
+  await hash(mp, '#/ngan-hang');
+  await waitText(mp, 'Lệch thanh toán (1)');
+  await snap(mp, 'quanly-ngan-hang');
+  await setValue(mp, 'input[placeholder^="Lý do bỏ qua"]', 'đã hoàn khách');
+  await clearToasts(mp);
+  await clickText(mp, 'button', 'Bỏ qua');
+  await waitText(mp, 'Lệch thanh toán (0)');
+  check(true, 'bỏ qua giao dịch lệch có ghi chú');
+  const { Api } = await import('../test/helper-http.js');
+  const qapi = new Api(srv, w.users.quanly);
+  const qq = await qapi.post('/api/quotes', { roomTypeId: w.roomTypeId, checkin: '2026-11-20', checkout: '2026-11-22', adults: 2 });
+  const qb = await qapi.post('/api/bookings', { roomTypeId: w.roomTypeId, checkin: '2026-11-20', checkout: '2026-11-22', guestName: 'Khách QR', adults: 2, quoteId: qq.json.id });
+  await hash(mp, '#/don/' + qb.json.booking.id);
+  await waitText(mp, 'Thanh toán bằng QR');
+  await clickText(mp, 'button', 'Hiện mã QR chuyển khoản');
+  await waitText(mp, 'Nội dung (bắt buộc đúng)');
+  check(await mp.$eval('img.qr', (i) => i.complete && i.naturalWidth > 0), 'mã QR hiện ra (ảnh data: không bị CSP chặn)');
+  check((await text(mp)).includes(qb.json.booking.code), 'nội dung chuyển khoản là mã đơn');
+  await snap(mp, 'quanly-qr');
   await mgr.close();
 
   // ---- 3. CTV (điện thoại): tìm, báo giá, giữ chỗ; không lộ căn ----

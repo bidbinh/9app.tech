@@ -24,7 +24,7 @@ export function shapeBooking(r, { staff }) {
   return out;
 }
 
-export async function listBookings(c, { orgId, agentId = null, from = null, to = null, status = null, limit = 200 }) {
+export async function listBookings(c, { orgId, agentId = null, from = null, to = null, status = null, code = null, limit = 200 }) {
   assertUuid(orgId, 'org');
   if (agentId !== null) assertUuid(agentId, 'sale/CTV');
   if ((from !== null && !isDate(from)) || (to !== null && !isDate(to))) throw new AppError('bad_dates', 'Ngày không hợp lệ');
@@ -35,8 +35,9 @@ export async function listBookings(c, { orgId, agentId = null, from = null, to =
     `${BASE}
       WHERE b.org_id = $1 AND ($2::uuid IS NULL OR b.agent_id = $2::uuid) AND ($3::date IS NULL OR b.checkout > $3::date)
         AND ($4::date IS NULL OR b.checkin < $4::date) AND ($5::text IS NULL OR b.status = $5)
+        AND ($6::text IS NULL OR upper(b.code) = $6)
       ORDER BY b.checkin, b.code LIMIT ${lim}`,
-    [orgId, agentId, from, to, status],
+    [orgId, agentId, from, to, status, typeof code === 'string' && code ? code.toUpperCase().slice(0, 20) : null],
   );
 }
 

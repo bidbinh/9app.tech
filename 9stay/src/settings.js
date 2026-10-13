@@ -31,7 +31,7 @@ const VALID = {
   'booking.holdMinutesStaff': int(0, 525600),
   'booking.holdMinutesAgent': int(0, 525600),
   'booking.maxHeldPerAgent': int(1, 1000),
-  'org.codePrefix': (v) => typeof v === 'string' && /^[A-Za-z0-9]{1,6}$/.test(v),
+  'org.codePrefix': (v) => typeof v === 'string' && /^[A-Za-z]{1,6}$/.test(v),
   'pricing.vatPct': int(0, 100),
   'pricing.extraAdultFee': int(0),
   'pricing.childFee': int(0),

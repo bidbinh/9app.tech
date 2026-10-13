@@ -148,7 +148,8 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
       r.keys.forEach((k, i) => { params[k] = m[i + 1]; });
 
       const mutating = method !== 'GET' && method !== 'HEAD';
-      if (mutating) {
+      // Webhook của bên thứ ba không gửi được header CSRF; route đó tự xác thực bằng chữ ký (opts.csrf === false).
+      if (mutating && r.opts.csrf !== false) {
         if (req.headers['x-requested-with'] !== CSRF_HEADER) throw new AppError('csrf', 'Yêu cầu bị từ chối (thiếu header xác thực)', 403);
         const origin = req.headers.origin;
         if (origin) {
@@ -160,15 +161,16 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
       if (r.opts.limit && rateLimited(r.re.source + ':' + ip, r.opts.limit)) throw new AppError('rate_limited', 'Bạn thao tác quá nhanh, đợi một chút rồi thử lại', 429);
 
       let body = {};
+      let raw = '';
       if (mutating) {
-        const raw = await readBody(req);
+        raw = await readBody(req);
         if (raw) {
           try { body = JSON.parse(raw); } catch { throw new AppError('bad_json', 'Dữ liệu gửi lên không hợp lệ', 400); }
           if (body === null || typeof body !== 'object' || Array.isArray(body)) throw new AppError('bad_json', 'Dữ liệu gửi lên không hợp lệ', 400);
         }
       }
 
-      const ctx = { req, res, params, body, ip, rid, now: clock(), query: Object.fromEntries(url.searchParams), cookies: parseCookies(req.headers.cookie), user: null, member: null };
+      const ctx = { req, res, params, body, rawBody: raw, ip, rid, now: clock(), query: Object.fromEntries(url.searchParams), cookies: parseCookies(req.headers.cookie), user: null, member: null };
       await authResolver(ctx, r.opts.auth || 'member');
 
       const out = await r.handler(ctx);

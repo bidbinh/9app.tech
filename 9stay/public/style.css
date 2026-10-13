@@ -98,3 +98,5 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .code{font:700 22px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.08em;word-break:break-all}
 @media (min-width:900px){main{padding:20px 24px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid2>.card{margin-bottom:0}}
 .row>.row.tight{flex:0 0 auto}
+.qr{display:block;width:240px;height:240px;max-width:100%;margin:0 auto;background:#fff;border-radius:10px;padding:6px}
+details summary{cursor:pointer;color:var(--mute);padding:8px 0}

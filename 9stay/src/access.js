@@ -11,7 +11,7 @@ const PERMISSIONS = {
     'calendar.read.all', 'availability.search', 'quote.create', 'booking.create', 'booking.read.all', 'booking.cancel', 'booking.move',
     'booking.checkin', 'booking.checkout', 'payment.record', 'payment.refund', 'rates.write', 'promotion.write', 'settings.write',
     'release.any', 'release.own', 'statement.owner.read.all', 'statement.owner.read.own', 'statement.agent.read.all', 'statement.freeze',
-    'statement.payout', 'report.custody', 'invite.create', 'member.manage', 'agent.manage',
+    'statement.payout', 'report.custody', 'invite.create', 'member.manage', 'agent.manage', 'bank.review', 'bank.configure',
   ]),
   letan: new Set([
     'calendar.read.all', 'availability.search', 'quote.create', 'booking.create', 'booking.read.all', 'booking.cancel', 'booking.move',

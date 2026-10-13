@@ -32,6 +32,8 @@ export async function recordPayment(c, { orgId, bookingId, kind, amount, receive
     throw new AppError('refund_too_large', 'Số hoàn lớn hơn phần tiền chưa quyết toán của đơn', 409);
   }
 
+  // Đơn giu: tăng version để expireHolds (đang chờ khóa với snapshot cũ) không nhả nhầm đơn vừa nhận tiền một phần.
+  if (b.status === 'giu') await c.query('UPDATE bookings SET version = version + 1 WHERE id = $1', [bookingId]);
   const entries = isRefund
     ? [{ account: 'guest_deposit_liability', amount }, { account: 'bank', amount: -amount }]
     : [{ account: 'bank', amount }, { account: 'guest_deposit_liability', amount: -amount }];

@@ -19,6 +19,9 @@ export const config = {
   trustedProxyHops: int(env.TRUSTED_PROXY_HOPS, 1),
   // Bí mật nginx gắn vào mọi yêu cầu (X-Edge-Secret); đặt thì thiếu hoặc sai bị từ chối, nên không ai gọi thẳng cổng nội bộ để giả IP.
   edgeSecret: env.EDGE_SECRET || '',
+  // Bí mật dùng chung với nhà cung cấp webhook ngân hàng (chữ ký HMAC-SHA256 của thân yêu cầu, hoặc "Authorization: Apikey <bí mật>").
+  // Để trống thì webhook từ chối mọi yêu cầu.
+  bankWebhookSecret: env.BANK_WEBHOOK_SECRET || '',
 };
 
 // Cấu hình production không an toàn thì từ chối khởi động.

@@ -87,7 +87,7 @@ export function bookingRoutes(app) {
     let agentId = null;
     if (can(m.role, 'booking.read.all')) { /* tất cả */ } else if (can(m.role, 'booking.read.own')) agentId = m.agentId; else requirePerm(ctx, 'booking.read.all');
     const q = ctx.query;
-    const rows = await tx((c) => listBookings(c, { orgId: m.orgId, agentId, from: q.from ?? null, to: q.to ?? null, status: q.status ?? null, limit: q.limit }));
+    const rows = await tx((c) => listBookings(c, { orgId: m.orgId, agentId, from: q.from ?? null, to: q.to ?? null, status: q.status ?? null, code: q.code ?? null, limit: q.limit }));
     return { bookings: rows.map((r) => shapeBooking(r, { staff: agentId === null })) };
   });
 
@@ -148,6 +148,7 @@ export function bookingRoutes(app) {
   app.route('POST', '/api/bookings/:id/payments', async (ctx) => {
     const b = ctx.body;
     requirePerm(ctx, b.kind === 'refund' ? 'payment.refund' : 'payment.record');
+    if (typeof b.ref === 'string' && b.ref.startsWith('bank:')) throw new AppError('bad_payment', 'Mã tham chiếu "bank:" dành riêng cho giao dịch ngân hàng tự động');
     return tx((c) => recordPayment(c, { orgId: ctx.member.orgId, bookingId: ctx.params.id, kind: b.kind, amount: b.amount, receivedOn: b.receivedOn, note: typeof b.note === 'string' ? b.note : '', by: ctx.member.id, ref: b.ref, method: 'manual_bank' }));
   });
 }

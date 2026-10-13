@@ -9,6 +9,7 @@ import { bookingRoutes } from './routes/booking.js';
 import { adminRoutes } from './routes/admin.js';
 import { ownerRoutes } from './routes/owner.js';
 import { catalogRoutes } from './routes/catalog.js';
+import { bankRoutes } from './routes/bank.js';
 
 // idClient: { verify(token) -> { userId, displayName } | null }. Test truyền bản giả; production dùng máy khách 9id.
 export function buildApp({ idClient, cfg = config, clock } = {}) {
@@ -19,6 +20,7 @@ export function buildApp({ idClient, cfg = config, clock } = {}) {
   adminRoutes(app);
   ownerRoutes(app);
   catalogRoutes(app);
+  bankRoutes(app, cfg);
   return app;
 }
 

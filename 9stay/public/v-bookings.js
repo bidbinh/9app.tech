@@ -1,4 +1,5 @@
 import { h, api, field, select, run, toast, money, dmy, dm, chip, STATUS, todayVN, addDays, uuid, ints } from './lib.js';
+import { qrCard } from './v-bank.js';
 
 const isAgent = (role) => role === 'ctv' || role === 'sale';
 
@@ -58,6 +59,7 @@ export async function bookingDetailView(ctx, main, id) {
     b.depositRequired ? h('div', { class: 'kv' }, h('span', { text: 'Cọc yêu cầu' }), h('span', { text: money(b.depositRequired) })) : null);
 
   const parts = [info, money1];
+  if ((staff || agent) && b.due > 0 && ['giu', 'da_coc', 'da_nhan'].includes(b.status)) parts.push(qrCard(b));
   if (staff && data.lines && data.lines.length) {
     parts.push(h('div', { class: 'card' }, h('h3', { text: 'Dòng giá' }), h('div', { class: 'scroll-x' }, h('table', null,
       h('thead', null, h('tr', null, h('th', { text: 'Nội dung' }), h('th', { class: 'n', text: 'Số tiền' }))),
