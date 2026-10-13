@@ -22,3 +22,15 @@ export async function bookedWorld({ agentPct = 10, contract = {}, noContract = f
   if (pay === 'deposit') await db.tx((c) => recordPayment(c, { orgId: w.orgId, bookingId: booking.id, kind: 'deposit', amount: 644000, receivedOn: '2026-10-14', ref: 'dep' }));
   return { ...w, plans, agent, contract: contractRow, quote, booking };
 }
+
+// Thêm một đơn đã thanh toán đủ, nhận phòng và trả phòng vào thế giới đã có (cần hợp đồng cho căn). Trả { booking, settlementId }.
+import { checkIn, checkOut } from '../src/stay.js';
+export async function settleNew(w, { unitId, checkin, checkout, outOn, agentId = null, ref }) {
+  const unit = unitId || w.unitId;
+  const q = await db.tx((c) => createQuote(c, { orgId: w.orgId, roomTypeId: w.roomTypeId, planId: w.plans.public, checkin, checkout, adults: 2 }, { now: NOW }));
+  const booking = await db.tx((c) => createBooking(c, { orgId: w.orgId, unitId: unit, checkin, checkout, guestName: 'Khách ' + ref, adults: 2, quoteId: q.id, agentId }, { now: NOW }));
+  await db.tx((c) => recordPayment(c, { orgId: w.orgId, bookingId: booking.id, kind: 'deposit', amount: q.total, receivedOn: '2026-10-14', ref: 'pay-' + ref }));
+  await db.tx((c) => checkIn(c, { orgId: w.orgId, bookingId: booking.id }));
+  const out = await db.tx((c) => checkOut(c, { orgId: w.orgId, bookingId: booking.id }, { now: new Date(outOn + 'T05:00:00Z') }));
+  return { booking, settlementId: out.settlementId, quote: q };
+}
