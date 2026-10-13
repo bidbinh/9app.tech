@@ -17,7 +17,7 @@ function normalizePhone(p) {
   return s;
 }
 
-function validateGuest({ guestName, adults, children, source }) {
+export function validateGuest({ guestName, adults, children, source }) {
   const name = typeof guestName === 'string' ? guestName.trim() : '';
   if (!name || name.length > GUEST_NAME_MAX) throw new AppError('bad_guest', 'Tên khách không hợp lệ');
   if (!Number.isInteger(adults) || adults < 1) throw new AppError('bad_guest', 'Cần ít nhất 1 người lớn');
