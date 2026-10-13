@@ -44,3 +44,22 @@ test('fmtDate/fmtTime/fmtDayLabel theo giờ địa phương của offset đã l
   assert.equal(fmtDayLabel('2026-11-16T00:10:00+09:00'), 'T2');
   assert.equal(fmtDate('rác'), '');
 });
+
+import { offsetFor, formIso, formArrivalIso } from '../js/time.js';
+
+test('formIso: dùng múi giờ của điểm khớp; không khớp thì giữ offset cũ của chuyến, cuối cùng mới +07:00', () => {
+  assert.equal(formIso('2026-11-20', '10:00', '+09:00', ''), '2026-11-20T10:00:00+09:00');
+  assert.equal(formIso('2026-11-20', '10:00', null, '2026-11-20T08:00:00+09:00'), '2026-11-20T10:00:00+09:00');
+  assert.equal(formIso('2026-11-20', '10:00', null, ''), '2026-11-20T10:00:00+07:00');
+  assert.equal(formIso('', '10:00', null, ''), '');
+  assert.equal(offsetFor(null, '2026-01-01T00:00:00-05:00'), '-05:00');
+});
+
+test('formArrivalIso: thiếu ngày đến thì lấy ngày đi, sớm hơn giờ đi thì sang hôm sau; thiếu giờ đến thì rỗng', () => {
+  const dep = '2026-11-15T23:30:00+07:00';
+  assert.equal(formArrivalIso(dep, '', '01:40', '+07:00', ''), '2026-11-16T01:40:00+07:00');
+  assert.equal(formArrivalIso('2026-11-15T06:00:00+07:00', '', '08:00', '+07:00', ''), '2026-11-15T08:00:00+07:00');
+  assert.equal(formArrivalIso(dep, '2026-11-16', '02:00', '+07:00', ''), '2026-11-16T02:00:00+07:00');
+  assert.equal(formArrivalIso(dep, '2026-11-16', '', '+07:00', ''), '');
+  assert.equal(formArrivalIso('rác', '', '01:40', '+07:00', ''), '');
+});

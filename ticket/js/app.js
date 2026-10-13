@@ -1,6 +1,6 @@
 import { MODE_LABEL, newId, splitUpcoming, countdown } from './model.js';
 import { createStore } from './store.js';
-import { parseIso, fmtDate, fmtTime, fmtDayLabel } from './time.js';
+import { parseIso, fmtDate, fmtTime, fmtDayLabel, formIso, formArrivalIso } from './time.js';
 import { isInternational, leadMinutes, leaveByIso, placeWord } from './airport.js';
 import { buildICS, icsFileName } from './ics.js';
 import { settle } from './split.js';
@@ -133,7 +133,7 @@ function viewDetail(id) {
   const leadInput = h('input', { id: 'lead', type: 'number', min: '0', max: '720', step: '5', value: String(lead), inputmode: 'numeric' });
   leadInput.addEventListener('change', () => {
     const n = Number.parseInt(leadInput.value, 10);
-    store.upsert({ ...t, leadMin: Number.isInteger(n) ? n : null });
+    store.upsert({ ...(store.get(id) || t), leadMin: Number.isInteger(n) ? n : null });
     viewDetail(id);
   });
   body.append(h('h2', { text: 'Giờ ra bến' }), leaveBox, field('Ra sớm (phút)', leadInput));
@@ -141,7 +141,7 @@ function viewDetail(id) {
   const details = [t.gate && ['Cổng', t.gate], t.terminal && ['Nhà ga', t.terminal]].filter(Boolean);
   if (details.length) body.append(h('dl', { class: 'dl' }, details.map(([k, v]) => [h('dt', { text: k }), h('dd', { text: v })])));
   if (t.passengers.length) {
-    body.append(h('h2', { text: 'Hành khách' }), h('ul', { class: 'plain' }, t.passengers.map((p) => h('li', { text: [p.name, p.seat && 'ghế ' + p.seat, p.bag && 'hành lý ' + p.bag].filter(Boolean).join(' · ') }))));
+    body.append(h('div', { class: 'ticket-keep' }, h('h2', { text: 'Hành khách' }), h('ul', { class: 'plain' }, t.passengers.map((p) => h('li', { text: [p.name, p.seat && 'ghế ' + p.seat, p.bag && 'hành lý ' + p.bag].filter(Boolean).join(' · ') })))));
   }
   if (t.note) body.append(h('h2', { text: 'Ghi chú' }), h('p', { class: 'note', text: t.note }));
   page.append(body);
@@ -223,15 +223,15 @@ function viewAdd(editId) {
     const errs = h('ul', { class: 'error', role: 'alert' });
     const dl = h('datalist', { id: 'stations' }, stations.map((s) => h('option', { value: s.name }, s.code ? `${s.code} · ${s.kinds[0]}` : s.kinds[0])));
 
-    const tzOf = (name, mode) => { const s = matchStation(stations, name, mode); return s ? s.tz : '+07:00'; };
+    const tzOf = (name, mode) => { const s = matchStation(stations, name, mode); return s ? s.tz : null; };
     const placeOf = (name, mode) => { const s = matchStation(stations, name, mode); return s ? { code: s.code, name: s.name } : { code: '', name: name.trim() }; };
     const form = h('form', { novalidate: true, onsubmit: (e) => {
       e.preventDefault();
       const mode = f.mode.value;
-      const iso = (date, time, name) => (date.value && time.value ? `${date.value}T${time.value}:00${tzOf(name, mode)}` : '');
       const pax = f.pax.value.split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 20).map((l) => { const [name, seat, bag] = l.split(',').map((x) => (x || '').trim()); return { name, seat, bag }; });
+      const depIso = formIso(f.depDate.value, f.depTime.value, tzOf(f.from.value, mode), d.departAt);
       const raw = { ...d, id: d.id, mode, operator: f.operator.value, code: f.code.value, from: placeOf(f.from.value, mode), to: placeOf(f.to.value, mode),
-        departAt: iso(f.depDate, f.depTime, f.from.value), arriveAt: iso(f.arrDate, f.arrTime, f.to.value),
+        departAt: depIso, arriveAt: formArrivalIso(depIso, f.arrDate.value, f.arrTime.value, tzOf(f.to.value, mode), d.arriveAt),
         pnr: f.pnr.value, passengers: pax, gate: f.gate.value, terminal: f.terminal.value, note: f.note.value };
       const res = store.upsert(raw);
       if (!res.trip) { errs.replaceChildren(...res.errors.map((x) => h('li', { text: x }))); return; }

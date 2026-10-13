@@ -114,3 +114,45 @@ test('findStations theo thứ tự xuất hiện', () => {
   const s = findStations(stations, 'đi Sài Gòn rồi về Hà Nội', 'tau');
   assert.deepEqual(s.map((x) => x.name), ['Ga Sài Gòn', 'Ga Hà Nội']);
 });
+
+test('bỏ qua ngày giờ đặt vé đứng trước giờ khởi hành', () => {
+  const r = run('Vietjet VJ123 HAN SGN. Ngày đặt: 01/10/2026 14:32. Khởi hành 15/11/2026 06:30, đến 08:40');
+  assert.equal(r.trip.departAt, '2026-11-15T06:30:00+07:00');
+  assert.equal(r.trip.arriveAt, '2026-11-15T08:40:00+07:00');
+});
+
+test('tên hành khách trùng mã sân bay/tên ga không bị coi là nơi đi/đến', () => {
+  const r = run('Hành khách: LE THI HAN\nVJ456 TP HCM - Đà Nẵng 20/11/2026 09:00 đến 10:20');
+  assert.equal(r.trip.from.code, 'SGN');
+  assert.equal(r.trip.to.code, 'DAD');
+  assert.equal(r.trip.passengers[0].name, 'LE THI HAN');
+});
+
+test('số tổng đài không bị coi là số hiệu chuyến bay', () => {
+  const r = run('Tổng đài VN 1900 1100.\nVé tàu SE3 Hà Nội - Huế 22/11/2026 19:00');
+  assert.equal(r.trip.mode, 'tau');
+  assert.equal(r.trip.code, 'SE3');
+});
+
+test('giờ 12 tiếng AM/PM', () => {
+  assert.equal(run('VJ123 HAN SGN 15/11/2026 6:30 PM').trip.departAt, '2026-11-15T18:30:00+07:00');
+  assert.equal(run('VJ123 HAN SGN 15/11/2026 12:15 AM').trip.departAt, '2026-11-15T00:15:00+07:00');
+  assert.equal(run('VJ123 HAN SGN 15/11/2026 12:15 PM').trip.departAt, '2026-11-15T12:15:00+07:00');
+});
+
+test('mã đặt chỗ không lấy nhầm chữ trong từ "reference"', () => {
+  assert.equal(run('Booking reference: CONFIRMED VJ123 HAN SGN 15/11/2026 06:30').trip.pnr, '');
+  assert.equal(run('Booking reference: XY12Z9 VJ123 HAN SGN 15/11/2026 06:30').trip.pnr, 'XY12Z9');
+});
+
+test('giờ đến sớm hơn giờ đi với ngày đến tường minh thì bỏ giờ đến và báo; thiếu nơi đến thì không ok', () => {
+  const a = run('VJ123 HAN SGN 15/11/2026 06:00 đến 14/11/2026 05:00');
+  assert.equal(a.trip.arriveAt, '');
+  assert.ok(a.issues.some((s) => s.includes('sớm hơn')));
+  assert.equal(run('VJ123 HAN 15/11/2026 06:30').ok, false);
+});
+
+test('tối đa 20 hành khách', () => {
+  const lines = Array.from({ length: 25 }, (_, i) => `Hành khách: KHACH ${i}`).join('\n');
+  assert.equal(run('VJ123 HAN SGN 15/11/2026 06:30\n' + lines).trip.passengers.length, 20);
+});

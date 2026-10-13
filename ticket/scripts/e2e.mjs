@@ -74,6 +74,34 @@ await clickText(page, 'button', 'Thêm khoản chi');
 ok(await page.evaluate(() => /số nguyên dương/.test(document.querySelector('#split .error').textContent)), 'báo lỗi số tiền sai');
 await page.screenshot({ path: path.join(SHOTS, 'detail-390.png'), fullPage: true });
 
+// 2b. Đổi "Ra sớm" không làm mất khoản chi vừa thêm (I-1)
+await page.evaluate(() => { const i = document.querySelector('#lead'); i.value = '90'; i.dispatchEvent(new Event('change')); });
+await sleep(300);
+ok(await page.evaluate(() => document.querySelector('#split').textContent.includes('Cà phê')), 'đổi Ra sớm vẫn giữ khoản chi');
+ok(await page.evaluate(() => /lúc \d\d:\d\d/.test(document.querySelector('.leave-by').textContent) && document.querySelector('.leave-by').textContent.includes('90 phút')), 'mốc ra bến theo 90 phút');
+
+// 2c. Chế độ vé vẫn hiện hành khách và ghế (I-4)
+await clickText(page, 'button', 'Chế độ vé');
+ok(await page.evaluate(() => document.querySelector('main').innerText.includes('12A') && document.querySelector('main').innerText.includes('NGUYEN VAN A')), 'chế độ vé hiện ghế và tên hành khách');
+await clickText(page, 'button', 'Thoát chế độ vé');
+
+// 2d. Sửa chuyến có múi giờ lạ không bị lệch giờ (I-2) và giờ đến thiếu ngày (I-3)
+await page.evaluate(() => {
+  const trips = JSON.parse(localStorage.getItem('9ticket.trips.v1') || '[]').concat([{ id: 'tfuk', mode: 'bay', code: 'JL100', from: { code: '', name: 'Fukuoka' }, to: { code: '', name: 'Osaka' }, departAt: '2026-11-20T10:00:00+09:00', arriveAt: '2026-11-20T11:30:00+09:00' }]);
+  localStorage.setItem('9ticket.trips.v1', JSON.stringify(trips));
+});
+await page.goto(ORIGIN + '/#/edit/tfuk', { waitUntil: 'networkidle0' });
+await page.type('#f-note', 'sửa ghi chú');
+await clickText(page, 'button', 'Lưu chuyến');
+await sleep(300);
+ok(await page.evaluate(() => { const t = JSON.parse(localStorage.getItem('9ticket.trips.v1')).find((x) => x.id === 'tfuk'); return t.note === 'sửa ghi chú' && t.departAt === '2026-11-20T10:00:00+09:00'; }), 'sửa chuyến lưu được và giữ nguyên múi giờ +09:00');
+await page.goto(ORIGIN + '/#/edit/tfuk', { waitUntil: 'networkidle0' });
+await page.evaluate(() => { const set = (id, v) => { const e = document.querySelector(id); e.value = v; }; set('#f-dep-date', '2026-11-20'); set('#f-dep-time', '23:30'); set('#f-arr-date', ''); set('#f-arr-time', '01:40'); });
+await clickText(page, 'button', 'Lưu chuyến');
+await sleep(300);
+ok(await page.evaluate(() => JSON.parse(localStorage.getItem('9ticket.trips.v1')).find((t) => t.id === 'tfuk').arriveAt === '2026-11-21T01:40:00+09:00'), 'giờ đến không có ngày thì sang hôm sau');
+await page.evaluate(() => localStorage.setItem('9ticket.trips.v1', JSON.stringify(JSON.parse(localStorage.getItem('9ticket.trips.v1')).filter((t) => t.id !== 'tfuk'))));
+
 // 3. Dán vé, XSS không chạy, lưu
 await page.goto(ORIGIN + '/#/add', { waitUntil: 'networkidle0' });
 await page.type('#paste', FLIGHT);

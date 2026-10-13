@@ -71,7 +71,7 @@ input, select, textarea { width: 100%; min-height: 44px; padding: 8px 12px; bord
 .big { font-size: 2.2rem; font-weight: 800; line-height: 1.1; }
 .note { white-space: pre-wrap; overflow-wrap: anywhere; }
 .pnr strong { font-size: 1.4rem; letter-spacing: .08em; }
-main.ticket-mode .detail-body, main.ticket-mode #split, main.ticket-mode h2 { display: none; }
+main.ticket-mode .detail-body > :not(.ticket-keep), main.ticket-mode #split, main.ticket-mode .page > h2 { display: none; }
 main.ticket-mode .detail-head { font-size: 1.25rem; }
 main.ticket-mode .big { font-size: 3.5rem; }
 main.ticket-mode .pnr strong { font-size: 2.4rem; }

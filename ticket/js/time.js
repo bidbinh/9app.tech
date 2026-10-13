@@ -51,3 +51,27 @@ export function fmtDayLabel(iso) {
   const w = wallOf(iso);
   return w ? DAYS[w.getUTCDay()] : '';
 }
+
+// Ghép ngày/giờ từ form. tz: múi giờ của điểm đã khớp (hoặc null). prevIso: giờ cũ của chuyến, để giữ offset khi điểm không khớp.
+export function offsetFor(tz, prevIso) {
+  if (tz) return tz;
+  const p = parseIso(prevIso);
+  return p ? offsetString(p.offsetMin) : '+07:00';
+}
+
+export function formIso(date, time, tz, prevIso) {
+  return date && time ? `${date}T${time}:00${offsetFor(tz, prevIso)}` : '';
+}
+
+// Giờ đến: thiếu ngày đến thì lấy ngày đi (giờ địa phương của nơi đi), sớm hơn giờ đi thì sang hôm sau.
+export function formArrivalIso(depIso, arrDate, arrTime, tz, prevIso) {
+  if (!arrTime) return '';
+  if (arrDate) return formIso(arrDate, arrTime, tz, prevIso);
+  const dep = parseIso(depIso);
+  if (!dep) return '';
+  const date = fmtDate(depIso).split('/').reverse().join('-');
+  const iso = `${date}T${arrTime}:00${offsetFor(tz, prevIso)}`;
+  const p = parseIso(iso);
+  if (!p) return '';
+  return p.ms < dep.ms ? shiftIso(iso, 1440) : iso;
+}
