@@ -30,7 +30,7 @@ export async function validateStay(c, { orgId, unitId, checkin, checkout, adults
   const nights = nightsBetween(checkin, checkout);
   const today = todayVN(now);
   if (checkin < today) throw new AppError('past_date', 'Ngày đến đã qua');
-  const [unit] = await c.query('SELECT id, capacity_max, status FROM units WHERE id = $1 AND org_id = $2', [unitId, orgId]);
+  const [unit] = await c.query('SELECT id, capacity_max, status, room_type_id FROM units WHERE id = $1 AND org_id = $2', [unitId, orgId]);
   if (!unit) throw new AppError('unit_not_found', 'Không tìm thấy căn', 404);
   if (unit.status !== 'active') throw new AppError('unit_inactive', 'Căn đang ngừng hoạt động', 409);
   const maxNights = await getSetting(c, { orgId, key: 'booking.maxNights', unitId, asOf: today });
@@ -95,12 +95,13 @@ async function nextBookingCode(c, orgId, today) {
 }
 
 export async function createBooking(c, input, { now = new Date() } = {}) {
-  const { orgId, unitId, checkin, checkout, guestPhone = null, adults = 1, children = 0, source = 'direct', agentId = null, createdBy = null, status = 'giu' } = input;
+  const { orgId, unitId, checkin, checkout, guestPhone = null, adults = 1, children = 0, source = 'direct', agentId = null, createdBy = null, status = 'giu', quoteId = null } = input;
   if (!['giu', 'da_coc'].includes(status)) throw new AppError('bad_status', 'Trạng thái đầu không hợp lệ');
   const name = validateGuest({ guestName: input.guestName, adults, children, source });
   const phone = normalizePhone(guestPhone);
-  const { nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults, children }, now);
+  const { unit, nights } = await validateStay(c, { orgId, unitId, checkin, checkout, adults, children }, now);
   const today = todayVN(now);
+  const quote = quoteId ? await loadUsableQuote(c, { orgId, quoteId, unit, checkin, checkout, adults, children, now }) : null;
 
   let holdUntil = null;
   if (status === 'giu') {
@@ -108,14 +109,43 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
     holdUntil = new Date(now.getTime() + minutes * 60 * 1000);
   }
   const code = await nextBookingCode(c, orgId, today);
-  const [row] = await c.query(
-    `INSERT INTO bookings(org_id, code, guest_name, guest_phone, adults, children, source, agent_id, created_by, status, hold_until)
-     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id, version`,
-    [orgId, code, name, phone, adults, children, source, agentId, createdBy, status, holdUntil],
-  );
+  let row;
+  try {
+    [row] = await c.query(
+      `INSERT INTO bookings(org_id, code, guest_name, guest_phone, adults, children, source, agent_id, created_by, status, hold_until, deposit_required, quote_id)
+       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id, version`,
+      [orgId, code, name, phone, adults, children, source, agentId, createdBy, status, holdUntil, quote ? quote.deposit : 0, quote ? quote.id : null],
+    );
+  } catch (e) {
+    if (e.code === '23505' && e.constraint === 'bookings_quote_unique') throw new AppError('quote_used', 'Báo giá này đã được dùng cho một đơn khác', 409);
+    throw e;
+  }
   await claimNights(c, { orgId, bookingId: row.id, unitId, nights, now });
+  if (quote) await writePriceLines(c, { orgId, bookingId: row.id, quote });
   await addEvent(c, row.id, 'created', { unitId, checkin, checkout, status });
-  return { id: row.id, code, status, version: row.version, holdUntil, checkin, checkout, nights };
+  return { id: row.id, code, status, version: row.version, holdUntil, checkin, checkout, nights, total: quote ? quote.total : 0, depositRequired: quote ? quote.deposit : 0 };
+}
+
+// Báo giá phải còn hạn và khớp ngày, số khách, trẻ em, loại phòng của căn.
+async function loadUsableQuote(c, { orgId, quoteId, unit, checkin, checkout, adults, children, now }) {
+  assertUuid(quoteId, 'báo giá');
+  const [q] = await c.query(
+    'SELECT id, room_type_id, checkin, checkout, adults, child_ages, lines, vat, total, deposit, expires_at FROM quotes WHERE id = $1 AND org_id = $2',
+    [quoteId, orgId],
+  );
+  if (!q) throw new AppError('quote_not_found', 'Không tìm thấy báo giá', 404);
+  if (new Date(q.expires_at) < now) throw new AppError('quote_expired', 'Báo giá đã hết hạn, hãy báo giá lại', 409);
+  const sameStay = q.checkin === checkin && q.checkout === checkout && q.adults === adults && q.child_ages.length === children && q.room_type_id === unit.room_type_id;
+  if (!sameStay) throw new AppError('quote_mismatch', 'Báo giá không khớp với đơn (ngày, số khách hoặc loại phòng)', 409);
+  return q;
+}
+
+// Dòng giá của đơn: bất biến, mỗi đêm một dòng và một dòng VAT.
+async function writePriceLines(c, { orgId, bookingId, quote }) {
+  for (const l of quote.lines) {
+    await c.query('INSERT INTO price_lines(org_id, booking_id, kind, night, label, amount) VALUES($1, $2, $3, $4::date, $5, $6)', [orgId, bookingId, 'night', l.night, `Tiền phòng đêm ${l.night}`, l.amount]);
+  }
+  await c.query('INSERT INTO price_lines(org_id, booking_id, kind, night, label, amount) VALUES($1, $2, $3, NULL, $4, $5)', [orgId, bookingId, 'vat', 'VAT', quote.vat]);
 }
 
 // Tình trạng từng đêm của một căn trong [from, to).

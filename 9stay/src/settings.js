@@ -7,6 +7,14 @@ export const DEFAULTS = {
   'booking.maxAdvanceDays': 540,
   'booking.holdMinutesStaff': 1440,
   'org.codePrefix': 'ST',
+  'pricing.vatPct': 10,
+  'pricing.extraAdultFee': 100000,
+  'pricing.childFee': 50000,
+  'pricing.childFreeMaxAge': 5,
+  'pricing.childAdultMinAge': 12,
+  'pricing.depositPct': 30,
+  'pricing.quoteHours': 24,
+  'pricing.roundTo': 1000,
 };
 
 const SCOPES = ['unit', 'owner', 'building', 'org'];
