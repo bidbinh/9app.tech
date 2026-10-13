@@ -1,4 +1,7 @@
 -- 9stay: lược đồ cốt lõi (lát 1A). Mọi bảng thuộc một org. Đêm là kiểu date.
+-- Khóa ngoại ghép (org_id, id) bảo đảm các thực thể liên quan cùng thuộc một org ngay ở tầng CSDL.
+
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 CREATE TABLE orgs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -21,7 +24,8 @@ CREATE TABLE buildings (
   legal_type text NOT NULL DEFAULT 'can_ho_du_lich' CHECK (legal_type IN ('can_ho_du_lich', 'nha_o', 'khac')),
   rules_note text NOT NULL DEFAULT '',
   declared_by_default text NOT NULL DEFAULT 'anstay' CHECK (declared_by_default IN ('anstay', 'owner', 'bql')),
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (org_id, id)
 );
 
 CREATE TABLE owners (
@@ -31,7 +35,8 @@ CREATE TABLE owners (
   name text NOT NULL,
   tax_id text,
   status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused')),
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (org_id, id)
 );
 
 CREATE TABLE room_types (
@@ -40,15 +45,16 @@ CREATE TABLE room_types (
   name text NOT NULL,
   capacity_std int NOT NULL DEFAULT 2 CHECK (capacity_std > 0),
   capacity_max int NOT NULL DEFAULT 4,
-  CHECK (capacity_max >= capacity_std)
+  CHECK (capacity_max >= capacity_std),
+  UNIQUE (org_id, id)
 );
 
 CREATE TABLE units (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id uuid NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
-  building_id uuid NOT NULL REFERENCES buildings(id),
-  owner_id uuid NOT NULL REFERENCES owners(id),
-  room_type_id uuid NOT NULL REFERENCES room_types(id),
+  building_id uuid NOT NULL,
+  owner_id uuid NOT NULL,
+  room_type_id uuid NOT NULL,
   code text NOT NULL,
   floor int,
   capacity_std int NOT NULL CHECK (capacity_std > 0),
@@ -56,14 +62,20 @@ CREATE TABLE units (
   status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (building_id, code),
-  CHECK (capacity_max >= capacity_std)
+  UNIQUE (org_id, id),
+  UNIQUE (id, owner_id),
+  CHECK (capacity_max >= capacity_std),
+  FOREIGN KEY (org_id, building_id) REFERENCES buildings (org_id, id),
+  FOREIGN KEY (org_id, owner_id) REFERENCES owners (org_id, id),
+  FOREIGN KEY (org_id, room_type_id) REFERENCES room_types (org_id, id)
 );
 
+-- valid_to là ngày KẾT THÚC KHÔNG BAO GỒM (nửa mở, như mọi khoảng đêm khác); NULL = không thời hạn.
 CREATE TABLE owner_contracts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id uuid NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
-  owner_id uuid NOT NULL REFERENCES owners(id),
-  unit_id uuid NOT NULL REFERENCES units(id),
+  owner_id uuid NOT NULL,
+  unit_id uuid NOT NULL,
   kind text NOT NULL CHECK (kind IN ('revenue_share', 'master_lease')),
   valid_from date NOT NULL,
   valid_to date,
@@ -77,7 +89,10 @@ CREATE TABLE owner_contracts (
   tax_withhold boolean NOT NULL DEFAULT false,
   version int NOT NULL DEFAULT 1,
   created_at timestamptz NOT NULL DEFAULT now(),
-  CHECK (valid_to IS NULL OR valid_to >= valid_from)
+  CHECK (valid_to IS NULL OR valid_to > valid_from),
+  FOREIGN KEY (org_id, unit_id) REFERENCES units (org_id, id),
+  FOREIGN KEY (unit_id, owner_id) REFERENCES units (id, owner_id),
+  EXCLUDE USING gist (unit_id WITH =, daterange(valid_from, valid_to) WITH &&)
 );
 
 -- Chủ mở bán hoặc chặn từng đêm. Không có dòng = chưa mở bán.
@@ -104,19 +119,24 @@ CREATE TABLE bookings (
   created_by uuid,
   status text NOT NULL CHECK (status IN ('giu', 'da_coc', 'da_nhan', 'da_tra', 'huy', 'khong_den', 'het_han')),
   hold_until timestamptz,
+  cancel_reason text,
   cancel_policy jsonb NOT NULL DEFAULT '{}',
   version int NOT NULL DEFAULT 1,
   created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (org_id, code)
+  UNIQUE (org_id, code),
+  UNIQUE (org_id, id)
 );
 
 -- Nguồn chống trùng duy nhất: mỗi (căn, đêm) tối đa một dòng hoạt động.
 CREATE TABLE room_nights (
   id bigserial PRIMARY KEY,
-  booking_id uuid NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
-  unit_id uuid NOT NULL REFERENCES units(id),
+  org_id uuid NOT NULL,
+  booking_id uuid NOT NULL,
+  unit_id uuid NOT NULL,
   night date NOT NULL,
-  active boolean NOT NULL DEFAULT true
+  active boolean NOT NULL DEFAULT true,
+  FOREIGN KEY (org_id, booking_id) REFERENCES bookings (org_id, id) ON DELETE CASCADE,
+  FOREIGN KEY (org_id, unit_id) REFERENCES units (org_id, id)
 );
 CREATE UNIQUE INDEX room_nights_active_unit_night ON room_nights (unit_id, night) WHERE active;
 CREATE INDEX room_nights_booking ON room_nights (booking_id);

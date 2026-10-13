@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
+import { AppError } from './errors.js';
 
 // BIGINT -> Number (tiền VND nằm trong vùng số nguyên an toàn)
 pg.types.setTypeParser(20, (v) => Number.parseInt(v, 10));
@@ -25,6 +26,12 @@ export async function query(sql, params) {
   return r.rows;
 }
 
+// Deadlock (40P01) và lỗi tuần tự hóa (40001) là lỗi tạm thời: dịch thành AppError('busy', 409) để lớp trên thử lại.
+export function translateError(e) {
+  if (e && (e.code === '40P01' || e.code === '40001')) return new AppError('busy', 'Hệ thống đang bận, hãy thử lại', 409);
+  return e;
+}
+
 // fn(c) với c.query(sql, params) -> rows. Lỗi bất kỳ thì ROLLBACK.
 export async function tx(fn) {
   const client = await getPool().connect();
@@ -39,7 +46,7 @@ export async function tx(fn) {
     return out;
   } catch (e) {
     try { await client.query('ROLLBACK'); } catch { /* bỏ qua */ }
-    throw e;
+    throw translateError(e);
   } finally {
     client.release();
   }

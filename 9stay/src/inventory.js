@@ -1,5 +1,14 @@
 import { AppError } from './errors.js';
 import { isDate, nightsBetween } from './time.js';
+import { assertUuid } from './ids.js';
+
+// Căn phải thuộc đúng org: chặn việc org này mở/chặn đêm của căn org khác dù biết id.
+async function requireUnit(c, orgId, unitId) {
+  assertUuid(orgId, 'org');
+  assertUuid(unitId, 'căn');
+  const [u] = await c.query('SELECT id FROM units WHERE id = $1 AND org_id = $2', [unitId, orgId]);
+  if (!u) throw new AppError('unit_not_found', 'Không tìm thấy căn', 404);
+}
 
 const one = async (c, sql, params) => (await c.query(sql, params))[0];
 
@@ -30,8 +39,9 @@ export const createContract = (c, {
   [orgId, ownerId, unitId, kind, validFrom, validTo, ownerSharePct, ownerNetFloor, fixedRent, cleaningPayer, cancelPenaltyPct, statementCycle, payoutDelayDays, taxWithhold]);
 
 // Mở bán các đêm trong [from, to). Nếu đêm đang bị chặn thì thành mở (chủ nhả ngày).
-export async function openNights(c, { unitId, from, to, source = 'app', by = null }) {
+export async function openNights(c, { orgId, unitId, from, to, source = 'app', by = null }) {
   const nights = nightsBetween(from, to);
+  await requireUnit(c, orgId, unitId);
   await c.query(
     `INSERT INTO owner_releases(unit_id, night, kind, source, created_by)
      SELECT $1::uuid, n, 'open', $3::text, $4::uuid FROM unnest($2::date[]) AS n
@@ -45,9 +55,10 @@ const BLOCK_KINDS = ['owner_use', 'blocked_by_owner', 'blocked_by_anstay'];
 
 // Chặn các đêm. Phải chạy trong db.tx: ghi dòng chặn trước (giữ khóa dòng) rồi mới kiểm đêm đã có khách,
 // nên một đặt phòng chạy đồng thời hoặc thấy đêm đã bị chặn, hoặc bị chặn lại ở đây. Có khách thì ném lỗi để hoàn tác.
-export async function blockNights(c, { unitId, nights, kind = 'blocked_by_owner', source = 'app', by = null }) {
+export async function blockNights(c, { orgId, unitId, nights, kind = 'blocked_by_owner', source = 'app', by = null }) {
   if (!BLOCK_KINDS.includes(kind)) throw new AppError('bad_kind', 'Loại chặn không hợp lệ');
   if (!Array.isArray(nights) || !nights.length || !nights.every(isDate)) throw new AppError('bad_dates', 'Danh sách đêm không hợp lệ');
+  await requireUnit(c, orgId, unitId);
   const list = [...new Set(nights)].sort();
   await c.query(
     `INSERT INTO owner_releases(unit_id, night, kind, source, created_by)

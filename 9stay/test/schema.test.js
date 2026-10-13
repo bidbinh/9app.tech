@@ -27,19 +27,19 @@ test('migrate tạo đủ bảng cốt lõi', async () => {
 });
 
 test('chỉ mục duy nhất từng phần: hai dòng room_nights hoạt động cùng căn cùng đêm bị từ chối', async () => {
-  const { unit, booking } = await minimal();
-  await db.query("INSERT INTO room_nights(booking_id,unit_id,night) VALUES($1,$2,'2026-11-05')", [booking.id, unit.id]);
+  const { org, unit, booking } = await minimal();
+  await db.query("INSERT INTO room_nights(org_id,booking_id,unit_id,night) VALUES($1,$2,$3,'2026-11-05')", [org.id, booking.id, unit.id]);
   await assert.rejects(
-    db.query("INSERT INTO room_nights(booking_id,unit_id,night) VALUES($1,$2,'2026-11-05')", [booking.id, unit.id]),
+    db.query("INSERT INTO room_nights(org_id,booking_id,unit_id,night) VALUES($1,$2,$3,'2026-11-05')", [org.id, booking.id, unit.id]),
     (e) => e.code === '23505' && e.constraint === 'room_nights_active_unit_night',
   );
 });
 
 test('dòng room_nights đã vô hiệu (active=false) không chiếm đêm', async () => {
   await db.resetForTests();
-  const { unit, booking } = await minimal();
-  await db.query("INSERT INTO room_nights(booking_id,unit_id,night,active) VALUES($1,$2,'2026-11-05',false)", [booking.id, unit.id]);
-  await db.query("INSERT INTO room_nights(booking_id,unit_id,night) VALUES($1,$2,'2026-11-05')", [booking.id, unit.id]);
+  const { org, unit, booking } = await minimal();
+  await db.query("INSERT INTO room_nights(org_id,booking_id,unit_id,night,active) VALUES($1,$2,$3,'2026-11-05',false)", [org.id, booking.id, unit.id]);
+  await db.query("INSERT INTO room_nights(org_id,booking_id,unit_id,night) VALUES($1,$2,$3,'2026-11-05')", [org.id, booking.id, unit.id]);
   const rows = await db.query('SELECT count(*)::int AS n FROM room_nights WHERE active');
   assert.equal(rows[0].n, 1);
 });

@@ -26,8 +26,8 @@ export async function seed({ from = '2026-11-01', to = '2026-12-01' } = {}) {
     const mk = (code) => createUnit(c, { orgId: org.id, buildingId: building.id, ownerId: owner.id, roomTypeId: roomType.id, code });
     const unit = await mk('A1205');
     const unit2 = await mk('A1206');
-    await openNights(c, { unitId: unit.id, from, to });
-    await openNights(c, { unitId: unit2.id, from, to });
+    await openNights(c, { orgId: org.id, unitId: unit.id, from, to });
+    await openNights(c, { orgId: org.id, unitId: unit2.id, from, to });
     return { orgId: org.id, buildingId: building.id, ownerId: owner.id, roomTypeId: roomType.id, unitId: unit.id, unit2Id: unit2.id };
   });
 }

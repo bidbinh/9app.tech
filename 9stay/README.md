@@ -23,8 +23,19 @@ npm test
 - `src/inventory.js`: tòa, căn, chủ, hợp đồng, mở/chặn đêm của chủ.
 - `src/bookings.js`: đặt, hủy, dời, tình trạng căn.
 
+## Khác biệt có chủ ý so với đặc tả (và việc còn lại cho lát sau)
+
+- **Giữ chỗ theo căn, không theo loại phòng.** Đặc tả (mục 4) giữ theo loại phòng bằng bảng  rồi gán căn khi tiền về; lát 1A giữ thẳng một căn cho đặt phòng nội bộ. Lát 5 (trang công khai) thêm  theo loại phòng,  giữ nguyên.
+- **Đơn  quá hạn chưa tự nhả.**  đã được ghi nhưng chưa có cơ chế nhả: đơn quá hạn vẫn chiếm đêm và chủ không chặn được đêm đó;  vẫn dời được đơn quá hạn. Lát 1B phải thêm  (giu → het_han, vô hiệu room_nights), gọi định kỳ và  ở đầu /;  nên trả  kèm .
+- **Trạng thái đơn rút gọn**: chưa có , ,  (đến lát 2 và 5).
+- **SĐT** lưu như nhập sau khi bỏ dấu cách ( và  là hai chuỗi khác nhau); phải chuẩn hóa về một dạng trước khi ghép nguồn đơn theo SĐT (lát 4).
+- **** chưa có cờ "chủ cam kết chịu rủi ro tòa nhà cấm" (đặc tả mục 13).
+- ** của hợp đồng chủ là nửa mở** (không bao gồm ngày đó), như mọi khoảng đêm khác; hợp đồng cùng căn không được chồng ngày (ràng buộc EXCLUDE).
+- **Khóa ** tuần tự hóa mọi đặt phòng trong một org (đủ cho quy mô vài chục đơn mỗi ngày). Nếu thành nút thắt: chèn đơn với mã tạm, giữ đêm, rồi mới lấy số.
+- ** dịch deadlock (40P01) và lỗi tuần tự hóa (40001) thành **; lớp HTTP sau này nên thử lại một lần.
+
 ## Quy ước
 
 Mọi hàm nghiệp vụ nhận `c` (từ `db.tx`) và phải chạy trong giao dịch. Đồng hồ được tiêm qua tham số `now`. Sự kiện chỉ chứa id và ngày.
 
-Chống trùng có hai lớp: khóa dòng `owner_releases` (`FOR UPDATE`) để tuần tự hóa đặt phòng với việc chủ chặn ngày, và chỉ mục duy nhất từng phần làm hàng rào cuối. Hai test "xác định" trong `test/race.test.js` giữ giao dịch mở để kiểm thứ tự khóa; bỏ `FOR UPDATE` khỏi `claimNights` thì hai test đó thất bại (đã kiểm bằng đột biến).
+Chống trùng có hai lớp: khóa dòng `owner_releases` (`FOR UPDATE`) để tuần tự hóa đặt phòng với việc chủ chặn ngày, và chỉ mục duy nhất từng phần làm hàng rào cuối. Các test "xác định" trong `test/race.test.js` giữ giao dịch mở và đợi tới khi PostgreSQL báo một phiên đang chờ khóa (không dùng sleep cố định). Đã kiểm bằng đột biến: bỏ `FOR UPDATE` trong `claimNights` thì 2 test thất bại; bỏ việc khóa trước trong `moveBooking` thì test dời-vs-đặt thất bại. Khóa luôn lấy theo thứ tự (căn, đêm) trước khi đụng `room_nights`.

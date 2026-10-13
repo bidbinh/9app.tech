@@ -52,15 +52,15 @@ test('đặt chồng một đêm bị từ chối unit_taken (409), căn khác c
 
 test('đêm chưa mở bán: not_released, nêu đêm nào; đêm chủ tự dùng hoặc chặn: unit_blocked', async () => {
   await assert.rejects(book({ checkin: '2026-12-01', checkout: '2026-12-03' }), (e) => e.code === 'not_released' && e.status === 409 && e.detail.night === '2026-12-01');
-  await db.tx((c) => blockNights(c, { unitId: w.unitId, nights: ['2026-11-21'], kind: 'owner_use' }));
+  await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-21'], kind: 'owner_use' }));
   await assert.rejects(book({ checkin: '2026-11-20', checkout: '2026-11-23' }), (e) => e.code === 'unit_blocked' && e.detail.night === '2026-11-21' && e.detail.kind === 'owner_use');
-  await db.tx((c) => blockNights(c, { unitId: w.unitId, nights: ['2026-11-25'], kind: 'blocked_by_anstay' }));
+  await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-25'], kind: 'blocked_by_anstay' }));
   await fail(book({ checkin: '2026-11-25', checkout: '2026-11-26' }), 'unit_blocked');
 });
 
 test('chủ nhả ngày rồi thì đặt được', async () => {
-  await db.tx((c) => blockNights(c, { unitId: w.unitId, nights: ['2026-11-21'], kind: 'owner_use' }));
-  await db.tx((c) => openNights(c, { unitId: w.unitId, from: '2026-11-21', to: '2026-11-22' }));
+  await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-21'], kind: 'owner_use' }));
+  await db.tx((c) => openNights(c, { orgId: w.orgId, unitId: w.unitId, from: '2026-11-21', to: '2026-11-22' }));
   const b = await book({ checkin: '2026-11-21', checkout: '2026-11-22' });
   assert.equal(b.status, 'giu');
 });
@@ -85,14 +85,14 @@ test('too_far: ngày đến vượt maxAdvanceDays', async () => {
 });
 
 test('ngày đến trong quá khứ bị từ chối; hôm nay theo giờ Việt Nam thì được', async () => {
-  await db.tx((c) => openNights(c, { unitId: w.unitId, from: '2026-10-10', to: '2026-10-20' }));
+  await db.tx((c) => openNights(c, { orgId: w.orgId, unitId: w.unitId, from: '2026-10-10', to: '2026-10-20' }));
   await fail(book({ checkin: '2026-10-13', checkout: '2026-10-15' }), 'past_date');
   const b = await book({ checkin: '2026-10-14', checkout: '2026-10-15' });
   assert.equal(b.status, 'giu');
 });
 
 test('hôm nay theo giờ Việt Nam khi UTC còn là hôm qua: 20:00 UTC ngày 13 là ngày 14', async () => {
-  await db.tx((c) => openNights(c, { unitId: w.unitId, from: '2026-10-10', to: '2026-10-20' }));
+  await db.tx((c) => openNights(c, { orgId: w.orgId, unitId: w.unitId, from: '2026-10-10', to: '2026-10-20' }));
   const late = new Date('2026-10-13T20:00:00Z');
   const mk = (checkin) => db.tx((c) => createBooking(c, { orgId: w.orgId, unitId: w.unitId, checkin, checkout: '2026-10-16', guestName: 'K', adults: 1 }, { now: late }));
   await assert.rejects(mk('2026-10-13'), (e) => e.code === 'past_date');
@@ -144,8 +144,8 @@ test('lỗi giữa chừng không để lại dữ liệu nửa vời: đặt tr
 
 test('unitAvailability: open, booked, chủ tự dùng, chặn, chưa mở bán', async () => {
   const b = await book({ checkin: '2026-11-12', checkout: '2026-11-14' });
-  await db.tx((c) => blockNights(c, { unitId: w.unitId, nights: ['2026-11-14'], kind: 'owner_use' }));
-  await db.tx((c) => blockNights(c, { unitId: w.unitId, nights: ['2026-11-15'], kind: 'blocked_by_anstay' }));
+  await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-14'], kind: 'owner_use' }));
+  await db.tx((c) => blockNights(c, { orgId: w.orgId, unitId: w.unitId, nights: ['2026-11-15'], kind: 'blocked_by_anstay' }));
   const av = await db.tx((c) => unitAvailability(c, { orgId: w.orgId, unitId: w.unitId, from: '2026-11-11', to: '2026-11-17' }));
   assert.deepEqual(av.map((a) => a.state), ['open', 'booked', 'booked', 'owner_use', 'blocked_by_anstay', 'open']);
   assert.equal(av[1].bookingId, b.id);
