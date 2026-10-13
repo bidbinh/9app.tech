@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>9stay - bản phác giao diện</title>
+<style>
+:root{
+  --bg:#f2f7f6;--surface:#fff;--surface2:#e6f0ee;--ink:#12302c;--mute:#52706b;--line:#cfe0dc;
+  --brand:#0f766e;--brand-d:#115e59;--brand-l:#d5f0eb;--on-brand:#fff;
+  --ok:#166534;--ok-l:#dcfce7;--warn:#92400e;--warn-l:#fef0c7;--bad:#b91c1c;--bad-l:#fee2e2;--info:#1d4ed8;--info-l:#e0eaff;
+  --st-hold:#92400e;--st-hold-l:#fef0c7;--st-dep:#1d4ed8;--st-dep-l:#dbe7ff;--st-in:#0f766e;--st-in-l:#c3ece5;--st-out:#5b6b68;--st-out-l:#e3e9e8;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0d1a18;--surface:#142623;--surface2:#1c332f;--ink:#e4f3f0;--mute:#9bbab5;--line:#2a4640;
+  --brand:#2dd4bf;--brand-d:#5eead4;--brand-l:#123c37;--on-brand:#0d1a18;
+  --ok:#86efac;--ok-l:#14331f;--warn:#fcd34d;--warn-l:#3d2f0c;--bad:#fca5a5;--bad-l:#451a1a;--info:#93c5fd;--info-l:#1b2a4a;
+  --st-hold:#fcd34d;--st-hold-l:#3d2f0c;--st-dep:#93c5fd;--st-dep-l:#1b2a4a;--st-in:#5eead4;--st-in-l:#134a43;--st-out:#9bb0ac;--st-out-l:#24332f;}}
+:root[data-theme=dark]{
+  --bg:#0d1a18;--surface:#142623;--surface2:#1c332f;--ink:#e4f3f0;--mute:#9bbab5;--line:#2a4640;
+  --brand:#2dd4bf;--brand-d:#5eead4;--brand-l:#123c37;--on-brand:#0d1a18;
+  --ok:#86efac;--ok-l:#14331f;--warn:#fcd34d;--warn-l:#3d2f0c;--bad:#fca5a5;--bad-l:#451a1a;--info:#93c5fd;--info-l:#1b2a4a;
+  --st-hold:#fcd34d;--st-hold-l:#3d2f0c;--st-dep:#93c5fd;--st-dep-l:#1b2a4a;--st-in:#5eead4;--st-in-l:#134a43;--st-out:#9bb0ac;--st-out-l:#24332f;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{margin:0}
+.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:20}
+.top h1{font-size:17px;margin-right:auto}
+.tab{border:1px solid var(--line);background:var(--surface2);padding:8px 14px;border-radius:999px;min-height:40px}
+.tab[aria-pressed=true]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.wrap{max-width:1320px;margin:0 auto;padding:16px}
+.note{color:var(--mute);font-size:13px;margin:0 0 12px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.phone{width:360px;height:740px;border:2px solid var(--line);border-radius:28px;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column;flex:none}
+.phone h3.cap{position:absolute}
+.cap-t{font-size:13px;color:var(--mute);margin:0 0 6px}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar b{flex:1;font-size:16px}
+.back{color:var(--brand);font-size:13px;text-decoration:none}
+.scroll{flex:1;overflow:auto;padding:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}
+.kpi b{display:block;font-size:18px}.kpi span{font-size:11px;color:var(--mute)}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+.s-hold{background:var(--st-hold-l);color:var(--st-hold);border:1px dashed var(--st-hold)}
+.s-dep{background:var(--st-dep-l);color:var(--st-dep);border:1px solid var(--st-dep)}
+.s-in{background:var(--st-in-l);color:var(--st-in);border:1px solid var(--st-in)}
+.s-out{background:var(--st-out-l);color:var(--st-out);border:1px solid var(--st-out);text-decoration:line-through}
+.s-block{background:repeating-linear-gradient(45deg,var(--surface2) 0 6px,var(--line) 6px 8px);color:var(--mute);border:1px solid var(--line)}
+.item{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);min-height:48px}
+.item:first-child{border-top:0}
+.item .t{width:48px;color:var(--mute);font-size:13px}
+.item .m{flex:1}.item .m small{color:var(--mute);display:block}
+.btn{border:0;background:var(--brand);color:var(--on-brand);padding:9px 14px;border-radius:10px;min-height:40px;font-weight:600}
+.btn.ghost{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.btn.bad{background:var(--bad-l);color:var(--bad)}
+.nav{display:flex;border-top:1px solid var(--line);background:var(--surface)}
+.nav button{flex:1;border:0;background:none;padding:10px 2px;font-size:12px;color:var(--mute);min-height:52px}
+.nav button[aria-current=true]{color:var(--brand);font-weight:700}
+.hdr3{display:grid;grid-template-columns:64px repeat(3,1fr);gap:0;font-size:12px;text-align:center;color:var(--mute)}
+.grid3{display:grid;grid-template-columns:64px repeat(3,1fr);border-top:1px solid var(--line)}
+.grid3>div{border-bottom:1px solid var(--line);min-height:48px;display:flex;align-items:center;padding:0 4px;font-size:12px;position:relative}
+.grid3 .rn{font-weight:700;background:var(--surface)}
+.bk{position:absolute;top:8px;bottom:8px;border-radius:8px;display:flex;align-items:center;padding:0 8px;font-size:12px;overflow:hidden;white-space:nowrap}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:14px;box-shadow:0 -8px 24px #0004}
+.kv{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
+.kv.tot{border-top:1px solid var(--line);font-weight:700;margin-top:4px;padding-top:8px}
+.timer{font-variant-numeric:tabular-nums;font-size:28px;font-weight:700;color:var(--warn);text-align:center}
+.qr{width:140px;height:140px;margin:8px auto;border:1px solid var(--line);border-radius:10px;background:
+ conic-gradient(var(--ink) 25%,var(--surface) 0 50%,var(--ink) 0 75%,var(--surface) 0) 0 0/20px 20px}
+/* desktop */
+.desk{border:2px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden;display:flex;min-height:660px;margin-bottom:24px}
+.side{width:200px;background:var(--surface);border-right:1px solid var(--line);padding:12px 8px;flex:none}
+.side b{display:block;padding:6px 10px 12px;font-size:18px;color:var(--brand)}
+.side a{display:flex;gap:8px;padding:9px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:14px}
+.side a.on{background:var(--brand-l);color:var(--brand-d);font-weight:700}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.tb{display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.tb input{flex:1;max-width:340px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.body{flex:1;padding:16px;overflow:auto;position:relative}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.tl{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:auto}
+.tlg{display:grid;grid-template-columns:150px repeat(14,minmax(54px,1fr));min-width:900px;font-size:12px}
+.tlg>div{border-bottom:1px solid var(--line);border-right:1px solid var(--line);min-height:40px;padding:0 6px;display:flex;align-items:center;position:relative}
+.tlg .h{background:var(--surface2);color:var(--mute);justify-content:center;min-height:34px;position:sticky;top:0}
+.tlg .today{background:var(--brand-l);color:var(--brand-d);font-weight:700}
+.tlg .g{background:var(--surface2);font-weight:700;grid-column:1/-1;min-height:30px;color:var(--mute)}
+.tlg .rn{background:var(--surface);position:sticky;left:0;font-weight:600;justify-content:space-between}
+.tlg .free{font-weight:700;color:var(--ok);justify-content:center}
+.drawer{position:absolute;right:0;top:0;bottom:0;width:360px;background:var(--surface);border-left:1px solid var(--line);padding:16px;box-shadow:-8px 0 24px #0003;overflow:auto}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.hide{display:none}
+.stab{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px;flex-wrap:wrap}
+.stab span{padding:8px 14px;border-radius:8px 8px 0 0;font-size:14px;color:var(--mute)}
+.stab span.on{background:var(--surface);border:1px solid var(--line);border-bottom-color:var(--surface);color:var(--brand-d);font-weight:700}
+.pc{justify-content:center;font-variant-numeric:tabular-nums;cursor:pointer}
+.pc.man{font-weight:700}.pc.man::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.pc.we{background:var(--surface2)}.pc.hol{background:var(--warn-l);color:var(--warn)}
+.pc.miss{background:var(--bad-l);color:var(--bad);font-weight:700}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.fld{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.fld:first-of-type{border-top:0}
+.fld input,.fld select{width:110px;padding:7px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;text-align:right}
+.fld small{display:block;color:var(--mute);font-size:12px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;color:var(--mute);font-weight:600;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 8px;border-bottom:1px solid var(--line)}
+.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
+.msg{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;white-space:pre-line}
+.fld2{display:flex;gap:8px;margin-bottom:8px}.fld2>div{flex:1}.fld2 label{display:block;font-size:12px;color:var(--mute)}
+.fld2 input{width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;min-height:44px}
+.warnbox{background:var(--warn-l);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>9stay · bản phác giao diện (dữ liệu mẫu)</h1>
+  <button class="tab" data-view="phone" aria-pressed="true">Điện thoại</button>
+  <button class="tab" data-view="desk" aria-pressed="false">Máy tính</button>
+  <button class="tab" id="theme" aria-pressed="false">Sáng / Tối</button>
+</div>
+<div class="wrap">
+<p class="note">Bản phác để bàn bạc, chưa phải mã chạy thật. Tên khách và phòng là dữ liệu giả. Trạng thái phân biệt bằng cả màu lẫn viền/nét/gạch.</p>
+<div class="legend" aria-label="Chú giải">
+  <span class="chip s-hold">Giữ chỗ (viền đứt)</span><span class="chip s-dep">Đã cọc</span><span class="chip s-in">✓ Đã nhận</span><span class="chip s-out">Đã trả</span><span class="chip s-block">Khóa phòng</span>
+</div>
+
+<!-- ===== ĐIỆN THOẠI ===== -->
+<section id="v-phone" class="row">
+
+  <div><p class="cap-t">1. Hôm nay (màn chính)</p>
+  <div class="phone">
+    <div class="bar"><a class="back" href="#">‹ 9app</a><b>Anstay · Hôm nay</b><span class="chip s-in">13/10</span></div>
+    <div class="scroll">
+      <div class="kpis"><div class="kpi"><b>78%</b><span>Công suất</span></div><div class="kpi"><b>3</b><span>Đến</span></div><div class="kpi"><b>4</b><span>Đi</span></div><div class="kpi"><b>6</b><span>Trống</span></div></div>
+      <div class="card"><h3 style="font-size:14px">Đến hôm nay (3)</h3>
+        <div class="item"><span class="t">14:00</span><div class="m">Lan · P203<small>2 người · CTV Hoa · đã cọc</small></div><button class="btn">Nhận</button></div>
+        <div class="item"><span class="t">15:00</span><div class="m">Tuấn · P105<small>4 người · trực tiếp · <b style="color:var(--bad)">còn nợ 450k</b></small></div><button class="btn">Nhận</button></div>
+        <div class="item"><span class="t">18:00</span><div class="m">Hà · P301<small><span class="chip s-hold">giữ chỗ · còn 1h20</span></small></div><button class="btn ghost">Gọi</button></div>
+      </div>
+      <div class="card"><h3 style="font-size:14px">Cần xử lý</h3>
+        <div class="item"><div class="m">Giữ chỗ hết hạn lúc 18:00<small>P301 · Hà · CTV Hoa</small></div><span class="chip s-hold">2</span></div>
+        <div class="item"><div class="m">Còn nợ khi trả phòng<small>P105 · 450.000đ</small></div><span class="chip" style="background:var(--bad-l);color:var(--bad)">1</span></div>
+      </div>
+    </div>
+    <div class="nav"><button aria-current="true">Hôm nay</button><button>Lịch</button><button>Đặt phòng</button><button>Buồng</button><button>Thêm</button></div>
+  </div></div>
+
+  <div><p class="cap-t">2. Lịch 3 ngày (vuốt ngang xem thêm)</p>
+  <div class="phone">
+    <div class="bar"><a class="back" href="#">‹</a><b>Lịch phòng</b><button class="btn ghost" style="padding:6px 10px">Hôm nay</button></div>
+    <div class="scroll" style="padding:0">
+      <div class="hdr3" style="padding:8px 0"><div></div><div><b style="color:var(--brand)">T3 13</b></div><div>T4 14</div><div>T5 15</div></div>
+      <div class="grid3" id="g3"></div>
+      <p class="note" style="padding:12px">Chạm thanh đặt phòng để mở chi tiết. Chạm ô trống ngày đầu rồi ngày cuối để tạo đặt phòng.</p>
+    </div>
+    <div class="nav"><button>Hôm nay</button><button aria-current="true">Lịch</button><button>Đặt phòng</button><button>Buồng</button><button>Thêm</button></div>
+  </div></div>
+
+  <div><p class="cap-t">3. Chi tiết đặt phòng (bottom sheet)</p>
+  <div class="phone">
+    <div class="bar"><a class="back" href="#">‹</a><b>Lịch phòng</b></div>
+    <div class="scroll" style="opacity:.35"><div class="card">Lịch phía sau…</div></div>
+    <div class="sheet" style="top:90px;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3>Nguyễn Lan · #AN-2310</h3><span class="chip s-dep">Đã cọc</span></div>
+      <p class="note">P203 Deluxe · 13→16/10 · 3 đêm · 2 người · CTV Hoa</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><button class="btn ghost">Dời</button><button class="btn ghost">Đổi phòng</button><button class="btn ghost">Gia hạn</button><button class="btn bad">Hủy</button></div>
+      <div class="kv"><span>3 đêm × 650.000</span><span>1.950.000</span></div>
+      <div class="kv"><span>VAT 10%</span><span>195.000</span></div>
+      <div class="kv"><span>Tổng (đã gồm VAT)</span><span>2.145.000</span></div>
+      <div class="kv"><span>Đã cọc 30%</span><span>− 644.000</span></div>
+      <div class="kv tot"><span>Còn phải thu</span><span>1.501.000đ</span></div>
+      <div class="kv" style="color:var(--mute)"><span>Hoa hồng CTV 10%</span><span>195.000</span></div>
+      <div style="display:flex;gap:6px;margin-top:10px"><button class="btn" style="flex:1">Nhận phòng</button><button class="btn ghost" style="flex:1">Gửi xác nhận (Zalo)</button></div>
+    </div>
+  </div></div>
+
+  <div><p class="cap-t">4. Thanh toán: khóa 5 phút</p>
+  <div class="phone">
+    <div class="bar"><a class="back" href="#">‹</a><b>Thanh toán đặt cọc</b></div>
+    <div class="scroll">
+      <div class="card" style="text-align:center">
+        <p class="note" style="margin:0">Phòng đang được giữ cho bạn</p>
+        <div class="timer" id="timer">05:00</div>
+        <p class="note" style="margin:0">Hết giờ phòng sẽ tự nhả. (Thời gian giữ do quản trị cài)</p>
+      </div>
+      <div class="card">
+        <div class="kv"><span>Deluxe · 17→19/10</span><span>2 đêm</span></div>
+        <div class="kv"><span>Tổng tiền (đã gồm VAT)</span><span>2.343.000</span></div>
+        <div class="kv tot"><span>Cọc cần chuyển (30%)</span><span>703.000đ</span></div>
+      </div>
+      <div class="card" style="text-align:center"><b>Quét mã VietQR</b><div class="qr" role="img" aria-label="Mã QR mẫu"></div><small class="note">Nội dung: STAY AN2318 · hệ thống tự xác nhận khi nhận được tiền</small></div>
+      <div class="card" style="background:var(--warn-l);color:var(--warn);border-color:var(--warn)">Nếu phòng vừa bị người khác giữ, hệ thống báo ngay trước khi bạn chuyển tiền.</div>
+    </div>
+  </div></div>
+
+
+  <div style="flex-basis:100%"><h2 style="font-size:16px;margin-top:8px">Cổng cộng tác viên (PWA riêng, nhẹ)</h2></div>
+
+  <div><p class="cap-t">5. CTV · Tìm phòng</p>
+  <div class="phone">
+    <div class="bar"><b>CTV Hoa · Anstay</b><span class="chip s-in">Đã duyệt</span></div>
+    <div class="scroll">
+      <div class="fld2"><div><label>Đến</label><input value="Thứ 6, 17/10"></div><div><label>Đi</label><input value="Chủ nhật, 19/10"></div></div>
+      <div class="fld2"><div><label>Người lớn</label><input value="3"></div><div><label>Trẻ em</label><input value="1 (7 tuổi)"></div></div>
+      <p class="note">2 đêm · còn trống theo loại phòng</p>
+      <div class="card"><div style="display:flex;justify-content:space-between"><b>Deluxe</b><span class="chip s-in">Còn 2</span></div>
+        <div class="kv"><span>Giá bán cho khách</span><b>2.343.000đ</b></div>
+        <div class="kv" style="color:var(--ok)"><span>Hoa hồng dự kiến (10%)</span><span>+ 213.000</span></div>
+        <small class="note">Đã gồm VAT 10% · hoa hồng tính trên tiền phòng 2.130.000 · 3 người lớn + 1 trẻ</small>
+        <div style="display:flex;gap:6px;margin-top:8px"><button class="btn" style="flex:1">Giữ 2 giờ</button><button class="btn ghost" style="flex:1">Báo giá</button></div></div>
+      <div class="card"><div style="display:flex;justify-content:space-between"><b>Family</b><span class="chip s-hold">Còn 1</span></div>
+        <div class="kv"><span>Giá bán cho khách</span><b>2.904.000đ</b></div>
+        <div class="kv" style="color:var(--ok)"><span>Hoa hồng dự kiến (10%)</span><span>+ 264.000</span></div>
+        <div style="display:flex;gap:6px;margin-top:8px"><button class="btn" style="flex:1">Giữ 2 giờ</button><button class="btn ghost" style="flex:1">Báo giá</button></div></div>
+      <div class="card" style="opacity:.6"><div style="display:flex;justify-content:space-between"><b>Standard</b><span class="chip" style="background:var(--bad-l);color:var(--bad)">Hết phòng</span></div></div>
+    </div>
+    <div class="nav"><button aria-current="true">Tìm phòng</button><button>Đơn của tôi</button><button>Hoa hồng</button><button>Tài liệu</button></div>
+  </div></div>
+
+  <div><p class="cap-t">6. CTV · Giữ chỗ &amp; báo giá một chạm</p>
+  <div class="phone">
+    <div class="bar"><a class="back" href="#">‹</a><b>Báo giá · Deluxe</b></div>
+    <div class="scroll">
+      <div class="card" style="text-align:center"><p class="note" style="margin:0">Đang giữ phòng cho bạn</p><div class="timer">01:48:20</div><small class="note">Hết giờ tự nhả. Không giữ lại được cùng phòng trong 15 phút (cài đặt).</small></div>
+      <div class="msg">Anstay xin gửi báo giá:
+Deluxe · 17/10 → 19/10 (2 đêm)
+3 người lớn + 1 trẻ em
+Tổng: 2.343.000đ (đã gồm VAT 10%)
+Cọc 30%: 703.000đ
+Báo giá còn hiệu lực đến 18:00 hôm nay.
+Thanh toán cọc: 9app.tech/stay/p/k7Qx9mT2vB4e</div>
+      <div style="display:flex;gap:6px;margin:10px 0"><button class="btn" style="flex:1">Sao chép tin</button><button class="btn ghost" style="flex:1">Mở Zalo</button></div>
+      <p class="note">Tin nhắn không bao giờ chứa giá net hay hoa hồng. Khách trả cọc thẳng vào tài khoản Anstay, nội dung chuyển khoản là mã đơn <b>AN2318</b>.</p>
+      <div class="card" style="background:var(--info-l);color:var(--info);border-color:var(--info)">Khi khách cọc xong, bạn nhận thông báo "Đã cọc AN2318".</div>
+    </div>
+  </div></div>
+
+  <div><p class="cap-t">7. CTV · Hoa hồng tháng 10</p>
+  <div class="phone">
+    <div class="bar"><b>Hoa hồng</b><span class="chip s-dep">T10/2026</span></div>
+    <div class="scroll">
+      <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b>1,9tr</b><span>Dự kiến</span></div><div class="kpi"><b>0,8tr</b><span>Đủ điều kiện</span></div><div class="kpi"><b>2,4tr</b><span>Đã chi</span></div></div>
+      <p class="note">Hoa hồng tính theo ngày trả phòng, trên tiền phòng sau giảm, trước VAT.</p>
+      <div class="card">
+        <div class="item"><div class="m">AN2301 · 2 đêm<small>Trả phòng 05/10 · khách ***4521</small></div><span class="chip s-in">+ 130.000</span></div>
+        <div class="item"><div class="m">AN2304 · 3 đêm<small>Trả phòng 09/10 · khách ***0918</small></div><span class="chip s-in">+ 195.000</span></div>
+        <div class="item"><div class="m">AN2310 · 3 đêm<small>Đang ở · tính khi trả phòng</small></div><span class="chip s-hold">dự kiến 195.000</span></div>
+        <div class="item"><div class="m">AN2299 · khách hủy<small>Giữ lại 50% cọc → hoa hồng 0</small></div><span class="chip s-out">0</span></div>
+      </div>
+      <div class="card"><b>Bản kê T09/2026</b><small class="note" style="display:block">Đã chốt · 2.400.000đ · chi ngày 05/10</small><button class="btn ghost" style="margin-top:6px">Xem / Khiếu nại (còn 3 ngày)</button></div>
+    </div>
+    <div class="nav"><button>Tìm phòng</button><button>Đơn của tôi</button><button aria-current="true">Hoa hồng</button><button>Tài liệu</button></div>
+  </div></div>
+
+
+  <div style="flex-basis:100%"><h2 style="font-size:16px;margin-top:8px">Khách đặt phòng công khai (9app.tech/stay/anstay)</h2></div>
+
+  <div><p class="cap-t">8. Trang đặt phòng</p>
+  <div class="phone">
+    <div class="bar"><b>Anstay</b><span class="chip s-in">Còn phòng</span></div>
+    <div class="scroll">
+      <div class="card" style="height:120px;background:linear-gradient(135deg,var(--brand-l),var(--surface2));display:flex;align-items:flex-end"><b>Ảnh cơ sở (WebP, tải nhanh)</b></div>
+      <p class="note">Nhận phòng 14:00 · Trả phòng 12:00 · Hotline 09xx xxx xxx · Chỉ đường</p>
+      <div class="fld2"><div><label>Đến</label><input value="17/10"></div><div><label>Đi</label><input value="19/10"></div></div>
+      <div class="fld2"><div><label>Người lớn</label><input value="3"></div><div><label>Trẻ em</label><input value="1"></div></div>
+      <div class="card"><div style="display:flex;justify-content:space-between"><b>Deluxe</b><span class="chip s-in">Còn 2</span></div>
+        <small class="note">Tối đa 4 người · phụ thu người thứ 3 và trẻ em đã tính</small>
+        <div style="font-size:24px;font-weight:700;margin:6px 0">2.343.000đ</div>
+        <small class="note">2 đêm · đã gồm VAT 10% · cọc 30% = 703.000đ</small>
+        <button class="btn" style="width:100%;margin-top:8px">Đặt phòng này</button></div>
+      <div class="card"><b>Chính sách hủy</b><small class="note" style="display:block">Miễn phí trước 3 ngày · 1–3 ngày: giữ 50% cọc · trong 1 ngày: giữ 100% cọc.</small></div>
+    </div>
+  </div></div>
+
+  <div><p class="cap-t">9. Thanh toán cọc</p>
+  <div class="phone">
+    <div class="bar"><a class="back" href="#">‹</a><b>Thanh toán cọc</b></div>
+    <div class="scroll">
+      <div class="card" style="text-align:center"><p class="note" style="margin:0">Đang giữ 1 phòng Deluxe cho SĐT 09*** ***123</p><div class="timer">04:41</div></div>
+      <div class="card" style="text-align:center"><div class="qr" role="img" aria-label="Mã QR mẫu"></div>
+        <button class="btn" style="width:100%">Mở app ngân hàng</button></div>
+      <div class="card">
+        <div class="fld"><span>Số tài khoản<small>Anstay · Ngân hàng (mẫu)</small></span><button class="btn ghost">Sao chép</button></div>
+        <div class="fld"><span>Số tiền<small>703.000đ</small></span><button class="btn ghost">Sao chép</button></div>
+        <div class="fld"><span>Nội dung<small>STAY AN2318</small></span><button class="btn ghost">Sao chép</button></div>
+      </div>
+      <label class="card" style="display:flex;gap:8px;align-items:flex-start;font-size:13px"><input type="checkbox" style="width:22px;height:22px"> Tôi đồng ý chính sách hủy (phiên bản 3) hiển thị ở trang trước.</label>
+      <div class="card" style="background:var(--warn-l);color:var(--warn);border-color:var(--warn);font-size:13px">Nếu tiền về sau khi hết giờ giữ và phòng đã hết, Anstay hoàn lại tiền trong 3 ngày làm việc.</div>
+      <button class="btn ghost" style="width:100%">Tôi đã chuyển, chưa thấy xác nhận</button>
+    </div>
+  </div></div>
+
+  <div><p class="cap-t">10. Biên nhận (link riêng, không đoán được)</p>
+  <div class="phone">
+    <div class="bar"><b>Đặt phòng thành công</b></div>
+    <div class="scroll">
+      <div class="card" style="text-align:center;background:var(--ok-l);color:var(--ok);border-color:var(--ok)"><div style="font-size:28px">✓</div><b>Đã nhận cọc 703.000đ</b></div>
+      <div class="card">
+        <div class="kv"><span>Mã đơn</span><b>AN2318</b></div>
+        <div class="kv"><span>Phòng</span><span>Deluxe · P203</span></div>
+        <div class="kv"><span>Nhận phòng</span><span>17/10 từ 14:00</span></div>
+        <div class="kv"><span>Trả phòng</span><span>19/10 trước 12:00</span></div>
+        <div class="kv tot"><span>Còn phải trả khi nhận phòng</span><span>1.640.000đ</span></div></div>
+      <div style="display:flex;gap:6px"><button class="btn ghost" style="flex:1">Yêu cầu hóa đơn</button><button class="btn bad" style="flex:1">Hủy đặt phòng</button></div>
+      <p class="note" style="margin-top:8px">Hủy sẽ tính theo chính sách bạn đã đồng ý: hiện hoàn 100% cọc nếu hủy trước 14/10.</p>
+    </div>
+  </div></div>
+
+  <div><p class="cap-t">11. Trường hợp tiền về muộn</p>
+  <div class="phone">
+    <div class="bar"><b>Đã nhận tiền</b></div>
+    <div class="scroll">
+      <div class="card" style="background:var(--warn-l);color:var(--warn);border-color:var(--warn)"><b>Rất tiếc, loại phòng này vừa hết</b><p style="margin:6px 0 0;font-size:14px">Chúng tôi đã nhận 703.000đ sau khi hết giờ giữ phòng. Bạn chọn một trong hai:</p></div>
+      <div class="card"><b>Đổi ngày hoặc loại phòng</b><small class="note" style="display:block">Còn Standard 17→19/10 (không cần trả thêm)</small><button class="btn" style="width:100%;margin-top:6px">Chọn phòng khác</button></div>
+      <div class="card"><b>Hoàn tiền</b><small class="note" style="display:block">Hoàn đủ 703.000đ trong 3 ngày làm việc, Anstay chịu phí chuyển.</small><button class="btn ghost" style="width:100%;margin-top:6px">Yêu cầu hoàn tiền</button></div>
+      <p class="note">Trường hợp thiếu hoặc thừa tiền: hệ thống hiện QR phần thiếu, hoặc ghi phần thừa vào số còn phải trả.</p>
+    </div>
+  </div></div>
+
+
+  <div style="flex-basis:100%"><h2 style="font-size:16px;margin-top:8px">Buồng phòng (điện thoại, vai buồng phòng)</h2></div>
+  <div><p class="cap-t">12. Phòng của tôi</p>
+  <div class="phone">
+    <div class="bar"><b>Buồng phòng · Anstay</b><span class="chip s-hold">2 chưa gửi</span></div>
+    <div class="scroll">
+      <div class="warnbox">Mất mạng: 2 thao tác đang chờ gửi, sẽ tự gửi khi có mạng.</div>
+      <div class="card"><div style="display:flex;justify-content:space-between"><b>P203 · Deluxe</b><span class="chip" style="background:var(--bad-l);color:var(--bad)">Bẩn</span></div>
+        <small class="note">Có khách đến hôm nay 14:00 · <b>ưu tiên</b></small>
+        <div style="display:flex;gap:6px;margin-top:8px"><button class="btn" style="flex:1">Bắt đầu dọn</button><button class="btn ghost" style="flex:1">Báo hỏng</button></div></div>
+      <div class="card"><div style="display:flex;justify-content:space-between"><b>P105 · Deluxe</b><span class="chip s-hold">Đang dọn</span></div>
+        <small class="note">Khách trả phòng 12:00 · 2 người tiếp theo 18:00</small>
+        <button class="btn" style="width:100%;margin-top:8px">Đã dọn xong</button></div>
+      <div class="card"><div style="display:flex;justify-content:space-between"><b>P207 · Deluxe</b><span class="chip s-in">Sạch</span></div><small class="note">Trống đến hết ngày mai</small></div>
+      <div class="card" style="opacity:.7"><div style="display:flex;justify-content:space-between"><b>P302</b><span class="chip s-block">Hỏng</span></div><small class="note">Báo hỏng 09:12 · vòi nước</small></div>
+      <p class="note">Vai này không thấy tên khách và giá. Chỉ thấy có khách, đi hay đến hôm nay.</p>
+    </div>
+  </div></div>
+
+
+  <div style="flex-basis:100%"><h2 style="font-size:16px;margin-top:8px">Cổng chủ phòng (điện thoại)</h2></div>
+  <div><p class="cap-t">13. Chủ phòng: lịch căn và chặn ngày</p>
+  <div class="phone">
+    <div class="bar"><b>Căn A1205 · Tòa Sunrise</b><span class="chip s-in">Chủ: Minh</span></div>
+    <div class="scroll">
+      <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b>21</b><span>Đêm có khách</span></div><div class="kpi"><b>5</b><span>Đêm tự dùng</span></div><div class="kpi"><b>4</b><span>Đêm trống</span></div></div>
+      <p class="note">Tháng 10/2026. Chạm một ngày để chặn hoặc mở bán.</p>
+      <div class="card"><div class="kv"><span>14/10 → 16/10</span><span class="chip s-dep">Có khách (2 người)</span></div>
+        <div class="kv"><span>17/10 → 18/10</span><span class="chip s-block">Chủ tự dùng</span></div>
+        <div class="kv"><span>19/10 → 22/10</span><span class="chip s-in">Đang mở bán</span></div>
+        <div class="kv"><span>23/10 → 31/10</span><span class="chip s-hold">Đồng bộ iCal Airbnb</span></div></div>
+      <button class="btn" style="width:100%;margin-bottom:6px">Chặn ngày</button>
+      <p class="note">Chặn ngày chỉ có hiệu lực cho đêm chưa có khách. Đêm đã có khách thì liên hệ Anstay.</p>
+      <div class="card" style="background:var(--warn-l);color:var(--warn);border-color:var(--warn);font-size:13px">Không thấy tên đầy đủ, SĐT khách hay hoa hồng sale. Chỉ thấy số người, số đêm và phần của bạn.</div>
+    </div>
+    <div class="nav"><button aria-current="true">Lịch căn</button><button>Bản kê</button><button>Hợp đồng</button></div>
+  </div></div>
+
+  <div><p class="cap-t">14. Chủ phòng: bản kê tháng</p>
+  <div class="phone">
+    <div class="bar"><b>Bản kê T09/2026</b><span class="chip s-in">Đã chi</span></div>
+    <div class="scroll">
+      <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b>18,2tr</b><span>Doanh thu đơn</span></div><div class="kpi"><b>12,7tr</b><span>Phần của bạn</span></div><div class="kpi"><b>12,3tr</b><span>Thực nhận</span></div></div>
+      <div class="card">
+        <div class="item"><div class="m">AN2289 · 3 đêm<small>Trả phòng 03/09</small></div><b>+ 1.560.000</b></div>
+        <div class="item"><div class="m">AN2293 · 2 đêm<small>Trả phòng 11/09</small></div><b>+ 1.040.000</b></div>
+        <div class="item"><div class="m">AN2298 · khách hủy<small>Giữ lại 50% cọc, chia theo hợp đồng</small></div><b>+ 210.000</b></div>
+        <div class="item"><div class="m">AN2302 · hủy do chủ<small>Hoàn khách + phạt, bù trừ</small></div><b style="color:var(--bad)">− 650.000</b></div>
+        <div class="item"><div class="m">Phí dọn phòng (2 lần)</div><b style="color:var(--bad)">− 300.000</b></div>
+        <div class="item"><div class="m">Thuế khấu trừ (theo cài đặt)</div><b style="color:var(--bad)">− 400.000</b></div>
+      </div>
+      <div class="card"><div class="kv"><span>Chi ngày 08/10</span><b>12.300.000đ</b></div></div>
+      <button class="btn ghost" style="width:100%">Tải PDF / Gửi Zalo</button>
+    </div>
+  </div></div>
+
+</section>
+
+<!-- ===== MÁY TÍNH ===== -->
+<section id="v-desk" class="hide">
+  <p class="cap-t">A. Hôm nay (bảng điều khiển)</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a class="on">▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><a class="back" href="#">‹ 9app</a><select style="padding:8px;border-radius:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line)"><option>Anstay</option></select><input placeholder="Tìm khách, SĐT, mã đặt phòng… (Ctrl+K)"><button class="btn">+ Đặt phòng (N)</button></div>
+      <div class="body">
+        <div class="kpis" style="grid-template-columns:repeat(5,1fr)"><div class="kpi"><b>78%</b><span>Công suất</span></div><div class="kpi"><b>11</b><span>Phòng trống</span></div><div class="kpi"><b>4</b><span>Phòng bẩn</span></div><div class="kpi"><b>3,2tr</b><span>Còn nợ</span></div><div class="kpi"><b>2</b><span>Giữ sắp hết hạn</span></div></div>
+        <div class="cols">
+          <div class="card"><h3 style="font-size:14px">Đến (6)</h3>
+            <div class="item"><span class="t">14:00</span><div class="m">Lan · P203<small>CTV Hoa · đã cọc</small></div><button class="btn">Nhận (I)</button></div>
+            <div class="item"><span class="t">15:00</span><div class="m">Tuấn · P105<small>nợ 450k</small></div><button class="btn">Nhận</button></div>
+            <div class="item"><span class="t">18:00</span><div class="m">Hà · P301<small>giữ chỗ</small></div><button class="btn ghost">Gọi</button></div></div>
+          <div class="card"><h3 style="font-size:14px">Đi (5)</h3>
+            <div class="item"><span class="t">12:00</span><div class="m">Minh · P105<small>còn nợ 400k</small></div><button class="btn">Trả (O)</button></div>
+            <div class="item"><span class="t">11:00</span><div class="m">Phúc · P207<small>đã thanh toán</small></div><button class="btn">Trả</button></div></div>
+          <div class="card"><h3 style="font-size:14px">Cần xử lý</h3>
+            <div class="item"><div class="m">Giữ chỗ hết hạn 18:00<small>P301 · CTV Hoa</small></div></div>
+            <div class="item"><div class="m">Phòng 302 báo hỏng<small>buồng phòng · 09:12</small></div></div>
+            <div class="item"><div class="m">Lệch thanh toán<small>chuyển khoản chưa khớp đơn</small></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">B. Lịch phòng (timeline 14 ngày) + ngăn chi tiết bên phải</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a class="on">▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><button class="btn ghost">◀</button><button class="btn ghost">Hôm nay (T)</button><button class="btn ghost">▶</button><b>13/10 – 26/10</b><span style="flex:1"></span><button class="btn ghost">7</button><button class="btn ghost">14</button><button class="btn ghost">30</button><button class="btn">+ Đặt phòng</button></div>
+      <div class="body">
+        <div class="tl"><div class="tlg" id="tl"></div></div>
+        <p class="note" style="margin-top:8px">Kéo vùng trống để tạo, kéo cạnh thanh để gia hạn, kéo thanh để dời. Mỗi thao tác có Hoàn tác 10 giây (Ctrl+Z). Kéo vào chỗ đã có người thì thanh đỏ và bị từ chối.</p>
+        <aside class="drawer" aria-label="Chi tiết đặt phòng">
+          <div style="display:flex;justify-content:space-between"><h3>#AN-2310</h3><button class="btn ghost" style="padding:2px 10px">✕</button></div>
+          <p style="margin:6px 0">Nguyễn Lan · 0901 *** 123 <button class="btn ghost" style="padding:4px 8px">Zalo</button></p>
+          <span class="chip s-dep">Đã cọc</span> <small class="note">Nguồn: CTV Hoa</small>
+          <p>P203 Deluxe · 13→16/10 · 3 đêm</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><button class="btn ghost">Dời</button><button class="btn ghost">Đổi phòng</button><button class="btn ghost">Gia hạn</button><button class="btn bad">Hủy</button></div>
+          <div class="kv"><span>Tổng (gồm VAT)</span><span>2.145.000</span></div><div class="kv"><span>Đã cọc</span><span>644.000</span></div>
+          <div class="kv tot"><span>Còn thu</span><span>1.501.000đ</span></div>
+          <button class="btn ghost" style="width:100%;margin:8px 0">+ Thu tiền (P)</button>
+          <h3 style="font-size:14px;margin-top:10px">Nhật ký</h3>
+          <div class="note">12/10 Hoa tạo giữ chỗ<br>12/10 Hệ thống: nhận cọc 644k<br>13/10 Bình dời P102 → P203</div>
+          <div style="display:flex;gap:6px"><button class="btn" style="flex:1">Nhận phòng</button><button class="btn ghost" style="flex:1">In / Gửi XN</button></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">C. Bảng giá (lưới loại phòng × đêm, sửa hàng loạt) + báo giá thử</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a class="on">₫ Bảng giá</a><a>⚑ CTV</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>Bảng giá</b><span style="flex:1"></span><select style="padding:8px;border-radius:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line)"><option>Gói: Công khai</option><option>Gói: CTV</option></select><button class="btn ghost">Áp quy tắc…</button><button class="btn">Sửa hàng loạt</button></div>
+      <div class="body">
+        <div class="stab"><span class="on">Lưới giá</span><span>Quy tắc sinh giá</span><span>Ưu đãi</span><span>Dịch vụ thêm</span><span>Cảnh báo <span class="chip" style="background:var(--bad-l);color:var(--bad)">3</span></span><span>Lịch sử sửa</span></div>
+        <div class="warnbox">⚠ 3 đêm chưa có giá: Deluxe 24/10, 25/10, 26/10 (gói CTV). Chưa nhận đặt phòng cho các đêm này.</div>
+        <div class="tl"><div class="tlg" id="pg"></div></div>
+        <p class="note" style="margin-top:8px">Chấm xanh = ô sửa tay, quy tắc không ghi đè trừ khi tick "ghi đè cả ô sửa tay". Nền xám = cuối tuần, nền vàng = lễ. Bôi chọn nhiều ô rồi "Sửa hàng loạt" để đặt giá, cộng/trừ %, đóng bán hoặc đặt số đêm tối thiểu. Mọi lần sửa ghi lịch sử (ai, lúc nào, giá cũ → mới).</p>
+        <div class="sg">
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Báo giá thử (Deluxe · 13→16/10 · 3 đêm · 3 người lớn · gói Công khai)</h3>
+            <div class="kv"><span>3 đêm × 650.000</span><span>1.950.000</span></div>
+            <div class="kv"><span>Phụ thu người thứ 3 (3 × 100.000)</span><span>300.000</span></div>
+            <div class="kv"><span>Ưu đãi "3 đêm −10%" (tối đa 1 ưu đãi)</span><span>− 225.000</span></div>
+            <div class="kv"><span>Tiền phòng sau giảm</span><span>2.025.000</span></div>
+            <div class="kv"><span>VAT 10% (cộng khi thanh toán)</span><span>203.000</span></div>
+            <div class="kv tot"><span>Tổng thanh toán</span><span>2.228.000đ</span></div>
+            <div class="kv" style="color:var(--mute)"><span>Cọc 30%</span><span>668.000</span></div>
+            <div class="kv" style="color:var(--mute)"><span>Hoa hồng CTV 10% (trên tiền phòng sau giảm, trước VAT)</span><span>203.000</span></div>
+            <button class="btn ghost" style="margin-top:8px">Sao chép báo giá gửi khách</button></div>
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Thứ tự tính cố định (từng đêm)</h3>
+            <ol style="margin:0;padding-left:18px;font-size:14px;color:var(--mute)"><li>Giá nền từ lưới giá</li><li>+ Phụ thu người / giường phụ</li><li>− Một ưu đãi duy nhất (% trên bước 1+2)</li><li>Cộng các đêm, + dịch vụ thêm</li><li>+ VAT theo cài đặt</li><li>Làm tròn nghìn một lần ở dòng đã lưu</li></ol>
+            <p class="note" style="margin-top:8px">Dòng giá đã lưu không bao giờ bị sửa. Dời, gia hạn, đổi phòng sinh dòng điều chỉnh.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">D. Cài đặt (nơi chỉnh mọi con số nghiệp vụ, chỉ quản lý/chủ)</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV</a><a>▥ Báo cáo</a><a class="on">⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>Cài đặt · Anstay</b><span style="flex:1"></span><span class="note" style="margin:0">Mọi thay đổi ghi nhật ký và chỉ áp cho đơn mới</span><button class="btn">Lưu</button></div>
+      <div class="body">
+        <div class="stab"><span class="on">Nghiệp vụ</span><span>Phòng &amp; loại phòng</span><span>Người dùng &amp; vai</span><span>Mẫu tin nhắn</span><span>Thanh toán</span></div>
+        <div class="sg">
+          <div class="card"><h3 style="font-size:14px">Giữ chỗ &amp; thanh toán</h3>
+            <div class="fld"><span>Khóa phòng chờ thanh toán<small>Khi khách tới nút thanh toán</small></span><span><input value="5"> phút</span></div>
+            <div class="fld"><span>Hạn giữ chỗ của lễ tân</span><span><input value="24"> giờ</span></div>
+            <div class="fld"><span>Hạn giữ chỗ của CTV</span><span><input value="2"> giờ</span></div>
+            <div class="fld"><span>Hiệu lực báo giá</span><span><input value="24"> giờ</span></div>
+            <div class="fld"><span>Cọc mặc định</span><span><input value="30"> %</span></div></div>
+          <div class="card"><h3 style="font-size:14px">Thuế &amp; hóa đơn</h3>
+            <div class="fld"><span>Giá niêm yết đã gồm VAT?</span><select><option>Chưa gồm</option><option>Đã gồm</option></select></div>
+            <div class="fld"><span>VAT<small>Cộng thêm ở bước thanh toán</small></span><span><input value="10"> %</span></div>
+            <div class="fld"><span>Xuất hóa đơn</span><select><option>Khi khách yêu cầu</option><option>Luôn xuất</option></select></div>
+            <div class="fld"><span>Thời điểm lập hóa đơn<small>Chờ kế toán xác nhận</small></span><select><option>Khi thu tiền</option><option>Khi trả phòng</option></select></div>
+            <div class="fld"><span>Làm tròn</span><select><option>Nghìn đồng</option><option>Trăm đồng</option></select></div></div>
+          <div class="card"><h3 style="font-size:14px">Phụ thu</h3>
+            <div class="fld"><span>Người lớn vượt tiêu chuẩn</span><span><input value="100.000"> đ/đêm</span></div>
+            <div class="fld"><span>Trẻ em miễn phí đến</span><span><input value="5"> tuổi</span></div>
+            <div class="fld"><span>Trẻ em phụ thu đến</span><span><input value="11"> tuổi</span></div>
+            <div class="fld"><span>Phụ thu trẻ em</span><span><input value="50.000"> đ/đêm</span></div>
+            <div class="fld"><span>Giường phụ</span><span><input value="150.000"> đ/đêm</span></div>
+            <div class="fld"><span>Nhận sớm</span><span><input value="100.000"> đ/lần</span></div>
+            <div class="fld"><span>Trả muộn</span><span><input value="100.000"> đ/lần</span></div></div>
+          <div class="card"><h3 style="font-size:14px">Hủy &amp; hoàn cọc</h3>
+            <div class="fld"><span>Hủy miễn phí trước</span><span><input value="3"> ngày</span></div>
+            <div class="fld"><span>Hủy từ 3 → 1 ngày: giữ lại</span><span><input value="50"> % cọc</span></div>
+            <div class="fld"><span>Hủy trong 1 ngày / không đến</span><span><input value="100"> % cọc</span></div>
+            <div class="fld"><span>Dịp lễ/Tết: không hoàn cọc</span><select><option>Bật</option><option>Tắt</option></select></div>
+            <p class="note" style="margin:6px 0 0">Chính sách được chụp vào từng đơn lúc đặt, đổi sau không áp ngược.</p></div>
+          <div class="card"><h3 style="font-size:14px">Số đêm tối thiểu</h3>
+            <div class="fld"><span>Ngày thường</span><span><input value="1"> đêm</span></div>
+            <div class="fld"><span>Cuối tuần</span><span><input value="1"> đêm</span></div>
+            <div class="fld"><span>Lễ / Tết<small>Kiểm tra trên đêm đến</small></span><span><input value="2"> đêm</span></div></div>
+          <div class="card"><h3 style="font-size:14px">CTV &amp; ưu đãi</h3>
+            <div class="fld"><span>Mô hình mặc định<small>Chỉnh riêng được cho từng CTV</small></span><select><option>Hoa hồng %</option><option>Giá net</option></select></div>
+            <div class="fld"><span>Hoa hồng mặc định</span><span><input value="10"> %</span></div>
+            <div class="fld"><span>Hoa hồng tính trên</span><select><option>Tiền phòng sau giảm, trước VAT</option></select></div>
+            <div class="fld"><span>Ưu đãi tối đa mỗi đơn</span><span><input value="1"></span></div>
+            <div class="fld"><span>Lễ tân giảm giá tay tối đa</span><span><input value="5"> %</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">E. Quản lý CTV, tranh chấp nguồn và đối soát kỳ</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a class="on">⚑ CTV</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>Cộng tác viên</b><span style="flex:1"></span><button class="btn ghost">Xuất CSV</button><button class="btn">+ Mời CTV</button></div>
+      <div class="body">
+        <div class="stab"><span class="on">Danh sách</span><span>Tranh chấp nguồn <span class="chip" style="background:var(--warn-l);color:var(--warn)">2</span></span><span>Đối soát kỳ</span><span>Chính sách hoa hồng</span><span>Mẫu tin &amp; tài liệu</span></div>
+        <div class="card" style="padding:0;overflow:auto"><table class="tbl">
+          <tr><th>CTV</th><th>Mô hình</th><th class="n">Hoa hồng</th><th class="n">Giữ → cọc</th><th class="n">Đơn T10</th><th class="n">Chờ chi</th><th>Trạng thái</th></tr>
+          <tr><td><b>Hoa</b><br><small class="note">CTV-0012</small></td><td>Hoa hồng %</td><td class="n">10%</td><td class="n">62%</td><td class="n">14</td><td class="n">1.985.000</td><td><span class="chip s-in">Đã duyệt</span></td></tr>
+          <tr><td><b>Lan</b><br><small class="note">CTV-0019</small></td><td>Giá net</td><td class="n">—</td><td class="n" style="color:var(--bad)">9% ⚠</td><td class="n">3</td><td class="n">0</td><td><span class="chip s-in">Đã duyệt</span></td></tr>
+          <tr><td><b>Quân</b><br><small class="note">CTV-0023</small></td><td>Hoa hồng %</td><td class="n">12%</td><td class="n">48%</td><td class="n">7</td><td class="n">860.000</td><td><span class="chip s-hold">Chờ duyệt</span></td></tr>
+        </table></div>
+        <div class="sg" style="margin-top:12px">
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Tranh chấp nguồn (2)</h3>
+            <div class="item"><div class="m">Khách ***4521 · P203 · 17/10<small>Có ref của Hoa (hạn đến 30/10), đơn tạo bởi lễ tân là "Trực tiếp"</small></div><button class="btn ghost">Quyết</button></div>
+            <div class="item"><div class="m">Khách ***0918 · báo giá bởi Lan 12/10<small>Link của Hoa bấm 10/10</small></div><button class="btn ghost">Quyết</button></div>
+            <p class="note">Mặc định nguồn theo SĐT khách: báo giá sau cùng trong hạn bảo lưu (cài đặt). Chủ là người phán, có nhật ký.</p></div>
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Đối soát kỳ T10/2026</h3>
+            <div class="kv"><span>Đơn đủ điều kiện (trả phòng trong kỳ)</span><span>24</span></div>
+            <div class="kv"><span>Hoa hồng phát sinh</span><span>4.320.000</span></div>
+            <div class="kv"><span>Điều chỉnh từ kỳ trước</span><span>− 130.000</span></div>
+            <div class="kv tot"><span>Phải chi</span><span>4.190.000đ</span></div>
+            <p class="note">Chốt kỳ tạo bản kê đóng băng, CTV có 7 ngày khiếu nại. Sửa sau khi chốt chỉ bằng dòng điều chỉnh ở kỳ sau.</p>
+            <button class="btn" style="width:100%">Chốt kỳ &amp; gửi bản kê</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">F. Folio của đơn và chốt ngày nghiệp vụ</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a class="on">≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>#AN-2310 · Nguyễn Lan · Folio</b><span style="flex:1"></span><span class="chip s-in">✓ Đã nhận phòng</span><button class="btn ghost">Phiếu đăng ký (in)</button><button class="btn">Trả phòng (O)</button></div>
+      <div class="body">
+        <div class="sg" style="grid-template-columns:1.4fr 1fr">
+          <div class="card" style="padding:0;overflow:auto"><table class="tbl">
+            <tr><th>Ngày</th><th>Nội dung</th><th class="n">Phát sinh</th><th class="n">Đã thu</th><th>Phiếu</th></tr>
+            <tr><td>13/10</td><td>Tiền phòng đêm 13 (P203)</td><td class="n">650.000</td><td class="n"></td><td></td></tr>
+            <tr><td>14/10</td><td>Tiền phòng đêm 14 (chốt ngày tự ghi)</td><td class="n">650.000</td><td class="n"></td><td></td></tr>
+            <tr><td>15/10</td><td>Tiền phòng đêm 15</td><td class="n">650.000</td><td class="n"></td><td></td></tr>
+            <tr><td>13/10</td><td>VAT 10%</td><td class="n">195.000</td><td class="n"></td><td></td></tr>
+            <tr><td>12/10</td><td>Cọc 30% qua VietQR (webhook), tính theo ngày thu</td><td class="n"></td><td class="n">644.000</td><td>PT-0412</td></tr>
+            <tr style="font-weight:700"><td colspan="2">Còn phải thu (2.145.000 − 644.000)</td><td class="n">2.145.000</td><td class="n">644.000</td><td>1.501.000</td></tr>
+          </table></div>
+          <div>
+            <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Hóa đơn điện tử</h3>
+              <p class="note" style="margin:0 0 6px">Chế độ: <b>lập khi thu tiền</b> (mặc định, cài đặt do kế toán chọn)</p>
+              <span class="chip s-hold">Chưa xuất</span>
+              <p class="note">Sau khi có hóa đơn gốc, các dòng folio bị khóa; chỉ lập hóa đơn điều chỉnh hoặc thay thế.</p>
+              <button class="btn ghost" style="width:100%">Nhập thông tin xuất hóa đơn</button></div>
+            <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Cọc</h3>
+              <div class="kv"><span>Nhận cọc</span><span>644.000</span></div><div class="kv"><span>Đã áp vào folio</span><span>644.000</span></div><div class="kv tot"><span>Cọc còn giữ</span><span>0</span></div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px"><h3 style="font-size:14px;margin-bottom:6px">Chốt ngày nghiệp vụ 13/10 (tự động 04:00, có thể chốt tay)</h3>
+          <div class="kv"><span>Đêm phòng bán / đến / đi / no-show</span><span>9 / 3 / 4 / 0</span></div>
+          <div class="kv"><span>Tiền thu qua ngân hàng (khớp sao kê)</span><span>6.230.000</span></div>
+          <div class="kv"><span>Giảm giá tay (theo nhân viên)</span><span>150.000</span></div>
+          <div class="warnbox" style="margin-top:8px">Việc tồn sau chốt tự động (không chặn): 2 khách chưa đánh dấu đã khai báo lưu trú · 1 giao dịch ngân hàng chưa khớp đơn. Quản lý xác nhận sáng hôm sau.</div>
+          <button class="btn ghost">Xem việc tồn</button> <button class="btn">Xác nhận đã xem việc tồn</button>
+          <p class="note">Sau khi chốt, mọi thay đổi đi qua dòng điều chỉnh ghi vào ngày đang mở, có nhật ký ai làm gì. Mở lại ngày chỉ quản lý, phải ghi lý do.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">G. Báo cáo cho chủ</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV</a><a class="on">▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>Báo cáo</b><span style="flex:1"></span><select style="padding:8px;border-radius:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line)"><option>Tháng 10/2026</option></select><button class="btn ghost">Xuất CSV</button></div>
+      <div class="body">
+        <div class="stab"><span class="on">Công suất &amp; giá</span><span>Chốt ngày</span><span>Doanh thu theo đêm ở</span><span>Tiền thu theo ngày thu</span><span>Công nợ &amp; cọc</span><span>Hủy / no-show / giảm giá</span><span>Đối soát CTV &amp; ngân hàng</span></div>
+        <div class="kpis" style="grid-template-columns:repeat(5,1fr)"><div class="kpi"><b>78%</b><span>Công suất</span></div><div class="kpi"><b>712k</b><span>ADR</span></div><div class="kpi"><b>556k</b><span>RevPAR</span></div><div class="kpi"><b>8,4tr</b><span>Cọc đang giữ</span></div><div class="kpi"><b>112</b><span>Đêm phòng khóa</span></div></div>
+        <div class="card" style="padding:0;overflow:auto"><table class="tbl">
+          <tr><th>Nguồn</th><th class="n">Đêm bán</th><th class="n">Tiền phòng (trước VAT)</th><th class="n">ADR</th><th class="n">Hủy</th></tr>
+          <tr><td>Trực tiếp (trang công khai)</td><td class="n">96</td><td class="n">71.400.000</td><td class="n">744.000</td><td class="n">6%</td></tr>
+          <tr><td>CTV Hoa</td><td class="n">74</td><td class="n">50.300.000</td><td class="n">680.000</td><td class="n">11%</td></tr>
+          <tr><td>CTV Quân</td><td class="n">31</td><td class="n">22.100.000</td><td class="n">713.000</td><td class="n">19%</td></tr>
+          <tr><td>Lễ tân (khách gọi)</td><td class="n">22</td><td class="n">16.200.000</td><td class="n">736.000</td><td class="n">5%</td></tr>
+        </table></div>
+        <p class="note" style="margin-top:8px">Định nghĩa cố định: công suất = đêm bán ÷ (số phòng × số ngày), không trừ phòng khóa (hiện riêng). ADR = tiền phòng sau giảm, trước VAT, không gồm phụ thu và dịch vụ, ÷ đêm bán. RevPAR = công suất × ADR. Báo cáo doanh thu theo đêm ở và báo cáo tiền thu theo ngày thu luôn tách riêng, không trộn.</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">H. Tòa nhà, chủ phòng và hợp đồng</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV &amp; sale</a><a class="on">⌂ Chủ phòng</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>Chủ phòng &amp; hợp đồng</b><span style="flex:1"></span><button class="btn ghost">Xuất CSV</button><button class="btn">+ Mời chủ phòng</button></div>
+      <div class="body">
+        <div class="stab"><span class="on">Chủ phòng</span><span>Tòa nhà</span><span>Căn</span><span>Hợp đồng</span><span>iCal <span class="chip" style="background:var(--bad-l);color:var(--bad)">1 lỗi</span></span><span>Bản kê chủ</span></div>
+        <div class="card" style="padding:0;overflow:auto"><table class="tbl">
+          <tr><th>Chủ</th><th class="n">Số căn</th><th>Tòa</th><th>Hợp đồng</th><th class="n">Chủ nhận</th><th class="n">Giữ hộ</th><th>Trạng thái</th></tr>
+          <tr><td><b>Minh</b><br><small class="note">cá nhân · có MST</small></td><td class="n">3</td><td>Sunrise</td><td>Chia doanh thu</td><td class="n">70%</td><td class="n">4.120.000</td><td><span class="chip s-in">Đang hoạt động</span></td></tr>
+          <tr><td><b>Cty Hải Âu</b><br><small class="note">tổ chức</small></td><td class="n">12</td><td>Sunrise, Palm</td><td>Thuê lại cố định</td><td class="n">giá thuê</td><td class="n">0</td><td><span class="chip s-in">Đang hoạt động</span></td></tr>
+          <tr><td><b>Lan</b><br><small class="note">cá nhân · chưa có MST</small></td><td class="n">1</td><td>Palm</td><td>Quỹ phòng theo ngày</td><td class="n">65%</td><td class="n">980.000</td><td><span class="chip s-hold">Thiếu hồ sơ thuế</span></td></tr>
+        </table></div>
+        <div class="sg" style="margin-top:12px">
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Tòa Sunrise</h3>
+            <div class="fld"><span>Loại pháp lý</span><select><option>Căn hộ du lịch</option><option>Nhà ở (cần cam kết)</option></select></div>
+            <div class="fld"><span>Khai báo lưu trú mặc định</span><select><option>Anstay</option><option>Chủ</option><option>BQL</option></select></div>
+            <div class="fld"><span>Nội quy tòa nhà</span><span class="chip s-in">Đã nhập</span></div>
+            <p class="note">Mọi cài đặt (giá, phụ thu, phí dọn, giờ nhận/trả) có thể đặt theo tòa, theo chủ hoặc theo căn; mức cụ thể hơn thắng.</p></div>
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Hợp đồng · Minh · A1205</h3>
+            <div class="fld"><span>Hình thức</span><select><option>Chia doanh thu</option><option>Thuê lại cố định</option></select></div>
+            <div class="fld"><span>Phần của chủ</span><span><input value="70"> %</span></div>
+            <div class="fld"><span>Giá sàn (net chủ)</span><span><input value="450.000"> đ/đêm</span></div>
+            <div class="fld"><span>Phí dọn do</span><select><option>Chủ</option><option>Anstay</option><option>Khách</option></select></div>
+            <div class="fld"><span>Phạt khi chủ hủy</span><span><input value="20"> %</span></div>
+            <div class="fld"><span>Chi sau trả phòng</span><span><input value="3"> ngày</span></div>
+            <div class="fld"><span>Kỳ bản kê</span><select><option>Tháng</option><option>2 kỳ/tháng</option></select></div>
+            <p class="note">Đổi hợp đồng có hiệu lực từ ngày chọn và không áp ngược cho đơn cũ.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap-t">I. Bản kê chủ phòng và đối chiếu tiền giữ hộ</p>
+  <div class="desk">
+    <div class="side"><b>9stay</b><a>▣ Hôm nay</a><a>▤ Lịch phòng</a><a>≡ Đặt phòng</a><a>☺ Khách</a><a>✦ Buồng phòng</a><a>₫ Bảng giá</a><a>⚑ CTV &amp; sale</a><a class="on">⌂ Chủ phòng</a><a>▥ Báo cáo</a><a>⚙ Cài đặt</a></div>
+    <div class="main">
+      <div class="tb"><b>Bản kê chủ · kỳ T10/2026</b><span style="flex:1"></span><button class="btn ghost">Xem trước</button><button class="btn">Chốt kỳ &amp; gửi</button></div>
+      <div class="body">
+        <div class="warnbox">Số dư tiền giữ hộ trong sổ: 26.480.000đ. Số dư tài khoản ngân hàng riêng: 26.480.000đ. <b>Khớp.</b></div>
+        <div class="card" style="padding:0;overflow:auto"><table class="tbl">
+          <tr><th>Chủ</th><th class="n">Đơn trả phòng</th><th class="n">Tổng thu</th><th class="n">Phần chủ</th><th class="n">Phí Anstay</th><th class="n">Hoa hồng</th><th class="n">Phí dọn</th><th class="n">Thuế khấu trừ</th><th class="n">Phải chi</th></tr>
+          <tr><td>Minh</td><td class="n">11</td><td class="n">18.200.000</td><td class="n">12.740.000</td><td class="n">3.640.000</td><td class="n">1.274.000</td><td class="n">300.000</td><td class="n">400.000</td><td class="n"><b>12.040.000</b></td></tr>
+          <tr><td>Lan</td><td class="n">3</td><td class="n">4.100.000</td><td class="n">2.665.000</td><td class="n">1.025.000</td><td class="n">410.000</td><td class="n">0</td><td class="n">0 (thiếu MST)</td><td class="n"><b>2.665.000</b></td></tr>
+          <tr><td>Cty Hải Âu</td><td class="n">24</td><td class="n">38.900.000</td><td class="n">tiền thuê cố định</td><td class="n">—</td><td class="n">3.890.000</td><td class="n">1.200.000</td><td class="n">—</td><td class="n">ghi tay hằng tháng</td></tr>
+        </table></div>
+        <div class="sg" style="margin-top:12px">
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Việc tồn trước khi chốt kỳ</h3>
+            <div class="item"><div class="m">1 đơn đang tranh chấp (phòng không đúng mô tả)<small>Giữ phần chủ 520.000 trong quỹ tranh chấp</small></div><button class="btn ghost">Xử lý</button></div>
+            <div class="item"><div class="m">1 đơn hủy do chủ<small>Bù trừ −650.000 vào kỳ này</small></div></div>
+            <div class="item"><div class="m">Chủ Lan thiếu hồ sơ thuế<small>Chi tạm theo cài đặt hoặc giữ lại</small></div></div></div>
+          <div class="card"><h3 style="font-size:14px;margin-bottom:6px">Quy tắc</h3>
+            <p class="note" style="margin:0">Tiền chỉ thuộc chủ sau trả phòng cộng số ngày đệm trong hợp đồng. Chi chủ chỉ từ dòng đã khớp ngân hàng, theo bản kê đóng băng. Sai sót sau chốt chỉ bằng dòng điều chỉnh ở kỳ sau. Phần dư làm tròn dồn về Anstay.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<script>
+// dữ liệu mẫu: [phòng, loại, tên, ngày bắt đầu (0=13/10), số đêm, trạng thái]
+var rooms=[["P101","Standard"],["P102","Standard"],["P105","Deluxe"],["P203","Deluxe"],["P207","Deluxe"],["P301","Family"]];
+var bks=[["P101","Minh",-1,2,"in"],["P102","Phúc",-2,3,"out"],["P105","Tuấn",0,3,"dep"],["P203","Lan",0,3,"dep"],["P203","Quân",4,2,"dep"],["P207","khóa sửa",0,2,"block"],["P301","Hà",0,2,"hold"],["P301","Vy",3,4,"dep"],["P102","Nam",3,2,"in"]];
+var lbl={hold:"giữ chỗ",dep:"đã cọc",in:"✓ đã nhận",out:"đã trả",block:"khóa"};
+// lịch 3 ngày
+(function(){var g=document.getElementById("g3"),h="";
+ rooms.forEach(function(r){h+='<div class="rn">'+r[0]+'</div>';
+  for(var d=0;d<3;d++){var s="";bks.forEach(function(b){if(b[0]==r[0]&&b[2]==d||(b[0]==r[0]&&d==0&&b[2]<0&&b[2]+b[3]>0)){var st=Math.max(b[2],0),n=Math.min(b[2]+b[3],3)-st;s='<span class="bk s-'+b[4]+'" style="left:2px;width:calc('+(n*100)+'% + '+((n-1)*1)+'px - 4px)">'+b[1].charAt(0)+" · "+b[1]+'</span>';}});h+='<div>'+s+'</div>';}});
+ g.innerHTML=h;})();
+// timeline 14 ngày
+(function(){var t=document.getElementById("tl"),days=["T3","T4","T5","T6","T7","CN","T2","T3","T4","T5","T6","T7","CN","T2"],h='<div class="h">Phòng</div>';
+ days.forEach(function(d,i){h+='<div class="h '+(i==0?"today":"")+'">'+d+" "+(13+i)+'</div>';});
+ var free=[3,3,2,0,0,4,5,6,6,5,4,3,2,5];
+ h+='<div class="g">Deluxe · còn trống</div><div class="rn">Số phòng trống</div>';free.forEach(function(f){h+='<div class="free" style="color:'+(f==0?"var(--bad)":"var(--ok)")+'">'+f+'/3</div>';});
+ rooms.forEach(function(r){h+='<div class="rn"><span>'+r[0]+'</span><small>'+r[1]+'</small></div>';
+  for(var d=0;d<14;d++){var s="";bks.forEach(function(b){if(b[0]==r[0]){var st=Math.max(b[2],0);var vis=(b[2]==d)||(d==0&&b[2]<0&&b[2]+b[3]>0);if(vis){var n=Math.min(b[2]+b[3],14)-st;s='<span class="bk s-'+b[4]+'" style="left:2px;width:calc('+(n*100)+'% + '+(n-1)+'px - 4px);z-index:2">'+b[1]+" · "+lbl[b[4]]+'</span>';}}});h+='<div>'+s+'</div>';}});
+ t.innerHTML=h;})();
+// lưới giá 14 đêm
+(function(){var t=document.getElementById("pg"),days=["T3","T4","T5","T6","T7","CN","T2","T3","T4","T5","T6","T7","CN","T2"],h='<div class="h">Loại phòng</div>';
+ days.forEach(function(d,i){h+='<div class="h">'+d+" "+(13+i)+'</div>';});
+ var types=[["Standard",[450,450,450,550,550,550,450,450,450,450,550,550,550,450]],["Deluxe",[650,650,650,800,800,800,650,650,650,650,800,"",  "",  ""]],["Family",[900,900,900,1100,1100,1100,900,900,900,900,1100,1100,1100,900]]];
+ types.forEach(function(r){h+='<div class="rn"><span>'+r[0]+'</span><small>nghìn đ</small></div>';
+  r[1].forEach(function(p,i){var we=(i%7==3||i%7==4||i%7==5),man=(r[0]=="Deluxe"&&i==3);
+   var c=p===""?"miss":(we?"we":"");if(r[0]=="Family"&&i==5)c="hol";
+   h+='<div class="pc '+c+(man?" man":"")+'">'+(p===""?"—":p)+'</div>';});});
+ t.innerHTML=h;})();
+// chuyển tab
+function view(v){document.getElementById("v-phone").className=v=="phone"?"row":"hide";document.getElementById("v-desk").className=v=="desk"?"":"hide";
+ document.querySelectorAll("[data-view]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.view==v)});}
+document.querySelectorAll("[data-view]").forEach(function(b){b.onclick=function(){view(b.dataset.view)}});
+document.getElementById("theme").onclick=function(){var r=document.documentElement,dark=r.dataset.theme=="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=dark?"light":"dark";};
+// đồng hồ khóa 5 phút (demo)
+(function(){var s=300,el=document.getElementById("timer");setInterval(function(){s=s>0?s-1:300;el.textContent=("0"+Math.floor(s/60)).slice(-2)+":"+("0"+s%60).slice(-2);},1000);})();
+</script>
+</body>
+</html>
