@@ -82,7 +82,7 @@ export function duLieu() {
     h('button', { class: 'btn bad block', type: 'button', id: 'xoa-het', onclick: async () => {
       const ok = await hoi({ tieuDe: 'Xóa toàn bộ dữ liệu?', noiDung: 'Mọi dữ liệu 9car trên máy này sẽ bị xóa vĩnh viễn.', ok: 'Xóa sạch', nguyHiem: true });
       if (!ok) return;
-      await xoaSach(); toast('Đã xóa sạch dữ liệu trên máy này'); app.di('#/');
+      dongBo.disable(); await xoaSach(); toast('Đã xóa sạch dữ liệu trên máy này và tắt đồng bộ (bản trên máy chủ giữ nguyên)'); app.di('#/');
     } }, icon('trash'), 'Xóa toàn bộ dữ liệu')));
   return { tieuDe: 'Dữ liệu của tôi', quayVe: '#/them', el };
 }

@@ -2,6 +2,7 @@
 CREATE TABLE sync_docs (
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   app text NOT NULL,
+  epoch uuid NOT NULL DEFAULT gen_random_uuid(),   -- đổi mỗi khi tài liệu được tạo lại (sau khi bị xóa): máy khác biết ảnh chụp cũ không còn giá trị
   version int NOT NULL,
   data jsonb NOT NULL,
   bytes int NOT NULL,

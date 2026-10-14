@@ -25,7 +25,7 @@ export function theDongBo({ h, sync, tenApp, duLieuGom, duLieuKhong, thongBao, x
   const tieuDe = () => h('h2', {}, 'Đồng bộ qua tài khoản 9app');
   const loiChu = (e) => (e && e.code === 'offline' ? 'Không có mạng, dữ liệu trên máy vẫn nguyên vẹn. Thử lại khi có mạng.'
     : e && e.status === 401 ? 'Phiên đăng nhập đã hết, hãy đăng nhập lại.'
-    : e && e.code === 'busy' ? 'Dữ liệu đang được máy khác ghi liên tục, thử lại sau ít phút.'
+    : e && ['busy', 'khong-luu-ben', 'khac-tai-khoan', 'da-xoa-o-may-khac', 'mat-nhieu', 'khong-luu-nho'].includes(e.code) ? e.message
     : e && e.status === 413 ? 'Dữ liệu quá lớn để đồng bộ.'
     : 'Chưa đồng bộ được, dữ liệu trên máy vẫn nguyên vẹn. Thử lại sau.');
 
@@ -35,7 +35,10 @@ export function theDongBo({ h, sync, tenApp, duLieuGom, duLieuKhong, thongBao, x
       thongBao(thongBaoXong || 'Đã đồng bộ.');
       if (r.changedLocal) lamMoi();
       else veDaBat();
-    } catch (e) { thongBao(loiChu(e), 'err'); }
+    } catch (e) {
+      thongBao(loiChu(e), 'err');
+      if (e && (e.code === 'khac-tai-khoan' || e.code === 'da-xoa-o-may-khac')) ve();   // đồng bộ đã tự tắt: vẽ lại thẻ
+    }
   }
 
   function veChuaDangNhap() {

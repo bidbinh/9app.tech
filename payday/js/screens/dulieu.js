@@ -56,7 +56,7 @@ export function ve(st, ctx) {
         h('button', { type: 'button', class: 'btn danger', 'data-testid': 'xoa-sach', onclick: () => {
           moHopThoai('Xóa sạch dữ liệu?', (dong_) => {
             const o = h('input', { type: 'text', id: 'xoa-go', autocomplete: 'off', placeholder: 'Gõ XÓA để xác nhận' });
-            const nut = h('button', { type: 'button', class: 'btn danger', disabled: true, 'data-testid': 'xoa-xac-nhan', onclick: async () => { await xoaSach(); dong_(); thongBao('Đã xóa sạch dữ liệu trên máy này.'); } }, 'Xóa vĩnh viễn');
+            const nut = h('button', { type: 'button', class: 'btn danger', disabled: true, 'data-testid': 'xoa-xac-nhan', onclick: async () => { dongBo.disable(); await xoaSach(); dong_(); thongBao('Đã xóa sạch dữ liệu trên máy này và tắt đồng bộ (bản trên máy chủ giữ nguyên).'); } }, 'Xóa vĩnh viễn');
             o.addEventListener('input', () => { nut.disabled = o.value.trim().toUpperCase() !== 'XÓA'; });
             return h('div', { class: 'stack' }, h('p', {}, 'Toàn bộ lương, chi tiêu, mục tiêu, khoản vay và nhắc sẽ bị xóa khỏi máy này.'), truong('Để chắc chắn', o),
               h('div', { class: 'dlg-actions' }, h('button', { type: 'button', class: 'btn', onclick: () => dong_() }, 'Hủy'), nut));

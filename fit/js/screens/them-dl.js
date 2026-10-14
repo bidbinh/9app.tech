@@ -56,8 +56,8 @@ export function duLieu(ctx) {
       h('button', { type: 'button', class: 'btn danger block', 'data-testid': 'xoa-het', onclick: async () => {
         const ok = await hoi('Xóa sạch toàn bộ dữ liệu?', 'Mọi dữ liệu của 9fit trên máy này sẽ bị xóa vĩnh viễn.', { ok: 'Xóa sạch', huy: 'Giữ lại', nguy: true });
         if (!ok) return;
-        await db.xoaTatCa(); rest.dung(); apDungCaiDat();
-        toast('Đã xóa sạch dữ liệu trên máy này.');
+        dongBo.disable(); await db.xoaTatCa(); rest.dung(); apDungCaiDat();
+        toast('Đã xóa sạch dữ liệu trên máy này và tắt đồng bộ (bản trên máy chủ giữ nguyên).');
         ctx.veLai();
       } }, 'Xóa sạch dữ liệu')),
     theDongBo({

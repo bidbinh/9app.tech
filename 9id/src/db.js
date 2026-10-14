@@ -14,7 +14,7 @@ let pool = null;
 
 export function getPool() {
   if (!pool) {
-    pool = new pg.Pool({ connectionString: config.databaseUrl, max: 10 });
+    pool = new pg.Pool({ connectionString: config.databaseUrl, max: 10, connectionTimeoutMillis: 8000 });
     // kết nối nhàn rỗi bị ngắt (khởi động lại CSDL, mạng): ghi log, không để sập tiến trình
     pool.on('error', (e) => console.error('[pg] lỗi kết nối nhàn rỗi:', e && e.message));
   }

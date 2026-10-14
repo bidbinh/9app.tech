@@ -22,7 +22,7 @@ test('chưa đăng nhập: 401; app ngoài danh sách: 404', async () => {
 
 test('chưa có: version 0; ghi lần đầu baseVersion 0 -> version 1; đọc lại đúng nội dung', async () => {
   const u = await signup('B', { ip: freshIp() });
-  assert.deepEqual((await u.get('/api/sync/car')).json, { version: 0, data: null, updatedAt: null });
+  assert.deepEqual((await u.get('/api/sync/car')).json, { epoch: null, version: 0, data: null, updatedAt: null });
   const r = await put(u, 'car', 0, { xe: [{ id: 'a', ten: 'Xe 1' }] });
   assert.equal(r.status, 200); assert.equal(r.json.version, 1);
   const g = (await u.get('/api/sync/car')).json;
@@ -34,7 +34,7 @@ test('ghi có điều kiện: baseVersion lạc hậu -> 409 kèm bản hiện t
   await put(u, 'payday', 0, { v: 1 });
   const stale = await put(u, 'payday', 0, { v: 'cũ' });
   assert.equal(stale.status, 409); assert.equal(stale.json.error.code, 'conflict');
-  assert.deepEqual(stale.json.error.details, { version: 1, data: { v: 1 } });
+  assert.equal(stale.json.error.details.version, 1); assert.deepEqual(stale.json.error.details.data, { v: 1 }); assert.ok(stale.json.error.details.epoch);
   assert.equal((await put(u, 'payday', 1, { v: 2 })).json.version, 2);
   assert.equal((await put(u, 'payday', 5, { v: 9 })).status, 409, 'baseVersion tương lai cũng bị từ chối');
   assert.equal((await u.get('/api/sync/payday')).json.data.v, 2);
@@ -50,7 +50,7 @@ test('hai máy ghi đồng thời lần đầu: một thắng, một nhận 409 
 test('cách ly: người khác không đọc/ghi/xóa được tài liệu của mình, tài liệu theo từng app', async () => {
   const a = await signup('E1', { ip: freshIp() }), b = await signup('E2', { ip: freshIp() });
   await put(a, 'payday', 0, { bi_mat: 'của A' });
-  assert.deepEqual((await b.get('/api/sync/payday')).json, { version: 0, data: null, updatedAt: null });
+  assert.deepEqual((await b.get('/api/sync/payday')).json, { epoch: null, version: 0, data: null, updatedAt: null });
   assert.equal((await put(b, 'payday', 0, { của: 'B' })).status, 200, 'B ghi tài liệu riêng của B');
   assert.equal((await a.get('/api/sync/payday')).json.data.bi_mat, 'của A');
   await b.del('/api/sync/payday');
@@ -84,4 +84,40 @@ test('xóa: DELETE bỏ tài liệu, đọc lại version 0; xóa tài khoản x
   const uid = (await query('SELECT id FROM users WHERE phone=$1', [(await import('./helper.js')).util.normalizePhone(u.phone)]))[0].id;
   await query('DELETE FROM users WHERE id=$1', [uid]);
   assert.equal((await query('SELECT 1 FROM sync_docs WHERE user_id=$1', [uid])).length, 0);
+});
+
+test('epoch: đổi khi tài liệu được tạo lại sau khi xóa, giữ nguyên khi cập nhật', async () => {
+  const u = await signup('I', { ip: freshIp() });
+  const r1 = await put(u, 'fit', 0, { a: 1 });
+  const e1 = r1.json.epoch;
+  assert.ok(e1);
+  const r2 = await put(u, 'fit', 1, { a: 2 });
+  assert.equal(r2.json.epoch, e1);
+  assert.equal((await u.get('/api/sync/fit')).json.epoch, e1);
+  await u.del('/api/sync/fit');
+  const r3 = await put(u, 'fit', 0, { a: 3 });
+  assert.notEqual(r3.json.epoch, e1);
+});
+
+test('ghi đồng thời nhiều máy cùng phiên bản: đúng một bên thắng, các bên còn lại nhận 409 (không ghi đè lặng lẽ)', async () => {
+  const u = await signup('J', { ip: freshIp() });
+  await put(u, 'payday', 0, { v: 0 });
+  const rs = await Promise.all(Array.from({ length: 8 }, (_, i) => put(u, 'payday', 1, { v: i + 1 })));
+  assert.equal(rs.filter((r) => r.status === 200).length, 1);
+  assert.equal(rs.filter((r) => r.status === 409).length, 7);
+  assert.equal((await u.get('/api/sync/payday')).json.version, 2);
+});
+
+test('nhiều yêu cầu ghi sai phiên bản cùng lúc không làm cạn kết nối CSDL (9id vẫn trả lời)', async () => {
+  const u = await signup('K', { ip: freshIp() });
+  await put(u, 'car', 0, { v: 0 });
+  const rs = await Promise.all(Array.from({ length: 30 }, () => put(u, 'car', 9, { v: 'sai' })));
+  assert.ok(rs.every((r) => r.status === 409));
+  assert.equal((await u.get('/api/sync/car')).status, 200);
+});
+
+test('ký tự NUL trong chuỗi bị từ chối 400 (không phải 500)', async () => {
+  const u = await signup('L', { ip: freshIp() });
+  const r = await u.req('PUT', '/api/sync/car', { baseVersion: 0, data: { x: 'a\u0000b' } });
+  assert.equal(r.status, 400);
 });

@@ -8,15 +8,17 @@ const ANH = 'data:image/png;base64,iVBORw0KGgo=';
 function chayVoiMayChu(remoteData) {
   const mc = { version: remoteData ? 1 : 0, data: remoteData, put: null };
   const fetchFn = async (url, opt) => {
-    if (opt.method === 'GET') return { ok: true, status: 200, json: async () => ({ version: mc.version, data: mc.data }) };
+    if (url.endsWith('/me')) return { ok: true, status: 200, json: async () => ({ user: { id: 'u1' } }) };
+    if (opt.method === 'GET') return { ok: true, status: 200, json: async () => ({ epoch: 'e1', version: mc.version, data: mc.data }) };
     mc.put = JSON.parse(opt.body); mc.version++; mc.data = mc.put.data;
-    return { ok: true, status: 200, json: async () => ({ version: mc.version }) };
+    return { ok: true, status: 200, json: async () => ({ epoch: 'e1', version: mc.version }) };
   };
   return { mc, fetchFn };
 }
 
 test('đồng bộ không đẩy ảnh xe lên máy chủ và không làm mất ảnh sẵn có trên máy', async () => {
   await khoiDong(); await xoaSach();
+  kho.luuTru = 'indexeddb';   // Node chạy bằng bộ nhớ tạm nên đồng bộ từ chối; giả lập kho bền để kiểm tra phần còn lại
   await luuXe({ id: 'x1', ten: 'Xe A', loai: 'oto', anh: ANH, tao: '2026-01-01T00:00:00.000Z' });
   await luuNhatKy({ id: 'n1', xeId: 'x1', loai: 'khac', ngay: '2026-10-01', tien: 5 }, '2026-10-14');
   await luuHen({ id: 'h1', xeId: 'x1', kind: 'khac', ten: 'Nhắc A', han: '2026-12-01' });
@@ -37,4 +39,11 @@ test('đồng bộ không đẩy ảnh xe lên máy chủ và không làm mất 
   assert.deepEqual(kho.nhatKy.map((x) => x.id).sort(), ['n1', 'n2']);
   assert.equal(kho.xe[0].anh, ANH, 'ảnh trên máy được giữ');
   assert.equal(kho.hen.length, 1, 'lần đầu (chưa có ảnh chụp cũ) không suy ra việc xóa: hẹn h1 ở lại và được đẩy lên');
+});
+
+test('kho lưu tạm: đồng bộ từ chối chạy (không đẩy dữ liệu rỗng lên máy chủ)', async () => {
+  await khoiDong();
+  kho.luuTru = 'tam';
+  const { dongBo } = await import('../js/lib/dongbo.js');
+  await assert.rejects(dongBo.run(), (e) => e.code === 'khong-luu-ben');
 });

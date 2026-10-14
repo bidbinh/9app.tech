@@ -69,3 +69,12 @@ Mã hóa đầu cuối; đồng bộ ảnh; đồng bộ thời gian thực; app
 2. Một tài liệu cho mỗi app thay vì bảng theo bản ghi: dữ liệu mỗi app dưới vài trăm KB, gộp ở máy khách, máy chủ đơn giản.
 3. Không mã hóa đầu cuối ở bản đầu (cần quản lý khóa/mật khẩu đồng bộ, rủi ro mất dữ liệu cao hơn lợi ích); thay bằng màn đồng ý nói rõ + loại ảnh/sức khỏe nhạy cảm. Ghi vào mục "việc sau".
 4. Mặc định tắt, tắt xong dữ liệu máy chủ vẫn còn cho tới khi người dùng bấm xóa.
+5. **Sửa theo đánh giá độc lập (14/10/2026):**
+   - Lần đồng bộ đầu (chưa có ảnh chụp) hai bên cùng khác nhau ở giá trị đơn thì **ưu tiên bản trên máy chủ** (máy mới mang giá trị mặc định không ghi đè dữ liệu đã có); mảng không `id` cùng độ dài gộp theo vị trí.
+   - `epoch` (uuid) của tài liệu đổi mỗi khi tạo lại sau khi xóa; ảnh chụp cũ có epoch khác bị bỏ. Máy từng đồng bộ mà thấy tài liệu biến mất thì **tự tắt đồng bộ** (không tạo lại bản trên máy chủ).
+   - Lưu `user id` cùng ảnh chụp: đổi tài khoản 9id trên cùng trình duyệt thì tắt đồng bộ, không trộn dữ liệu hai người.
+   - App chạy bằng bộ nhớ tạm (IndexedDB hỏng) không đồng bộ (`sanSang`); chốt an toàn: bản gộp mất hơn nửa số bản ghi (từ 5 bản ghi) thì dừng; "Xóa sạch dữ liệu" tắt đồng bộ trước khi xóa.
+   - Giữ bản sửa của người dùng trong lúc đang đồng bộ (gộp lại trước khi ghi về máy); kiểm tra ghi được ảnh chụp vào localStorage.
+   - Máy chủ: ghi có điều kiện nguyên tử trong một câu lệnh (INSERT ... DO NOTHING / UPDATE ... WHERE version), chỉ dùng kết nối của giao dịch (không cạn pool), `connectionTimeoutMillis` 8 giây, NUL -> 400.
+   - Còn lại (đã biết, chưa làm): ảnh chụp là bản gộp chứ không phải dữ liệu máy đã chuẩn hóa nên máy chạy phiên bản app cũ hơn có thể coi bản ghi bị chuẩn hóa bỏ là đã xóa; bản ghi không có dấu thời gian thì máy đang đồng bộ thắng; fit kẹt nếu `kiemTraGoi` từ chối bản gộp; chưa mã hóa đầu cuối.
+

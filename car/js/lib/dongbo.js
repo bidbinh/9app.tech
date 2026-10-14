@@ -16,6 +16,7 @@ async function thayTap(ten, cu, moi) {
 
 export const dongBo = createSync({
   app: 'car',
+  sanSang: () => kho.luuTru === 'indexeddb',   // chạy bằng bộ nhớ tạm: dữ liệu rỗng không được hiểu là "đã xóa hết"
   getData: () => nhanBan({ xe: kho.xe.map(sach), nhatKy: kho.nhatKy, hen: kho.hen }),
   setData: async (m) => {
     const anhCu = new Map(kho.xe.filter((x) => x.anh).map((x) => [x.id, x.anh]));

@@ -17,8 +17,8 @@ export function syncRoutes(app) {
   app.route('GET', '/api/sync/:app', async (ctx) => {
     const user = requireUser(ctx);
     const a = appOf(ctx);
-    const r = (await query('SELECT version, data, updated_at FROM sync_docs WHERE user_id=$1 AND app=$2', [user.id, a]))[0];
-    return r ? { version: r.version, data: r.data, updatedAt: r.updated_at } : { version: 0, data: null, updatedAt: null };
+    const r = (await query('SELECT epoch, version, data, updated_at FROM sync_docs WHERE user_id=$1 AND app=$2', [user.id, a]))[0];
+    return r ? { epoch: r.epoch, version: r.version, data: r.data, updatedAt: r.updated_at } : { epoch: null, version: 0, data: null, updatedAt: null };
   }, { limit: 120, limitKey: 'sync-get' });
 
   app.route('PUT', '/api/sync/:app', async (ctx) => {
@@ -27,27 +27,27 @@ export function syncRoutes(app) {
     const base = ctx.body.baseVersion;
     if (!Number.isInteger(base) || base < 0) throw new ApiError(400, 'invalid_input', 'baseVersion không hợp lệ');
     if (!plain(ctx.body.data)) throw new ApiError(400, 'invalid_input', 'Dữ liệu đồng bộ phải là một đối tượng');
-    const bytes = Buffer.byteLength(JSON.stringify(ctx.body.data), 'utf8');
+    const json = JSON.stringify(ctx.body.data);
+    if (json.includes('\u0000')) throw new ApiError(400, 'invalid_input', 'Dữ liệu chứa ký tự không hợp lệ');   // PostgreSQL jsonb không nhận \u0000
+    const bytes = Buffer.byteLength(json, 'utf8');
     if (bytes > config.syncMaxBytes) throw new ApiError(413, 'too_large', 'Dữ liệu quá lớn để đồng bộ');
-    const conflict = async () => {
-      const r = (await query('SELECT version, data FROM sync_docs WHERE user_id=$1 AND app=$2', [user.id, a]))[0];
-      return new ApiError(409, 'conflict', 'Dữ liệu trên máy chủ đã thay đổi, hãy gộp lại', r ? { version: r.version, data: r.data } : { version: 0, data: null });
-    };
-    try { return await tx(async (c) => {
-      // ghi có điều kiện: chỉ thành công khi phiên bản hiện tại đúng bằng baseVersion (0 = chưa có)
-      const cur = (await c.query('SELECT version FROM sync_docs WHERE user_id=$1 AND app=$2 FOR UPDATE', [user.id, a]))[0];
-      const curVersion = cur ? cur.version : 0;
-      if (curVersion !== base) throw await conflict();
-      const next = curVersion + 1;
-      await c.query(
-        `INSERT INTO sync_docs(user_id, app, version, data, bytes) VALUES($1,$2,$3,$4,$5)
-         ON CONFLICT (user_id, app) DO UPDATE SET version=EXCLUDED.version, data=EXCLUDED.data, bytes=EXCLUDED.bytes, updated_at=now()`,
-        [user.id, a, next, JSON.stringify(ctx.body.data), bytes]);
-      return { version: next };
-    }); } catch (e) {
-      if (e && e.code === '23505') throw await conflict();   // hai máy cùng tạo tài liệu đầu tiên: một bên thắng, bên kia gộp lại
+    let out;
+    try {
+      out = await tx(async (c) => {
+        // ghi có điều kiện NGUYÊN TỬ trong một câu lệnh (không có cửa sổ giữa kiểm và ghi); chỉ dùng kết nối của giao dịch này
+        const w = base === 0
+          ? await c.query('INSERT INTO sync_docs(user_id, app, version, data, bytes) VALUES($1,$2,1,$3,$4) ON CONFLICT (user_id, app) DO NOTHING RETURNING epoch, version', [user.id, a, json, bytes])
+          : await c.query('UPDATE sync_docs SET version=version+1, data=$3, bytes=$4, updated_at=now() WHERE user_id=$1 AND app=$2 AND version=$5 RETURNING epoch, version', [user.id, a, json, bytes, base]);
+        if (w.length) return { ok: { epoch: w[0].epoch, version: w[0].version } };
+        const r = (await c.query('SELECT epoch, version, data FROM sync_docs WHERE user_id=$1 AND app=$2', [user.id, a]))[0];
+        return { conflict: r ? { epoch: r.epoch, version: r.version, data: r.data } : { epoch: null, version: 0, data: null } };
+      });
+    } catch (e) {
+      if (e && typeof e.code === 'string' && e.code.startsWith('22')) throw new ApiError(400, 'invalid_input', 'Dữ liệu đồng bộ không hợp lệ');
       throw e;
     }
+    if (out.conflict) throw new ApiError(409, 'conflict', 'Dữ liệu trên máy chủ đã thay đổi, hãy gộp lại', out.conflict);
+    return out.ok;
   }, { limit: 60, limitKey: 'sync-put', maxBody: config.syncMaxBytes + 4096 });
 
   app.route('DELETE', '/api/sync/:app', async (ctx) => {

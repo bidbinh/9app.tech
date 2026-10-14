@@ -20,5 +20,5 @@ export async function datDuLieu(merged) {
   }
 }
 
-export const dongBo = createSync({ app: 'fit', getData: layDuLieu, setData: datDuLieu });
+export const dongBo = createSync({ app: 'fit', getData: layDuLieu, setData: datDuLieu, sanSang: () => db.trangThai.luuBen });   // chạy bằng bộ nhớ tạm: dữ liệu rỗng không được hiểu là "đã xóa hết"
 export const dangNhapUrl = () => '/id/?next=' + encodeURIComponent(location.pathname + location.search + location.hash) + '#/dang-nhap';
