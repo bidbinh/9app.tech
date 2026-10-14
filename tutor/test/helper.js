@@ -32,12 +32,12 @@ export async function shutdown() {
 
 // Một "trình duyệt": có cookie riêng
 export class Client {
-  constructor(name = 'khach') { this.name = name; this.cookie = ''; }
+  constructor(name = 'khach') { this.name = name; this.cookie = ''; this.nine = ''; }
   async req(method, path, body, { csrf = true, headers = {}, raw = false, origin, cookie } = {}) {
     const h = { ...headers };
     if (body !== undefined) h['content-type'] = 'application/json';
     if (csrf && method !== 'GET') h['x-requested-with'] = '9tutor';
-    const ck = cookie !== undefined ? cookie : this.cookie;
+    const ck = [cookie !== undefined ? cookie : this.cookie, this.nine && 'nine_sid=' + this.nine].filter(Boolean).join('; ');
     if (ck) h.cookie = ck;
     if (origin) h.origin = origin;
     const r = await fetch(base + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) });

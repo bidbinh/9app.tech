@@ -1,4 +1,5 @@
 // Nhập xấu, XSS, giới hạn kích thước/tần suất, cấu hình production, migration đồng thời
+import fs from 'node:fs';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { boot, shutdown, Client, ok, newTutor, addStudent, day, config, db, base } from './helper.js';
@@ -118,7 +119,8 @@ test('production thiếu DATABASE_URL hoặc dùng chuỗi mặc định thì b�
 
 test('hai bản khởi động đồng thời cùng chạy migration không đụng nhau', async () => {
   await Promise.all([db.migrate(), db.migrate(), db.migrate()]);
-  assert.equal((await db.query(`SELECT count(*)::int AS n FROM schema_migrations`))[0].n, 2);
+  const files = fs.readdirSync(new URL('../db/', import.meta.url)).filter((f) => f.endsWith('.sql')).length;   // mỗi tệp chỉ ghi nhận một lần
+  assert.equal((await db.query(`SELECT count(*)::int AS n FROM schema_migrations`))[0].n, files);
 });
 
 test('lỗi ở kết nối nhàn rỗi của pool chỉ ghi log, không sập tiến trình', () => {

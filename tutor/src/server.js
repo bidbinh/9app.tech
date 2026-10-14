@@ -4,6 +4,7 @@ import { config, productionProblems } from './config.js';
 import { migrate, query } from './db.js';
 import { resolveSession } from './auth.js';
 import { accountRoutes } from './routes/account.js';
+import { idRoutes } from './routes/id.js';
 import { studentRoutes } from './routes/students.js';
 import { lessonRoutes } from './routes/lessons.js';
 import { moneyRoutes } from './routes/money.js';
@@ -25,6 +26,7 @@ export function buildApp() {
   const app = createApp();
   app.setAuthResolver(resolveSession);
   accountRoutes(app);
+  idRoutes(app);
   studentRoutes(app);
   lessonRoutes(app);
   moneyRoutes(app);

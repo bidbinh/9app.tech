@@ -18,6 +18,7 @@ function hourlyHit(key, limit) {
   return h.n > limit;
 }
 export const resetHourly = () => hourly.clear();
+const idUnavailable = () => new ApiError(503, 'id_unavailable', 'Chưa kết nối được dịch vụ tài khoản 9app, thử lại sau ít phút');
 const tooMany = () => new ApiError(429, 'rate_limited', 'Bạn thử quá nhiều lần, đợi một lúc rồi thử lại');
 
 export async function meView(t) {
@@ -42,14 +43,19 @@ export function accountRoutes(app) {
   app.route('POST', '/api/start', async (ctx) => {
     const name = cleanText(ctx.body.name, { max: 40, min: 1, field: 'Tên hiển thị' });
     const status = oneOf(ctx.body.status, STATUSES, 'Tình trạng');
+    if (ctx.idDown) throw idUnavailable();   // đã đăng nhập mà 9id lỗi: không tạo gia sư ẩn danh thứ hai
     const recent = (await query(`SELECT count(*)::int AS n FROM tutors WHERE created_ip = $1 AND created_at > now() - interval '1 hour'`, [ctx.ip]))[0].n;
     if (recent >= config.tutorsPerIpHour * 1) throw new ApiError(429, 'rate_limited', 'Đã tạo quá nhiều tài khoản từ mạng này, thử lại sau ít phút');
     const code = newRecoveryCode();
     const t = await tx(async (c) => {
+      if (ctx.userId) {
+        await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 9201))', ['u:' + ctx.userId]);   // cùng khóa với nhận gia sư vào tài khoản
+        if ((await c.query('SELECT 1 FROM tutors WHERE user_id = $1', [ctx.userId])).length) throw new ApiError(409, 'already', 'Tài khoản 9app này đã có sổ gia sư');
+      }
       const row = (await c.query(
-        `INSERT INTO tutors(name, status, status_at, recovery_hash, recovery_at, created_ip) VALUES($1,$2,now(),$3,now(),$4) RETURNING *`,
-        [name, status, sha256hex(normCode(code)), ctx.ip]))[0];
-      await createSession(c, ctx, row.id);
+        `INSERT INTO tutors(name, status, status_at, recovery_hash, recovery_at, created_ip, user_id) VALUES($1,$2,now(),$3,now(),$4,$5) RETURNING *`,
+        [name, status, sha256hex(normCode(code)), ctx.ip, ctx.userId || null]))[0];
+      if (!ctx.userId) await createSession(c, ctx, row.id);   // đăng nhập: quyền đi qua tài khoản, máy không giữ lại sau khi đăng xuất
       return row;
     });
     return { recoveryCode: code, me: await meView(t) };
@@ -94,6 +100,9 @@ export function accountRoutes(app) {
     if (code.length !== 25) throw new ApiError(404, 'not_found', 'Mã khôi phục không đúng');
     const t = (await query('SELECT * FROM tutors WHERE recovery_hash=$1', [sha256hex(code)]))[0];
     if (!t) throw new ApiError(404, 'not_found', 'Mã khôi phục không đúng');
+    if (ctx.idDown) throw idUnavailable();
+    // đã đăng nhập và đã có gia sư của tài khoản: không gắn thêm gia sư khác vào máy này (tránh hai danh tính)
+    if (ctx.userId && ctx.tutor && ctx.tutor.user_id === ctx.userId && ctx.tutor.id !== t.id) throw new ApiError(409, 'already', 'Tài khoản 9app này đã có sổ gia sư');
     await tx((c) => createSession(c, ctx, t.id));
     return { me: await meView(t) };
   }, { limit: 30 });
@@ -127,9 +136,11 @@ export function accountRoutes(app) {
     if (hourlyHit('pair:' + ctx.ip, config.recoverPerIpHour)) throw tooMany();
     const code = normCode(ctx.body.code);
     if (code.length !== 12) throw new ApiError(404, 'not_found', 'Mã ghép không đúng hoặc đã hết hạn');
+    if (ctx.idDown) throw idUnavailable();
     const t = await tx(async (c) => {
       const r = await c.query('DELETE FROM pair_codes WHERE code_hash=$1 AND expires_at > now() RETURNING tutor_id', [sha256hex(code)]);
       if (!r.length) throw new ApiError(404, 'not_found', 'Mã ghép không đúng hoặc đã hết hạn');
+      if (ctx.userId && ctx.tutor && ctx.tutor.user_id === ctx.userId && ctx.tutor.id !== r[0].tutor_id) throw new ApiError(409, 'already', 'Tài khoản 9app này đã có sổ gia sư');
       await createSession(c, ctx, r[0].tutor_id);
       return (await c.query('SELECT * FROM tutors WHERE id=$1', [r[0].tutor_id]))[0];
     });
@@ -156,7 +167,7 @@ export function accountRoutes(app) {
   });
   app.route('POST', '/api/logout-others', async (ctx) => {
     const t = requireTutor(ctx);
-    const r = await query('DELETE FROM sessions WHERE tutor_id=$1 AND id<>$2 RETURNING id', [t.id, ctx.sessionId]);
+    const r = await query('DELETE FROM sessions WHERE tutor_id=$1 AND ($2::uuid IS NULL OR id<>$2) RETURNING id', [t.id, ctx.sessionId || null]);
     return { ok: true, removed: r.length };
   });
 
@@ -177,7 +188,8 @@ export function accountRoutes(app) {
     const t = requireTutor(ctx);
     if (stripAccents(String(ctx.body.confirm || '')).trim().toUpperCase() !== 'XOA') throw new ApiError(400, 'invalid_input', 'Hãy gõ XÓA để xác nhận xóa toàn bộ dữ liệu', { field: 'confirm' });
     await query('DELETE FROM tutors WHERE id=$1', [t.id]);
-    ctx.setCookie(COOKIE, '', { clear: true });
+    // máy có thể còn gia sư ẩn danh khác (khi đã đăng nhập): chỉ bỏ cookie nếu phiên này đang nối tới chính gia sư bị xóa
+    if (ctx.sessionTutorId === t.id || !ctx.userId) ctx.setCookie(COOKIE, '', { clear: true });
     return { ok: true };
   }, { limit: 5 });
 }
