@@ -5,12 +5,18 @@ import { audit } from '../audit.js';
 import { rawResponse } from '../http.js';
 import { searchListings } from '../listing-public.js';
 import { AMENITIES, CANCEL_POLICIES, LIMITS } from '../listing-meta.js';
-import { addPhoto, deletePhoto, reorderPhotos, readPhoto, loadFile } from '../photos.js';
+import { addPhoto, deletePhoto, reorderPhotos, readPhoto, loadFile, removeFile } from '../photos.js';
+import { removeListingFiles } from '../photos.js';
 import {
   listBuildingsFor, proposeBuilding, decideBuilding, createListing, addListingUnits, removeListingUnit, updateListing, deleteDraft, submitListing,
-  approveListing, rejectListing, setSuspended, proposePriceChange, decidePriceChange, listListings, getListingFull, listUnassignedUnits, reviewQueue,
+  assertPhotoEditable, approveListing, rejectListing, setSuspended, proposePriceChange, decidePriceChange, listListings, getListingFull, listUnassignedUnits, reviewQueue,
 } from '../listings.js';
 
+// Chỉ lấy đúng các trường cho phép từ thân yêu cầu; các trường tin cậy (orgId, actor, listingId, by) luôn do máy chủ đặt SAU cùng.
+const pick = (b, keys) => Object.fromEntries(keys.filter((k) => b[k] !== undefined).map((k) => [k, b[k]]));
+const CONTENT = ['title', 'description', 'amenities', 'houseRules', 'cancelPolicy', 'bedrooms', 'beds', 'bathrooms', 'capacityStd', 'capacityMax', 'proposedPrice', 'proposedWeekendPrice', 'attest'];
+const APPROVE = ['price', 'weekendPrice', 'ownerSharePct', 'ownerNetFloor', 'cleaningPayer', 'payoutDelayDays', 'kind'];
+const BUILDING = ['name', 'address', 'province', 'district', 'legalType'];
 const actorOf = (ctx) => ({ role: ctx.member.role, memberId: ctx.member.id, ownerId: ctx.member.ownerId });
 
 // Chủ phòng đăng/sửa tin của mình; quản lý làm được mọi việc và duyệt. Quyền theo hàng ở listings.js (tin của chủ khác trả 404).
@@ -30,7 +36,7 @@ export function listingRoutes(app) {
     return { amenities: AMENITIES.map(([code, label]) => ({ code, label })), cancelPolicies: Object.entries(CANCEL_POLICIES).map(([code, p]) => ({ code, label: p.label, text: p.text })), limits: LIMITS };
   });
   app.route('GET', '/api/my/buildings', async (ctx) => { own(ctx); return { buildings: await tx((c) => listBuildingsFor(c, { orgId: ctx.member.orgId, actor: actorOf(ctx) })) }; });
-  W('POST', '/api/buildings/propose', 'building.propose', (c, ctx) => proposeBuilding(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), ...ctx.body }), 'building.propose', { limit: 20 });
+  W('POST', '/api/buildings/propose', 'building.propose', (c, ctx) => proposeBuilding(c, { ...pick(ctx.body, BUILDING), orgId: ctx.member.orgId, actor: actorOf(ctx) }), 'building.propose', { limit: 20 });
 
   app.route('GET', '/api/listings/unassigned-units', async (ctx) => {
     own(ctx);
@@ -38,10 +44,19 @@ export function listingRoutes(app) {
     return { units: await tx((c) => listUnassignedUnits(c, { orgId: ctx.member.orgId, actor: actorOf(ctx) })) };
   });
   app.route('GET', '/api/listings', async (ctx) => { own(ctx); return { listings: await tx((c) => listListings(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), status: ctx.query.status ?? null })) }; });
-  W('POST', '/api/listings', 'listing.own', (c, ctx) => createListing(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), ...ctx.body }), 'listing.create', { limit: 30 });
+  W('POST', '/api/listings', 'listing.own', (c, ctx) => createListing(c, { ...pick(ctx.body, CONTENT), unitIds: Array.isArray(ctx.body.unitIds) ? ctx.body.unitIds : [], ownerId: ctx.body.ownerId, buildingId: ctx.body.buildingId, orgId: ctx.member.orgId, actor: actorOf(ctx) }), 'listing.create', { limit: 30 });
   app.route('GET', '/api/listings/:id', async (ctx) => { own(ctx); return tx((c) => getListingFull(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id })); });
-  W('PUT', '/api/listings/:id', 'listing.own', (c, ctx) => updateListing(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id, ...ctx.body }), 'listing.update');
-  W('POST', '/api/listings/:id/delete', 'listing.own', (c, ctx) => deleteDraft(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id }), 'listing.delete');
+  W('PUT', '/api/listings/:id', 'listing.own', (c, ctx) => updateListing(c, { ...pick(ctx.body, CONTENT), orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id }), 'listing.update');
+  app.route('POST', '/api/listings/:id/delete', async (ctx) => {
+    own(ctx);
+    const r = await tx(async (c) => {
+      const out = await deleteDraft(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id });
+      await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'listing.delete', target: ctx.params.id, data: {} });
+      return out;
+    });
+    await removeListingFiles(r.removeFiles); // chỉ sau khi đã commit
+    return { ok: true };
+  });
   W('POST', '/api/listings/:id/units', 'listing.own', (c, ctx) => addListingUnits(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id, codes: ctx.body.codes ?? [], unitIds: ctx.body.unitIds ?? [], floor: ctx.body.floor }), 'listing.units.add');
   W('POST', '/api/listings/:id/units/:unitId/remove', 'listing.own', async (c, ctx) => { await removeListingUnit(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id, unitId: ctx.params.unitId }); return { ok: true }; }, 'listing.units.remove');
   W('POST', '/api/listings/:id/submit', 'listing.own', (c, ctx) => submitListing(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id }, { now: ctx.now }), 'listing.submit');
@@ -74,21 +89,23 @@ export function listingRoutes(app) {
     const ct = String(ctx.req.headers['content-type'] || '');
     if (!/^image\/(jpeg|png|webp)$/.test(ct)) throw new AppError('bad_photo', 'Chỉ nhận ảnh JPEG, PNG hoặc WebP', 415);
     return tx(async (c) => {
-      await getListingFull(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id }); // kiểm quyền với tin
-      const [st] = await c.query('SELECT status FROM listings WHERE id = $1', [ctx.params.id]);
-      if (st.status === 'pending') throw new AppError('pending_review', 'Tin đang chờ duyệt, chưa sửa ảnh được', 409);
+      await assertPhotoEditable(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id });
       return addPhoto(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, buf: ctx.rawBuffer });
     });
-  }, { binary: true, maxBytes: LIMITS.maxPhotoBytes + 1024, limit: 60 });
-  W('POST', '/api/listings/:id/photos/:pid/delete', 'listing.own', async (c, ctx) => {
-    await getListingFull(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id });
-    const [st] = await c.query('SELECT status FROM listings WHERE id = $1', [ctx.params.id]);
-    if (st.status === 'pending') throw new AppError('pending_review', 'Tin đang chờ duyệt, chưa sửa ảnh được', 409);
-    await deletePhoto(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, photoId: ctx.params.pid });
+  }, { binary: true, maxBytes: LIMITS.maxPhotoBytes + 1024, limit: 60, pre: (ctx) => own(ctx) });
+  app.route('POST', '/api/listings/:id/photos/:pid/delete', async (ctx) => {
+    own(ctx);
+    const r = await tx(async (c) => {
+      await assertPhotoEditable(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id });
+      const out = await deletePhoto(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, photoId: ctx.params.pid });
+      await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'listing.photo.delete', target: ctx.params.pid, data: {} });
+      return out;
+    });
+    await removeFile(r.removeFile).catch(() => {}); // chỉ sau khi đã commit; sót thì sweepOrphanPhotos dọn
     return { ok: true };
-  }, 'listing.photo.delete');
+  });
   W('POST', '/api/listings/:id/photos/order', 'listing.own', async (c, ctx) => {
-    await getListingFull(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id });
+    await assertPhotoEditable(c, { orgId: ctx.member.orgId, actor: actorOf(ctx), listingId: ctx.params.id });
     await reorderPhotos(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, ids: ctx.body.ids });
     return { ok: true };
   }, null);
@@ -110,7 +127,7 @@ export function listingRoutes(app) {
   // ---- Duyệt (quản lý) ----
   const R = (ctx) => requirePerm(ctx, 'listing.review');
   app.route('GET', '/api/review', async (ctx) => { R(ctx); return tx((c) => reviewQueue(c, { orgId: ctx.member.orgId })); });
-  W('POST', '/api/listings/:id/approve', 'listing.review', (c, ctx) => approveListing(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, by: ctx.member.id, ...ctx.body }, { now: ctx.now }), 'listing.approve');
+  W('POST', '/api/listings/:id/approve', 'listing.review', (c, ctx) => approveListing(c, { ...pick(ctx.body, APPROVE), orgId: ctx.member.orgId, listingId: ctx.params.id, by: ctx.member.id }, { now: ctx.now }), 'listing.approve');
   W('POST', '/api/listings/:id/reject', 'listing.review', (c, ctx) => rejectListing(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, by: ctx.member.id, reason: ctx.body.reason }, { now: ctx.now }), 'listing.reject');
   W('POST', '/api/listings/:id/suspend', 'listing.review', (c, ctx) => setSuspended(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, by: ctx.member.id, suspend: true, reason: ctx.body.reason }, { now: ctx.now }), 'listing.suspend');
   W('POST', '/api/listings/:id/unsuspend', 'listing.review', (c, ctx) => setSuspended(c, { orgId: ctx.member.orgId, listingId: ctx.params.id, by: ctx.member.id, suspend: false }, { now: ctx.now }), 'listing.unsuspend');

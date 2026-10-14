@@ -278,8 +278,11 @@ test('nội dung: ký tự điều khiển, tiện nghi lạ, giá ngoài khoả
 
 test('tin đã duyệt: sửa nội dung ngay được, đổi giá qua đề xuất; duyệt đổi giá áp từ ngày mai; từ chối cần lý do; chỉ một đề xuất chờ', async () => {
   const id = await published();
-  assert.equal((await chu1.put(`/api/listings/${id}`, { title: 'Studio đã đổi tên mới' })).status, 200);
-  assert.equal((await chu1.put(`/api/listings/${id}`, { proposedPrice: 100000 })).status, 409, 'không tự đổi giá');
+  const locked = await chu1.put(`/api/listings/${id}`, { title: 'Studio đã đổi tên mới' });
+  assert.equal(locked.status, 409, 'chủ không tự sửa nội dung sau khi duyệt');
+  assert.equal(locked.json.error.code, 'locked_after_approval');
+  assert.equal((await mgr.put(`/api/listings/${id}`, { title: 'Studio đã đổi tên mới' })).status, 200, 'quản lý sửa được');
+  assert.equal((await mgr.put(`/api/listings/${id}`, { proposedPrice: 100000 })).status, 409, 'giá đã chạy chỉ đổi qua đề xuất được duyệt, kể cả quản lý');
   const pc = ok(await chu1.post(`/api/listings/${id}/price-change`, { price: 700000, weekendPrice: 900000 }));
   assert.equal((await chu1.post(`/api/listings/${id}/price-change`, { price: 710000 })).status, 409, 'đã có đề xuất chờ');
   assert.equal((await detail(chu1, id)).livePrice, 600000, 'giá cũ chạy tới khi duyệt');
@@ -421,4 +424,165 @@ test('danh sách tin lọc theo trạng thái; khu vực công khai chỉ tính 
   assert.deepEqual(areas, [{ province: 'Quảng Ninh', district: 'Hạ Long', count: 1 }]);
   assert.equal((await new Api(srv, null, null).get('/api/public/anstay/listings?area=hạ%20long')).json.total, 1);
   assert.ok(id);
+});
+
+test('không giả quyền qua thân yêu cầu: actor, orgId, listingId, ownerId trong thân bị bỏ qua', async () => {
+  const id = await draft(chu1);
+  const other = await db.tx(async (c) => (await c.query("INSERT INTO orgs(name) VALUES('Khác') RETURNING id"))[0].id);
+  const r = await chu2.put(`/api/listings/${id}`, { title: 'Bị chiếm mất rồi nhé', actor: { role: 'quanly', memberId: null, ownerId: w.ownerId }, orgId: other, listingId: id });
+  assert.equal(r.status, 404);
+  assert.notEqual((await detail(chu1, id)).title, 'Bị chiếm mất rồi nhé');
+  // tạo tin giả danh quản lý / chủ khác: bị bỏ qua, tin đứng tên chính chủ 2
+  const made = await chu2.post('/api/listings', { buildingId: w.buildingId, title: 'Tin của chủ hai', actor: { role: 'quanly' }, ownerId: w.ownerId, orgId: other });
+  assert.equal(made.status, 200);
+  assert.equal((await detail(chu2, made.json.id)).owner.id, w.lan.ownerId);
+  // không tự duyệt dù giả actor
+  assert.equal((await chu1.post(`/api/listings/${id}/approve`, { actor: { role: 'quanly' }, orgId: other })).status, 403);
+  // quản lý duyệt với thân có orgId khác: vẫn theo tổ chức của mình
+  await complete(chu1, id);
+  ok(await chu1.post(`/api/listings/${id}/submit`, {}));
+  ok(await mgr.post(`/api/listings/${id}/approve`, { orgId: other, by: crypto.randomUUID(), price: 650000 }));
+  assert.equal((await detail(mgr, id)).livePrice, 650000);
+  assert.equal((await db.query('SELECT decided_by FROM listings WHERE id = $1', [id]))[0].decided_by, w.users && (await db.query("SELECT id FROM members WHERE user_id = $1", [w.users.quanly]))[0].id);
+  // thiết lập (quản lý): thân không đổi được tổ chức
+  const b = await mgr.post('/api/setup/owners', { name: 'Chủ mới', orgId: other });
+  assert.equal(b.status, 200);
+  assert.equal((await db.query('SELECT org_id FROM owners WHERE id = $1', [b.json.id]))[0].org_id, w.orgId);
+});
+
+test('gắn căn có sẵn: chủ không gắn được căn đã vận hành; quản lý gắn được; xóa nháp/gỡ căn khôi phục loại phòng và trạng thái cũ, không lỗi 500', async () => {
+  const before = (await db.query('SELECT room_type_id, status, capacity_std, capacity_max FROM units WHERE id = $1', [w.unit2Id]))[0];
+  const own = await draft(chu1);
+  assert.equal((await chu1.post(`/api/listings/${own}/units`, { unitIds: [w.unit2Id] })).status, 409, 'căn đã có hợp đồng: chủ không tự rút khỏi kho');
+  assert.equal((await db.query('SELECT status FROM units WHERE id = $1', [w.unit2Id]))[0].status, 'active');
+  // quản lý gắn hộ rồi gỡ: khôi phục
+  const l1 = await draft(mgr);
+  ok(await mgr.post(`/api/listings/${l1}/units`, { unitIds: [w.unit2Id] }));
+  assert.equal((await db.query('SELECT status FROM units WHERE id = $1', [w.unit2Id]))[0].status, 'inactive');
+  ok(await mgr.post(`/api/listings/${l1}/units/${w.unit2Id}/remove`, {}));
+  const back = (await db.query('SELECT room_type_id, status, capacity_std, capacity_max FROM units WHERE id = $1', [w.unit2Id]))[0];
+  assert.deepEqual({ ...back }, { ...before }, 'căn về đúng loại phòng, trạng thái, sức chứa cũ');
+  // quản lý gắn, tải ảnh rồi xóa nháp: không 500, ảnh bị xóa, căn khôi phục
+  const l2 = await draft(mgr);
+  ok(await mgr.post(`/api/listings/${l2}/units`, { unitIds: [w.unit2Id] }));
+  assert.equal((await upload(mgr, l2)).status, 200);
+  const del = await mgr.post(`/api/listings/${l2}/delete`, {});
+  assert.equal(del.status, 200, del.text);
+  assert.ok(!fs.existsSync(path.join(dir, 'photos', l2)));
+  assert.deepEqual({ ...(await db.query('SELECT room_type_id, status, capacity_std, capacity_max FROM units WHERE id = $1', [w.unit2Id]))[0] }, { ...before });
+  assert.equal((await db.query('SELECT 1 FROM listings WHERE id = $1', [l2])).length, 0);
+});
+
+test('tòa nhiều chủ: chủ không tự đặt mã căn (chống chiếm mã); quản lý thì được; mã trùng không lộ cho chủ', async () => {
+  const mb = ok(await mgr.post('/api/setup/buildings', { name: 'Tòa chung', province: 'Huế', multiOwner: true }));
+  const id = await draft(chu1, {}, mb.id);
+  const r = await chu1.post(`/api/listings/${id}/units`, { codes: ['A1205'] });
+  assert.equal(r.status, 403);
+  assert.equal(r.json.error.code, 'assigned_only');
+  const own = await draft(chu1);
+  ok(await chu1.post(`/api/listings/${own}/units`, { codes: ['X-1'] }));
+  const own2 = await draft(chu2);
+  const dup = await chu2.post(`/api/listings/${own2}/units`, { codes: ['X-1'] });
+  assert.equal(dup.status, 409);
+  assert.ok(!/X-1/.test(dup.json.error.message), 'không nêu mã để chủ khác không dò được');
+});
+
+test('sau duyệt, chủ không thêm/xóa/đổi ảnh; quản lý thì được; ảnh không đổi thứ tự khi chờ duyệt', async () => {
+  const id = await published();
+  const d = await detail(chu1, id);
+  assert.equal((await upload(chu1, id)).status, 409);
+  assert.equal((await chu1.post(`/api/listings/${id}/photos/${d.photos[0].id}/delete`, {})).status, 409);
+  assert.equal((await chu1.post(`/api/listings/${id}/photos/order`, { ids: d.photos.map((p) => p.id).reverse() })).status, 409);
+  assert.equal((await upload(mgr, id)).status, 200, 'quản lý thêm ảnh được');
+  const pend = await draft(chu1, { title: 'Tin để thử khóa chờ duyệt' });
+  await complete(chu1, pend, ['LK-1']);
+  ok(await chu1.post(`/api/listings/${pend}/submit`, {}));
+  const pd = await detail(chu1, pend);
+  assert.equal((await chu1.post(`/api/listings/${pend}/photos/order`, { ids: pd.photos.map((p) => p.id).reverse() })).status, 409);
+});
+
+test('tìm kiếm công khai: khu vực không khớp tên tòa (không lộ tên tòa); mã tin sai định dạng khi đặt: 400 không 500', async () => {
+  const id = await published();
+  await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
+  await db.query("UPDATE buildings SET province = 'Quảng Ninh' WHERE id = $1", [w.buildingId]);
+  const anon = new Api(srv, null, null);
+  assert.equal((await anon.get('/api/public/anstay/listings?area=Sunrise')).json.total, 0, 'tên tòa không dùng để tìm');
+  assert.equal((await anon.get('/api/public/anstay/listings?area=quang%20ninh')).json.total, 0, 'ILIKE có dấu: không khớp không dấu (khớp đúng chữ)');
+  assert.equal((await anon.get('/api/public/anstay/listings?area=Quảng')).json.total, 1);
+  assert.equal((await anon.get('/api/public/anstay/listings?area=Qu%25ng')).json.total, 0, 'ký tự % bị bỏ (Qung), không thành ký tự đại diện');
+  await db.tx((c) => setBankAccount(c, { orgId: w.orgId, bin: '970436', account: '0123456789', holder: 'CTY' }));
+  const tok = 's' + crypto.randomBytes(12).toString('hex') + 'x'.repeat(10);
+  await db.query("INSERT INTO otp_sessions(token_hash, org_id, phone, expires_at) VALUES($1, $2, '0901234567', '2030-01-01')", [hashToken(tok), w.orgId]);
+  const r = await anon.post('/api/public/anstay/book', { token: tok, listingId: 'khong-phai-uuid', checkin: '2026-12-10', checkout: '2026-12-11', adults: 2, childAges: [], guestName: 'Lan' });
+  assert.equal(r.status, 400);
+  assert.ok(id);
+});
+
+test('đổi giá được duyệt không ghi đè giá admin đã chỉnh tay; offers cũ không liệt kê tin bị tạm ngưng', async () => {
+  const id = await published();
+  const d = await detail(mgr, id);
+  assert.equal((await mgr.put('/api/rates', { roomTypeId: d.roomTypeId, plan: 'public', from: '2026-12-24', to: '2026-12-27', price: 2000000 })).status, 200);
+  const pc = ok(await chu1.post(`/api/listings/${id}/price-change`, { price: 700000, weekendPrice: 900000 }));
+  ok(await mgr.post(`/api/price-changes/${pc.id}/approve`, {}));
+  const prices = await db.query("SELECT night::text AS night, price, source FROM rate_calendar WHERE room_type_id = $1 AND plan_id = (SELECT id FROM rate_plans WHERE code = 'public' AND org_id = $2) AND night BETWEEN '2026-12-23' AND '2026-12-27' ORDER BY night", [d.roomTypeId, w.orgId]);
+  for (const x of prices.filter((p) => p.night >= '2026-12-24' && p.night <= '2026-12-26')) assert.equal(x.price, 2000000, 'giá Tết admin đặt tay vẫn giữ ' + x.night);
+  assert.notEqual(prices.find((p) => p.night === '2026-12-23').price, 2000000);
+  // tạm ngưng: offers cũ (theo loại phòng) không liệt kê
+  await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
+  await db.tx((c) => setBankAccount(c, { orgId: w.orgId, bin: '970436', account: '0123456789', holder: 'CTY' }));
+  await openNightsFor(id);
+  const anon = new Api(srv, null, null);
+  const q = 'checkin=2026-12-02&checkout=2026-12-04&adults=2';
+  assert.ok((await anon.get(`/api/public/anstay/offers?${q}`)).json.rooms.some((r) => r.name.startsWith('Tin:')));
+  ok(await mgr.post(`/api/listings/${id}/suspend`, { reason: 'Vi phạm nội quy đăng tin' }));
+  assert.ok(!(await anon.get(`/api/public/anstay/offers?${q}`)).json.rooms.some((r) => r.name.startsWith('Tin:')));
+});
+
+test('dọn ảnh mồ côi: xóa tệp không có dòng CSDL cũ hơn 1 giờ; giữ tệp có dòng và tệp mới', async () => {
+  const { sweepOrphanPhotos } = await import('../src/photos.js');
+  const id = await draft(chu1);
+  const p = ok(await chu1.post(`/api/listings/${id}/units`, { codes: ['SW-1'] }));
+  assert.ok(p.ids.length);
+  const up = await upload(chu1, id);
+  const dirp = path.join(dir, 'photos', id);
+  const orphanOld = path.join(dirp, crypto.randomUUID() + '.jpg');
+  const orphanNew = path.join(dirp, crypto.randomUUID() + '.jpg');
+  fs.writeFileSync(orphanOld, 'x'); fs.writeFileSync(orphanNew, 'x');
+  const old = new Date(Date.now() - 2 * 3600_000);
+  fs.utimesSync(orphanOld, old, old);
+  const r = await db.tx((c) => sweepOrphanPhotos(c, { now: new Date() }));
+  assert.equal(r.removed, 1);
+  assert.ok(!fs.existsSync(orphanOld) && fs.existsSync(orphanNew));
+  assert.ok(fs.readdirSync(dirp).some((f) => f.startsWith(up.json.id)), 'ảnh thật vẫn còn');
+});
+
+test('hạn mức dung lượng ảnh của chủ không bị vượt khi tải song song nhiều tin', async () => {
+  const ids = [await draft(chu1), await draft(chu1, { title: 'Tin thứ hai của chủ một' })];
+  assert.equal((await upload(chu1, ids[0], JPEG(900_000))).status, 200);
+  await db.query('UPDATE listing_photos SET bytes = 27000000');
+  const rs = await Promise.all([0, 1, 0, 1].map((i) => upload(chu1, ids[i], JPEG(1_400_000, i))));
+  assert.ok(rs.filter((r) => r.status === 200).length <= 2, 'còn 3 MB: tối đa 2 ảnh 1,4 MB');
+  const [tot] = await db.query('SELECT sum(bytes)::int AS b FROM listing_photos p JOIN listings l ON l.id = p.listing_id WHERE l.owner_id = $1', [w.ownerId]);
+  assert.ok(tot.b <= 30_000_000, 'tổng không vượt 30 MB: ' + tot.b);
+});
+
+test('tìm kiếm: phân trang hơn 20 tin, sắp xếp theo giá đúng xuyên trang, tổng đúng', async () => {
+  for (let i = 0; i < 22; i++) {
+    const id = await draft(chu1, { title: 'Phòng số ' + String(i).padStart(2, '0') + ' tiêu đề đủ dài', proposedPrice: 600000 + i * 10000, proposedWeekendPrice: 600000 + i * 10000 });
+    ok(await chu1.post(`/api/listings/${id}/units`, { codes: ['PG-' + i] }));
+    for (let k = 0; k < 3; k++) await db.query("INSERT INTO listing_photos(listing_id, position, bytes, mime) VALUES($1, $2, 1000, 'image/jpeg')", [id, k]); // ảnh chỉ cần có dòng để gửi duyệt (tránh giới hạn tần suất tải ảnh)
+    ok(await chu1.post(`/api/listings/${id}/submit`, {}));
+    ok(await mgr.post(`/api/listings/${id}/approve`, {}));
+  }
+  await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
+  const anon = new Api(srv, null, null);
+  const p1 = (await anon.get('/api/public/anstay/listings?sort=price_asc&page=1')).json;
+  const p2 = (await anon.get('/api/public/anstay/listings?sort=price_asc&page=2')).json;
+  assert.equal(p1.total, 22);
+  assert.equal(p1.listings.length, 20);
+  assert.equal(p2.listings.length, 2);
+  const all = [...p1.listings, ...p2.listings].map((l) => l.priceNight);
+  assert.deepEqual(all, [...all].sort((a, b) => a - b), 'sắp xếp tăng dần xuyên trang');
+  const desc = (await anon.get('/api/public/anstay/listings?sort=price_desc')).json.listings.map((l) => l.priceNight);
+  assert.deepEqual(desc, [...desc].sort((a, b) => b - a));
 });

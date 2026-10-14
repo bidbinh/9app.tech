@@ -53,6 +53,11 @@ CREATE TABLE listing_units (
   listing_id uuid NOT NULL,
   owner_id uuid NOT NULL,
   unit_id uuid NOT NULL UNIQUE,
+  -- Trạng thái của căn TRƯỚC khi gắn vào tin (để gỡ thì khôi phục). NULL = căn do chính tin này tạo ra (gỡ/xóa tin thì xóa căn).
+  prev_room_type_id uuid,
+  prev_status text,
+  prev_capacity_std int,
+  prev_capacity_max int,
   PRIMARY KEY (listing_id, unit_id),
   FOREIGN KEY (listing_id, owner_id) REFERENCES listings (id, owner_id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id, owner_id) REFERENCES units (id, owner_id)

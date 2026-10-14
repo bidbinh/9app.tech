@@ -5,7 +5,6 @@ import { getSetting } from './settings.js';
 import { ensureRatePlans } from './pricing.js';
 import { createContract } from './inventory.js';
 import { AMENITY_CODES, CANCEL_POLICIES, LIMITS } from './listing-meta.js';
-import { removeListingFiles } from './photos.js';
 
 const MIN_PRICE = 50_000;
 const MAX_PRICE = 100_000_000;
@@ -64,7 +63,6 @@ async function loadListing(c, actor, orgId, listingId, { lock = false } = {}) {
   if (!l || (actor.role !== 'quanly' && l.owner_id !== actor.ownerId)) throw new AppError('not_found', 'Không tìm thấy tin', 404);
   return l;
 }
-const editable = (l) => { if (l.status === 'pending') throw new AppError('pending_review', 'Tin đang chờ duyệt, chưa sửa được', 409); };
 
 // ---- Tòa nhà ----
 export async function listBuildingsFor(c, { orgId, actor }) {
@@ -120,29 +118,53 @@ export async function createListing(c, { orgId, actor, ownerId, buildingId, unit
     `INSERT INTO listings(org_id, building_id, owner_id, room_type_id, created_by${keys.map((k) => ', ' + k).join('')})
      VALUES($1, $2, $3, $4, $5${keys.map((_, i) => ', $' + (i + 6)).join('')}) RETURNING id`,
     [orgId, buildingId, owner, rt.id, actor.memberId, ...keys.map((k) => cols[k])]);
-  for (const uid of unitIds) await attachUnit(c, { orgId, listingId: l.id, ownerId: owner, buildingId, roomTypeId: rt.id, unitId: uid, std, max });
+  for (const uid of unitIds) await attachUnit(c, { orgId, listingId: l.id, ownerId: owner, buildingId, roomTypeId: rt.id, unitId: uid, std, max, force: actor.role === 'quanly' });
   return { id: l.id };
 }
 
-// Gắn căn có sẵn (ví dụ admin đã tạo và gán cho chủ ở tòa nhiều chủ). Căn không được đang có khách từ hôm nay trở đi.
-async function attachUnit(c, { orgId, listingId, ownerId, buildingId, roomTypeId, unitId, std, max }) {
+// Gắn căn có sẵn (admin đã tạo và gán cho chủ, thường ở tòa nhiều chủ). Chủ chỉ gắn được căn CHƯA TỪNG vận hành (chưa có hợp đồng, chưa có lịch đặt),
+// nên không tự rút căn đang bán khỏi kho của admin. Lưu trạng thái cũ để gỡ thì khôi phục. Quản lý được gắn mọi căn (force).
+async function attachUnit(c, { orgId, listingId, ownerId, buildingId, roomTypeId, unitId, std, max, force = false }, now = new Date()) {
   assertUuid(unitId, 'căn');
-  const [u] = await c.query('SELECT id, building_id, owner_id FROM units WHERE id = $1 AND org_id = $2 FOR UPDATE', [unitId, orgId]);
+  const [u] = await c.query('SELECT id, building_id, owner_id, room_type_id, status, capacity_std, capacity_max FROM units WHERE id = $1 AND org_id = $2 FOR UPDATE', [unitId, orgId]);
   if (!u || u.owner_id !== ownerId || u.building_id !== buildingId) throw new AppError('not_found', 'Không tìm thấy căn của bạn trong tòa này', 404);
   const [used] = await c.query('SELECT 1 FROM listing_units WHERE unit_id = $1', [unitId]);
   if (used) throw new AppError('unit_in_listing', 'Căn này đã thuộc một tin khác', 409);
-  const [busy] = await c.query("SELECT 1 FROM room_nights WHERE unit_id = $1 AND active AND night >= current_date LIMIT 1", [unitId]);
+  const [busy] = await c.query('SELECT 1 FROM room_nights WHERE unit_id = $1 AND active AND night >= $2::date LIMIT 1', [unitId, todayVN(now)]);
   if (busy) throw new AppError('unit_busy', 'Căn đang có khách đặt, chưa thêm vào tin được', 409);
+  if (!force) {
+    const [ops] = await c.query('SELECT (EXISTS (SELECT 1 FROM owner_contracts WHERE unit_id = $1) OR EXISTS (SELECT 1 FROM room_nights WHERE unit_id = $1)) AS used', [unitId]);
+    if (ops.used) throw new AppError('unit_in_operation', 'Căn này đã vận hành (có hợp đồng hoặc lịch đặt), hãy nhờ admin gắn vào tin', 409);
+  }
   await c.query("UPDATE units SET room_type_id = $2, status = 'inactive', capacity_std = $3, capacity_max = $4 WHERE id = $1", [unitId, roomTypeId, std, max]);
-  await c.query('INSERT INTO listing_units(listing_id, owner_id, unit_id) VALUES($1, $2, $3)', [listingId, ownerId, unitId]);
+  await c.query('INSERT INTO listing_units(listing_id, owner_id, unit_id, prev_room_type_id, prev_status, prev_capacity_std, prev_capacity_max) VALUES($1, $2, $3, $4, $5, $6, $7)',
+    [listingId, ownerId, unitId, u.room_type_id, u.status, u.capacity_std, u.capacity_max]);
 }
 
-export async function addListingUnits(c, { orgId, actor, listingId, codes = [], unitIds = [], floor }) {
+// Gỡ căn khỏi tin: căn do tin tạo ra thì xóa (nếu đã có dữ liệu thì giữ lại, không hoạt động); căn gắn từ ngoài thì khôi phục loại phòng/trạng thái cũ.
+async function releaseUnit(c, row) {
+  if (row.prev_room_type_id) {
+    await c.query('UPDATE units SET room_type_id = $2, status = $3, capacity_std = $4, capacity_max = $5 WHERE id = $1', [row.unit_id, row.prev_room_type_id, row.prev_status, row.prev_capacity_std, row.prev_capacity_max]);
+    return;
+  }
+  await c.query('SAVEPOINT release_unit');
+  try { await c.query('DELETE FROM units WHERE id = $1', [row.unit_id]); await c.query('RELEASE SAVEPOINT release_unit'); } catch (e) {
+    await c.query('ROLLBACK TO SAVEPOINT release_unit');
+    if (!e || e.code !== '23503') throw e;
+  }
+}
+
+export async function addListingUnits(c, { orgId, actor, listingId, codes = [], unitIds = [], floor }, { now = new Date() } = {}) {
   const l = await loadListing(c, actor, orgId, listingId, { lock: true });
   if (!['draft', 'rejected'].includes(l.status)) throw new AppError('not_editable', 'Chỉ thêm căn khi tin là nháp hoặc bị từ chối', 409);
   if (!Array.isArray(codes) || !Array.isArray(unitIds) || codes.length + unitIds.length < 1 || codes.length + unitIds.length > 50) throw new AppError('bad_input', 'Cần từ 1 đến 50 căn');
   const list = codes.map((x) => clean(x, 'Mã căn', { max: 30, min: 1 }));
   if (new Set(list.map((x) => x.toLowerCase())).size !== list.length) throw new AppError('bad_input', 'Có mã căn bị lặp');
+  if (list.length && actor.role !== 'quanly') {
+    // tòa nhiều chủ: căn do admin tạo và gán; chủ không tự đặt mã (tránh chiếm mã căn của người khác)
+    const [b] = await c.query('SELECT multi_owner FROM buildings WHERE id = $1', [l.building_id]);
+    if (b.multi_owner) throw new AppError('assigned_only', 'Tòa nhiều chủ: chỉ gắn các căn admin đã gán cho bạn', 403);
+  }
   const fl = floor === undefined || floor === null || floor === '' ? null : intIn(floor, 'Tầng', -5, 200);
   const ids = [];
   for (const code of list) {
@@ -156,11 +178,12 @@ export async function addListingUnits(c, { orgId, actor, listingId, codes = [], 
       ids.push(u.id);
     } catch (e) {
       await c.query('ROLLBACK TO SAVEPOINT add_listing_unit');
-      if (e && e.code === '23505') throw new AppError('duplicate', `Mã căn "${code}" đã có trong tòa này`, 409);
+      // không nói rõ mã nào đã tồn tại với chủ (tránh dò mã căn của người khác); quản lý thì được biết
+      if (e && e.code === '23505') throw new AppError('duplicate', actor.role === 'quanly' ? `Mã căn "${code}" đã có trong tòa này` : 'Không tạo được căn với mã này (mã đã được dùng), hãy đổi mã khác', 409);
       throw e;
     }
   }
-  for (const uid of unitIds) { await attachUnit(c, { orgId, listingId: l.id, ownerId: l.owner_id, buildingId: l.building_id, roomTypeId: l.room_type_id, unitId: uid, std: l.capacity_std, max: l.capacity_max }); ids.push(uid); }
+  for (const uid of unitIds) { await attachUnit(c, { orgId, listingId: l.id, ownerId: l.owner_id, buildingId: l.building_id, roomTypeId: l.room_type_id, unitId: uid, std: l.capacity_std, max: l.capacity_max, force: actor.role === 'quanly' }, now); ids.push(uid); }
   await c.query('UPDATE listings SET updated_at = now(), version = version + 1 WHERE id = $1', [l.id]);
   return { ids };
 }
@@ -169,18 +192,25 @@ export async function removeListingUnit(c, { orgId, actor, listingId, unitId }) 
   const l = await loadListing(c, actor, orgId, listingId, { lock: true });
   if (!['draft', 'rejected'].includes(l.status)) throw new AppError('not_editable', 'Chỉ bớt căn khi tin là nháp hoặc bị từ chối', 409);
   assertUuid(unitId, 'căn');
-  const r = await c.query('DELETE FROM listing_units WHERE listing_id = $1 AND unit_id = $2 RETURNING 1', [listingId, unitId]);
-  if (!r.length) throw new AppError('not_found', 'Căn không thuộc tin này', 404);
-  await c.query('SAVEPOINT drop_unit');
-  try { await c.query('DELETE FROM units WHERE id = $1', [unitId]); await c.query('RELEASE SAVEPOINT drop_unit'); } catch (e) {
-    await c.query('ROLLBACK TO SAVEPOINT drop_unit'); // căn đã có dữ liệu (hợp đồng, lịch...) thì chỉ gỡ khỏi tin
-    if (!e || e.code !== '23503') throw e;
+  const [row] = await c.query('DELETE FROM listing_units WHERE listing_id = $1 AND unit_id = $2 RETURNING *', [listingId, unitId]);
+  if (!row) throw new AppError('not_found', 'Căn không thuộc tin này', 404);
+  await releaseUnit(c, row);
+}
+
+// Sau khi tin ĐÃ DUYỆT: chủ không tự sửa nội dung/ảnh (chỉ đề xuất đổi giá, mở/đóng đêm); quản lý sửa được. Tin chờ duyệt thì ai cũng không sửa.
+export function guardEdit(l, actor) {
+  if (l.status === 'pending') throw new AppError('pending_review', 'Tin đang chờ duyệt, chưa sửa được', 409);
+  if (['approved', 'suspended'].includes(l.status) && actor.role !== 'quanly') {
+    throw new AppError('locked_after_approval', 'Tin đã được duyệt: nội dung do admin chỉnh. Bạn có thể đề xuất đổi giá hoặc nhờ admin sửa.', 409);
   }
+}
+export async function assertPhotoEditable(c, { orgId, actor, listingId }) {
+  guardEdit(await loadListing(c, actor, orgId, listingId), actor);
 }
 
 export async function updateListing(c, { orgId, actor, listingId, ...input }) {
   const l = await loadListing(c, actor, orgId, listingId, { lock: true });
-  editable(l);
+  guardEdit(l, actor);
   const f = fieldsOf(input, { partial: false });
   if (l.status === 'approved' || l.status === 'suspended') {
     // giá đã chạy chỉ đổi qua đề xuất được duyệt
@@ -199,18 +229,19 @@ export async function updateListing(c, { orgId, actor, listingId, ...input }) {
   return { id: l.id };
 }
 
+// Trả removeFiles: route xóa thư mục ảnh SAU KHI giao dịch commit (giao dịch lỗi thì ảnh còn nguyên).
 export async function deleteDraft(c, { orgId, actor, listingId }) {
   const l = await loadListing(c, actor, orgId, listingId, { lock: true });
   if (l.status !== 'draft') throw new AppError('not_editable', 'Chỉ xóa được tin nháp', 409);
-  const units = (await c.query('SELECT unit_id FROM listing_units WHERE listing_id = $1', [l.id])).map((r) => r.unit_id);
-  await c.query('DELETE FROM listings WHERE id = $1', [l.id]);
-  for (const uid of units) {
-    await c.query('SAVEPOINT del_unit');
-    try { await c.query('DELETE FROM units WHERE id = $1', [uid]); await c.query('RELEASE SAVEPOINT del_unit'); } catch (e) { await c.query('ROLLBACK TO SAVEPOINT del_unit'); if (!e || e.code !== '23503') throw e; }
+  const rows = await c.query('SELECT * FROM listing_units WHERE listing_id = $1', [l.id]);
+  await c.query('DELETE FROM listings WHERE id = $1', [l.id]); // listing_units và ảnh (CSDL) xóa theo
+  for (const row of rows) await releaseUnit(c, row);
+  await c.query('SAVEPOINT del_room_type');
+  try { await c.query('DELETE FROM room_types WHERE id = $1', [l.room_type_id]); await c.query('RELEASE SAVEPOINT del_room_type'); } catch (e) {
+    await c.query('ROLLBACK TO SAVEPOINT del_room_type'); // còn căn/dữ liệu trỏ vào thì giữ loại phòng
+    if (!e || e.code !== '23503') throw e;
   }
-  try { await c.query('DELETE FROM room_types WHERE id = $1', [l.room_type_id]); } catch { /* còn tham chiếu thì giữ */ }
-  await removeListingFiles(l.id);
-  return { ok: true };
+  return { ok: true, removeFiles: l.id };
 }
 
 export async function submitListing(c, { orgId, actor, listingId }, { now = new Date() } = {}) {
@@ -246,13 +277,13 @@ export async function writeListingRates(c, { orgId, roomTypeId, price, weekendPr
         `INSERT INTO rate_calendar_history(org_id, room_type_id, plan_id, night, old_price, new_price, old_closed, new_closed, source, changed_by)
          SELECT $1::uuid, $2::uuid, $3::uuid, np.n, o.price, np.p, o.closed, COALESCE(o.closed, false), 'listing', $8::uuid
            FROM (${nightsCte}) np LEFT JOIN rate_calendar o ON o.room_type_id = $2::uuid AND o.plan_id = $3::uuid AND o.night = np.n
-          WHERE o.price IS DISTINCT FROM np.p`,
+          WHERE o.price IS DISTINCT FROM np.p AND (o.source IS NULL OR o.source = 'listing')`,
         [orgId, roomTypeId, planId, price, weekendPrice, from, to, by]);
     }
     await c.query(
       `INSERT INTO rate_calendar(org_id, room_type_id, plan_id, night, price, min_stay, closed, source, updated_by)
        SELECT $1::uuid, $2::uuid, $3::uuid, np.n, np.p, 1, false, 'listing', $8::uuid FROM (${nightsCte}) np
-       ON CONFLICT (room_type_id, plan_id, night) ${overwrite ? "DO UPDATE SET price = EXCLUDED.price, source = 'listing', updated_by = EXCLUDED.updated_by, updated_at = now()" : 'DO NOTHING'}`,
+       ON CONFLICT (room_type_id, plan_id, night) ${overwrite ? "DO UPDATE SET price = EXCLUDED.price, source = 'listing', updated_by = EXCLUDED.updated_by, updated_at = now() WHERE rate_calendar.source = 'listing'" : 'DO NOTHING'}`,
       [orgId, roomTypeId, planId, price, weekendPrice, from, to, by]);
   }
 }
@@ -261,9 +292,18 @@ export async function writeListingRates(c, { orgId, roomTypeId, price, weekendPr
 export async function extendListingRates(c, { now = new Date() } = {}) {
   const today = todayVN(now);
   const to = addDays(today, ACTIVE_DAYS);
-  const rows = await c.query("SELECT org_id, room_type_id, live_price, live_weekend_price FROM listings WHERE status = 'approved' AND live_price > 0");
-  for (const l of rows) await writeListingRates(c, { orgId: l.org_id, roomTypeId: l.room_type_id, price: l.live_price, weekendPrice: l.live_weekend_price, from: today, to, overwrite: false });
-  return { listings: rows.length };
+  // chỉ tin còn thiếu đêm (đêm cuối đã có < hôm nay + 540); điền từ ngày sau đêm cuối, không quét lại cả 540 đêm
+  const rows = await c.query(
+    `SELECT l.org_id, l.room_type_id, l.live_price, l.live_weekend_price, (SELECT max(night) FROM rate_calendar r WHERE r.room_type_id = l.room_type_id) AS mx
+       FROM listings l WHERE l.status = 'approved' AND l.live_price > 0`);
+  let filled = 0;
+  for (const l of rows) {
+    const from = l.mx && l.mx >= today ? addDays(l.mx, 1) : today;
+    if (from >= to) continue;
+    await writeListingRates(c, { orgId: l.org_id, roomTypeId: l.room_type_id, price: l.live_price, weekendPrice: l.live_weekend_price, from, to, overwrite: false });
+    filled += 1;
+  }
+  return { listings: rows.length, filled };
 }
 
 // ---- Duyệt ----
@@ -342,8 +382,10 @@ export async function proposePriceChange(c, { orgId, actor, listingId, price, we
 
 export async function decidePriceChange(c, { orgId, changeId, by, approve, reason }, { now = new Date() } = {}) {
   assertUuid(changeId, 'đề xuất');
+  const [peek] = await c.query('SELECT listing_id FROM price_changes WHERE id = $1 AND org_id = $2', [changeId, orgId]);
+  if (!peek) throw new AppError('not_found', 'Không tìm thấy đề xuất', 404);
+  await c.query('SELECT 1 FROM listings WHERE id = $1 FOR UPDATE', [peek.listing_id]); // cùng thứ tự khóa với proposePriceChange: tin trước, đề xuất sau
   const [pc] = await c.query('SELECT * FROM price_changes WHERE id = $1 AND org_id = $2 FOR UPDATE', [changeId, orgId]);
-  if (!pc) throw new AppError('not_found', 'Không tìm thấy đề xuất', 404);
   if (pc.status !== 'pending') throw new AppError('not_pending', 'Đề xuất này đã được xử lý', 409);
   if (!approve) {
     await c.query("UPDATE price_changes SET status = 'rejected', reject_reason = $2, decided_by = $3, decided_at = $4 WHERE id = $1", [pc.id, clean(reason, 'Lý do từ chối', { max: 300, min: 5 }), by, now]);

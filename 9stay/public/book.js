@@ -197,7 +197,7 @@ function guestStep(d) {
   }));
   frame(h('div', { class: 'card stack' }, h('h2', { text: t('yourInfo') }),
     h('p', { class: 'note', text: `${d.title} · ${dmy(s.from)} → ${dmy(s.to)} · ${money(d.quote.total)} (${t('vatNote')})` }),
-    field(t('name'), name), field(t('phone'), phone), send, codeRow, go, msg, h('p', { class: 'note', text: t('holdNote', 5) }),
+    field(t('name'), name), field(t('phone'), phone), send, codeRow, go, msg, h('p', { class: 'note', text: t('holdNote', d.holdMinutes || 5) }),
     h('button', { class: 'btn ghost small', type: 'button', text: t('back'), onclick: () => { location.hash = '#l=' + d.id; start(true); } })));
 }
 

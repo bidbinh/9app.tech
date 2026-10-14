@@ -187,6 +187,7 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
 
       const ctx = { req, res, params, body, rawBody: raw, ip, rid, now: clock(), query: Object.fromEntries(url.searchParams), cookies: parseCookies(req.headers.cookie), user: null, member: null };
       await authResolver(ctx, r.opts.auth || 'member');
+      if (mutating && r.opts.binary && r.opts.pre) await r.opts.pre(ctx); // kiểm quyền trước khi đọc thân (vai không có quyền không bắt máy chủ đệm tệp)
       if (mutating && r.opts.binary) ctx.rawBuffer = await readBuffer(req, r.opts.maxBytes || cfg.maxBodyBytes);
 
       const out = await r.handler(ctx);

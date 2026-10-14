@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { AppError } from './errors.js';
+import { assertUuid } from './ids.js';
 import { getSetting } from './settings.js';
 import { todayVN, nightsBetween } from './time.js';
 import { ensureRatePlans, createQuote } from './pricing.js';
@@ -51,7 +52,9 @@ export async function offers(c, { org, checkin, checkout, adults, childAges, otp
   const avail = await roomTypeAvailability(c, { orgId: org.id, checkin, checkout, adults, children: childAges.length }, { now });
   const bank = await getBankAccount(c, org.id);
   const rooms = [];
-  for (const t of avail.filter((x) => x.free > 0)) {
+  // loại phòng thuộc tin đăng chỉ hiện khi tin đang hiển thị (tin nháp/chờ duyệt/tạm ngưng bị ẩn)
+  const hidden = new Set((await c.query("SELECT room_type_id FROM listings WHERE org_id = $1 AND status <> 'approved'", [org.id])).map((r) => r.room_type_id));
+  for (const t of avail.filter((x) => x.free > 0 && !hidden.has(x.roomTypeId))) {
     const q = await createQuote(c, { orgId: org.id, roomTypeId: t.roomTypeId, planId: plans.public, checkin, checkout, adults, childAges }, { now, persist: false });
     if (!q.ok) continue;
     rooms.push({ roomTypeId: t.roomTypeId, name: t.name, scarce: t.free <= 2, nights: q.lines.length, total: q.total, deposit: q.deposit });
@@ -65,7 +68,8 @@ export async function book(c, { org, phone, listingId = null, roomTypeId: rtId, 
   guestInput({ adults, childAges });
   let roomTypeId = rtId;
   if (listingId) {
-    const [l] = await c.query("SELECT room_type_id FROM listings WHERE id = $1 AND org_id = $2 AND status = 'approved'", [listingId, org.id]);
+    assertUuid(listingId, 'phòng');
+    const [l] = await c.query("SELECT l.room_type_id FROM listings l JOIN buildings b ON b.id = l.building_id WHERE l.id = $1 AND l.org_id = $2 AND l.status = 'approved' AND b.status = 'approved'", [listingId, org.id]);
     if (!l) throw new AppError('not_found', 'Phòng này hiện không nhận đặt', 404);
     roomTypeId = l.room_type_id;
   } else {

@@ -26,59 +26,63 @@ function datesOf(from, to) {
   return { from, to };
 }
 
-const publicStatuses = "('approved')";
 
-// Danh sách phòng cho khách và CTV. agentPlan=true: giá gói CTV (hiển thị kèm hoa hồng ở route của CTV).
+// Danh sách phòng cho khách và CTV. Bước rẻ trước (SQL: sức chứa, khu vực, còn trống, khoảng giá theo giá niêm yết, sắp xếp), bước đắt sau (báo giá chính xác)
+// chỉ cho đúng trang đang xem, tối đa PAGE*3 lần thử mỗi yêu cầu. total = số tin còn trống (cận trên: tin đóng bán/chưa đủ đêm tối thiểu bị loại khi báo giá).
 export async function searchListings(c, { orgId, from, to, adults = 1, childAges = [], area = '', minPrice = null, maxPrice = null, sort = 'recommended', page = 1, plan = 'public' }, { now = new Date() } = {}) {
   const guests = guestsOf({ adults, childAges });
   const dates = datesOf(from, to);
   if (!['recommended', 'price_asc', 'price_desc', 'newest'].includes(sort)) throw new AppError('bad_input', 'Cách sắp xếp không hợp lệ');
   const pg = Number.isInteger(page) && page >= 1 && page <= 50 ? page : 1;
-  const areaQ = typeof area === 'string' ? area.trim().slice(0, 60) : '';
+  const areaQ = typeof area === 'string' ? area.trim().slice(0, 60).replace(/[%_\\]/g, '') : '';
   const today = todayVN(now);
   const vatPct = await getSetting(c, { orgId, key: 'pricing.vatPct', asOf: today });
+  // khu vực chỉ khớp tỉnh/quận (KHÔNG khớp tên tòa: tên tòa là thông tin chưa công khai)
+  const order = { price_asc: 'l.live_price ASC', price_desc: 'l.live_price DESC' }[sort] ?? 'l.decided_at DESC NULLS LAST';
   const rows = await c.query(
-    `SELECT l.id, l.title, l.room_type_id, l.bedrooms, l.beds, l.bathrooms, l.capacity_max, l.amenities, l.live_price, l.live_weekend_price, l.decided_at AS approved_at,
+    `SELECT l.id, l.title, l.room_type_id, l.bedrooms, l.beds, l.bathrooms, l.capacity_max, l.amenities, l.live_price,
             b.province, b.district,
             (SELECT id FROM listing_photos p WHERE p.listing_id = l.id ORDER BY position LIMIT 1) AS cover,
             (SELECT count(*)::int FROM listing_photos p WHERE p.listing_id = l.id) AS photos
        FROM listings l JOIN buildings b ON b.id = l.building_id
-      WHERE l.org_id = $1 AND l.status IN ${publicStatuses} AND b.status = 'approved' AND l.capacity_max >= $2
-        AND ($3::text = '' OR b.province ILIKE '%' || $3 || '%' OR b.district ILIKE '%' || $3 || '%' OR b.name ILIKE '%' || $3 || '%')
-      ORDER BY l.decided_at DESC NULLS LAST, l.id`, [orgId, guests, areaQ.replace(/[%_\\]/g, '')]);
+      WHERE l.org_id = $1 AND l.status = 'approved' AND b.status = 'approved' AND l.capacity_max >= $2
+        AND ($3::text = '' OR b.province ILIKE '%' || $3 || '%' OR b.district ILIKE '%' || $3 || '%')
+      ORDER BY ${order}, l.id`, [orgId, guests, areaQ]);
   let free = null;
   if (dates) {
     free = new Map((await roomTypeAvailability(c, { orgId, checkin: dates.from, checkout: dates.to, adults, children: childAges.length }, { now })).map((t) => [t.roomTypeId, t.free]));
   }
+  // lọc theo giá niêm yết (đã gồm VAT) và còn trống; giá chính xác theo ngày kiểm lại ở bước báo giá
+  const candidates = rows.filter((r) => {
+    if (free && !(free.get(r.room_type_id) > 0)) return false;
+    if (dates) return true; // có ngày: lọc giá theo báo giá chính xác ở bước sau
+    const p = withVat(r.live_price, vatPct);
+    return !(minPrice !== null && p < minPrice) && !(maxPrice !== null && p > maxPrice);
+  });
   const plans = dates ? await ensureRatePlans(c, { orgId }) : null;
-  const cards = [];
+  const out = [];
   let looked = 0;
-  for (const r of rows) {
-    if (free && !(free.get(r.room_type_id) > 0)) continue;
+  let i = (pg - 1) * PAGE;
+  for (; i < candidates.length && out.length < PAGE && looked < PAGE * 3; i++) {
+    const r = candidates[i];
+    looked += 1;
     const card = {
       id: r.id, title: r.title, province: r.province, district: r.district, bedrooms: r.bedrooms, beds: r.beds, bathrooms: r.bathrooms, capacityMax: r.capacity_max,
       amenities: r.amenities.slice(0, 5).map((a) => ({ code: a, label: AMENITY_LABEL[a] ?? a })), cover: r.cover, photos: r.photos, roomTypeId: r.room_type_id,
-      priceNight: withVat(r.live_price, vatPct), scarce: free ? free.get(r.room_type_id) <= 2 : false, approvedAt: r.approved_at,
+      priceNight: withVat(r.live_price, vatPct), scarce: free ? free.get(r.room_type_id) <= 2 : false,
     };
     if (dates) {
-      if (++looked > MAX_CANDIDATES) break;
       const q = await createQuote(c, { orgId, roomTypeId: r.room_type_id, planId: plans[plan], checkin: dates.from, checkout: dates.to, adults, childAges }, { now, persist: false });
       if (!q.ok) continue; // đóng bán, thiếu giá hoặc chưa đủ số đêm tối thiểu: không hiện
-      card.total = q.total;
-      card.deposit = q.deposit;
-      card.nights = q.lines.length;
+      card.total = q.total; card.deposit = q.deposit; card.nights = q.lines.length; card.subtotal = q.subtotal;
       card.priceNight = Math.round(q.total / q.lines.length);
-      card.subtotal = q.subtotal;
+      if ((minPrice !== null && card.priceNight < minPrice) || (maxPrice !== null && card.priceNight > maxPrice)) continue;
     }
-    if (minPrice !== null && card.priceNight < minPrice) continue;
-    if (maxPrice !== null && card.priceNight > maxPrice) continue;
-    cards.push(card);
+    out.push(card);
   }
-  if (sort === 'price_asc') cards.sort((a, b) => a.priceNight - b.priceNight);
-  else if (sort === 'price_desc') cards.sort((a, b) => b.priceNight - a.priceNight);
-  else if (sort === 'newest') cards.sort((a, b) => String(b.approvedAt).localeCompare(String(a.approvedAt)));
-  const total = cards.length;
-  return { listings: cards.slice((pg - 1) * PAGE, pg * PAGE).map(({ approvedAt, ...x }) => x), total, page: pg, pageSize: PAGE, withDates: !!dates };
+  // Có ngày và đã xem hết danh sách ở trang 1: tổng chính xác (đã loại tin đóng bán/giá ngoài khoảng); còn lại là cận trên.
+  const total = pg === 1 && dates && i >= candidates.length ? out.length : candidates.length;
+  return { listings: out, total, page: pg, pageSize: PAGE, withDates: !!dates };
 }
 
 export async function listingAreas(c, { orgId }) {
@@ -114,6 +118,7 @@ export async function listingDetail(c, { orgId, listingId, from, to, adults = 1,
     cancelPolicy: { code: l.cancel_policy, label: CANCEL_POLICIES[l.cancel_policy].label, text: CANCEL_POLICIES[l.cancel_policy].text },
     photos: photos.map((p) => p.id), priceNight: withVat(l.live_price, vatPct), weekendPriceNight: withVat(l.live_weekend_price, vatPct), roomTypeId: l.room_type_id,
     calendar: cal.map((r) => ({ night: r.night, free: r.free })), fitsGuests: guests <= l.capacity_max,
+    holdMinutes: await getSetting(c, { orgId, key: 'booking.holdMinutesPublic', asOf: today }),
   };
   if (dates) {
     const plans = await ensureRatePlans(c, { orgId });

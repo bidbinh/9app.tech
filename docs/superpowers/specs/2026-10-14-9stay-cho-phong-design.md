@@ -1,6 +1,6 @@
 # 9stay: chợ phòng kiểu Airbnb (đặc tả v1, 14/10/2026)
 
-Trạng thái: **chờ chủ sản phẩm duyệt** trước khi lập kế hoạch và viết mã.
+Trạng thái: **đã duyệt và xây xong 14/10/2026** (xem BACKLOG). Khác biệt so với bản đặc tả: sau khi duyệt, chủ không tự sửa nội dung/ảnh (chỉ đề xuất đổi giá, mở/đóng đêm; quản lý sửa được); tòa nhiều chủ chỉ cho chủ gắn căn được gán (không tự đặt mã căn); chủ chỉ gắn được căn chưa vận hành.
 
 ## 1. Mục tiêu
 
