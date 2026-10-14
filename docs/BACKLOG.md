@@ -7,6 +7,7 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 ## Hiện trạng
 
 - **Đã lên 9app.tech (tĩnh):** 9race, 9unit, 9english, 9license, 9scanner, Vạn Niên (văn khấn, mâm cúng), launcher có tìm kiếm chức năng.
+- **Đã code, chưa lên server (tĩnh):** 9draw (`draw/`: vẽ tay, bút/bút dạ/tẩy, lưu PNG, chia sẻ; thêm 14/10/2026). Cần: chép vào `www/9app/draw/`, thêm ô vào launcher `js/apps.js` trên server, `?v=`.
 - **Đã lên (Node + DB):** 9lunch, 9swap, 9hire, 9interview (AI tắt, chưa có khóa Gemini).
 - **Có từ trước:** 9Ship (GHTK; Nhanh.vn tắt mặc định), 9app Console, 9speed, 9Fin, 9quy.
 - **Đã code, đã vào `main`, chưa lên server:** 9family, 9tutor, 9id, Osin, 9ticket (giai đoạn 1).
