@@ -98,8 +98,10 @@ export function employerRoutes(app) {
   // xóa tài khoản: xóa cứng mọi tin, hồ sơ ứng viên và phiên của tài khoản này
   app.route('DELETE', '/api/employer', async (ctx) => {
     const e = await requireEmployer(ctx);
+    // máy có thể còn nhà tuyển dụng ẩn danh khác (khi đã đăng nhập): chỉ bỏ cookie nếu phiên này đang nối tới chính nhà tuyển dụng bị xóa
+    const linked = ctx.sid ? (await query('SELECT 1 FROM phien WHERE token_hash = $1 AND employer_id = $2', [ctx.sid, e.id])).length > 0 : false;
     await query('DELETE FROM employers WHERE id = $1', [e.id]);
-    clearSessionCookie(ctx);
+    if (linked || !ctx.userId) clearSessionCookie(ctx);
     return { ok: true };
   }, { limit: 5, limitKey: 'delemp' });
 

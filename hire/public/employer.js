@@ -101,7 +101,7 @@
         });
       }
       nodes.push(nineCard(acc));
-      nodes.push(accountCard());
+      nodes.push(accountCard(acc));
       H9.mount(nodes);
     }, function (e) { if (!needAccount(e)) H9.loadError(e, function () { dashboard(acc); }); });
   }
@@ -154,7 +154,8 @@
     return h('div', { class: 'card', id: 'acc-card' }, kids);
   }
 
-  function accountCard() {
+  function accountCard(acc) {
+    var signedIn = !!(acc && acc.enabled && acc.loggedIn);   // quyền đến từ tài khoản 9app: thoát bằng nút Đăng xuất 9app, không phải nút này
     return h('div', { class: 'card' }, [
       h('h2', { text: 'Tài khoản trên thiết bị này' }),
       h('p', { class: 'muted', text: 'Mất điện thoại hoặc muốn dùng máy khác: vào lại bằng mã khôi phục.' }),
@@ -164,7 +165,7 @@
             if (yes) H9.post('api/employer/recovery-code').then(function (d) { recoveryScreen(d.recoveryCode, function () { H9.go('#/employer'); }); }, H9.fail);
           });
         }, null, 'key'),
-        H9.btn('Đăng xuất', 'ghost sm', function () {
+        signedIn ? null : H9.btn('Đăng xuất', 'ghost sm', function () {
           H9.confirm({ title: 'Đăng xuất', text: 'Bạn cần mã khôi phục để vào lại. Đã lưu mã chưa?', ok: 'Đăng xuất' }).then(function (yes) {
             if (yes) H9.post('api/employer/logout').then(function () { H9.toast('Đã đăng xuất'); H9.employer(); }, H9.fail);
           });

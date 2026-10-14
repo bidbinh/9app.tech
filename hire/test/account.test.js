@@ -146,3 +146,29 @@ test('tên hiển thị chứa HTML được trả nguyên văn (giao diện ch�
   const h = mkUser('<img src=x onerror=alert(1)>');
   assert.equal((await ok(device(h).get('/api/account'))).user.displayName, '<img src=x onerror=alert(1)>');
 });
+
+test('máy có hai danh tính: xóa tài khoản chỉ xóa nhà tuyển dụng của tài khoản, giữ cookie để còn vào nhà tuyển dụng ẩn danh', async () => {
+  const d = mkUser('D');
+  await ok(device(d).post('/api/employer', { name: 'Quán D' }));
+  const anonE = await makeEmployer('Quán ẩn danh D');
+  anonE.nine = d.token;
+  assert.equal((await ok(anonE.get('/api/employer/me'))).employer.name, 'Quán D', 'ưu tiên nhà tuyển dụng của tài khoản');
+  const r = await anonE.del('/api/employer');
+  assert.equal(r.status, 200);
+  assert.ok(!r.setCookie.some((c) => c.startsWith('hsid=;') || /hsid=;/.test(c)), 'không xóa cookie phiên ẩn danh');
+  anonE.nine = '';
+  assert.equal((await ok(anonE.get('/api/employer/me'))).employer.id, anonE.employerId, 'nhà tuyển dụng ẩn danh còn nguyên');
+});
+
+test('người dùng khác không động được vào tin của tài khoản; cookie nine_sid giả bị coi là chưa đăng nhập', async () => {
+  const a = mkUser('A1'), b = mkUser('B1');
+  const ca = device(a);
+  await ok(ca.post('/api/employer', { name: 'Quán A1' }));
+  const job = await postJob(ca);
+  const cb = device(b);
+  await ok(cb.post('/api/employer', { name: 'Quán B1' }));
+  assert.equal((await cb.get(`/api/employer/jobs/${job.id}`)).status, 404);
+  assert.equal((await cb.post(`/api/employer/jobs/${job.id}/close`)).status, 404);
+  const fake = new Client('giả'); fake.nine = 'z'.repeat(43);
+  assert.equal((await fake.get('/api/employer/jobs')).status, 401);
+});
