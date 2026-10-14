@@ -1,3 +1,4 @@
+import { createCheckoutTask } from './housekeeping.js';
 import { AppError } from './errors.js';
 import { todayVN } from './time.js';
 import { getSetting } from './settings.js';
@@ -35,6 +36,7 @@ export async function checkOut(c, { orgId, bookingId, by = null }, { now = new D
   const unitId = nightsRows[0].unit_id;
   if (nightsRows.some((r) => r.unit_id !== unitId)) throw new AppError('multi_unit', 'Đơn nhiều căn chưa được quyết toán tự động', 409);
   const activeNights = nightsRows.map((r) => r.night);
+  await createCheckoutTask(c, { orgId, unitId, bookingId: b.id, dueDate: todayVN(now) });
 
   const adjust = await c.query("SELECT 1 FROM price_lines WHERE booking_id = $1 AND kind = 'adjust' LIMIT 1", [b.id]);
   if (adjust.length) throw new AppError('unsupported_adjust', 'Quyết toán đơn có dòng điều chỉnh giá chưa được hỗ trợ', 409);

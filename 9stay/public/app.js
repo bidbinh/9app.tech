@@ -6,17 +6,18 @@ import { statementsView, commissionView } from './v-money.js';
 import { ratesView, membersView } from './v-admin.js';
 import { bankView } from './v-bank.js';
 import { reportView } from './v-report.js';
+import { housekeepingView, icalView } from './v-ops.js';
 
 const app = document.getElementById('app');
 
 // Cổng vào theo vai: mỗi vai có tab và màn mặc định riêng. Quyền thật luôn được kiểm ở máy chủ; ẩn tab chỉ là tiện dụng.
 const TABS = {
-  quanly: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['ban-ke', 'Bản kê'], ['bao-cao', 'Báo cáo'], ['gia', 'Giá'], ['ngan-hang', 'Ngân hàng'], ['thanh-vien', 'Thành viên']],
-  letan: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn']],
+  quanly: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['ban-ke', 'Bản kê'], ['bao-cao', 'Báo cáo'], ['buong', 'Buồng phòng'], ['gia', 'Giá'], ['ngan-hang', 'Ngân hàng'], ['ket-noi', 'Kết nối OTA'], ['thanh-vien', 'Thành viên']],
+  letan: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['buong', 'Buồng phòng']],
   ctv: [['tim', 'Tìm phòng'], ['don', 'Đơn của tôi'], ['hoa-hong', 'Hoa hồng']],
   sale: [['tim', 'Tìm phòng'], ['don', 'Đơn của tôi'], ['hoa-hong', 'Hoa hồng']],
   chu: [['lich', 'Lịch căn'], ['ban-ke', 'Bản kê']],
-  buongphong: [],
+  buongphong: [['buong', 'Buồng phòng']],
 };
 
 function gate(title, ...kids) {
@@ -58,13 +59,13 @@ function shell(me) {
   const ctx = { me, role, catalog: () => (catalogP ||= api('GET', 'api/catalog')), go: (hash) => { location.hash = hash; } };
 
   const views = {
-    lich: calendarView, don: bookingsView, tao: createView, tim: createView, 'ban-ke': statementsView, 'hoa-hong': commissionView, 'bao-cao': reportView, gia: ratesView, 'ngan-hang': bankView, 'thanh-vien': membersView,
+    lich: calendarView, don: bookingsView, tao: createView, tim: createView, 'ban-ke': statementsView, 'hoa-hong': commissionView, 'bao-cao': reportView, buong: housekeepingView, 'ket-noi': icalView, gia: ratesView, 'ngan-hang': bankView, 'thanh-vien': membersView,
   };
   async function route() {
     const [name = '', id] = location.hash.replace(/^#\/?/, '').split('/');
     const fallback = tabs.length ? tabs[0][0] : '';
     const key = tabs.some(([k]) => k === name) ? name : fallback;
-    if (!tabs.length) { clear(main).append(h('div', { class: 'card' }, h('h2', { text: 'Chưa có chức năng cho vai này' }), h('p', { class: 'note', text: 'Vai buồng phòng sẽ có màn hình riêng ở bản sau.' }))); return; }
+    if (!tabs.length) { clear(main).append(h('div', { class: 'card' }, h('h2', { text: 'Chưa có chức năng cho vai này' }), h('p', { class: 'note', text: '' }))); return; }
     nav.replaceChildren(...tabs.map(([k, label]) => h('a', { href: `#/${k}`, text: label, 'aria-current': k === key ? 'page' : null })));
     clear(main).append(h('p', { class: 'note', text: 'Đang tải…' }));
     try {

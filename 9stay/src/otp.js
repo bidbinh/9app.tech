@@ -23,7 +23,31 @@ const sha = (x) => crypto.createHash('sha256').update(x).digest('hex');
 const codeHash = (orgId, phone, code) => crypto.createHmac('sha256', config.nineIdSecret || 'dev-otp-secret').update(`${orgId}:${phone}:${code}`).digest('hex');
 
 // Bên gửi tin: { send(phone, code) }. Chế độ 'log' chỉ để phát triển (in ra console); chế độ 'off' từ chối vì chưa nối nhà cung cấp SMS/Zalo.
-export function makeOtpSender(mode) {
+// Chế độ 'esms': gửi SMS qua eSMS.vn (REST JSON). CHƯA kiểm với tài khoản thật: tên trường/mã phản hồi theo tài liệu công khai của eSMS,
+// cần thử một tin thật (SmsType 8 = tin OTP đầu số ngẫu nhiên; Brandname nếu có thì dùng SmsType 2) trước khi bật.
+export function makeEsmsSender({ apiKey, secretKey, brandname = '', fetchImpl = fetch, timeoutMs = 8000 }) {
+  return {
+    async send(phone, code) {
+      const body = { ApiKey: apiKey, SecretKey: secretKey, Phone: phone, Content: `${code} la ma xac thuc dat phong cua ban. Co hieu luc 5 phut, khong chia se cho ai.`, SmsType: brandname ? '2' : '8', IsUnicode: '0', Sandbox: '0', RequestId: crypto.randomUUID() };
+      if (brandname) body.Brandname = brandname;
+      let res;
+      try {
+        res = await fetchImpl('https://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_post_json/', {
+          method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs), redirect: 'error',
+        });
+      } catch { throw new AppError('otp_unavailable', 'Không gửi được mã xác thực, hãy thử lại sau', 503); }
+      let j = null;
+      try { j = await res.json(); } catch { /* không phải JSON */ }
+      if (!res.ok || !j || String(j.CodeResult) !== '100') {
+        console.error('[otp:esms] gửi thất bại, CodeResult=' + (j && j.CodeResult));
+        throw new AppError('otp_unavailable', 'Không gửi được mã xác thực, hãy thử lại sau', 503);
+      }
+    },
+  };
+}
+
+export function makeOtpSender(mode, opts = {}) {
+  if (mode === 'esms') return makeEsmsSender(opts);
   if (mode === 'log') return { send: async (phone, code) => { console.log(`[otp] ${phone}: ${code}`); } };
   return { ready: false, send: async () => { throw new AppError('otp_unavailable', 'Chưa bật gửi mã xác thực, vui lòng liên hệ cơ sở', 503); } };
 }

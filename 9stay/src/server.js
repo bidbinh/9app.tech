@@ -11,12 +11,14 @@ import { ownerRoutes } from './routes/owner.js';
 import { catalogRoutes } from './routes/catalog.js';
 import { bankRoutes } from './routes/bank.js';
 import { publicRoutes } from './routes/public.js';
+import { opsRoutes, syncFeed } from './routes/ops.js';
+import { cleanup } from './maintenance.js';
 import { makeOtpSender } from './otp.js';
 import { tx } from './db.js';
 import { expireHolds } from './bookings.js';
 
 // idClient: { verify(token) -> { userId, displayName } | null }. Test truyền bản giả; production dùng máy khách 9id.
-export function buildApp({ idClient, cfg = config, clock, otpSender = makeOtpSender(cfg.otpMode) } = {}) {
+export function buildApp({ idClient, cfg = config, clock, otpSender = makeOtpSender(cfg.otpMode, { apiKey: cfg.esmsApiKey, secretKey: cfg.esmsSecretKey, brandname: cfg.esmsBrandname }), fetchText } = {}) {
   const app = createApp({ cfg, clock });
   app.setAuthResolver(makeAuthResolver({ idClient }));
   coreRoutes(app, cfg);
@@ -25,6 +27,7 @@ export function buildApp({ idClient, cfg = config, clock, otpSender = makeOtpSen
   ownerRoutes(app);
   catalogRoutes(app);
   bankRoutes(app, cfg);
+  opsRoutes(app, { fetchText });
   publicRoutes(app, { otpSender, otpReady: otpSender.ready !== false });
   return app;
 }
@@ -38,7 +41,21 @@ export function startExpirer(intervalMs = 60_000) {
     } catch (e) { console.error('[expire]', e && e.message); }
   }, intervalMs);
   t.unref();
-  return () => clearInterval(t);
+  // mỗi 30 phút: đồng bộ iCal; mỗi giờ: dọn dữ liệu rác
+  let n = 0;
+  let syncing = false;
+  const slow = setInterval(async () => {
+    n += 1;
+    if (n % 2 === 0) { try { await tx((c) => cleanup(c, { now: new Date() })); } catch (e) { console.error('[cleanup]', e && e.message); } }
+    if (syncing) return; // vòng trước chưa xong thì bỏ lượt, không chạy chồng
+    syncing = true;
+    try {
+      const feeds = await tx((c) => c.query("SELECT id, org_id FROM ical_feeds WHERE status = 'active'"));
+      for (const f of feeds) { try { await syncFeed(f.org_id, f.id); } catch { /* lỗi đã ghi vào nguồn */ } }
+    } catch (e) { console.error('[ical]', e && e.message); } finally { syncing = false; }
+  }, 30 * 60_000);
+  slow.unref();
+  return () => { clearInterval(t); clearInterval(slow); };
 }
 
 export async function start() {

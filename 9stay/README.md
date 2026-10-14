@@ -4,7 +4,7 @@ Phân phối phòng của nhiều chủ qua sale và cộng tác viên (khách �
 
 ## Trạng thái
 
-Lát 1A (nền dữ liệu, đặt phòng chống trùng), 1B (giá, sổ kép, quyết toán, bản kê), 1C (API HTTP, đăng nhập 9id, phân quyền theo vai) và 1D (giao diện web/PWA cho quản lý, lễ tân, CTV/sale, chủ phòng) đã xong, đều qua review độc lập và sửa. Lát 2 (VietQR + webhook ngân hàng, hàng chờ lệch thanh toán, QR trong đơn) cũng đã xong và qua review; tên trường/chữ ký của nhà cung cấp thật (SePay/Casso) chưa kiểm bằng sandbox. Lát 5 (trang đặt phòng công khai cho khách `/book/<slug>`, OTP, giữ phòng, QR, tự ghi cọc) đã xong và qua review; OTP chưa nối nhà cung cấp SMS (`OTP_MODE=off` ở production, `log` ở phát triển). **Chưa deploy, chưa có hóa đơn điện tử, trang đặt phòng công khai cho khách** (các lát sau, xem mục 14 của đặc tả).
+Lát 1A (nền dữ liệu, đặt phòng chống trùng), 1B (giá, sổ kép, quyết toán, bản kê), 1C (API HTTP, đăng nhập 9id, phân quyền theo vai) và 1D (giao diện web/PWA cho quản lý, lễ tân, CTV/sale, chủ phòng) đã xong, đều qua review độc lập và sửa. Lát 2 (VietQR + webhook ngân hàng, hàng chờ lệch thanh toán, QR trong đơn) cũng đã xong và qua review; tên trường/chữ ký của nhà cung cấp thật (SePay/Casso) chưa kiểm bằng sandbox. Lát 5 (trang đặt phòng công khai cho khách `/book/<slug>`, OTP, giữ phòng, QR, tự ghi cọc) đã xong và qua review; OTP chưa nối nhà cung cấp SMS (`OTP_MODE=off` ở production, `log` ở phát triển). Cũng đã có: báo cáo công suất/ADR/RevPAR, buồng phòng, iCal nhập/xuất, bộ gửi OTP eSMS (chưa kiểm tài khoản thật), dọn rác định kỳ. **Chưa deploy, chưa có hóa đơn điện tử, trang đặt phòng công khai cho khách** (các lát sau, xem mục 14 của đặc tả).
 
 ## Chạy kiểm thử
 

@@ -19,7 +19,10 @@ export const config = {
   trustedProxyHops: int(env.TRUSTED_PROXY_HOPS, 1),
   // Bí mật nginx gắn vào mọi yêu cầu (X-Edge-Secret); đặt thì thiếu hoặc sai bị từ chối, nên không ai gọi thẳng cổng nội bộ để giả IP.
   edgeSecret: env.EDGE_SECRET || '',
-  // Gửi mã OTP cho khách: 'log' (chỉ phát triển, in ra console) hoặc 'off' (mặc định ở production cho tới khi nối nhà cung cấp SMS/Zalo).
+  // Gửi mã OTP cho khách: 'log' (chỉ phát triển, in ra console), 'esms' (SMS qua eSMS.vn, cần khóa dưới đây) hoặc 'off' (mặc định ở production).
+  esmsApiKey: env.ESMS_API_KEY || '',
+  esmsSecretKey: env.ESMS_SECRET_KEY || '',
+  esmsBrandname: env.ESMS_BRANDNAME || '',
   otpMode: env.OTP_MODE || (env.NODE_ENV === 'production' ? 'off' : 'log'),
   // Bí mật dùng chung với nhà cung cấp webhook ngân hàng (chữ ký HMAC-SHA256 của thân yêu cầu, hoặc "Authorization: Apikey <bí mật>").
   // Để trống thì webhook từ chối mọi yêu cầu.
@@ -34,6 +37,9 @@ export function productionProblems(c = config, e = env) {
   if (!c.nineIdSecret || c.nineIdSecret.length < 32) out.push('NINE_ID_SECRET thiếu hoặc ngắn hơn 32 ký tự');
   if (!/^https?:\/\//.test(c.nineIdUrl)) out.push('NINE_ID_URL không hợp lệ');
   if (!c.edgeSecret || c.edgeSecret.length < 32) out.push('EDGE_SECRET thiếu hoặc ngắn hơn 32 ký tự');
+  if (!['off', 'log', 'esms'].includes(c.otpMode)) out.push('OTP_MODE phải là off, esms hoặc log');
+  if (c.otpMode === 'log') out.push('OTP_MODE=log không được dùng ở production (mã OTP sẽ in ra nhật ký)');
+  if (c.otpMode === 'esms' && (!c.esmsApiKey || !c.esmsSecretKey)) out.push('OTP_MODE=esms cần ESMS_API_KEY và ESMS_SECRET_KEY');
   if (!(c.trustedProxyHops >= 1)) out.push('TRUSTED_PROXY_HOPS phải >= 1 trong production');
   return out;
 }

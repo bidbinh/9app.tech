@@ -14,7 +14,7 @@ export async function reportView(ctx, main) {
   async function load() {
     const r = await api('GET', `api/reports/occupancy?from=${from.value}&to=${to.value}`);
     const t = r.total;
-    const row = (x) => h('tr', null, h('td', { text: x.name }), h('td', { class: 'n', text: x.available }), h('td', { class: 'n', text: x.sold }),
+    const row = (x) => h('tr', null, h('td', { text: x.name }), h('td', { class: 'n', text: x.available }), h('td', { class: 'n', text: x.external ? `${x.sold} (+${x.external} OTA)` : x.sold }),
       h('td', { class: 'n', text: pct(x.occupancyPct) }), h('td', { class: 'n', text: vnd(x.adr) }), h('td', { class: 'n', text: vnd(x.revpar) }), h('td', { class: 'n', text: money(x.revenue) }));
     out.replaceChildren(
       h('div', { class: 'kpis' },
