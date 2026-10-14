@@ -239,6 +239,28 @@ try {
   await waitText(mp, 'Trang đặt phòng cho khách');
   check(true, 'quản lý có ô cấu hình trang đặt phòng cho khách');
 
+  // danh mục nền: tòa → loại phòng → chủ → căn hàng loạt → hợp đồng → mở bán
+  await hash(mp, '#/danh-muc');
+  await waitText(mp, '1. Tòa nhà');
+  const step = async (sel, value, button, toastText) => {
+    if (sel) await setValue(mp, sel, value);
+    await clearToasts(mp);
+    await clickText(mp, 'button', button);
+    try { await waitText(mp, toastText); } catch (e) {
+      const err = await mp.evaluate(() => [...document.querySelectorAll('.err')].map((x) => x.textContent).join(' | '));
+      throw new Error(`${e.message} (lỗi trên trang: ${err || 'không có'})`);
+    }
+  };
+  await step('input[placeholder="Ví dụ: Vinhomes Ocean Park"]', 'Tòa E2E', 'Thêm tòa nhà', 'Đã thêm tòa nhà');
+  await step('input[placeholder^="Studio, 1 phòng"]', 'Studio E2E', 'Thêm loại phòng', 'Đã thêm loại phòng');
+  await step('input[placeholder="Tên chủ phòng"]', 'Chủ E2E', 'Thêm chủ phòng', 'Đã thêm chủ phòng');
+  await step('textarea', 'E2E-1\nE2E-2', 'Thêm các căn', 'Đã thêm 2 căn');
+  await mp.evaluate(() => document.querySelector('input[aria-label="Chọn căn E2E-1"]').click());
+  await step(null, null, 'Tạo hợp đồng cho các căn đã chọn', 'Đã tạo 1 hợp đồng');
+  await step(null, null, 'Mở bán cho các căn đã chọn', 'Đã mở 90 đêm cho 1 căn');
+  check((await text(mp)).includes('E2E-2') && (await text(mp)).includes('Chưa có HĐ'), 'danh mục hiện căn mới, căn chưa chọn chưa có hợp đồng');
+  await snap(mp, 'quanly-danh-muc');
+
   // trang đặt phòng công khai của khách (điện thoại): tìm → OTP → giữ phòng → QR → tiền về → đã cọc
   await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
   const gu = await open(null, [390, 844]);

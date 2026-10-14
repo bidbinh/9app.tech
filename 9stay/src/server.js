@@ -10,6 +10,7 @@ import { adminRoutes } from './routes/admin.js';
 import { ownerRoutes } from './routes/owner.js';
 import { catalogRoutes } from './routes/catalog.js';
 import { bankRoutes } from './routes/bank.js';
+import { setupRoutes } from './routes/setup.js';
 import { publicRoutes } from './routes/public.js';
 import { opsRoutes, syncFeed } from './routes/ops.js';
 import { cleanup } from './maintenance.js';
@@ -26,6 +27,7 @@ export function buildApp({ idClient, cfg = config, clock, fetchText } = {}) {
   ownerRoutes(app);
   catalogRoutes(app);
   bankRoutes(app, cfg);
+  setupRoutes(app);
   opsRoutes(app, { fetchText });
   publicRoutes(app, { idClient });
   return app;

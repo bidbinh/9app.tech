@@ -7,12 +7,13 @@ import { ratesView, membersView } from './v-admin.js';
 import { bankView } from './v-bank.js';
 import { reportView } from './v-report.js';
 import { housekeepingView, icalView } from './v-ops.js';
+import { setupView } from './v-setup.js';
 
 const app = document.getElementById('app');
 
 // Cổng vào theo vai: mỗi vai có tab và màn mặc định riêng. Quyền thật luôn được kiểm ở máy chủ; ẩn tab chỉ là tiện dụng.
 const TABS = {
-  quanly: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['ban-ke', 'Bản kê'], ['bao-cao', 'Báo cáo'], ['buong', 'Buồng phòng'], ['gia', 'Giá'], ['ngan-hang', 'Ngân hàng'], ['ket-noi', 'Kết nối OTA'], ['thanh-vien', 'Thành viên']],
+  quanly: [['lich', 'Lịch'], ['danh-muc', 'Danh mục'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['ban-ke', 'Bản kê'], ['bao-cao', 'Báo cáo'], ['buong', 'Buồng phòng'], ['gia', 'Giá'], ['ngan-hang', 'Ngân hàng'], ['ket-noi', 'Kết nối OTA'], ['thanh-vien', 'Thành viên']],
   letan: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['buong', 'Buồng phòng']],
   ctv: [['tim', 'Tìm phòng'], ['don', 'Đơn của tôi'], ['hoa-hong', 'Hoa hồng']],
   sale: [['tim', 'Tìm phòng'], ['don', 'Đơn của tôi'], ['hoa-hong', 'Hoa hồng']],
@@ -56,10 +57,10 @@ function shell(me) {
   );
 
   let catalogP = null;
-  const ctx = { me, role, catalog: () => (catalogP ||= api('GET', 'api/catalog')), go: (hash) => { location.hash = hash; } };
+  const ctx = { me, role, catalog: () => (catalogP ||= api('GET', 'api/catalog')), resetCatalog: () => { catalogP = null; }, go: (hash) => { location.hash = hash; } };
 
   const views = {
-    lich: calendarView, don: bookingsView, tao: createView, tim: createView, 'ban-ke': statementsView, 'hoa-hong': commissionView, 'bao-cao': reportView, buong: housekeepingView, 'ket-noi': icalView, gia: ratesView, 'ngan-hang': bankView, 'thanh-vien': membersView,
+    lich: calendarView, don: bookingsView, tao: createView, tim: createView, 'ban-ke': statementsView, 'hoa-hong': commissionView, 'danh-muc': setupView, 'bao-cao': reportView, buong: housekeepingView, 'ket-noi': icalView, gia: ratesView, 'ngan-hang': bankView, 'thanh-vien': membersView,
   };
   async function route() {
     const [name = '', id] = location.hash.replace(/^#\/?/, '').split('/');
