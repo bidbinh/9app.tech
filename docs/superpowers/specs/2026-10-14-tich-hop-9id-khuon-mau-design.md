@@ -14,7 +14,7 @@ Ngoài phạm vi ở đây: 9Ship/9Sport (tài khoản riêng, nhập sang 9id l
 ## 2. Hiện trạng 9lunch (đã đọc mã)
 
 - Phiên ẩn danh: cookie `lsid`, máy chủ chỉ giữ băm; bảng `phien(token_hash, member_id)` nối phiên với `members` (một thành viên trên mỗi nhóm/`teams`).
-- Mọi kiểm tra quyền đi qua `memberFor`/`requireMember` (`src/auth.js`); danh sách nhóm của người dùng (`GET /api/teams`) và tạo/gia nhập nhóm (`src/routes/teams.js`) dùng `phien` trực tiếp.
+- Mọi kiểm tra quyền đi qua `memberFor`/`requireMember` (`src/auth.js`); danh sách nhóm của người dùng (`GET /api/me`) và tạo/gia nhập nhóm (`src/routes/teams.js`) dùng `phien` trực tiếp.
 - 9id (đã làm ở dự án 1) cấp cookie `nine_sid` (Path=/ trên 9app.tech) và có API nội bộ `POST /internal/v1/verify` ký HMAC; 9family đã có khuôn tích hợp (`verifyToken` có đệm 60 giây, cầu dao khi 9id lỗi).
 
 ## 3. Khuôn mẫu chung cho app có máy chủ (áp dụng cho cả 4 app)
@@ -34,7 +34,7 @@ Ngoài phạm vi ở đây: 9Ship/9Sport (tài khoản riêng, nhập sang 9id l
 
 - **Migration `003_account.sql`:** `ALTER TABLE members ADD COLUMN user_id uuid;` và `CREATE UNIQUE INDEX members_team_user ON members(team_id, user_id) WHERE user_id IS NOT NULL AND left_at IS NULL;`.
 - **`memberFor(q, who, teamId)`** (`who` = `{sid, userId}` hoặc chuỗi `sid` cũ): thành viên còn trong nhóm mà phiên nối tới (`phien`) **hoặc** `m.user_id = userId`. `requireMember` truyền `ctx`. `touch` cập nhật `last_seen_at` theo cả hai đường.
-- **`GET /api/teams`:** gồm nhóm nối qua `phien` **hoặc** `user_id` (đăng nhập trên máy mới, chưa có cookie ẩn danh, vẫn thấy nhóm); không có phiên lẫn người dùng thì danh sách rỗng.
+- **`GET /api/me` (danh sách nhóm):** gồm nhóm nối qua `phien` **hoặc** `user_id` (đăng nhập trên máy mới, chưa có cookie ẩn danh, vẫn thấy nhóm); không có phiên lẫn người dùng thì danh sách rỗng.
 - **Tạo nhóm / gia nhập bằng mã** khi `ctx.userId`: thành viên mới có `user_id`; gia nhập nhóm mà người dùng đã là thành viên (qua `user_id` hoặc `phien`) thì trả thành viên cũ (`already: true`) và thêm hàng `phien` cho phiên hiện tại; xung đột chỉ mục duy nhất (đua) được coi là "đã là thành viên".
 - **Rời nhóm** (`left_at`): thành viên không còn hoạt động nên mất quyền dù có `user_id`; gia nhập lại tạo thành viên mới như hiện tại. "Quên thiết bị này" (xóa `phien` của cookie) chỉ gỡ đường ẩn danh; người đã đăng nhập vẫn thấy nhóm qua tài khoản (rời nhóm mới là hành động thật).
 - **Nhận dữ liệu:** `claimable` = thành viên hoạt động nối với `ctx.sid` qua `phien` và `user_id IS NULL` mà người dùng chưa có thành viên hoạt động ở nhóm đó; `conflicts` = các thành viên ẩn danh cùng tình trạng nhưng người dùng đã có thành viên hoạt động ở nhóm đó (không gộp được: hai danh tính trong một nhóm).
