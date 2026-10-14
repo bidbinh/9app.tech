@@ -4,6 +4,7 @@ import { config, productionProblems } from './config.js';
 import { migrate, query } from './db.js';
 import { resolveSession } from './auth.js';
 import { communityRoutes } from './routes/communities.js';
+import { accountRoutes } from './routes/account.js';
 import { listingRoutes } from './routes/listings.js';
 import { threadRoutes } from './routes/threads.js';
 import { photoRoutes } from './routes/photos.js';
@@ -16,6 +17,7 @@ export function buildApp() {
   const app = createApp();
   app.setAuthResolver(resolveSession);
   communityRoutes(app);
+  accountRoutes(app);
   listingRoutes(app);
   threadRoutes(app);
   photoRoutes(app);
