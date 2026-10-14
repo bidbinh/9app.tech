@@ -147,8 +147,9 @@ test('mọi bảng chứa mật khẩu/token chỉ lưu băm: không cột token
   const cols = await query("SELECT table_name, column_name FROM information_schema.columns WHERE table_schema='public'");
   const names = cols.map((c) => `${c.table_name}.${c.column_name}`);
   assert.ok(!names.some((n) => /(^|\.)(token|code|otp|password)$/.test(n)), names.filter((n) => /token|code|otp|password/.test(n)).join());
-  const phoneCols = names.filter((n) => /phone/.test(n) && !/verified/.test(n));
-  assert.deepEqual(phoneCols.sort(), ['invitations.phone_hash', 'invitations.phone_last4', 'otps.phone_hash', 'tickets.phone_hash', 'users.phone']);
+  const phoneCols = cols.filter((c) => /phone/.test(c.column_name) && !/verified/.test(c.column_name)).map((c) => `${c.table_name}.${c.column_name}`);
+  // ngoại lệ có chủ đích: phone_changes.old_phone giữ số cũ dạng rõ để HOÀN TÁC đổi số trong 7 ngày, bị xóa về NULL sau 8 ngày (maintenance)
+  assert.deepEqual(phoneCols.sort(), ['invitations.phone_hash', 'invitations.phone_last4', 'otps.phone_hash', 'phone_changes.new_phone_hash', 'phone_changes.old_phone', 'tickets.phone_hash', 'users.phone']);
 });
 
 test('CSDL: ràng buộc vai trò, một chủ, lời mời chờ duy nhất; xóa tài khoản cascade sạch', async () => {
