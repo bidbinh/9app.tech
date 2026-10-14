@@ -61,8 +61,18 @@ export async function offers(c, { org, checkin, checkout, adults, childAges, otp
 }
 
 // Bước "đến nút thanh toán": khóa một căn của loại phòng trong holdMinutesPublic phút, trả mã biên nhận ngẫu nhiên.
-export async function book(c, { org, phone, roomTypeId, checkin, checkout, adults, childAges, guestName, expectedTotal = null, sessionToken = null }, { now = new Date() } = {}) {
+export async function book(c, { org, phone, listingId = null, roomTypeId: rtId, checkin, checkout, adults, childAges, guestName, expectedTotal = null, sessionToken = null }, { now = new Date() } = {}) {
   guestInput({ adults, childAges });
+  let roomTypeId = rtId;
+  if (listingId) {
+    const [l] = await c.query("SELECT room_type_id FROM listings WHERE id = $1 AND org_id = $2 AND status = 'approved'", [listingId, org.id]);
+    if (!l) throw new AppError('not_found', 'Phòng này hiện không nhận đặt', 404);
+    roomTypeId = l.room_type_id;
+  } else {
+    // loại phòng gắn với một tin thì tin phải đang hiển thị (tin chưa duyệt/bị ngưng không đặt qua đường này)
+    const [lt] = await c.query('SELECT status FROM listings WHERE room_type_id = $1 AND org_id = $2', [roomTypeId, org.id]);
+    if (lt && lt.status !== 'approved') throw new AppError('not_found', 'Phòng này hiện không nhận đặt', 404);
+  }
   await checkNights(c, org, checkin, checkout, todayVN(now));
   if (!(await getBankAccount(c, org.id))) throw new AppError('no_bank_account', 'Cơ sở chưa nhận thanh toán trực tuyến, vui lòng liên hệ trực tiếp', 409);
   const today = todayVN(now);
@@ -101,7 +111,9 @@ export async function receipt(c, { token }, { now = new Date() } = {}) {
     [ref.id],
   );
   const bal = await bookingBalance(c, { orgId: ref.org_id, bookingId: ref.id });
+  const [loc] = await c.query('SELECT bd.name, bd.address, bd.district, bd.province FROM bookings bk JOIN units u ON u.id = bk.unit_id JOIN buildings bd ON bd.id = u.building_id WHERE bk.id = $1', [ref.id]);
   const out = { code: b.code, status: b.status, checkin: b.checkin, checkout: b.checkout, roomType: b.room_type, guestName: b.guest_name, holdUntil: b.hold_until, total: bal.total, paid: bal.paid, due: bal.due, deposit: bal.depositRequired };
+  if (['da_coc', 'da_nhan', 'da_tra'].includes(b.status) && loc) out.location = { name: loc.name, address: loc.address, district: loc.district, province: loc.province };
   if (['giu', 'da_coc'].includes(b.status) && bal.due > 0) {
     const p = await paymentInfo(c, { orgId: ref.org_id, bookingId: ref.id });
     out.pay = { amount: p.amount, content: p.content, accountNumber: p.accountNumber, accountHolder: p.accountHolder, svg: p.svg };

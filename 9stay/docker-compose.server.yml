@@ -11,7 +11,11 @@ services:
     restart: unless-stopped
     env_file: .env
     mem_limit: 192m
+    volumes:
+      - stay-data:/data
     networks: [shipdb, tms]
+volumes:
+  stay-data:
 networks:
   shipdb:
     external: true

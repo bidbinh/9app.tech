@@ -30,8 +30,11 @@ export async function setupView(ctx, main) {
     const bn = h('input', { maxlength: '120', placeholder: 'Ví dụ: Vinhomes Ocean Park' });
     const ba = h('input', { maxlength: '200', placeholder: 'Địa chỉ' });
     const bl = select(LEGAL, 'can_ho_du_lich');
-    const cardB = form('1. Tòa nhà', `Đã có: ${s.buildings.map((b) => b.name).join(', ') || 'chưa có'}`, [h('div', { class: 'row' }, field('Tên tòa', bn), field('Địa chỉ', ba), field('Loại hình', bl))], 'Thêm tòa nhà',
-      async () => { await api('POST', 'api/setup/buildings', { name: bn.value, address: ba.value, legalType: bl.value }); return 'Đã thêm tòa nhà'; });
+    const bpv = h('input', { maxlength: '60', placeholder: 'Ví dụ: Hà Nội' });
+    const bdt = h('input', { maxlength: '60', placeholder: 'Ví dụ: Gia Lâm' });
+    const bmo = h('input', { type: 'checkbox', id: 'multi-owner' });
+    const cardB = form('1. Tòa nhà', `Đã có: ${s.buildings.map((b) => b.name).join(', ') || 'chưa có'}`, [h('div', { class: 'row' }, field('Tên tòa', bn), field('Địa chỉ', ba), field('Loại hình', bl)), h('div', { class: 'row' }, field('Tỉnh/thành', bpv), field('Quận/huyện', bdt)), h('div', { class: 'row tight' }, bmo, h('label', { for: 'multi-owner', text: 'Tòa nhiều chủ (admin tạo căn và gán cho từng chủ)' }))], 'Thêm tòa nhà',
+      async () => { await api('POST', 'api/setup/buildings', { name: bn.value, address: ba.value, legalType: bl.value, province: bpv.value, district: bdt.value, multiOwner: bmo.checked }); return 'Đã thêm tòa nhà'; });
 
     // 2. Loại phòng
     const rn = h('input', { maxlength: '80', placeholder: 'Studio, 1 phòng ngủ…' });

@@ -14,6 +14,8 @@ export const config = {
   rateLimitPerMin: int(env.RATE_LIMIT_PER_MIN, 1200),
   redeemLimitPerMin: int(env.REDEEM_LIMIT_PER_MIN, 10),
   maxBodyBytes: 64 * 1024,
+  // Thư mục dữ liệu (ảnh phòng). Production: volume gắn vào /data.
+  dataDir: env.DATA_DIR || (env.NODE_ENV === 'production' ? '/data' : './data'),
   // Số proxy tin cậy phía trước: IP khách lấy từ phần tử thứ n tính từ CUỐI của X-Forwarded-For (nginx đặt = $remote_addr).
   // 0 = không tin X-Forwarded-For, dùng địa chỉ kết nối.
   trustedProxyHops: int(env.TRUSTED_PROXY_HOPS, 1),

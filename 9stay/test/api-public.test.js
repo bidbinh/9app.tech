@@ -139,11 +139,13 @@ test('luồng đầy đủ: OTP → giữ phòng 5 phút → chuyển khoản qu
   assert.equal(rc.json.status, 'giu');
   assert.equal(rc.json.pay.amount, 429000);
   assert.equal(rc.json.pay.content, b.json.code);
+  assert.equal(rc.json.location, undefined, 'chưa cọc: chưa có địa chỉ');
   assert.ok(!/unit|A120|Minh/.test(rc.text));
   await db.tx((c) => ingestBankTx(c, { orgId: w.orgId, provider: 'webhook', bankTxId: 'pub1', amount: 429000, content: b.json.code }, { now: NOW }));
   const after = await anon().get(`/api/public/receipt/${b.json.receipt}`);
   assert.equal(after.json.status, 'da_coc');
   assert.equal(after.json.paid, 429000);
+  assert.equal(after.json.location.name, 'Sunrise', 'đã cọc: có địa chỉ tòa nhà');
   const [row] = await db.query("SELECT source, guest_phone, phone_verified FROM bookings WHERE code = $1", [b.json.code]);
   assert.deepEqual({ ...row }, { source: 'web', guest_phone: '0901234567', phone_verified: true });
 });

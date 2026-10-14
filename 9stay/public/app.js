@@ -8,16 +8,17 @@ import { bankView } from './v-bank.js';
 import { reportView } from './v-report.js';
 import { housekeepingView, icalView } from './v-ops.js';
 import { setupView } from './v-setup.js';
+import { myListingsView, listingEditorView, reviewView } from './v-listings.js';
 
 const app = document.getElementById('app');
 
 // Cổng vào theo vai: mỗi vai có tab và màn mặc định riêng. Quyền thật luôn được kiểm ở máy chủ; ẩn tab chỉ là tiện dụng.
 const TABS = {
-  quanly: [['lich', 'Lịch'], ['danh-muc', 'Danh mục'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['ban-ke', 'Bản kê'], ['bao-cao', 'Báo cáo'], ['buong', 'Buồng phòng'], ['gia', 'Giá'], ['ngan-hang', 'Ngân hàng'], ['ket-noi', 'Kết nối OTA'], ['thanh-vien', 'Thành viên']],
+  quanly: [['lich', 'Lịch'], ['duyet', 'Duyệt phòng'], ['phong', 'Tin đăng'], ['danh-muc', 'Danh mục'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['ban-ke', 'Bản kê'], ['bao-cao', 'Báo cáo'], ['buong', 'Buồng phòng'], ['gia', 'Giá'], ['ngan-hang', 'Ngân hàng'], ['ket-noi', 'Kết nối OTA'], ['thanh-vien', 'Thành viên']],
   letan: [['lich', 'Lịch'], ['don', 'Đặt phòng'], ['tao', '+ Tạo đơn'], ['buong', 'Buồng phòng']],
   ctv: [['tim', 'Tìm phòng'], ['don', 'Đơn của tôi'], ['hoa-hong', 'Hoa hồng']],
   sale: [['tim', 'Tìm phòng'], ['don', 'Đơn của tôi'], ['hoa-hong', 'Hoa hồng']],
-  chu: [['lich', 'Lịch căn'], ['ban-ke', 'Bản kê']],
+  chu: [['phong', 'Phòng của tôi'], ['lich', 'Lịch căn'], ['ban-ke', 'Bản kê']],
   buongphong: [['buong', 'Buồng phòng']],
 };
 
@@ -60,7 +61,7 @@ function shell(me) {
   const ctx = { me, role, catalog: () => (catalogP ||= api('GET', 'api/catalog')), resetCatalog: () => { catalogP = null; }, go: (hash) => { location.hash = hash; } };
 
   const views = {
-    lich: calendarView, don: bookingsView, tao: createView, tim: createView, 'ban-ke': statementsView, 'hoa-hong': commissionView, 'danh-muc': setupView, 'bao-cao': reportView, buong: housekeepingView, 'ket-noi': icalView, gia: ratesView, 'ngan-hang': bankView, 'thanh-vien': membersView,
+    lich: calendarView, don: bookingsView, tao: createView, tim: createView, 'ban-ke': statementsView, 'hoa-hong': commissionView, 'danh-muc': setupView, phong: myListingsView, duyet: reviewView, 'bao-cao': reportView, buong: housekeepingView, 'ket-noi': icalView, gia: ratesView, 'ngan-hang': bankView, 'thanh-vien': membersView,
   };
   async function route() {
     const [name = '', id] = location.hash.replace(/^#\/?/, '').split('/');
@@ -71,6 +72,8 @@ function shell(me) {
     clear(main).append(h('p', { class: 'note', text: 'Đang tải…' }));
     try {
       if (key === 'don' && id) await bookingDetailView(ctx, main, id);
+      else if (key === 'phong' && id) await listingEditorView(ctx, main, id);
+      else if (key === 'duyet') await reviewView(ctx, main, id);
       else await views[key](ctx, main);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) { loginGate(); return; }

@@ -41,7 +41,7 @@ async function requireIn(c, table, orgId, id, label) {
 
 export async function getSetup(c, { orgId }) {
   const [buildings, roomTypes, owners, units, contracts] = await Promise.all([
-    c.query('SELECT id, name, address, legal_type, rules_note FROM buildings WHERE org_id = $1 ORDER BY name', [orgId]),
+    c.query('SELECT id, name, address, legal_type, rules_note, province, district, multi_owner, status FROM buildings WHERE org_id = $1 ORDER BY name', [orgId]),
     c.query('SELECT id, name, capacity_std, capacity_max FROM room_types WHERE org_id = $1 ORDER BY name', [orgId]),
     c.query('SELECT id, name, kind, tax_id, status FROM owners WHERE org_id = $1 ORDER BY name', [orgId]),
     c.query(
@@ -53,7 +53,7 @@ export async function getSetup(c, { orgId }) {
          FROM owner_contracts k WHERE k.org_id = $1 ORDER BY k.valid_from DESC`, [orgId]),
   ]);
   return {
-    buildings: buildings.map((b) => ({ id: b.id, name: b.name, address: b.address, legalType: b.legal_type, rulesNote: b.rules_note })),
+    buildings: buildings.map((b) => ({ id: b.id, name: b.name, address: b.address, legalType: b.legal_type, rulesNote: b.rules_note, province: b.province, district: b.district, multiOwner: b.multi_owner, status: b.status })),
     roomTypes: roomTypes.map((r) => ({ id: r.id, name: r.name, capacityStd: r.capacity_std, capacityMax: r.capacity_max })),
     owners: owners.map((o) => ({ id: o.id, name: o.name, kind: o.kind, taxId: o.tax_id, status: o.status })),
     units: units.map((u) => ({ id: u.id, code: u.code, floor: u.floor, status: u.status, capacityStd: u.capacity_std, capacityMax: u.capacity_max, buildingId: u.building_id, ownerId: u.owner_id, roomTypeId: u.room_type_id, openNights: u.open_nights })),
@@ -61,10 +61,29 @@ export async function getSetup(c, { orgId }) {
   };
 }
 
-export const addBuilding = (c, { orgId, name, address, legalType, rulesNote }) => guard(async () => createBuilding(c, {
-  orgId, name: text(name, 'Tên tòa nhà'), address: text(address, 'Địa chỉ', { optional: true, max: 200 }),
-  legalType: oneOf(legalType ?? 'can_ho_du_lich', ['can_ho_du_lich', 'nha_o', 'khac'], 'Loại hình'), rulesNote: text(rulesNote, 'Nội quy', { optional: true, max: 1000 }),
-}));
+export const addBuilding = (c, { orgId, name, address, legalType, rulesNote, province, district, multiOwner }) => guard(async () => {
+  const [b] = await c.query(
+    "INSERT INTO buildings(org_id, name, address, legal_type, rules_note, province, district, multi_owner, status) VALUES($1, $2, $3, $4, $5, $6, $7, $8, 'approved') RETURNING id",
+    [orgId, text(name, 'Tên tòa nhà'), text(address, 'Địa chỉ', { optional: true, max: 200 }), oneOf(legalType ?? 'can_ho_du_lich', ['can_ho_du_lich', 'nha_o', 'khac'], 'Loại hình'),
+      text(rulesNote, 'Nội quy', { optional: true, max: 1000 }), text(province, 'Tỉnh/thành', { optional: true, max: 60 }), text(district, 'Quận/huyện', { optional: true, max: 60 }), multiOwner === true]);
+  return b;
+});
+
+// Đổi chủ của một căn (tòa nhiều chủ gán lại căn). Chỉ khi căn chưa có hợp đồng, lịch đêm, đơn và chưa thuộc tin nào.
+export async function reassignUnitOwner(c, { orgId, unitId, ownerId }) {
+  assertUuid(unitId, 'căn');
+  assertUuid(ownerId, 'chủ phòng');
+  const [u] = await c.query('SELECT id FROM units WHERE id = $1 AND org_id = $2 FOR UPDATE', [unitId, orgId]);
+  if (!u) throw new AppError('not_found', 'Không tìm thấy căn', 404);
+  const [o] = await c.query("SELECT id FROM owners WHERE id = $1 AND org_id = $2 AND status = 'active'", [ownerId, orgId]);
+  if (!o) throw new AppError('not_found', 'Không tìm thấy chủ phòng', 404);
+  const [used] = await c.query(
+    `SELECT (EXISTS (SELECT 1 FROM owner_contracts WHERE unit_id = $1) OR EXISTS (SELECT 1 FROM room_nights WHERE unit_id = $1) OR EXISTS (SELECT 1 FROM listing_units WHERE unit_id = $1)) AS used`, [unitId]);
+  if (used.used) throw new AppError('unit_in_use', 'Căn đã có hợp đồng, lịch đặt hoặc thuộc một tin đăng nên không đổi chủ được', 409);
+  await c.query('UPDATE units SET owner_id = $2 WHERE id = $1', [unitId, ownerId]);
+  await c.query('DELETE FROM owner_releases WHERE unit_id = $1', [unitId]);
+  return { id: unitId };
+}
 
 export const addRoomType = (c, { orgId, name, capacityStd, capacityMax }) => guard(async () => {
   const std = int(capacityStd ?? 2, 'Sức chứa chuẩn', { min: 1, max: 30 });

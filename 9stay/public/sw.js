@@ -1,7 +1,7 @@
 // Service worker tối giản: chỉ lưu vỏ giao diện (tệp tĩnh cùng nguồn) để mở nhanh và hiện được khi mất mạng.
 // KHÔNG lưu API: dữ liệu phòng/tiền luôn lấy mới từ máy chủ (đặc tả: ngoại tuyến chỉ đọc vỏ, không ghi).
-const CACHE = '9stay-shell-v5';
-const SHELL = ['./', 'style.css', 'app.js', 'lib.js', 'v-calendar.js', 'v-bookings.js', 'v-create.js', 'v-money.js', 'v-admin.js', 'v-bank.js', 'v-report.js', 'v-ops.js', 'v-setup.js','manifest.webmanifest', 'icon.svg'];
+const CACHE = '9stay-shell-v6';
+const SHELL = ['./', 'style.css', 'app.js', 'lib.js', 'v-calendar.js', 'v-bookings.js', 'v-create.js', 'v-money.js', 'v-admin.js', 'v-bank.js', 'v-report.js', 'v-ops.js', 'v-setup.js', 'v-listings.js','manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
