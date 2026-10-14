@@ -1470,7 +1470,44 @@ document.addEventListener('keydown', function (event) {
   if (event.key === 'Escape' && !actEl.hidden) closeMenu();
 });
 window.addEventListener('hashchange', route, false);
-window.addEventListener('pageshow', function (e) { if (e.persisted) { prefs = loadPrefs(); render(); } }, false);
+window.addEventListener('pageshow', function (e) { if (e.persisted) { prefs = loadPrefs(); render(); accountInit(); } }, false);
 
-try { bindHero(); renderShortcuts(); render(); route(); }
+/* ---------- Tài khoản 9id (tùy chọn) ----------
+   Chỉ hiện khối đăng nhập khi 9id trả lời được (Nine.me thành công). 9id chưa chạy, ngoại tuyến, thiếu nine.js: giữ nguyên
+   giao diện cũ, không báo lỗi. Launcher luôn dùng được không cần tài khoản. */
+var accState = 'off', accUser = null;
+function firstChar(name) {
+  var m = /^\s*([\uD800-\uDBFF][\uDC00-\uDFFF]|[\s\S])/.exec(String(name || ''));
+  return m ? m[1].toUpperCase() : '';
+}
+function accountRender() {
+  var out = $('acc-out'), inn = $('acc-in'), letter = $('av-letter'), btn = $('btn-account');
+  if (!out || !inn || !letter) return;
+  out.hidden = accState !== 'out';
+  inn.hidden = accState !== 'in';
+  var on = accState === 'in' && !!accUser;
+  if (on) {
+    var ch = firstChar(accUser.displayName) || '•';
+    $('acc-name').textContent = accUser.displayName || '';
+    $('acc-phone').textContent = 'Số điện thoại ••••' + String(accUser.phoneLast4 || '');
+    $('acc-av').textContent = ch;
+    letter.textContent = ch;
+  }
+  letter.hidden = !on;
+  if (on) btn.classList.add('in'); else btn.classList.remove('in');
+}
+function accountInit() {
+  if (typeof Nine === 'undefined' || !Nine || typeof Nine.me !== 'function') return;
+  Nine.me().then(function (u) { accUser = u; accState = u ? 'in' : 'out'; accountRender(); },
+    function () { accState = 'off'; accUser = null; accountRender(); });
+}
+$('acc-login').addEventListener('click', function () { if (typeof Nine !== 'undefined') Nine.login('/#/tai-khoan'); });
+$('acc-register').addEventListener('click', function () { if (typeof Nine !== 'undefined') Nine.register('/#/tai-khoan'); });
+$('acc-logout').addEventListener('click', function () {
+  if (typeof Nine === 'undefined') return;
+  Nine.logout().then(function () { accUser = null; accState = 'out'; accountRender(); toast('Đã đăng xuất'); },
+    function () { toast('Chưa đăng xuất được, hãy thử lại.'); });
+});
+
+try { bindHero(); renderShortcuts(); render(); route(); accountInit(); }
 catch (e) { try { console.error(e); } catch (x) {} }

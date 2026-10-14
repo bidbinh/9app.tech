@@ -1,5 +1,5 @@
 import { startServer } from './serve.mjs';
-export const PPT = 'file:///C:/Users/admin/AppData/Local/Temp/browser/node_modules/puppeteer-core/lib/esm/puppeteer/puppeteer-core.js';
+export const PPT = process.env.PUPPETEER_CORE || 'file:///C:/Users/admin/AppData/Local/Temp/browser/node_modules/puppeteer-core/lib/esm/puppeteer/puppeteer-core.js';
 export const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 export async function boot() {
   const port = 12000 + Math.floor(Math.random() * 3000);

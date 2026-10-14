@@ -47,3 +47,21 @@ Hai tệp mới nằm lại không hại gì (index cũ không nạp). Dữ li�
 - Thêm app: chỉ sửa `js/apps.js` như trước. Nhóm tự suy ra từ `category`; muốn chỉ định thì thêm `group:'work'` hoặc một dòng trong `GROUP_OF` (`js/home-config.js`).
 - Banner hero: mảng `BANNERS` và `ART` trong `js/home-config.js`. Mô tả ngắn: `SHORT`; câu quảng bá: `PROMO`; "Sắp ra mắt": `SOON`. Khi Osin ra mắt: bỏ `soon:true`, đặt `href`.
 - Khi sửa `home-config.js` hoặc `launcher.js`, tăng `?v=` trong `index.html`.
+
+---
+
+# Bổ sung (14/10/2026): hiển thị đăng nhập 9id ở trang Tài khoản (launcher v19)
+
+**Thứ tự bắt buộc: triển khai 9id trước (BACKLOG A2), rồi mới chép launcher này.** Nếu `/id/nine.js` chưa có, launcher vẫn chạy
+bình thường (không hiện khối đăng nhập, không lỗi JS) nhưng trình duyệt ghi một dòng 404 trong console.
+
+Đổi: `index.html` (nạp `/id/nine.js` trước `js/launcher.js?v=19`, khối `#acc-out`/`#acc-in`, chữ cái avatar, css `?v` +1), `css/style.css`
+(khối "Tài khoản 9id" ở cuối tệp), `js/launcher.js` (khối "Tài khoản 9id", gọi `accountInit()`). Không đổi `apps.js`, `search.js`.
+Kiểm trước khi chép (như mục 0 ở trên: so md5 với bản trên máy chủ, sao lưu `.bak-id`), rồi:
+
+```
+node tools/test.mjs           # 148 ca cũ, phải in "TAT CA DAT"
+node tools/test-account.mjs   # ca tài khoản (cần PUPPETEER_CORE nếu puppeteer-core ở chỗ khác), phải in "TAT CA DAT"
+```
+
+nginx phải chuyển `/id/` tới 9id **cùng tên miền** (cookie `nine_sid` Path=/ trên 9app.tech) và phục vụ được `GET /id/nine.js`.

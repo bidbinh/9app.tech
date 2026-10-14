@@ -435,3 +435,17 @@ a.row-main:active { background: var(--press); }
 .head-acts .text-btn { min-width: 44px; justify-content: center; }
 @media (max-width: 399px) { .hs-title { font-size: 21px; } .g-title { font-size: 13px; letter-spacing: -.2px; } }
 @media (min-width: 600px) { .hs-copy { max-width: 54%; } }
+
+/* ---------- Tài khoản 9id (tùy chọn; chỉ hiện khi 9id trả lời được) ---------- */
+.acc { margin-top: 12px; }
+.acc-actions { display: flex; gap: 8px; margin-top: 12px; }
+.acc-btn { flex: 1; min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 14px; font-weight: 700; }
+.acc-btn.primary { background: var(--brand-2); border-color: var(--brand-2); color: #fff; }
+.acc-btn:active { background: var(--press); }
+.acc-btn.primary:active { background: var(--brand-2); filter: brightness(.92); }
+.acc-who { display: flex; align-items: center; gap: 12px; }
+.acc-av { flex-shrink: 0; width: 44px; height: 44px; font-size: 18px; font-weight: 800; }
+.acc-name { font-size: 16px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; }
+.av-letter { font-size: 16px; font-weight: 800; line-height: 1; }
+#btn-account.in .av .icon { display: none; }
+a.set-btn { color: var(--text); }
