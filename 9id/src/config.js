@@ -30,6 +30,12 @@ export function parseClients(v) {
   return m;
 }
 
+// Phiên trượt, không hạn cố định: chỉ hết hiệu lực khi sessionDays ngày liền không dùng (trình duyệt cũng giới hạn cookie ~400 ngày).
+export function readSessionPolicy(e) {
+  const pos = (v, d) => { const n = Number.parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
+  return { sessionDays: pos(e.SESSION_DAYS, 365), maxSessions: pos(e.MAX_SESSIONS, 30) };
+}
+
 export const config = {
   production: env.NODE_ENV === 'production',
   port: int(env.PORT, 8102),
@@ -100,8 +106,7 @@ export const config = {
   loginPhoneLimit: int(env.LOGIN_PHONE_LIMIT, 30),
   loginIpLimit: int(env.LOGIN_IP_LIMIT, 40),
   // giới hạn nghiệp vụ
-  sessionDays: 90,
-  maxSessions: 10,
+  ...readSessionPolicy(env),
   maxFamiliesOwned: 10,
   maxFamiliesJoined: 20,
   maxChildren: 30,
