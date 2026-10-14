@@ -107,7 +107,7 @@ export function teamRoutes(app) {
       if (mine) return { team: { id: t.id, name: t.name }, memberId: mine.id, already: true };   // KHÔNG nối thêm phiên ẩn danh của máy này (máy dùng chung)
       const all = await c.query('SELECT name FROM members WHERE team_id=$1 AND left_at IS NULL', [t.id]);
       if (all.length >= config.maxMembers) throw new ApiError(409, 'team_full', `Nhóm đã đủ ${config.maxMembers} người`);
-      if (all.some((x) => normKey(x.name) === normKey(name))) throw new ApiError(409, 'name_taken', 'Trong nhóm đã có người tên này. Thêm họ hoặc chữ đệm để mọi người phân biệt được.');
+      if (all.some((x) => normKey(x.name) === normKey(name))) throw new ApiError(409, 'name_taken', 'Trong nhóm đã có người tên này. Thêm họ hoặc chữ đệm để mọi người phân biệt nhé.');
       const m = (await c.query("INSERT INTO members(team_id, name, role, user_id) VALUES($1,$2,'thanh_vien',$3) RETURNING id", [t.id, name, ctx.userId || null]))[0];
       if (!ctx.userId) await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
       return { team: { id: t.id, name: t.name }, memberId: m.id };
