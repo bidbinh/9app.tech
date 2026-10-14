@@ -26,26 +26,34 @@ export function ensureSession(ctx) {
 }
 
 export function requireSession(ctx) {
-  if (!ctx.sid) throw new ApiError(404, 'not_found', 'Không tìm thấy');
-  return ctx.sid;
+  if (!ctx.sid && !ctx.userId) throw new ApiError(404, 'not_found', 'Không tìm thấy');
+  return ctx.sid || null;
 }
 
 export const forbidden = (msg = 'Bạn không có quyền làm việc này') => new ApiError(403, 'forbidden', msg);
 export const notFound = (msg = 'Không tìm thấy') => new ApiError(404, 'not_found', msg);
 
-// Thành viên (còn trong cộng đồng, kể cả đã bị khóa) của phiên này, hoặc null. q: (sql, params) => rows
-export async function memberFor(q, sid, communityId) {
-  if (!sid || !UUID_RE.test(String(communityId))) return null;
+// Thành viên (còn trong cộng đồng, kể cả đã bị khóa) ở cộng đồng `communityId`, hoặc null. `who` = { sid, userId } (hoặc chuỗi sid cũ):
+// có quyền nếu phiên ẩn danh nối tới thành viên (bảng phien) HOẶC thành viên gắn với người dùng 9id đã xác thực. Máy có cả hai danh tính:
+// ưu tiên thành viên của tài khoản, rồi người vào trước. q: (sql, params) => rows
+export async function memberFor(q, who, communityId) {
+  const sid = typeof who === 'string' ? who : (who && who.sid) || null;
+  const userId = typeof who === 'string' ? null : (who && who.userId) || null;
+  if ((!sid && !userId) || !UUID_RE.test(String(communityId))) return null;
   const rows = await q(
-    `SELECT m.* FROM members m JOIN phien p ON p.member_id = m.id
-      WHERE p.token_hash = $1 AND m.community_id = $2 AND m.left_at IS NULL LIMIT 1`, [sid, communityId]);
+    `SELECT m.* FROM members m
+      WHERE m.community_id = $2 AND m.left_at IS NULL
+        AND ( ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.member_id = m.id AND p.token_hash = $1))
+              OR ($3::uuid IS NOT NULL AND m.user_id = $3::uuid) )
+      ORDER BY (m.user_id = $3::uuid) DESC NULLS LAST, m.joined_at, m.seq
+      LIMIT 1`, [sid, communityId, userId]);
   return rows[0] || null;
 }
 
 // Người ngoài và cộng đồng không tồn tại đều nhận 404 như nhau (không lộ cộng đồng có tồn tại hay không).
 // Thành viên bị khóa chỉ đọc được thông báo khóa (403), không làm gì khác.
 export async function requireMember(q, ctx, communityId, { allowBanned = false } = {}) {
-  const me = await memberFor(q, ctx.sid, communityId);
+  const me = await memberFor(q, { sid: ctx.sid, userId: ctx.userId }, communityId);
   if (!me) throw notFound('Không tìm thấy cộng đồng này, hoặc bạn không ở trong cộng đồng');
   if (me.banned_at && !allowBanned) throw new ApiError(403, 'banned', 'Bạn đã bị chủ cộng đồng khóa nên không thực hiện được thao tác này');
   return me;
@@ -54,13 +62,14 @@ export async function requireMember(q, ctx, communityId, { allowBanned = false }
 export const isOwner = (me) => me.role === 'chu';
 
 export async function touch(ctx) {
-  if (!ctx.sid) return;
+  if (!ctx.sid && !ctx.userId) return;
   await query(
-    `UPDATE members SET last_seen_at = now() WHERE last_seen_at < now() - interval '1 minute'
-      AND id IN (SELECT member_id FROM phien WHERE token_hash = $1)`, [ctx.sid]);
-  // cookie trượt: có hoạt động thì cấp lại hạn 90 ngày (tối đa mỗi ngày một lần)
+    `UPDATE members SET last_seen_at = now() WHERE last_seen_at < now() - interval '1 minute' AND left_at IS NULL
+      AND ( ($1::text IS NOT NULL AND id IN (SELECT member_id FROM phien WHERE token_hash = $1))
+            OR ($2::uuid IS NOT NULL AND user_id = $2::uuid) )`, [ctx.sid || null, ctx.userId || null]);
+  // cookie trượt (chỉ phiên ẩn danh): có hoạt động thì cấp lại hạn 90 ngày (tối đa mỗi ngày một lần)
   const t = ctx.cookies[COOKIE];
-  if (t && TOKEN_RE.test(t)) {
+  if (ctx.sid && t && TOKEN_RE.test(t)) {
     const r = await query("UPDATE phien SET seen_at = now() WHERE token_hash = $1 AND seen_at < now() - interval '1 day' RETURNING 1", [ctx.sid]);
     if (r.length) ctx.setCookie(COOKIE, t, { maxAge: config.sessionDays * 86400 });
   }

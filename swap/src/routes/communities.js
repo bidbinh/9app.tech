@@ -44,14 +44,21 @@ export function communityRoutes(app) {
 
   // ---------- phiên hiện tại: các cộng đồng của tôi ----------
   app.route('GET', '/api/me', async (ctx) => {
-    if (!ctx.sid) return { communities: [] };
+    if (!ctx.sid && !ctx.userId) return { communities: [] };
     await touch(ctx);
+    // mỗi cộng đồng một dòng: máy có cả thành viên ẩn danh lẫn thành viên tài khoản thì ưu tiên tài khoản (giống memberFor)
     const rows = await query(
-      `SELECT c.id, c.name, c.kind, c.invite_code, m.id AS member_id, m.name AS my_name, m.role, m.banned_at,
+      `WITH mine AS (
+         SELECT DISTINCT ON (m.community_id) m.* FROM members m
+          WHERE m.left_at IS NULL
+            AND ( ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.member_id = m.id AND p.token_hash = $1))
+                  OR ($2::uuid IS NOT NULL AND m.user_id = $2::uuid) )
+          ORDER BY m.community_id, (m.user_id = $2::uuid) DESC NULLS LAST, m.joined_at, m.seq)
+       SELECT c.id, c.name, c.kind, c.invite_code, m.id AS member_id, m.name AS my_name, m.role, m.banned_at,
               (SELECT count(*)::int FROM members x WHERE x.community_id = c.id AND x.left_at IS NULL AND x.banned_at IS NULL) AS member_count,
               (SELECT count(*)::int FROM notifications n WHERE n.member_id = m.id AND n.read_at IS NULL) AS unread
-         FROM members m JOIN phien p ON p.member_id = m.id JOIN communities c ON c.id = m.community_id
-        WHERE p.token_hash = $1 AND m.left_at IS NULL ORDER BY m.joined_at DESC`, [ctx.sid]);
+         FROM mine m JOIN communities c ON c.id = m.community_id
+        ORDER BY m.joined_at DESC`, [ctx.sid || null, ctx.userId || null]);
     return {
       communities: rows.map((r) => ({
         id: r.id, name: r.name, kind: r.kind, inviteCode: r.banned_at ? undefined : r.invite_code, memberId: r.member_id, myName: r.my_name, role: r.role,
@@ -76,8 +83,8 @@ export function communityRoutes(app) {
       try {
         return await tx(async (c) => {
           const t = (await c.query('INSERT INTO communities(name, kind, invite_code, created_by_hash, created_ip) VALUES($1,$2,$3,$4,$5) RETURNING id, invite_code', [name, kind, randomCode(10), sid, ctx.ip]))[0];
-          const m = (await c.query("INSERT INTO members(community_id, name, role) VALUES($1,$2,'chu') RETURNING id", [t.id, myName]))[0];
-          await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
+          const m = (await c.query("INSERT INTO members(community_id, name, role, user_id) VALUES($1,$2,'chu',$3) RETURNING id", [t.id, myName, ctx.userId || null]))[0];
+          if (!ctx.userId) await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);   // đăng nhập: quyền đi qua tài khoản, máy không giữ lại sau khi đăng xuất
           return { community: { id: t.id, name, kind, inviteCode: t.invite_code }, memberId: m.id };
         });
       } catch (e) { if (!uniqueViolation(e)) throw e; }
@@ -97,7 +104,7 @@ export function communityRoutes(app) {
     const t = (await query(
       `SELECT c.id, c.name, c.kind, (SELECT count(*)::int FROM members m WHERE m.community_id = c.id AND m.left_at IS NULL AND m.banned_at IS NULL) AS n FROM communities c WHERE c.invite_code = $1`, [code]))[0];
     if (!t) throw new ApiError(404, 'bad_code', 'Mã mời không đúng hoặc đã được đổi. Hỏi người tạo cộng đồng để lấy link mới.');
-    const mine = ctx.sid ? await memberFor(query, ctx.sid, t.id) : null;
+    const mine = (ctx.sid || ctx.userId) ? await memberFor(query, { sid: ctx.sid, userId: ctx.userId }, t.id) : null;
     return { name: t.name, kind: t.kind, memberCount: t.n, full: t.n >= config.maxMembers, alreadyMember: !!mine && !mine.banned_at, banned: !!(mine && mine.banned_at), communityId: mine ? t.id : undefined };
   }, { limit: 40, limitKey: 'joinget' });
 
@@ -106,20 +113,26 @@ export function communityRoutes(app) {
     const name = noLinks(cleanText(ctx.body.name, { max: config.maxNameLen, min: 1, field: 'Tên của bạn' }), 'Tên của bạn');
     if (ctx.body.agree !== true) throw new ApiError(400, 'rules_required', 'Hãy đồng ý với quy tắc cộng đồng để tiếp tục');
     const sid = ensureSession(ctx);
-    return tx(async (c) => {
+    const attempt = () => tx(async (c) => {
       const t = (await c.query('SELECT id, name FROM communities WHERE invite_code=$1 FOR UPDATE', [code]))[0];
       if (!t) throw new ApiError(404, 'bad_code', 'Mã mời không đúng hoặc đã được đổi. Hỏi người tạo cộng đồng để lấy link mới.');
-      const mine = (await c.query(
-        'SELECT m.id, m.banned_at FROM members m JOIN phien p ON p.member_id=m.id WHERE p.token_hash=$1 AND m.community_id=$2 AND m.left_at IS NULL', [sid, t.id]))[0];
+      // đã là thành viên (kể cả đang bị khóa): qua phiên ẩn danh này hoặc qua tài khoản 9id -> dùng lại; khóa theo người nên vẫn 403
+      const mine = await memberFor(c.query, { sid, userId: ctx.userId }, t.id);
       if (mine && mine.banned_at) throw new ApiError(403, 'banned', 'Bạn đã bị chủ cộng đồng khóa');
-      if (mine) return { community: { id: t.id, name: t.name }, memberId: mine.id, already: true };
+      if (mine) return { community: { id: t.id, name: t.name }, memberId: mine.id, already: true };   // KHÔNG nối thêm phiên ẩn danh của máy này (máy dùng chung)
       const all = await c.query('SELECT name, banned_at FROM members WHERE community_id=$1 AND left_at IS NULL', [t.id]);
       if (all.filter((x) => !x.banned_at).length >= config.maxMembers) throw new ApiError(409, 'full', `Cộng đồng đã đủ ${config.maxMembers} người`);
       if (all.some((x) => normKey(x.name) === normKey(name))) throw new ApiError(409, 'name_taken', 'Trong cộng đồng đã có người tên này. Thêm họ hoặc chữ đệm (ví dụ "Lan P1203") để mọi người phân biệt nhé.');
-      const m = (await c.query("INSERT INTO members(community_id, name, role) VALUES($1,$2,'thanh_vien') RETURNING id", [t.id, name]))[0];
-      await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
+      const m = (await c.query("INSERT INTO members(community_id, name, role, user_id) VALUES($1,$2,'thanh_vien',$3) RETURNING id", [t.id, name, ctx.userId || null]))[0];
+      if (!ctx.userId) await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
       return { community: { id: t.id, name: t.name }, memberId: m.id };
     });
+    try { return await attempt(); }
+    catch (e) {
+      // hai yêu cầu cùng người dùng chạy đua: chỉ mục duy nhất (cộng đồng, người dùng) chặn bản thứ hai -> thử lại, lần này thấy thành viên đã có
+      if (uniqueViolation(e) && ctx.userId) return attempt();
+      throw e;
+    }
   }, { limit: 20, limitKey: 'joinpost' });
 
   // ---------- trang cộng đồng ----------
