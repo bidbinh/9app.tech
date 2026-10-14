@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { ApiError } from './errors.js';
 import { query } from './db.js';
 import { sha256hex, UUID_RE } from './util.js';
+import { resolveUser } from './nine-session.js';
 
 export const COOKIE = 'swsid';
 const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
@@ -11,6 +12,7 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 export async function resolveSession(ctx) {
   const t = ctx.cookies[COOKIE];
   if (t && TOKEN_RE.test(t)) ctx.sid = sha256hex(t);
+  await resolveUser(ctx);   // tùy chọn: người dùng 9id (ctx.userId); lỗi 9id thì vẫn chạy ẩn danh
   return null;
 }
 
