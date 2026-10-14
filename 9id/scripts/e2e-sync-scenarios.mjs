@@ -25,4 +25,17 @@ export const SCENARIOS = {
     read: (page) => page.evaluate(async () => (await import('./js/lib/store.js')).layState().mucTieu.map((x) => x.ten).join(',')),
     confirm: (page) => clickText(page, 'Xóa bản trên máy chủ'),
   },
+  car: {
+    dataHash: '#/du-lieu',
+    async seed(page, tag) {
+      await page.evaluate(async (t) => {
+        const m = await import('./js/lib/data.js');
+        await m.luuXe({ id: 'xe-demo', ten: 'Xe thử', loai: 'oto', bienSo: '30A-12345', tao: '2026-01-01T00:00:00.000Z', anh: '' });
+        await m.luuNhatKy({ id: 'nk-' + t, xeId: 'xe-demo', loai: 'khac', ngay: '2026-10-01', tien: 100000, ghiChu: t }, '2026-10-14');
+      }, tag);
+    },
+    remove: (page, tag) => page.evaluate(async (t) => { await (await import('./js/lib/data.js')).xoaNhatKy('nk-' + t, '2026-10-14'); }, tag),
+    read: (page) => page.evaluate(async () => (await import('./js/lib/data.js')).kho.nhatKy.map((x) => x.ghiChu).join(',')),
+    confirm: (page) => clickText(page, 'Xóa bản trên máy chủ'),
+  },
 };

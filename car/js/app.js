@@ -109,6 +109,8 @@ window.addEventListener('hashchange', () => ve(false));
 (async function khoi() {
   try { await khoiDong(); } catch (e) { console.error(e); }
   ve();
+  // đồng bộ tự động (chỉ khi người dùng đã bật): nạp lười để không làm chậm lần mở đầu
+  import('./lib/dongbo.js').then(async (m) => { const u = await import('./lib/nine-sync-ui.js'); u.tuDongDongBo(m.dongBo, { lamMoi: () => app.render() }); }).catch((e) => console.debug('[dong-bo] khởi động:', e && e.message));
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }

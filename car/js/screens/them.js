@@ -5,6 +5,8 @@ import { kho, xuat, nhap, xoaSach } from '../lib/data.js';
 import { icsTatCa } from '../ui/lich.js';
 import { layTheme, datTheme, layChuLon, datChuLon } from '../ui/caidat.js';
 import { dinhDang } from '../lib/dates.js';
+import { theDongBo } from '../lib/nine-sync-ui.js';
+import { dongBo, dangNhapUrl } from '../lib/dongbo.js';
 
 const MUC = [
   ['sac', '#/sac', 'bolt', 'Sạc xe điện', 'Ghi buổi sạc, so chi phí với xăng'],
@@ -36,7 +38,7 @@ export function duLieu() {
   const el = h('div', {}, h('h1', { class: 'h1' }, 'Dữ liệu của tôi'));
   const dem = `${kho.xe.length} xe, ${kho.nhatKy.length} khoản nhật ký, ${kho.hen.length} mục nhắc`;
   el.append(h('section', { class: 'card' }, h('h2', {}, 'Riêng tư'),
-    h('p', {}, 'Mọi dữ liệu của 9car (xe, biển số, ảnh, chi phí, nhắc hạn) chỉ lưu trong trình duyệt trên máy này (IndexedDB). Không có máy chủ nhận dữ liệu của bạn, không có quảng cáo hay theo dõi.'),
+    h('p', {}, 'Mặc định mọi dữ liệu của 9car (xe, biển số, ảnh, chi phí, nhắc hạn) chỉ lưu trong trình duyệt trên máy này (IndexedDB), không cần tài khoản. Chỉ khi bạn tự bật đồng bộ bên dưới thì xe, nhật ký và nhắc hạn (không gồm ảnh) mới được lưu thêm trên máy chủ 9app, không có quảng cáo hay theo dõi.'),
     h('p', { class: 'sub', style: 'margin-top:8px' }, `Hiện có: ${dem}.`),
     kho.luuTru === 'tam' ? h('div', { class: 'banner bad', style: 'margin-top:10px', role: 'alert' }, 'Trình duyệt đang chặn lưu trữ nên dữ liệu chỉ tồn tại tạm thời. Hãy tải bản sao lưu thường xuyên.') : null,
     h('p', { class: 'sub', style: 'margin-top:8px' }, 'Xóa dữ liệu trình duyệt hoặc gỡ ứng dụng sẽ làm mất dữ liệu, nên hãy sao lưu định kỳ.')));
@@ -61,7 +63,13 @@ export function duLieu() {
     h('div', { class: 'stack' },
       h('button', { class: 'btn block', type: 'button', id: 'xuat-json', onclick: () => { taiTep(`9car-sao-luu-${hom()}.json`, JSON.stringify(xuat(), null, 1), 'application/json'); toast('Đã tạo tệp sao lưu'); } }, icon('down'), 'Tải bản sao lưu (.json)'),
       h('button', { class: 'btn sec block', type: 'button', onclick: () => inFile.click() }, icon('up'), 'Nhập từ bản sao lưu'), inFile, tb),
-    h('p', { class: 'sub', style: 'margin-top:10px' }, 'Đồng bộ giữa nhiều thiết bị qua tài khoản 9id sẽ có sau. Hiện tại hãy dùng tệp sao lưu để chuyển sang máy khác.')));
+    h('p', { class: 'sub', style: 'margin-top:10px' }, 'Hoặc bật đồng bộ qua tài khoản 9app (không bắt buộc) ở thẻ bên dưới để tự gộp giữa các máy.')));
+  el.append(theDongBo({
+    h, sync: dongBo, tenApp: '9car', dangNhapUrl,
+    duLieuGom: 'xe (biển số, thông tin xe), nhật ký chi phí và các mục nhắc hạn',
+    duLieuKhong: 'ảnh xe và cài đặt riêng của từng máy',
+    thongBao: (m) => toast(m), xacNhan: (t, n) => hoi({ tieuDe: t, noiDung: n, ok: 'Xóa bản trên máy chủ', nguyHiem: true }), lamMoi: () => app.render(),
+  }));
   const selT = h('select', { id: 'chu-de', 'aria-label': 'Giao diện' }, [['auto', 'Theo hệ thống'], ['light', 'Sáng'], ['dark', 'Tối']].map(([k, v]) => h('option', { value: k, selected: layTheme() === k }, v)));
   selT.addEventListener('change', () => datTheme(selT.value));
   const chk = h('input', { type: 'checkbox', id: 'chu-lon', checked: layChuLon() });

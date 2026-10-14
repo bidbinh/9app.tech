@@ -1,13 +1,13 @@
 // Service worker của 9car: lưu vỏ ứng dụng để mở được khi mất mạng. Mạng trước, bộ nhớ đệm sau.
 // Không bao giờ lưu hay gửi dữ liệu người dùng (dữ liệu nằm ở IndexedDB). Đổi CACHE_VERSION mỗi lần phát hành.
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const SHELL_CACHE = `9car-shell-${CACHE_VERSION}`;
 
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './search-index.json', './css/style.css',
   './js/app.js',
   './js/lib/dates.js', './js/lib/money.js', './js/lib/rules.js', './js/lib/fuel.js', './js/lib/schedule.js', './js/lib/ics.js',
-  './js/lib/parse.js', './js/lib/db.js', './js/lib/data.js',
+  './js/lib/parse.js', './js/lib/db.js', './js/lib/data.js', './js/lib/nine-sync.js', './js/lib/nine-sync-ui.js', './js/lib/dongbo.js',
   './js/ui/dom.js', './js/ui/common.js', './js/ui/chart.js', './js/ui/voice.js', './js/ui/formnk.js', './js/ui/lich.js', './js/ui/caidat.js',
   './js/screens/home.js', './js/screens/xe.js', './js/screens/hen.js', './js/screens/nhatky.js', './js/screens/chiphi.js',
   './js/screens/sac.js', './js/screens/tienich.js', './js/screens/them.js',
@@ -33,6 +33,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (!url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;   // /id/ (đồng bộ) không đi qua bộ đệm
   event.respondWith((async () => {
     try {
       const res = await fetch(req);
