@@ -52,13 +52,63 @@
   }
 
   // ---------- trang chủ ----------
+  // ---------- thẻ tài khoản 9id (tùy chọn): chỉ hiện khi tích hợp bật và 9id trả lời được ----------
+  function loginUrl(acc, mode) {
+    // chỉ nhận đường dẫn tương đối cùng nguồn gốc (bắt đầu bằng một dấu /) từ máy chủ; next là trang hiện tại
+    if (typeof acc.loginPath !== 'string' || !/^\/(?!\/)/.test(acc.loginPath)) return null;
+    return acc.loginPath + '?next=' + encodeURIComponent(location.pathname + location.search + location.hash) + '#/' + mode;
+  }
+  function accountCard(acc) {
+    if (!acc || !acc.enabled || acc.idDown) return null;
+    var inUrl = loginUrl(acc, 'dang-nhap'), upUrl = loginUrl(acc, 'dang-ky');
+    if (!inUrl) return null;
+    if (!acc.loggedIn) {
+      return h('div', { class: 'card', id: 'acc-card' }, [
+        h('h2', { text: 'Tài khoản 9app (không bắt buộc)' }),
+        h('p', { class: 'muted', text: 'Đăng nhập để giữ cộng đồng của bạn và dùng trên máy khác. Không đăng nhập vẫn dùng bình thường.' }),
+        h('div', { class: 'btn-row' }, [
+          S9.btn('Đăng nhập', 'primary', function () { location.assign(inUrl); }),
+          S9.btn('Đăng ký', 'ghost', function () { location.assign(upUrl); }),
+        ]),
+      ]);
+    }
+    var kids = [h('h2', { text: 'Tài khoản 9app' }), h('p', { text: 'Đã đăng nhập: ' + (acc.user && acc.user.displayName ? acc.user.displayName : 'bạn') })];
+    if (acc.claimable && acc.claimable.length) {
+      kids.push(h('p', { class: 'muted', text: 'Trên máy này có ' + acc.claimable.length + ' cộng đồng chưa gắn vào tài khoản: ' + acc.claimable.map(function (x) { return x.communityName; }).join(', ') + '.' }));
+      var claim = S9.btn('Gắn vào tài khoản', 'primary block', function () {
+        return S9.busy(claim, function () {
+          return S9.post('api/account/claim', {}).then(function (r) {
+            S9.toast('Đã gắn ' + (r.claimed ? r.claimed.length : 0) + ' cộng đồng vào tài khoản của bạn.');
+            S9.home();
+          });
+        });
+      });
+      kids.push(claim);
+    }
+    if (acc.conflicts && acc.conflicts.length) {
+      kids.push(h('p', { class: 'muted', text: 'Bạn đã tham gia ' + acc.conflicts.map(function (x) { return x.communityName; }).join(', ') + ' bằng tài khoản này, nên thành viên ẩn danh tương ứng trên máy này được giữ riêng.' }));
+    }
+    kids.push(h('div', { class: 'btn-row' }, [
+      h('a', { class: 'btn ghost', href: acc.loginPath + '#/tai-khoan' }, ['Quản lý tài khoản']),
+      S9.btn('Đăng xuất', 'ghost', function (e) {
+        return S9.busy(e.currentTarget, function () {
+          return fetch(acc.loginPath + 'api/logout', { method: 'POST', credentials: 'same-origin', headers: { 'x-requested-with': '9id', 'content-type': 'application/json' }, body: '{}' })
+            .then(function (r) { if (!r.ok) throw new Error('logout'); location.reload(); }).catch(function () { S9.toast('Chưa đăng xuất được, hãy thử lại.', 'err'); });
+        });
+      }),
+    ]));
+    return h('div', { class: 'card', id: 'acc-card' }, kids);
+  }
+
   S9.home = function () {
     S9.frame({ title: '9swap' });
     S9.pollStop();
     S9.skeleton();
-    S9.get('api/me').then(function (d) {
+    Promise.all([S9.get('api/me'), S9.get('api/account').catch(function () { return null; })]).then(function (rs) {
+      var d = rs[0], acc = rs[1];
       var list = d.communities;
       var nodes = [];
+      var accCard = accountCard(acc);
       if (!list.length) {
         nodes.push(h('div', { class: 'hero' }, [
           h('div', { class: 'hero-ico' }, [S9.ico('swap', 42, 1.8)]),
@@ -83,8 +133,10 @@
             S9.ico('chev', 20),
           ]));
         });
+        if (accCard) nodes.push(accCard);   // đã có cộng đồng: ngay dưới danh sách
         nodes.push(h('div', { class: 'btn-row' }, [S9.btn('Nhập mã mời', 'ghost', function () { joinSheet(); }), S9.btn('Tạo cộng đồng', 'ghost', function () { createSheet(); })]));
       }
+      if (accCard && !list.length) nodes.push(accCard);   // người mới: không đẩy phần Bắt đầu xuống, thẻ nằm cuối
       nodes.push(h('div', { class: 'center mt2' }, [S9.link('#/rules', { class: 'linkbtn', text: 'Quy tắc và an toàn khi gặp mặt' })]));
       S9.mount(nodes);
     }, function (e) { S9.loadError(e, S9.home); });
