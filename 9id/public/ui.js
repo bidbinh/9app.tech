@@ -202,6 +202,24 @@
       h('div', { class: 'notice-b' }, [h('div', { class: 'b', text: title }), text ? h('div', { text: text }) : null, action || null]),
     ]);
   };
+  // Thông báo bảo mật dùng chung (bảng notices ở máy chủ). reload: hàm vẽ lại trang sau khi bấm "Tôi đã biết".
+  var NOTICE_TEXT = {
+    password_reset: ['warn', 'Mật khẩu của bạn đã được đặt lại bằng mã OTP', 'Nếu không phải bạn, hãy đổi mật khẩu ngay, kiểm tra thiết bị đang đăng nhập và liên hệ nhà mạng về SIM của bạn.'],
+    new_device: ['warn', 'Có đăng nhập từ một thiết bị mới', 'Nếu không phải bạn, hãy vào Tài khoản, đăng xuất thiết bị lạ và đổi mật khẩu.'],
+    phone_changed: ['info', 'Số điện thoại của tài khoản đã được đổi', 'Nếu không phải bạn, người giữ số cũ có thể hoàn tác trong 7 ngày: chọn Quên mật khẩu và nhập số cũ.'],
+    phone_change_undone: ['warn', 'Việc đổi số điện thoại đã được hoàn tác', 'Số điện thoại cũ đã được khôi phục và mọi thiết bị đã bị đăng xuất. Hãy kiểm tra lại các thiết bị của bạn.'],
+  };
+  N.noticeCards = function (reload) {
+    var out = [];
+    (N.notices || []).forEach(function (n) {
+      var spec = NOTICE_TEXT[n.kind];
+      if (!spec) return;
+      var when = 'Lúc ' + new Date(n.at).toLocaleString('vi-VN') + '. ';
+      out.push(N.notice(spec[0], spec[1], when + spec[2],
+        N.btn('Tôi đã biết', 'ghost sm', function (e) { N.busy(e.currentTarget, function () { return N.post('api/notices/seen').then(function () { N.notices = []; reload(); }); }); })));
+    });
+    return out;
+  };
   N.btn = function (text, cls, onclick, extra) { return h('button', Object.assign({ class: 'btn ' + (cls || ''), type: 'button', onclick: onclick }, extra || {}), [text]); };
   var fid = 0;
   N.field = function (label, input, hint) {

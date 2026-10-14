@@ -60,10 +60,10 @@
   // ---------- đăng ký / quên mật khẩu ----------
   // mode: 'register' | 'reset'. Trạng thái giữ trong closure; mỗi bước vẽ lại cả trang.
   N.phoneFlow = function (mode) {
-    var st = { step: 1, phone: '', ticket: '', exists: false, mode: mode, resend: 0 };
+    var st = { step: 1, phone: '', ticket: '', exists: false, undoable: false, mode: mode, resend: 0 };
     var timer = null;
     N.onLeave(function () { clearInterval(timer); });
-    var TITLES = { register: ['Đăng ký', 'Tạo tài khoản 9app', 'Dùng số điện thoại để tạo tài khoản. Bạn sẽ nhận một mã xác thực.'], reset: ['Quên mật khẩu', 'Đặt lại mật khẩu', 'Nhập số điện thoại đã đăng ký, chúng tôi sẽ gửi mã xác thực để đặt mật khẩu mới.'] };
+    var TITLES = { register: ['Đăng ký', 'Tạo tài khoản 9app', 'Dùng số điện thoại để tạo tài khoản. Đăng ký một lần, dùng cho mọi app 9app cần đăng nhập. Bạn sẽ nhận một mã xác thực.'], reset: ['Quên mật khẩu', 'Đặt lại mật khẩu', 'Nhập số điện thoại đã đăng ký, chúng tôi sẽ gửi mã xác thực để đặt mật khẩu mới.'] };
 
     function steps() {
       var names = ['Số điện thoại', 'Mã xác thực', st.mode === 'reset' ? 'Mật khẩu mới' : 'Tên và mật khẩu'];
@@ -118,7 +118,7 @@
         var c = code.value.replace(/\D/g, '');
         if (c.length !== 6) { err.show('Mã gồm 6 chữ số'); return; }
         N.busy(btn, function () {
-          return N.post('api/otp/verify', { phone: st.phone, code: c }).then(function (r) { st.ticket = r.ticket; st.exists = r.accountExists; clearInterval(timer); st.step = 3; render(); });
+          return N.post('api/otp/verify', { phone: st.phone, code: c }).then(function (r) { st.ticket = r.ticket; st.exists = r.accountExists; st.undoable = !!r.phoneChangeUndoable; clearInterval(timer); st.step = 3; render(); });
         }, function (e) { err.show(e.message); });
       }
       code.addEventListener('input', function () { code.value = code.value.replace(/\D/g, '').slice(0, 6); if (code.value.length === 6) verify(); });
@@ -135,7 +135,29 @@
       ]));
     }
 
+    // Số này vừa được đổi khỏi một tài khoản (trong 7 ngày): người giữ số cũ hoàn tác và đặt mật khẩu mới
+    function undoBlock(p) {
+      var pass = N.passField('Mật khẩu mới', { name: 'new-password', autocomplete: 'new-password' }, 'Ít nhất 8 ký tự. Mọi thiết bị đang đăng nhập tài khoản này sẽ bị đăng xuất.');
+      var err = N.errBox();
+      var btn = N.btn('Hoàn tác và đặt mật khẩu mới', 'primary block', go);
+      function go() {
+        err.hide();
+        if ([].slice.call(pass.input.value).length < 8) { err.show('Mật khẩu cần ít nhất 8 ký tự'); return; }
+        N.busy(btn, function () {
+          return N.post('api/phone/undo', { ticket: st.ticket, phone: st.phone, password: pass.input.value, next: rawNext() }).then(function (r) { N.toast('Đã hoàn tác việc đổi số'); N.afterAuth(r); });
+        }, function (e) {
+          err.show(e.message);
+          if (e.code === 'ticket_invalid') { st.step = 1; setTimeout(render, 1500); }
+        });
+      }
+      N.onEnter(pass.input, go);
+      p.appendChild(N.notice('warn', 'Số này vừa được chuyển khỏi một tài khoản', 'Trong 7 ngày qua số điện thoại này đã được đổi sang số khác. Nếu không phải bạn làm, hãy hoàn tác để lấy lại tài khoản.'));
+      p.appendChild(h('form', { class: 'card', novalidate: '', onsubmit: function (e) { e.preventDefault(); } }, [pass.node, err, h('div', { class: 'mt' }, [btn])]));
+      p.appendChild(h('div', { class: 'center' }, [N.link('#/dang-nhap', { class: 'linkbtn', text: 'Quay lại đăng nhập' })]));
+    }
+
     function step3(p) {
+      if (!st.exists && st.undoable) { undoBlock(p); return; }
       // đăng ký mà số đã có tài khoản: chỉ chủ số mới tới được đây, chuyển sang đặt lại mật khẩu
       // quên mật khẩu mà số chưa có tài khoản: đề nghị đăng ký bằng số này
       if (st.mode === 'register' && st.exists) {
