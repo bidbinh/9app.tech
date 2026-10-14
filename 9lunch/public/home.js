@@ -48,10 +48,59 @@
   }
   L9.codeFrom = codeFrom;
 
+  // ---------- thẻ tài khoản 9id (tùy chọn): chỉ hiện khi tích hợp bật và 9id trả lời được ----------
+  function loginUrl(acc, mode) {
+    // chỉ nhận đường dẫn tương đối cùng nguồn gốc (bắt đầu bằng một dấu /) từ máy chủ; next là trang hiện tại
+    if (typeof acc.loginPath !== 'string' || !/^\/(?!\/)/.test(acc.loginPath)) return null;
+    return acc.loginPath + '?next=' + encodeURIComponent(location.pathname + location.search + location.hash) + '#/' + mode;
+  }
+  function accountCard(acc) {
+    if (!acc || !acc.enabled || acc.idDown) return null;
+    var inUrl = loginUrl(acc, 'dang-nhap'), upUrl = loginUrl(acc, 'dang-ky');
+    if (!inUrl) return null;
+    if (!acc.loggedIn) {
+      return h('div', { class: 'card', id: 'acc-card' }, [
+        h('h2', { text: 'Tài khoản 9app (không bắt buộc)' }),
+        h('p', { class: 'muted', text: 'Đăng nhập để giữ nhóm của bạn và dùng trên máy khác. Không đăng nhập vẫn dùng bình thường.' }),
+        h('div', { class: 'btn-row' }, [
+          L9.btn('Đăng nhập', 'primary', function () { location.assign(inUrl); }),
+          L9.btn('Đăng ký', 'ghost', function () { location.assign(upUrl); }),
+        ]),
+      ]);
+    }
+    var kids = [h('h2', { text: 'Tài khoản 9app' }), h('p', { text: 'Đã đăng nhập: ' + (acc.user && acc.user.displayName ? acc.user.displayName : 'bạn') })];
+    if (acc.claimable && acc.claimable.length) {
+      kids.push(h('p', { class: 'muted', text: 'Trên máy này có ' + acc.claimable.length + ' nhóm chưa gắn vào tài khoản: ' + acc.claimable.map(function (x) { return x.teamName; }).join(', ') + '.' }));
+      var claim = L9.btn('Gắn vào tài khoản', 'primary block', function () {
+        return L9.busy(claim, function () {
+          return L9.post('api/account/claim', {}).then(function (r) {
+            L9.toast('Đã gắn ' + (r.claimed ? r.claimed.length : 0) + ' nhóm vào tài khoản của bạn.');
+            L9.home();
+          });
+        });
+      });
+      kids.push(claim);
+    }
+    if (acc.conflicts && acc.conflicts.length) {
+      kids.push(h('p', { class: 'muted', text: 'Bạn đã tham gia ' + acc.conflicts.map(function (x) { return x.teamName; }).join(', ') + ' bằng tài khoản này, nên thành viên ẩn danh tương ứng trên máy này được giữ riêng.' }));
+    }
+    kids.push(h('div', { class: 'btn-row' }, [
+      h('a', { class: 'btn ghost', href: acc.loginPath + '#/tai-khoan' }, ['Quản lý tài khoản']),
+      L9.btn('Đăng xuất', 'ghost', function (e) {
+        return L9.busy(e.currentTarget, function () {
+          return fetch(acc.loginPath + 'api/logout', { method: 'POST', credentials: 'same-origin', headers: { 'x-requested-with': '9id', 'content-type': 'application/json' }, body: '{}' })
+            .then(function () { location.reload(); }, function () { L9.toast('Chưa đăng xuất được, hãy thử lại.'); });
+        });
+      }),
+    ]));
+    return h('div', { class: 'card', id: 'acc-card' }, kids);
+  }
+
   L9.home = function () {
     L9.frame({ title: '9lunch' });
     L9.skeleton();
-    L9.get('api/me').then(function (data) {
+    Promise.all([L9.get('api/me'), L9.get('api/account').catch(function () { return null; })]).then(function (rs) {
+      var data = rs[0], acc = rs[1];
       var teams = data.teams || [];
       var nodes = [];
       if (!teams.length) {
@@ -77,6 +126,8 @@
           ]));
         });
       }
+      var accCard = accountCard(acc);
+      if (accCard && teams.length) nodes.push(accCard);   // đã có nhóm: ngay dưới danh sách nhóm
       var createCard = h('div', { class: 'card' }, [h('h2', { text: 'Tạo nhóm mới' }), createForm()]);
       if (teams.length) {
         var wrap = h('div', { class: 'hidden' }, [createCard]);
@@ -94,6 +145,7 @@
         L9.go('#/join/' + c);
       });
       nodes.push(h('div', { class: 'card' }, [h('h2', { text: 'Bạn có mã mời?' }), h('form', { onsubmit: function (e) { e.preventDefault(); } }, [L9.field('Link hoặc mã mời', code), cerr, h('div', { class: 'mt' }, [go])])]));
+      if (accCard && !teams.length) nodes.push(accCard);   // người mới: không đẩy form tạo nhóm xuống, thẻ nằm cuối
       L9.mount(nodes);
     }, function (e) { L9.loadError(e, L9.home); });
   };
