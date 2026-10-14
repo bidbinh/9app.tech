@@ -183,7 +183,8 @@ export function createApp() {
         },
       };
       await authResolver(ctx);
-      if (mutating && ctx.sid && rateLimited('s:' + ctx.sid, config.sessionLimitPerMin * config.routeLimitFactor)) {
+      const rateKey = ctx.sid || (ctx.userId ? 'u:' + ctx.userId : null);
+      if (mutating && rateKey && rateLimited('s:' + rateKey, config.sessionLimitPerMin * config.routeLimitFactor)) {
         throw new ApiError(429, 'rate_limited', 'Bạn thao tác quá nhanh, đợi một chút rồi thử lại');
       }
 

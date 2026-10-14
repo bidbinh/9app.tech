@@ -9,7 +9,7 @@ export function withIdem(handler) {
     const raw = ctx.headers['idempotency-key'];
     if (!raw) return handler(ctx);
     if (!KEY_RE.test(String(raw))) throw new ApiError(400, 'bad_idempotency_key', 'Khóa Idempotency-Key không hợp lệ');
-    const scope = ctx.sid || 'ip:' + ctx.ip;
+    const scope = ctx.sid || (ctx.userId ? 'u:' + ctx.userId : 'ip:' + ctx.ip);
     const key = `${raw}|${ctx.req.method} ${ctx.req.url.split('?')[0]}`;
     const claimed = await query('INSERT INTO idem(scope, key) VALUES($1,$2) ON CONFLICT DO NOTHING RETURNING 1', [scope, key]);
     if (!claimed.length) {

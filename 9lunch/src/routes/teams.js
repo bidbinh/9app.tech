@@ -1,7 +1,7 @@
 import { config } from '../config.js';
 import { query, tx } from '../db.js';
 import { ApiError } from '../errors.js';
-import { ensureSession, requireSession, requireMember, forbidden, touch } from '../auth.js';
+import { ensureSession, requireSession, requireMember, memberFor, forbidden, touch } from '../auth.js';
 import { withIdem } from '../idem.js';
 import { cleanText, cleanBank, normKey, randomCode, INVITE_RE, uuidParam } from '../util.js';
 
@@ -25,7 +25,7 @@ const memberRow = (m, me) => ({ id: m.id, name: m.name, role: m.role, hasBank: !
 export function teamRoutes(app) {
   // ---------- phiên hiện tại: danh sách nhóm của tôi ----------
   app.route('GET', '/api/me', async (ctx) => {
-    if (!ctx.sid) return { teams: [] };
+    if (!ctx.sid && !ctx.userId) return { teams: [] };
     await touch(ctx);
     const rows = await query(
       `SELECT t.id, t.name, t.invite_code, m.id AS member_id, m.name AS my_name, m.role,
@@ -36,8 +36,11 @@ export function teamRoutes(app) {
                 WHERE c.payee_id = m.id AND c.member_id <> c.payee_id AND c.status <> 'da_nhan' AND ml.status <> 'huy') AS owed,
               (SELECT row_to_json(x) FROM (SELECT id, status, day::text AS day, venue_name FROM meals
                 WHERE team_id = t.id AND status IN ('binh_chon','dat_mon','thanh_toan') ORDER BY day DESC, created_at DESC LIMIT 1) x) AS active_meal
-         FROM members m JOIN phien p ON p.member_id = m.id JOIN teams t ON t.id = m.team_id
-        WHERE p.token_hash = $1 AND m.left_at IS NULL ORDER BY m.joined_at DESC`, [ctx.sid]);
+         FROM members m JOIN teams t ON t.id = m.team_id
+        WHERE m.left_at IS NULL
+          AND ( ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.member_id = m.id AND p.token_hash = $1))
+                OR ($2::uuid IS NOT NULL AND m.user_id = $2::uuid) )
+        ORDER BY m.joined_at DESC`, [ctx.sid || null, ctx.userId || null]);
     return {
       teams: rows.map((r) => ({
         id: r.id, name: r.name, inviteCode: r.invite_code, memberId: r.member_id, myName: r.my_name, role: r.role,
@@ -62,8 +65,8 @@ export function teamRoutes(app) {
         return await tx(async (c) => {
           const t = (await c.query('INSERT INTO teams(name, invite_code, created_by_hash, created_ip) VALUES($1,$2,$3,$4) RETURNING id, invite_code', [name, randomCode(10), sid, ctx.ip]))[0];
           const m = (await c.query(
-            "INSERT INTO members(team_id, name, role, bank_bin, bank_account, bank_holder) VALUES($1,$2,'chu',$3,$4,$5) RETURNING id",
-            [t.id, myName, bank?.bin ?? null, bank?.account ?? null, bank?.holder ?? null]))[0];
+            "INSERT INTO members(team_id, name, role, bank_bin, bank_account, bank_holder, user_id) VALUES($1,$2,'chu',$3,$4,$5,$6) RETURNING id",
+            [t.id, myName, bank?.bin ?? null, bank?.account ?? null, bank?.holder ?? null, ctx.userId || null]))[0];
           await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
           return { team: { id: t.id, name, inviteCode: t.invite_code }, memberId: m.id };
         });
@@ -84,7 +87,7 @@ export function teamRoutes(app) {
     const t = (await query(
       `SELECT t.id, t.name, (SELECT count(*)::int FROM members m WHERE m.team_id = t.id AND m.left_at IS NULL) AS n FROM teams t WHERE t.invite_code = $1`, [code]))[0];
     if (!t) throw new ApiError(404, 'bad_code', 'Mã mời không đúng hoặc đã được đổi. Hỏi người tạo nhóm để lấy link mới.');
-    const mine = ctx.sid ? await requireMemberSoft(ctx, t.id) : null;
+    const mine = (ctx.sid || ctx.userId) ? await requireMemberSoft(ctx, t.id) : null;
     return { name: t.name, memberCount: t.n, full: t.n >= config.maxMembers, alreadyMember: !!mine, teamId: mine ? t.id : undefined };
   }, { limit: 40, limitKey: 'joinget' });
 
@@ -92,19 +95,28 @@ export function teamRoutes(app) {
     const code = codeOf(ctx);
     const name = cleanText(ctx.body.name, { max: config.maxNameLen, min: 1, field: 'Tên của bạn' });
     const sid = ensureSession(ctx);
-    return tx(async (c) => {
+    const attempt = () => tx(async (c) => {
       const t = (await c.query('SELECT id, name FROM teams WHERE invite_code=$1 FOR UPDATE', [code]))[0];
       if (!t) throw new ApiError(404, 'bad_code', 'Mã mời không đúng hoặc đã được đổi. Hỏi người tạo nhóm để lấy link mới.');
-      const mine = (await c.query(
-        'SELECT m.id FROM members m JOIN phien p ON p.member_id=m.id WHERE p.token_hash=$1 AND m.team_id=$2 AND m.left_at IS NULL', [sid, t.id]))[0];
-      if (mine) return { team: { id: t.id, name: t.name }, memberId: mine.id, already: true };
+      // đã là thành viên: qua phiên ẩn danh này hoặc qua tài khoản 9id -> dùng lại, thêm phiên này vào để máy này cũng nhận ra
+      const mine = await memberFor(c.query, { sid, userId: ctx.userId }, t.id);
+      if (mine) {
+        await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2) ON CONFLICT DO NOTHING', [sid, mine.id]);
+        return { team: { id: t.id, name: t.name }, memberId: mine.id, already: true };
+      }
       const all = await c.query('SELECT name FROM members WHERE team_id=$1 AND left_at IS NULL', [t.id]);
       if (all.length >= config.maxMembers) throw new ApiError(409, 'team_full', `Nhóm đã đủ ${config.maxMembers} người`);
-      if (all.some((x) => normKey(x.name) === normKey(name))) throw new ApiError(409, 'name_taken', 'Trong nhóm đã có người tên này. Thêm họ hoặc chữ đệm để mọi người phân biệt nhé.');
-      const m = (await c.query("INSERT INTO members(team_id, name, role) VALUES($1,$2,'thanh_vien') RETURNING id", [t.id, name]))[0];
+      if (all.some((x) => normKey(x.name) === normKey(name))) throw new ApiError(409, 'name_taken', 'Trong nhóm đã có người tên này. Thêm họ hoặc chữ đệm để mọi người phân biệt được.');
+      const m = (await c.query("INSERT INTO members(team_id, name, role, user_id) VALUES($1,$2,'thanh_vien',$3) RETURNING id", [t.id, name, ctx.userId || null]))[0];
       await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
       return { team: { id: t.id, name: t.name }, memberId: m.id };
     });
+    try { return await attempt(); }
+    catch (e) {
+      // hai yêu cầu cùng người dùng chạy đua: chỉ mục duy nhất (team, user) chặn bản thứ hai -> thử lại, lần này thấy thành viên đã có
+      if (uniqueViolation(e) && ctx.userId) return attempt();
+      throw e;
+    }
   }, { limit: 20, limitKey: 'joinpost' });
 
   async function requireMemberSoft(ctx, teamId) {
