@@ -7,7 +7,7 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 ## Hiện trạng
 
 - **Đã lên 9app.tech (tĩnh):** 9race, 9unit, 9english, 9license, 9scanner, Vạn Niên (văn khấn, mâm cúng), launcher có tìm kiếm chức năng.
-- **Đã lên 9app.tech (tĩnh), 14/10/2026:** 9draw (`draw/`: vẽ tay, bút/bút dạ/tẩy, lưu PNG, chia sẻ). Đã thử trên URL thật; còn lại: thử chia sẻ trên điện thoại thật (Web Share), đăng ký Console không cần (không có máy chủ). Triển khai lại: `bash deploy-draw/deploy.sh`.
+- **Đã lên 9app.tech (tĩnh), 14/10/2026:** 9draw (`draw/`: vẽ tay, bút/bút dạ/tẩy, lưu PNG, chia sẻ; "Phép màu" tự vẽ mặt cười + nhân vật ngộ nghĩnh, chạy trên máy). Đã thử trên URL thật; còn lại: thử chia sẻ trên điện thoại thật (Web Share), đăng ký Console không cần (không có máy chủ). Triển khai lại: `bash deploy-draw/deploy.sh`. Ý tưởng sau: AI thật (Gemini nhìn tranh rồi gợi ý/vẽ thêm) khi có khóa + máy chủ.
 - **Đã lên (Node + DB):** 9lunch, 9swap, 9hire, 9interview (AI tắt, chưa có khóa Gemini).
 - **Có từ trước:** 9Ship (GHTK; Nhanh.vn tắt mặc định), 9app Console, 9speed, 9Fin, 9quy.
 - **Đã code, đã vào `main`, chưa lên server:** 9family, 9tutor, 9id, Osin, 9ticket (giai đoạn 1).
