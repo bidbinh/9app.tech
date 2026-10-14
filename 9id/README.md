@@ -13,6 +13,7 @@ npm install
 npm run dev      # http://localhost:8102/id/  (OTP in ra cửa sổ lệnh, dữ liệu giữ ở .data/)
 npm test         # dựng PostgreSQL tạm, chạy node:test (đơn vị + tích hợp), rồi dọn
 npm run e2e      # kiểm tra giao diện bằng Chrome thật (puppeteer-core), ảnh chụp vào shots/
+npm run e2e:shared  # ĐĂNG NHẬP CHUNG: 9id thật + launcher thật sau máy chủ đệm cùng nguồn gốc (đăng ký từ launcher, mở lại trình duyệt vẫn đăng nhập, đăng xuất chéo, đổi số, hoàn tác); ảnh vào shots/shared/
 ```
 
 `npm run dev` dùng cổng gửi OTP `console` (in mã ra log, chỉ dev). `npm run e2e` cần Chrome (`CHROME_PATH`) và puppeteer-core (`PUPPETEER_CORE`, đường dẫn module ESM); dùng cổng `mock`, chạy server ở cổng ngẫu nhiên, chụp 390x844, 360x740, 1280x800, sáng và tối.
@@ -58,6 +59,15 @@ npm run e2e      # kiểm tra giao diện bằng Chrome thật (puppeteer-core),
 Cập nhật lược đồ CSDL chạy tự động khi khởi động (`db/*.sql`, bảng `schema_migrations`, có khóa tư vấn nên hai bản khởi động đồng thời không đụng nhau). Dọn dữ liệu hết hạn chạy khi khởi động và mỗi 6 giờ.
 
 **Production từ chối khởi động** khi: `DATABASE_URL` thiếu/mẫu, `PHONE_PEPPER` hoặc `EDGE_SECRET` thiếu/ngắn/mẫu/lặp ký tự, `ESMS_ZALO_DATA` không phải JSON, `OAUTH_CLIENTS` có redirect không https/wildcard hoặc thiếu khóa HMAC, `OTP_PROVIDER` khác `esms` hoặc `esms` chưa đủ cấu hình, khóa `INTERNAL_KEYS` hoặc `CONSOLE_API_SECRET` ngắn/mẫu, `TRUSTED_PROXY_HOPS` < 1.
+
+## Đăng nhập chung cho mọi app (thiết kế: `../docs/superpowers/specs/2026-10-14-9id-dang-nhap-chung-design.md`)
+
+- **Một tài khoản (số điện thoại + mật khẩu, xác minh OTP một lần) cho mọi app cần đăng nhập.** Cookie `nine_sid` (Path=/ trên `9app.tech`) dùng chung cho mọi app cùng nguồn gốc; app ở tên miền con (Osin) dùng luồng authorize.
+- **Đăng nhập lâu dài:** phiên trượt, không hạn cố định; chỉ hết khi `SESSION_DAYS` (365) ngày liền không dùng; tối đa `MAX_SESSIONS` (30) thiết bị, vượt thì đẩy phiên **ít dùng gần đây nhất**. Mất máy: đăng xuất từ xa ở Tài khoản > Thiết bị.
+- **Thư viện trình duyệt** `GET /id/nine.js` (ES5): `Nine.me()`, `Nine.user()`, `Nine.login(next)`, `Nine.register(next)`, `Nine.logout()`, `Nine.require(ok, fail)`. App cùng nguồn gốc chỉ cần `<script src="/id/nine.js"></script>`; chưa đăng nhập thì `Nine.require` chuyển tới `/id/?next=...` rồi quay lại. Launcher dùng nó ở trang Tài khoản (`../launcher-ux2/`).
+- **Đổi số điện thoại:** `POST /api/otp/request {purpose:'phone_change'}` (cần phiên) rồi `/api/otp/verify` rồi `POST /api/phone/change {ticket, phone, password}`. Mỗi tài khoản đổi tối đa một lần trong `PHONE_CHANGE_DAYS` (30) ngày; thu hồi mọi phiên khác. Số cũ được **giữ chỗ `PHONE_UNDO_DAYS` (7) ngày**: người giữ số cũ xác minh OTP ở "Quên mật khẩu" (`verify` trả `phoneChangeUndoable`) rồi `POST /api/phone/undo {ticket, phone, password mới}` để lấy lại tài khoản (xóa mọi phiên của kẻ đã đổi). `phone_changes.old_phone` bị xóa sau 8 ngày, cả dòng sau 90 ngày.
+- **Thông báo trong app** (bảng `notices`, hiện ở trang Gia đình và Tài khoản): `password_reset`, `new_device` (đăng nhập từ thiết bị lạ khi đã có phiên khác; không hiện trên chính thiết bị đó; tối đa 1 mỗi giờ), `phone_changed`, `phone_change_undone`.
+- Việc còn lại thuộc các dự án sau: tích hợp từng app (9lunch, 9swap, 9hire, 9interview, 9tutor, car/fit/gift/payday, 9Ship/9Sport), nhận dữ liệu ẩn danh vào tài khoản, và triển khai lên máy chủ (BACKLOG A2).
 
 ## Triển khai (máy chủ dùng chung)
 

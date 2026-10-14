@@ -122,7 +122,7 @@ const text = (page) => page.evaluate(() => {
   const c = document.body.cloneNode(true);
   c.querySelectorAll('noscript,script').forEach((n) => n.remove());
   return c.textContent.replace(/\s+/g, ' ');
-});
+}).catch(() => ''); // đang điều hướng: coi như chưa có chữ, hàm chờ sẽ thử lại
 const waitText = async (page, t, ms = 8000) => { const end = Date.now() + ms; while (Date.now() < end) { if ((await text(page)).includes(t)) return true; await sleep(150); } throw new Error(`[${page.__name}] chờ chữ "${t}" không thấy. Màn hình: ${(await text(page)).slice(0, 300)}`); };
 const hasText = async (page, t) => (await text(page)).includes(t);
 const phoneInput = async (page, phone) => fill(page, 'Số điện thoại', phone);
