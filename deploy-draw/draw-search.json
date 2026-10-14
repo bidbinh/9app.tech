@@ -1,0 +1,6 @@
+[
+ {"name": "Vẽ tay", "keywords": ["vẽ", "vẽ tay", "draw", "vẽ hình", "tô màu", "phác thảo", "ghi chú tay"], "path": "", "blurb": "Vẽ bằng ngón tay hoặc bút cảm ứng trên giấy trắng, giấy kẻ ô."},
+ {"name": "Bút dạ và tẩy", "keywords": ["bút dạ", "highlight", "tẩy", "xóa nét", "đổi màu", "cỡ nét"], "path": "", "blurb": "Chọn bút, bút dạ hoặc tẩy, đổi màu và cỡ nét ở thanh dưới."},
+ {"name": "Lưu ảnh và chia sẻ", "keywords": ["lưu ảnh", "chia sẻ", "share", "đăng facebook", "gửi zalo", "xuất png", "sao chép ảnh"], "path": "", "blurb": "Bấm Xuất ảnh để lưu PNG hoặc chia sẻ lên mạng xã hội."},
+ {"name": "Đổi khổ giấy và nền", "keywords": ["khổ giấy", "giấy kẻ ô", "bảng đen", "story", "ảnh vuông", "nền"], "path": "", "blurb": "Bấm biểu tượng giấy để chọn khổ 4:5, vuông, 9:16, 16:9 và nền."}
+]
