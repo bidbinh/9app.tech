@@ -27,7 +27,6 @@ export async function maintenance() {
   await query("DELETE FROM pow_used WHERE at < now() - interval '1 hour'");
   await query("DELETE FROM devices WHERE last_used_at < now() - interval '400 days'");
   await query("DELETE FROM notices WHERE created_at < now() - interval '90 days'");
-  await query("UPDATE phone_changes SET old_phone = NULL WHERE old_phone IS NOT NULL AND changed_at < now() - interval '8 days'");
   await query("DELETE FROM phone_changes WHERE changed_at < now() - interval '90 days'");
   await query("DELETE FROM audit WHERE at < now() - interval '180 days'");
 }

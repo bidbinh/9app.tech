@@ -1496,8 +1496,30 @@ function accountRender() {
   letter.hidden = !on;
   if (on) btn.classList.add('in'); else btn.classList.remove('in');
 }
+// nine.js nạp BẤT ĐỒNG BỘ sau khi launcher đã dựng xong (9id chậm/treo không được chặn trang chủ), và chỉ chèn script khi máy chủ
+// trả đúng JavaScript (nginx có thể trả index.html cho đường dẫn không có: không chạy HTML như script).
+function loadNine(done) {
+  if (typeof Nine !== 'undefined' && Nine && typeof Nine.me === 'function') { done(true); return; }
+  if (typeof fetch !== 'function') { done(false); return; }
+  fetch('/id/nine.js', { credentials: 'omit' }).then(function (r) {
+    var type = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+    var good = r.ok && type.indexOf('javascript') >= 0;
+    // đọc hết thân phản hồi để nhả kết nối (nếu không, yêu cầu treo đến khi bị thu gom)
+    return r.text().then(function () { return good; }, function () { return false; });
+  }).then(function (good) {
+    if (!good) { done(false); return; }
+    var s = document.createElement('script');
+    s.src = '/id/nine.js';
+    s.async = true;
+    s.onload = function () { done(typeof Nine !== 'undefined' && !!Nine && typeof Nine.me === 'function'); };
+    s.onerror = function () { done(false); };
+    document.head.appendChild(s);
+  }, function () { done(false); });
+}
 function accountInit() {
-  if (typeof Nine === 'undefined' || !Nine || typeof Nine.me !== 'function') return;
+  loadNine(function (okLoaded) { if (okLoaded) accountStart(); });
+}
+function accountStart() {
   Nine.me().then(function (u) { accUser = u; accState = u ? 'in' : 'out'; accountRender(); },
     function () { accState = 'off'; accUser = null; accountRender(); });
 }

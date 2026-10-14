@@ -1,6 +1,9 @@
 // Kiểm trang Tài khoản của launcher với 9id (Chrome thật; /id/api/me, /id/api/logout và điều hướng sang /id/ được chặn giả).
 // Chạy: node tools/test-account.mjs   (cần PUPPETEER_CORE nếu puppeteer-core không ở đường dẫn mặc định)
+import fs from 'node:fs';
 import { boot } from './lib.mjs';
+
+const NINE = fs.readFileSync(new URL('../../9id/public/nine.js', import.meta.url), 'utf8');
 
 const { browser, base, server } = await boot();
 let fail = 0;
@@ -11,7 +14,7 @@ const ME_IN = { user: { id: 'u1', displayName: 'Lan Anh', phoneLast4: '1234', so
 const json = (req, status, body) => req.respond({ status, contentType: 'application/json; charset=utf-8', body: JSON.stringify(body) });
 
 // meMode: 'out' | 'in' | '404' | 'html' | 'abort';  nineMode: 'real' | '404'
-async function open(meMode, { nineMode = 'real', hash = '#/tai-khoan', w = 390, scheme = 'light' } = {}) {
+async function open(meMode, { nineMode = 'real', hash = '#/tai-khoan', w = 390, scheme = 'light', wait = 'networkidle0' } = {}) {
   const page = await browser.newPage();
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: scheme }]);
   await page.setViewport({ width: w, height: 844, deviceScaleFactor: 1, isMobile: w < 700, hasTouch: w < 700 });
@@ -22,6 +25,10 @@ async function open(meMode, { nineMode = 'real', hash = '#/tai-khoan', w = 390, 
   page.on('request', (req) => {
     const u = new URL(req.url());
     if (u.pathname === '/id/nine.js' && nineMode === '404') { req.respond({ status: 404, body: 'nf' }); return; }
+    // nginx try_files trả index.html cho đường dẫn không có (200 text/html), không có nosniff ở cổng 80
+    if (u.pathname === '/id/nine.js' && nineMode === 'html') { req.respond({ status: 200, contentType: 'text/html', body: '<!doctype html><html><body>app</body></html>' }); return; }
+    // 9id treo/chậm: nine.js về rất muộn
+    if (u.pathname === '/id/nine.js' && nineMode === 'slow') { setTimeout(() => { try { req.respond({ status: 200, contentType: 'text/javascript; charset=utf-8', body: NINE }); } catch (e) { /* trang đã đóng */ } }, 2500); return; }
     if (u.pathname === '/id/api/me') {
       log.meCalls++;
       if (log.loggedOut || meMode === 'out') json(req, 200, { user: null });
@@ -36,8 +43,10 @@ async function open(meMode, { nineMode = 'real', hash = '#/tai-khoan', w = 390, 
     req.continue();
   });
   await page.evaluateOnNewDocument(() => { try { if (!sessionStorage.getItem('s')) { sessionStorage.setItem('s', '1'); localStorage.clear(); } } catch (e) { /* bỏ qua */ } });
-  await page.goto(base + '/index.html' + hash, { waitUntil: 'networkidle0' });
-  await sleep(200);
+  const t0 = Date.now();
+  await page.goto(base + '/index.html' + hash, { waitUntil: wait });
+  if (wait === 'networkidle0') await sleep(200);
+  log.t0 = t0;
   return { page, log };
 }
 const vis = (page, sel) => page.evaluate((s) => { const e = document.querySelector(s); return !!e && !e.closest('[hidden]') && e.getBoundingClientRect().width > 0; }, sel);
@@ -145,6 +154,26 @@ for (const scheme of ['light', 'dark']) {
   ok(!(await vis(page, '#av-letter')) && await page.evaluate(() => getComputedStyle(document.querySelector('#btn-account .icon')).display !== 'none'), 'màn rộng: chưa đăng nhập giữ biểu tượng mặc định');
   await page.close();
 }
+// E. 9id chậm hoặc nginx trả index.html thay cho nine.js: launcher KHÔNG bị chặn, không lỗi JS
+{
+  const { page, log } = await open('in', { nineMode: 'slow', hash: '', wait: 'domcontentloaded' });
+  let tiles = 0;
+  while (Date.now() - log.t0 < 1500 && !tiles) { tiles = await page.evaluate(() => document.querySelectorAll('#groups .tile-name, #groups .mini-name, #featured .fc-name').length).catch(() => 0); if (!tiles) await sleep(50); }
+  ok(tiles > 0, `nine.js chậm 2,5 giây x2: trang chủ vẫn dựng trong 1,5 giây (dựng sau ${Date.now() - log.t0} ms, ${tiles} ô)`);
+  await page.evaluate(() => { location.hash = '#/tai-khoan'; });
+  const end = Date.now() + 9000;
+  while (Date.now() < end && !(await vis(page, '#acc-in'))) await sleep(150);
+  ok(await vis(page, '#acc-in'), 'nine.js về muộn thì khối đăng nhập vẫn hiện sau đó');
+  ok(log.errors.length === 0, 'nine.js chậm: không lỗi JS: ' + log.errors.join('|'));
+  await page.close();
+}
+{
+  const { page, log } = await open('in', { nineMode: 'html' });
+  ok(!(await vis(page, '#acc-out')) && !(await vis(page, '#acc-in')), 'nine.js bị trả HTML: không hiện khối đăng nhập');
+  ok(log.errors.length === 0, 'nine.js bị trả HTML: không có lỗi JS (không chạy HTML như script): ' + log.errors.join('|'));
+  await page.close();
+}
+
 // D. trang chủ không đòi đăng nhập và không gọi 9id quá một lần khi mở
 {
   const { page, log } = await open('in', { hash: '' });

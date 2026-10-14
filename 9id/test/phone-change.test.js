@@ -43,7 +43,8 @@ test('đổi số thành công: đổi số, giữ phiên này, xóa phiên/thi�
   assert.equal((await query('SELECT count(*)::int AS n FROM sessions WHERE user_id=$1', [id]))[0].n, 1);
   assert.equal((await query('SELECT count(*)::int AS n FROM devices WHERE user_id=$1', [id]))[0].n, 1, 'chỉ còn thiết bị hiện tại');
   const pc = (await query('SELECT * FROM phone_changes WHERE user_id=$1', [id]))[0];
-  assert.equal(pc.old_phone, e164(oldPhone));
+  assert.equal(pc.old_phone_hash, util.phoneHash(e164(oldPhone)), 'chỉ lưu băm số cũ');
+  assert.ok(!('old_phone' in pc), 'không lưu số cũ dạng rõ');
   assert.equal(pc.undone_at, null);
   assert.ok((await query("SELECT 1 FROM notices WHERE user_id=$1 AND kind='phone_changed'", [id])).length === 1);
   const aud = await query("SELECT * FROM audit WHERE user_id=$1 AND kind='phone_changed'", [id]);
@@ -79,14 +80,30 @@ test('vé của số khác, vé dùng lại, không có phiên: bị từ chối
   assert.equal((await change(guest, await ticketFor(newPhone()), newPhone())).status, 401);
 });
 
-test('số đã thuộc tài khoản khác: thông điệp chung, không lộ; xin OTP vẫn trả giống nhau và không gửi mã', async () => {
+test('xin OTP đổi số: số đã có chủ và số chưa đăng ký chịu CÙNG hạn mức và cùng phản hồi (không liệt kê được tài khoản)', async () => {
   const a = await signup('Em', { ip: freshIp() });
   const b = await signup('Giang', { ip: freshIp() });
-  const req = await requestOtpRaw(a, b.phone, { purpose: 'phone_change' });
-  const fine = await requestOtpRaw(a, newPhone(), { purpose: 'phone_change' });
-  assert.equal(req.status, 200);
-  assert.deepEqual(Object.keys(req.json).sort(), Object.keys(fine.json).sort(), 'phản hồi cùng dạng');
-  provider.resetSent();
+  const free = newPhone();
+  // cùng lịch sử OTP cho hai số: xóa dấu vết OTP đăng ký vừa gửi cho `b` (nếu không, số của b dính giới hạn gửi lại còn số tự do thì không)
+  await query("UPDATE otps SET created_at = now() - interval '2 hours'");
+  const old = config.otpResendSec;
+  config.otpResendSec = 60;
+  try {
+    const seq = async (phone) => {
+      const r1 = await requestOtpRaw(a, phone, { purpose: 'phone_change' });
+      const r2 = await requestOtpRaw(a, phone, { purpose: 'phone_change' });
+      return { s: [r1.status, r2.status], k1: Object.keys(r1.json).sort().join(), c2: r2.json.error && r2.json.error.code };
+    };
+    const taken = await seq(b.phone);
+    const fresh = await seq(free);
+    assert.deepEqual(taken, fresh, 'số đã có chủ phải cho đúng cùng chuỗi phản hồi như số chưa đăng ký');
+    assert.deepEqual(taken.s, [200, 429]);
+  } finally { config.otpResendSec = old; }
+});
+
+test('số đã thuộc tài khoản khác: bước đổi số trả thông điệp chung, không lộ', async () => {
+  const a = await signup('Em2', { ip: freshIp() });
+  const b = await signup('Giang2', { ip: freshIp() });
   const t = await ticketFor(b.phone);
   const r = await change(a, t, b.phone);
   assert.equal(r.status, 400);
@@ -151,17 +168,44 @@ test('lời mời gia đình gửi tới số mới tự hiện cho người đ�
   assert.equal((await ok(a.get('/api/invitations'))).invitations.length, 1);
 });
 
-test('bảo trì: xóa số cũ khỏi phone_changes sau 8 ngày và xóa dòng sau 90 ngày', async () => {
+test('bảo trì: xóa dòng phone_changes sau 90 ngày, giữ dòng còn mới', async () => {
   const { maintenance } = await import('./helper.js');
   const a = await signup('Phúc', { ip: freshIp() });
   const np = newPhone();
   assert.equal((await change(a, await ticketFor(np), np)).status, 200);
   const id = await uid(np);
-  await query("UPDATE phone_changes SET changed_at = now() - interval '9 days' WHERE user_id=$1", [id]);
+  await query("UPDATE phone_changes SET changed_at = now() - interval '60 days' WHERE user_id=$1", [id]);
   await maintenance();
-  const row = (await query('SELECT old_phone FROM phone_changes WHERE user_id=$1', [id]))[0];
-  assert.equal(row.old_phone, null);
+  assert.equal((await query('SELECT count(*)::int AS n FROM phone_changes WHERE user_id=$1', [id]))[0].n, 1, 'còn mới thì giữ');
   await query("UPDATE phone_changes SET changed_at = now() - interval '91 days' WHERE user_id=$1", [id]);
   await maintenance();
   assert.equal((await query('SELECT count(*)::int AS n FROM phone_changes WHERE user_id=$1', [id]))[0].n, 0);
+});
+
+// ---- Khóa hoàn tác (chủ thật chọn khi số cũ không còn do mình giữ) ----
+test('khóa hoàn tác: cần phiên và mật khẩu; sau khi khóa không hoàn tác được và số cũ được thả', async () => {
+  const a = await signup('Quang', { ip: freshIp() });
+  const oldPhone = a.phone, np = newPhone();
+  assert.equal((await a.post('/api/phone/undo-lock', { password: PASS })).status, 400, 'chưa đổi số thì không có gì để khóa');
+  assert.equal((await change(a, await ticketFor(np), np)).status, 200);
+  const me = await ok(a.get('/api/me'));
+  assert.ok(me.phoneUndo && me.phoneUndo.until, '/api/me báo đang trong thời gian hoàn tác');
+  assert.equal((await new Client('khách', freshIp()).post('/api/phone/undo-lock', { password: PASS })).status, 401);
+  assert.equal((await a.post('/api/phone/undo-lock', { password: 'Sai-Mat-Khau-9' })).status, 403);
+  assert.ok((await ok(a.get('/api/me'))).phoneUndo, 'sai mật khẩu thì chưa khóa');
+  assert.equal((await a.post('/api/phone/undo-lock', { password: PASS })).status, 200);
+  assert.ok(!(await ok(a.get('/api/me'))).phoneUndo, 'đã khóa thì hết báo');
+  // người giữ số cũ không hoàn tác được
+  const v = await getTicket(new Client('cũ', freshIp()), oldPhone, 'reset');
+  assert.ok(!v.phoneChangeUndoable, 'không còn cờ hoàn tác');
+  const u = await new Client('cũ2', freshIp()).post('/api/phone/undo', { ticket: await ticketFor(oldPhone), phone: oldPhone, password: 'MatKhau-Moi-88' });
+  assert.equal(u.status, 400);
+  assert.equal(u.json.error.code, 'undo_unavailable');
+  // số cũ được thả: người khác đăng ký được
+  const c = new Client('mới', freshIp());
+  const { ticket } = await getTicket(c, oldPhone);
+  assert.equal((await c.post('/api/register', { ticket, phone: oldPhone, name: 'Mới', password: PASS })).status, 200);
+  // vẫn còn thời gian chờ 30 ngày giữa hai lần đổi số
+  const n2 = newPhone();
+  assert.equal((await change(a, await ticketFor(n2), n2)).status, 429);
 });
