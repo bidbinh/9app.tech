@@ -107,6 +107,8 @@ export const config = {
   loginIpLimit: int(env.LOGIN_IP_LIMIT, 40),
   // giới hạn nghiệp vụ
   ...readSessionPolicy(env),
+  phoneChangeDays: int(env.PHONE_CHANGE_DAYS, 30), // mỗi tài khoản đổi số tối đa một lần trong ngần ấy ngày
+  phoneUndoDays: int(env.PHONE_UNDO_DAYS, 7), // giữ chỗ số cũ và cho phép hoàn tác trong ngần ấy ngày
   maxFamiliesOwned: 10,
   maxFamiliesJoined: 20,
   maxChildren: 30,

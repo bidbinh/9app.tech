@@ -9,7 +9,7 @@ import { consumePow } from './pow.js';
 
 export const ipKey = (ip) => hmac('ip', ip || '').slice(0, 24);
 const codeHash = (ph, salt, code) => hmac('otp', `${ph}|${salt}|${code}`);
-export const PURPOSES = ['register', 'reset'];
+export const PURPOSES = ['register', 'reset', 'phone_change'];
 
 // Cảnh báo khi dùng 50% và 80% trần OTP toàn hệ trong 24 giờ (ghi log một lần mỗi mức mỗi ngày)
 const warned = { day: '', 50: false, 80: false };
