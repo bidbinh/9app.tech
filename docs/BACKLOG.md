@@ -40,9 +40,9 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
   - [ ] 9ticket: sân bay đi/đến, hành khách gia đình
 
 
-- [ ] **9id dự án 2 trở đi: tích hợp từng app** theo nhóm đã duyệt (bắt buộc: 9family đã dùng, Osin đã dùng, 9stay, 9Ship; tùy chọn: 9lunch, 9swap, 9hire, 9interview, 9tutor, car, fit, gift, payday): mỗi app một spec + kế hoạch (nhóm tùy chọn cần điểm nhận dữ liệu ẩn danh `POST /<app>/api/account/claim`). Sau đó nhập tài khoản 9Ship/9Sport, và quyết định về 9log/Gia phả/9Sport (đang giữ đăng nhập riêng).
+- [ ] **9id dự án 2: tích hợp từng app** (spec khuôn mẫu: `docs/superpowers/specs/2026-10-14-tich-hop-9id-khuon-mau-design.md`). [x] **9lunch** (14/10/2026; mã + test + e2e xong trên nhánh `feat/9id-integration`, chưa lên server). Còn: [ ] 9swap, [ ] 9hire, [ ] 9tutor (nhân khuôn mẫu), [ ] **dịch vụ đồng bộ** cho app chỉ lưu ở máy (car, fit, gift, payday, 9interview; subsystem mới, spec riêng). Nhóm bắt buộc 9stay/9Ship làm theo spec riêng của chúng; sau đó nhập tài khoản 9Ship/9Sport, và quyết định về 9log/Gia phả/9Sport (giữ đăng nhập riêng).
 - [ ] **Quyết định: Life OS cũ ở thư mục gốc** (`index.html` cũ, `js/os.js`, `js/id.js` với băm `sdbm`, `localStorage`) chưa từng triển khai và không phải launcher đang chạy; xóa hay giữ?
-- [ ] **Triển khai launcher v19 (đăng nhập 9id)** theo `launcher-ux2/DEPLOY.md`, sau khi 9id đã lên server.
+- [ ] **Triển khai launcher v20 (đăng nhập 9id)** theo `launcher-ux2/DEPLOY.md`, sau khi 9id đã lên server.
 
 ## C. Đã thảo luận kỹ, chưa duyệt (phải brainstorm lại trước khi làm)
 
