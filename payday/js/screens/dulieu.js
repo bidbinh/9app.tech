@@ -2,6 +2,8 @@
 import { h, thongBao, taiVe, xacNhan, dong, moHopThoai, truong } from '../ui/dom.js';
 import { xuatJSON, nhapJSON, xoaSach, luu } from '../lib/store.js';
 import { homNay } from '../lib/dates.js';
+import { theDongBo } from '../lib/nine-sync-ui.js';
+import { dongBo, dangNhapUrl } from '../lib/dongbo.js';
 
 export function ve(st, ctx) {
   const tep = h('input', { type: 'file', accept: 'application/json,.json', id: 'nhap-tep', class: 'sr' });
@@ -30,9 +32,15 @@ export function ve(st, ctx) {
       h('a', { class: 'btn ghost', href: '#/them' }, '‹ Quay lại'),
       !luu.ok ? h('div', { class: 'note bad', role: 'alert' }, luu.loi) : null,
       h('section', { class: 'card' }, h('h2', {}, 'Dữ liệu nằm ở đâu'),
-        h('p', {}, 'Toàn bộ dữ liệu của bạn chỉ nằm trong trình duyệt trên máy này (IndexedDB). 9payday không gửi lên máy chủ nào và không có tài khoản.'),
+        h('p', {}, 'Toàn bộ dữ liệu của bạn chỉ nằm trong trình duyệt trên máy này (IndexedDB). Mặc định 9payday không gửi gì lên máy chủ và không cần tài khoản; chỉ khi bạn tự bật đồng bộ bên dưới thì dữ liệu mới được lưu thêm trên máy chủ 9app.'),
         h('p', { class: 'small muted' }, `Hiện có: ${st.chi.length} khoản chi, ${st.coDinh.length} khoản cố định, ${st.mucTieu.length} mục tiêu, ${st.vay.length} khoản vay, ${st.lich.length} nhắc. ${luu.ok ? 'Đang lưu bình thường.' : 'Không lưu được.'}`),
         h('p', { class: 'small muted' }, 'Xóa dữ liệu trình duyệt hoặc đổi máy sẽ mất dữ liệu, nên hãy xuất sao lưu định kỳ.')),
+      theDongBo({
+        h, sync: dongBo, tenApp: '9payday', dangNhapUrl,
+        duLieuGom: 'lương, khoản chi, khoản cố định, mục tiêu, khoản vay, nhắc và quyết toán thuế',
+        duLieuKhong: '',
+        thongBao, xacNhan: (t, n) => xacNhan(t, n, { ok: 'Xóa bản trên máy chủ' }), lamMoi: () => { /* datLai đã phát sự kiện: màn hình tự vẽ lại */ },
+      }),
       h('section', { class: 'card' }, h('h2', {}, 'Xuất sao lưu'),
         h('p', { class: 'sub' }, 'Tải về một tệp JSON chứa mọi thứ. Giữ tệp ở nơi an toàn vì có số liệu tài chính của bạn.'),
         h('button', { type: 'button', class: 'btn primary', 'data-testid': 'xuat-json', onclick: () => {

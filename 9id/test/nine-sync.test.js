@@ -62,6 +62,14 @@ test('merge3: gộp theo thứ tự nào cũng ra cùng tập bản ghi', () => 
   assert.deepEqual(ids(m1.xs), ['a', 'c', 'd', 'e']);
 });
 
+test('merge3: thứ tự khóa khác nhau (jsonb của máy chủ) vẫn coi là bằng nhau: xóa không sống lại', () => {
+  const base = { xs: [{ id: 'a', v: 1, w: 2 }, { id: 'b', v: 1, w: 2 }] };
+  const local = { xs: [{ id: 'b', v: 1, w: 2 }] };                        // local xóa a
+  const remote = { xs: [{ w: 2, v: 1, id: 'a' }, { w: 2, id: 'b', v: 1 }] };  // máy chủ trả khóa theo thứ tự khác
+  assert.deepEqual(ids(merge3(base, local, remote).xs), ['b']);
+  assert.deepEqual(ids(merge3(base, remote, local).xs), ['b']);
+});
+
 // ---- vòng đồng bộ với máy chủ giả ----
 function fakeServer() {
   const s = { version: 0, data: null, calls: [], failNextPut: 0, offline: false, status: null };

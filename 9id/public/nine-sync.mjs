@@ -3,7 +3,9 @@
 // Gộp ba chiều theo bản ghi ở máy khách; máy chủ chỉ lưu một tài liệu JSON có số phiên bản.
 
 const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// So sánh giá trị theo nội dung, KHÔNG phụ thuộc thứ tự khóa (máy chủ lưu jsonb nên trả khóa theo thứ tự khác)
+const canon = (v) => (Array.isArray(v) ? v.map(canon) : isPlain(v) ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
+const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
 const isIdArray = (v) => Array.isArray(v) && v.every((o) => isPlain(o) && typeof o.id === 'string' && o.id !== '');
 const TS = ['capNhat', 'suaLuc', 'updatedAt', 'capnhat', 'updated_at'];
 const stamp = (o) => { if (!isPlain(o)) return 0; for (const k of TS) { const t = Date.parse(o[k]); if (Number.isFinite(t)) return t; } return 0; };
@@ -97,15 +99,20 @@ export function createSync({ app, getData, setData, api = '/id/api/sync/', stora
         const local = getData();
         const merged = remote.data ? merge3(base, local, remote.data) : local;
         const changedLocal = !same(merged, local);
-        if (changedLocal) await setData(merged);
-        try {
-          const put = await call('PUT', { baseVersion: remote.version, data: merged });
-          set('base', JSON.stringify(merged)); set('ver', String(put.version)); set('at', now().toISOString());
-          return { changedLocal, version: put.version };
-        } catch (e) {
+        let put;
+        try { put = await call('PUT', { baseVersion: remote.version, data: merged }); }
+        catch (e) {
           if (e.status !== 409) throw e;
-          // máy khác vừa ghi: vòng lặp đọc lại và gộp tiếp; dữ liệu đã gộp về máy ở trên vẫn đúng (gộp có tính kết hợp)
+          continue;   // máy khác vừa ghi: đọc lại và gộp tiếp (gộp từ bản gốc cũ nên vẫn đúng)
         }
+        // ghi nhớ trạng thái đồng bộ TRƯỚC khi áp dụng về máy: giao diện vẽ lại khi áp dụng sẽ thấy giờ đồng bộ mới
+        const prev = { base: get('base'), ver: get('ver'), at: get('at') };
+        set('base', JSON.stringify(merged)); set('ver', String(put.version)); set('at', now().toISOString());
+        if (changedLocal) {
+          try { await setData(merged); }
+          catch (e) { set('base', prev.base); set('ver', prev.ver); set('at', prev.at); throw e; }   // không áp dụng được: quay lại ảnh chụp cũ để lần sau không hiểu nhầm là đã xóa
+        }
+        return { changedLocal, version: put.version };
       }
       const e = new Error('Dữ liệu đang được máy khác ghi liên tục, thử lại sau'); e.code = 'busy'; throw e;
     },

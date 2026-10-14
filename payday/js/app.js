@@ -94,6 +94,8 @@ async function khoiChay() {
   window.addEventListener('pagehide', () => { ghiNgay(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') ghiNgay(); else if (homNay() !== ngayVe) ve({ giuCuon: true }); });
   await ve();
+  // đồng bộ tự động (chỉ khi người dùng đã bật): nạp lười để không làm chậm lần mở đầu
+  import('./lib/dongbo.js').then(async (m) => { const u = await import('./lib/nine-sync-ui.js'); u.tuDongDongBo(m.dongBo, {}); }).catch((e) => console.debug('[dong-bo] khởi động:', e && e.message));
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('sw.js').catch(() => { /* ngoại tuyến là tính năng thêm, không bắt buộc */ });
   }
