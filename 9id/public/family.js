@@ -13,11 +13,7 @@
     N.get('api/families').then(function (r) {
       N.clear(p);
       p.appendChild(h('h1', { class: 'h1', text: 'Gia đình của tôi' }));
-      (N.notices || []).forEach(function (n) {
-        if (n.kind !== 'password_reset') return;
-        p.appendChild(N.notice('warn', 'Mật khẩu của bạn đã được đặt lại bằng mã OTP', 'Lúc ' + new Date(n.at).toLocaleString('vi-VN') + '. Nếu không phải bạn, hãy đổi mật khẩu ngay, kiểm tra thiết bị đang đăng nhập và liên hệ nhà mạng về SIM của bạn.',
-          N.btn('Tôi đã biết', 'ghost sm', function (e) { N.busy(e.currentTarget, function () { return N.post('api/notices/seen').then(function () { N.notices = []; N.families(); }); }); })));
-      });
+      N.noticeCards(N.families).forEach(function (c) { p.appendChild(c); });
       if (N.approvals > 0) p.appendChild(N.notice('warn', N.approvals + ' người đang chờ bạn duyệt vào gia đình', 'Mở gia đình tương ứng để xem 4 số cuối điện thoại và duyệt hoặc từ chối.'));
       if (N.pending > 0) p.appendChild(N.notice('info', 'Bạn có ' + N.pending + ' lời mời gia đình', 'Mở để chấp nhận hoặc từ chối.', N.link('#/loi-moi', { class: 'linkbtn', text: 'Xem lời mời' })));
       if (!r.families.length) {
