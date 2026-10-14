@@ -15,12 +15,12 @@
   H9.employer = function () {
     H9.frame({ title: 'Đăng tuyển', tabs: 'employer' });
     H9.skeleton();
-    H9.loadMeta().then(function () { return H9.get('api/employer/me'); }).then(function (d) {
-      if (!d.employer) intro(); else dashboard();
+    H9.loadMeta().then(function () { return Promise.all([H9.get('api/employer/me'), H9.get('api/account').catch(function () { return null; })]); }).then(function (rs) {
+      if (!rs[0].employer) intro(rs[1]); else dashboard(rs[1]);
     }, function (e) { H9.loadError(e, H9.employer); });
   };
 
-  function intro() {
+  function intro(acc) {
     H9.frame({ title: 'Đăng tuyển', tabs: 'employer' });
     var name = H9.text({ maxlength: 60, placeholder: 'Ví dụ: Quán Cà Phê Gió, Cửa hàng Minh Anh', autocapitalize: 'words' });
     var agree = H9.checkbox('Mình đồng ý với Điều khoản và cam kết không thu tiền người xin việc', false);
@@ -43,6 +43,7 @@
         H9.field('Tên quán, cửa hàng hoặc tên bạn', name), agree.node, h('div', { class: 'btn-row' }, [go]),
       ]),
       h('div', { class: 'center' }, [h('span', { class: 'muted', text: 'Đã có tài khoản? ' }), H9.link('#/employer/recover', { class: 'linkbtn' }, ['Vào lại bằng mã khôi phục'])]),
+      nineCard(acc),
     ]);
   }
 
@@ -68,7 +69,7 @@
     ])]);
   }
 
-  function dashboard() {
+  function dashboard(acc) {
     H9.frame({ title: 'Đăng tuyển', tabs: 'employer' });
     H9.get('api/employer/jobs').then(function (d) {
       var open = d.jobs.filter(function (j) { return j.state === 'dang'; });
@@ -99,9 +100,58 @@
           ]));
         });
       }
+      nodes.push(nineCard(acc));
       nodes.push(accountCard());
       H9.mount(nodes);
-    }, function (e) { if (!needAccount(e)) H9.loadError(e, dashboard); });
+    }, function (e) { if (!needAccount(e)) H9.loadError(e, function () { dashboard(acc); }); });
+  }
+
+  // ---------- thẻ tài khoản 9id (tùy chọn): chỉ hiện khi tích hợp bật và 9id trả lời được ----------
+  function loginUrl(acc, mode) {
+    // chỉ nhận đường dẫn tương đối cùng nguồn gốc (bắt đầu bằng một dấu /) từ máy chủ; next là trang hiện tại
+    if (typeof acc.loginPath !== 'string' || !/^\/(?!\/)/.test(acc.loginPath)) return null;
+    return acc.loginPath + '?next=' + encodeURIComponent(location.pathname + location.search + location.hash) + '#/' + mode;
+  }
+  function nineCard(acc) {
+    if (!acc || !acc.enabled || acc.idDown) return null;
+    var inUrl = loginUrl(acc, 'dang-nhap'), upUrl = loginUrl(acc, 'dang-ky');
+    if (!inUrl) return null;
+    if (!acc.loggedIn) {
+      return h('div', { class: 'card', id: 'acc-card' }, [
+        h('h2', { text: 'Tài khoản 9app (không bắt buộc)' }),
+        h('p', { class: 'muted', text: 'Đăng nhập để giữ tài khoản nhà tuyển dụng và dùng trên máy khác mà không cần mã khôi phục. Không đăng nhập vẫn dùng bình thường.' }),
+        h('div', { class: 'btn-row' }, [
+          H9.btn('Đăng nhập', 'primary', function () { location.assign(inUrl); }),
+          H9.btn('Đăng ký', 'ghost', function () { location.assign(upUrl); }),
+        ]),
+      ]);
+    }
+    var kids = [h('h2', { text: 'Tài khoản 9app' }), h('p', { text: 'Đã đăng nhập: ' + (acc.user && acc.user.displayName ? acc.user.displayName : 'bạn') })];
+    if (acc.claimable) {
+      kids.push(h('p', { class: 'muted', text: 'Tài khoản nhà tuyển dụng "' + acc.claimable.employerName + '" trên máy này chưa gắn vào tài khoản 9app.' }));
+      var claim = H9.btn('Gắn vào tài khoản', 'primary block', function (e) {
+        return H9.busy(e.currentTarget, function () {
+          return H9.post('api/account/claim', {}).then(function (r) {
+            H9.toast(r.claimed ? 'Đã gắn vào tài khoản 9app của bạn.' : 'Chưa gắn được, thử lại nhé.', r.claimed ? undefined : 'err');
+            H9.employer();
+          });
+        });
+      });
+      kids.push(claim);
+    }
+    if (acc.conflict) {
+      kids.push(h('p', { class: 'muted', text: 'Tài khoản 9app này đã có tài khoản nhà tuyển dụng, nên "' + acc.conflict.employerName + '" trên máy này được giữ riêng.' }));
+    }
+    kids.push(h('div', { class: 'btn-row' }, [
+      h('a', { class: 'btn ghost', href: acc.loginPath + '#/tai-khoan' }, ['Quản lý tài khoản']),
+      H9.btn('Đăng xuất 9app', 'ghost', function (e) {
+        return H9.busy(e.currentTarget, function () {
+          return fetch(acc.loginPath + 'api/logout', { method: 'POST', credentials: 'same-origin', headers: { 'x-requested-with': '9id', 'content-type': 'application/json' }, body: '{}' })
+            .then(function (r) { if (!r.ok) throw new Error('logout'); location.reload(); }).catch(function () { H9.toast('Chưa đăng xuất được, hãy thử lại.', 'err'); });
+        });
+      }),
+    ]));
+    return h('div', { class: 'card', id: 'acc-card' }, kids);
   }
 
   function accountCard() {
