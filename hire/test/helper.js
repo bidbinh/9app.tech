@@ -32,12 +32,13 @@ export const freshIp = () => `10.${(ipSeq >> 16) & 255}.${(ipSeq >> 8) & 255}.${
 
 // Một "trình duyệt": có cookie và địa chỉ IP riêng
 export class Client {
-  constructor(name = 'khach', ip = freshIp()) { this.name = name; this.cookie = ''; this.ip = ip; }
+  constructor(name = 'khach', ip = freshIp()) { this.name = name; this.cookie = ''; this.nine = ''; this.ip = ip; }
   async req(method, path, body, { csrf = true, headers = {}, raw = false, origin, rawBody } = {}) {
     const h = { 'x-forwarded-for': this.ip, ...headers };
     if (body !== undefined || rawBody !== undefined) h['content-type'] = 'application/json';
     if (csrf && method !== 'GET') h['x-requested-with'] = '9hire';
-    if (this.cookie) h.cookie = this.cookie;
+    const ck = [this.cookie, this.nine && 'nine_sid=' + this.nine].filter(Boolean).join('; ');
+    if (ck) h.cookie = ck;
     if (origin) h.origin = origin;
     const r = await fetch(base + path, { method, headers: h, body: rawBody !== undefined ? rawBody : (body === undefined ? undefined : JSON.stringify(body)) });
     const sc = r.headers.getSetCookie?.() || [];

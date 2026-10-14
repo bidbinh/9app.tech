@@ -5,6 +5,7 @@ import { migrate, query } from './db.js';
 import { resolveSession } from './auth.js';
 import { publicRoutes } from './routes/public.js';
 import { employerRoutes } from './routes/employer.js';
+import { accountRoutes } from './routes/account.js';
 import { consoleApiRoutes } from './console-api.js';
 
 export function buildApp() {
@@ -12,6 +13,7 @@ export function buildApp() {
   app.setAuthResolver(resolveSession);
   publicRoutes(app);
   employerRoutes(app);
+  accountRoutes(app);
   consoleApiRoutes(app);
   app.route('GET', '/healthz', async () => { await query('SELECT 1'); return { ok: true }; });
   return app;

@@ -2,13 +2,14 @@
 import { config } from '../config.js';
 import { query, tx } from '../db.js';
 import { ApiError } from '../errors.js';
-import { ensureSession, clearSessionCookie, employerFor, requireEmployer, consume, notFound } from '../auth.js';
+import { ensureSession, clearSessionCookie, employerFor, whoOf, requireEmployer, consume, notFound } from '../auth.js';
 import { APP_STATUS, keys } from '../meta.js';
 import { intIn, cleanText, newRecoveryCode, normRecoveryCode, sha256hex, uuidParam, todayVN, hourVN } from '../util.js';
 import { validateJob, stateOf, checkBlocked } from '../jobs.js';
 
 const L = config.limits;
 const tooMany = (msg) => new ApiError(429, 'too_many', msg);
+const idUnavailable = () => new ApiError(503, 'id_unavailable', 'Chưa kết nối được dịch vụ tài khoản 9app, thử lại sau ít phút');
 
 const employerOut = (e) => ({ id: e.id, name: e.name, createdAt: e.created_at });
 
@@ -45,7 +46,7 @@ async function dupCheck(q, j, employerId, ip, exceptId = null) {
 export function employerRoutes(app) {
   // ---------- tài khoản ----------
   app.route('GET', '/api/employer/me', async (ctx) => {
-    const e = await employerFor(query, ctx.sid);
+    const e = await employerFor(query, whoOf(ctx));
     if (!e) return { employer: null };
     await query("UPDATE employers SET last_seen_at = now() WHERE id = $1 AND last_seen_at < now() - interval '1 minute'", [e.id]);
     return { employer: employerOut(e) };
@@ -53,14 +54,15 @@ export function employerRoutes(app) {
 
   app.route('POST', '/api/employer', async (ctx) => {
     const name = cleanText(ctx.body.name, { max: 60, min: 2, field: 'Tên quán hoặc tên bạn' });
+    if (ctx.idDown) throw idUnavailable();   // đã đăng nhập mà 9id lỗi: không tạo tài khoản ẩn danh thứ hai
     const sid = ensureSession(ctx);
     const code = newRecoveryCode();
     return tx(async (c) => {
-      await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 9201))', [sid]);
-      if (await employerFor(c.query, sid)) throw new ApiError(409, 'already', 'Thiết bị này đã có tài khoản nhà tuyển dụng');
+      await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 9201))', [ctx.userId ? 'u:' + ctx.userId : sid]);
+      if (await employerFor(c.query, whoOf(ctx))) throw new ApiError(409, 'already', ctx.userId ? 'Tài khoản này đã có tài khoản nhà tuyển dụng' : 'Thiết bị này đã có tài khoản nhà tuyển dụng');
       if (!(await consume(c.query, `emp:ip:${ctx.ip}:${todayVN()}`, L.employersPerIpDay))) throw tooMany('Từ mạng này đã tạo nhiều tài khoản hôm nay, thử lại vào ngày mai');
-      const e = (await c.query('INSERT INTO employers(name, recovery_hash, created_ip) VALUES($1,$2,$3) RETURNING *', [name, sha256hex(normRecoveryCode(code)), ctx.ip]))[0];
-      await attachSession(c.query, sid, e.id);
+      const e = (await c.query('INSERT INTO employers(name, recovery_hash, created_ip, user_id) VALUES($1,$2,$3,$4) RETURNING *', [name, sha256hex(normRecoveryCode(code)), ctx.ip, ctx.userId || null]))[0];
+      if (!ctx.userId) await attachSession(c.query, sid, e.id);   // đăng nhập: quyền đi qua tài khoản, máy không giữ lại sau khi đăng xuất
       return { employer: employerOut(e), recoveryCode: code };
     });
   }, { limit: 10, limitKey: 'mkemp' });
@@ -77,6 +79,9 @@ export function employerRoutes(app) {
     if (!code) throw wrong;
     const e = (await query('SELECT * FROM employers WHERE recovery_hash = $1', [sha256hex(code)]))[0];
     if (!e) throw wrong;
+    if (ctx.idDown) throw idUnavailable();
+    // đã đăng nhập và đã có nhà tuyển dụng của tài khoản: không gắn thêm nhà tuyển dụng khác vào máy này (tránh hai danh tính)
+    if (ctx.userId && e.user_id !== ctx.userId && await employerFor(query, { userId: ctx.userId })) throw new ApiError(409, 'already', 'Tài khoản 9app này đã có tài khoản nhà tuyển dụng');
     const sid = ensureSession(ctx);
     await tx((c) => attachSession(c.query, sid, e.id));
     return { employer: employerOut(e) };

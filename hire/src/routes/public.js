@@ -113,7 +113,7 @@ export function publicRoutes(app) {
       const j = (await c.query('SELECT * FROM jobs WHERE id = $1 FOR UPDATE', [id]))[0];
       if (!j || j.status === 'an') throw notFound('Tin này không còn hiển thị');
       if (stateOf(j) !== 'dang') throw new ApiError(409, 'closed', 'Tin này đã hết hạn hoặc đã đóng, không nhận thêm hồ sơ');
-      const own = await c.query('SELECT 1 FROM phien WHERE token_hash = $1 AND employer_id = $2', [sid, j.employer_id]);
+      const own = await c.query('SELECT 1 FROM employers e WHERE e.id = $3 AND (e.user_id = $2::uuid OR EXISTS (SELECT 1 FROM phien p WHERE p.employer_id = e.id AND p.token_hash = $1))', [sid, ctx.userId || null, j.employer_id]);
       if (own.length) throw new ApiError(400, 'own_job', 'Đây là tin của bạn');
       if (!(await consume(c.query, `ap:s:${sid}:${day}`, L.applyPerSessionDay)) || !(await consume(c.query, `ap:ip:${ctx.ip}:${day}`, L.applyPerIpDay))) {
         throw tooMany('Bạn đã gửi nhiều hồ sơ hôm nay, mai gửi tiếp nhé');

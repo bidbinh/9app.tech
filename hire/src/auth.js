@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { ApiError } from './errors.js';
 import { query } from './db.js';
 import { sha256hex } from './util.js';
+import { resolveUser } from './nine-session.js';
 
 export const COOKIE = 'hsid';
 const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
@@ -11,6 +12,7 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 export async function resolveSession(ctx) {
   const t = ctx.cookies[COOKIE];
   if (t && TOKEN_RE.test(t)) ctx.sid = sha256hex(t);
+  await resolveUser(ctx);   // tùy chọn: gắn ctx.userId nếu có cookie 9id hợp lệ
   return null;
 }
 
@@ -27,16 +29,24 @@ export function clearSessionCookie(ctx) {
   ctx.setCookie(COOKIE, '', { clear: true });
 }
 
-// Nhà tuyển dụng của phiên này hoặc null. q: (sql, params) => rows
-export async function employerFor(q, sid) {
-  if (!sid) return null;
-  const rows = await q('SELECT e.* FROM employers e JOIN phien p ON p.employer_id = e.id WHERE p.token_hash = $1', [sid]);
+// Nhà tuyển dụng của người gọi: qua tài khoản 9id (user_id) HOẶC phiên ẩn danh (phien). Có cả hai thì ưu tiên nhà tuyển dụng của tài khoản (xác định).
+// who: { sid, userId }. q: (sql, params) => rows
+export async function employerFor(q, who) {
+  const sid = who && who.sid || null, userId = who && who.userId || null;
+  if (!sid && !userId) return null;
+  const rows = await q(
+    `SELECT e.* FROM employers e
+      WHERE ($2::uuid IS NOT NULL AND e.user_id = $2::uuid)
+         OR ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.employer_id = e.id AND p.token_hash = $1))
+      ORDER BY (e.user_id IS NOT NULL AND e.user_id = $2::uuid) DESC, e.seq LIMIT 1`, [sid, userId]);
   return rows[0] || null;
 }
 
+export const whoOf = (ctx) => ({ sid: ctx.sid, userId: ctx.userId || null });
+
 // Chưa là nhà tuyển dụng: 401 (giao diện chuyển sang màn tạo/khôi phục)
 export async function requireEmployer(ctx, q = query) {
-  const e = await employerFor(q, ctx.sid);
+  const e = await employerFor(q, whoOf(ctx));
   if (!e) throw new ApiError(401, 'no_employer', 'Bạn chưa có tài khoản nhà tuyển dụng trên thiết bị này');
   return e;
 }
