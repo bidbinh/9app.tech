@@ -107,6 +107,9 @@ export const config = {
   loginIpLimit: int(env.LOGIN_IP_LIMIT, 40),
   // giới hạn nghiệp vụ
   ...readSessionPolicy(env),
+  // Đồng bộ dữ liệu app chỉ lưu ở máy (spec 2026-10-14-dong-bo-9id-design.md)
+  syncApps: new Set(String(env.SYNC_APPS === undefined ? 'car,fit,payday' : env.SYNC_APPS).split(',').map((x) => x.trim()).filter((x) => /^[a-z0-9_-]{1,30}$/.test(x))),
+  syncMaxBytes: int(env.SYNC_MAX_BYTES, 512 * 1024),
   phoneChangeDays: int(env.PHONE_CHANGE_DAYS, 30), // mỗi tài khoản đổi số tối đa một lần trong ngần ấy ngày
   phoneUndoDays: int(env.PHONE_UNDO_DAYS, 7), // giữ chỗ số cũ và cho phép hoàn tác trong ngần ấy ngày
   maxFamiliesOwned: 10,

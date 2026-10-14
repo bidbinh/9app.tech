@@ -7,6 +7,7 @@ import { authRoutes } from './routes/auth.js';
 import { accountRoutes } from './routes/account.js';
 import { phoneRoutes } from './routes/phone.js';
 import { familyRoutes } from './routes/families.js';
+import { syncRoutes } from './routes/sync.js';
 import { internalRoutes } from './internal.js';
 import { oauthRoutes } from './oauth.js';
 import { consoleApiRoutes } from './console-api.js';
@@ -38,6 +39,7 @@ export function buildApp() {
   accountRoutes(app);
   phoneRoutes(app);
   familyRoutes(app);
+  syncRoutes(app);
   internalRoutes(app);
   oauthRoutes(app);
   consoleApiRoutes(app);

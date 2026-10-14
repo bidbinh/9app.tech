@@ -81,13 +81,13 @@ export function createApp() {
     return normIp(req.socket.remoteAddress || '');
   }
 
-  function readBody(req) {
+  function readBody(req, maxBody = MAX_BODY) {
     return new Promise((resolve, reject) => {
       const chunks = [];
       let size = 0; let tooBig = false;
       req.on('data', (c) => {
         size += c.length;
-        if (size > MAX_BODY) { if (!tooBig) { tooBig = true; reject(new ApiError(413, 'too_large', 'Nội dung gửi lên quá lớn')); } return; }
+        if (size > maxBody) { if (!tooBig) { tooBig = true; reject(new ApiError(413, 'too_large', 'Nội dung gửi lên quá lớn')); } return; }
         chunks.push(c);
       });
       req.on('end', () => { if (!tooBig) resolve(Buffer.concat(chunks).toString('utf8')); });
@@ -167,7 +167,7 @@ export function createApp() {
       let raw = '';
       let body = null;
       if (mutating) {
-        raw = await readBody(req);
+        raw = await readBody(req, r.opts.maxBody);
         if (raw) {
           try { body = JSON.parse(raw); } catch { throw new ApiError(400, 'bad_json', 'Dữ liệu gửi lên không hợp lệ'); }
           if (body === null || typeof body !== 'object' || Array.isArray(body)) throw new ApiError(400, 'bad_json', 'Dữ liệu gửi lên không hợp lệ');
