@@ -31,6 +31,7 @@
   <symbol id="i-paper" viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M4.5 9.5h15M4.5 15h15M10 3.5v17"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 7V4.5h4V7M6.5 7l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12"/></symbol>
   <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></symbol>
+  <symbol id="i-magic" viewBox="0 0 24 24"><path d="M5 19 14 10M13 6.5l1-2.5 1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1zM18.5 13l.7-1.6.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7zM5.5 6.5l.5-1.2.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5z"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
 </svg>
 
@@ -50,6 +51,7 @@
     <canvas id="c-live" aria-hidden="true"></canvas>
   </div>
   <button id="b-fit" class="fit" type="button" hidden aria-label="Vừa khung"><svg><use href="#i-fit"/></svg><span>Vừa khung</span></button>
+  <button id="b-magic" class="magic" type="button" aria-label="Phép màu: thêm hình ngộ nghĩnh"><svg><use href="#i-magic"/></svg><span>Phép màu</span></button>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </main>
 
@@ -76,6 +78,9 @@
   <div id="fmts" class="chips" role="radiogroup" aria-label="Khổ giấy"></div>
   <h3>Nền</h3>
   <div id="bgs" class="chips" role="radiogroup" aria-label="Nền"></div>
+  <h3>Phép màu</h3>
+  <button id="auto" class="switch" type="button" role="switch" aria-checked="false"><span class="knob"></span><span id="auto-t">Tự thêm hình vui khi tôi dừng tay: Tắt</span></button>
+  <p class="note">Bấm nút Phép màu trên khung vẽ: hình tròn sẽ có mặt cười, chỗ trống có thêm nhân vật nhỏ. Xử lý ngay trên máy bạn.</p>
 </dialog>
 
 <dialog id="d-out" class="sheet" aria-labelledby="t-out">

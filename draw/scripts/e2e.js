@@ -118,6 +118,43 @@ async function kichban(ten, opts) {
   await page.click('#b-undo');
   check('hoàn tác xóa hết: nét về lại', (await pixels(page, 150, 150, 700, 300)) > 500);
 
+  // Phép màu: hình tròn có mặt, hoàn tác cả nhóm một lần
+  await page.evaluate(() => { localStorage.clear(); });
+  await page.click('#b-clear');
+  const CIRC = Array.from({ length: 41 }, (_, i) => [540 + 170 * Math.cos((i / 40) * Math.PI * 2), 560 + 170 * Math.sin((i / 40) * Math.PI * 2)]);
+  await page.click('[data-tool="pen"]');
+  await ve(page, CIRC);
+  const nMag0 = await dem(page);
+  const trongTruoc = await pixels(page, 460, 480, 160, 160);
+  await page.click('#b-magic');
+  await page.waitForFunction(() => !document.getElementById('b-magic').disabled, { timeout: 6000 });
+  const mg = await page.evaluate(() => { const s = window.__draw.doc.strokes.at(-1); return { t: s.t, n: s.s ? s.s.length : 0 }; });
+  check('phép màu: thêm một nhóm nét', mg.t === 'magic' && mg.n > 15, JSON.stringify(mg));
+  check('phép màu: vẽ mặt trong hình tròn', (await pixels(page, 460, 480, 160, 160)) > trongTruoc + 300);
+  check('phép màu: có nhân vật ngoài hình tròn', (await pixels(page, 0, 0, 1080, 1350)) > (await pixels(page, 340, 360, 400, 400)) + 800);
+  await page.screenshot({ path: path.join(SHOTS, `${ten}-05-phep-mau.png`) });
+  await page.click('#b-undo');
+  check('hoàn tác một lần bỏ cả nhóm', (await dem(page)) === nMag0 && (await pixels(page, 460, 480, 160, 160)) === trongTruoc);
+  await page.click('#b-redo');
+  check('làm lại phép màu', (await dem(page)) === nMag0 + 1);
+  await page.click('#b-clear');
+  await page.click('#b-magic');
+  check('phép màu khi giấy trống: báo nhắc, không thêm nét', await page.$eval('#toast', (t) => !t.hidden && /vẽ gì đó/.test(t.textContent)));
+  await page.click('#b-undo'); await page.click('#b-undo');
+  // Tự động: bật rồi vẽ, dừng tay thì tự thêm
+  await page.click('#b-paper');
+  await page.click('#auto');
+  check('công tắc tự động bật', await page.$eval('#auto', (b) => b.getAttribute('aria-checked') === 'true'));
+  await page.click('#d-paper [data-close]');
+  const nAuto = await dem(page);
+  await ve(page, [[100, 1100], [300, 1150], [500, 1100]]);
+  await page.waitForFunction((n) => window.__draw.doc.strokes.length > n + 1, { timeout: 6000 }, nAuto).catch(() => {});
+  check('tự động: dừng tay thì thêm hình vui', (await dem(page)) === nAuto + 2 && await page.evaluate(() => window.__draw.doc.strokes.at(-1).t === 'magic'));
+  await page.click('#b-paper'); await page.click('#auto'); await page.click('#d-paper [data-close]');
+  await page.waitForFunction(() => !document.getElementById('b-magic').disabled, { timeout: 6000 });
+  await page.click('#b-undo'); await page.click('#b-undo');
+  await sleep(100);
+
   // Giấy: khổ + nền
   await page.click('#b-paper');
   await page.click('#fmts [data-k="1:1"]');
@@ -197,7 +234,7 @@ async function kichban(ten, opts) {
   check('chia sẻ gửi 1 tệp PNG', sh && sh.n === 1 && sh.type === 'image/png' && /^9draw-\d{8}-\d{6}\.png$/.test(sh.name), JSON.stringify(sh));
   await page.evaluate(() => { navigator.share = async () => { throw Object.assign(new Error('lỗi'), { name: 'NotAllowedError' }); }; });
   await page.click('#o-share');
-  await sleep(300);
+  await sleep(700);
   check('chia sẻ lỗi thì rơi về lưu ảnh và báo', await page.$eval('#toast', (t) => !t.hidden && /đã lưu ảnh/i.test(t.textContent)));
   await page.evaluate(() => { navigator.share = async () => { throw Object.assign(new Error('hủy'), { name: 'AbortError' }); }; document.getElementById('toast').hidden = true; });
   await page.click('#o-share');

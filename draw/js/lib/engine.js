@@ -53,6 +53,7 @@ function dot(ctx, s) {
 
 // Vẽ cả nét. alpha: ghi đè độ mờ (lớp xem trước của bút dạ dùng 1, độ mờ do CSS lo).
 export function drawStroke(ctx, s, alpha) {
+  if (s.t === 'magic') { for (const q of s.s) drawStroke(ctx, q, alpha); return; }   // nhóm nét "phép màu": hoàn tác một lần
   const p = s.p, n = p.length / 2;
   if (n < 1) return;
   style(ctx, s, alpha);
@@ -104,6 +105,20 @@ export function replay(ctx, strokes, w, h) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
+// Kiểm tra và làm sạch một nét; trả về nét sạch hoặc null.
+function cleanStroke(s, depth = 0) {
+  if (!s || typeof s !== 'object') return null;
+  if (s.t === 'clear') return { t: 'clear' };
+  if (s.t === 'magic') {
+    if (depth || !Array.isArray(s.s) || !s.s.length || s.s.length > 600) return null;
+    const subs = s.s.map((q) => (q && q.t !== 'clear' && q.t !== 'magic' ? cleanStroke(q, 1) : null)).filter(Boolean);
+    return subs.length ? { t: 'magic', s: subs } : null;
+  }
+  if (!TOOLS.has(s.t) || !COLOR.test(s.c) || !Number.isFinite(s.w) || !Array.isArray(s.p)) return null;
+  if (s.p.length < 2 || s.p.length % 2 || s.p.length > 40000 || !s.p.every(Number.isFinite)) return null;
+  return { t: s.t, c: s.c.toLowerCase(), w: Math.min(200, Math.max(1, s.w)), p: s.p };
+}
+
 export function parseDoc(raw) {
   const doc = { fmt: '4:5', bg: 'white', strokes: [] };
   let o;
@@ -113,11 +128,8 @@ export function parseDoc(raw) {
   if (BGS[o.bg]) doc.bg = o.bg;
   if (Array.isArray(o.strokes)) {
     for (const s of o.strokes.slice(-5000)) {
-      if (!s || typeof s !== 'object') continue;
-      if (s.t === 'clear') { doc.strokes.push({ t: 'clear' }); continue; }
-      if (!TOOLS.has(s.t) || !COLOR.test(s.c) || !Number.isFinite(s.w) || !Array.isArray(s.p)) continue;
-      if (s.p.length < 2 || s.p.length % 2 || s.p.length > 40000 || !s.p.every(Number.isFinite)) continue;
-      doc.strokes.push({ t: s.t, c: s.c.toLowerCase(), w: Math.min(200, Math.max(1, s.w)), p: s.p });
+      const c = cleanStroke(s);
+      if (c) doc.strokes.push(c);
     }
   }
   return doc;

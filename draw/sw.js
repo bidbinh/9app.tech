@@ -1,6 +1,6 @@
 // Service worker của 9draw: lưu vỏ ứng dụng để mở được khi mất mạng.
 // Mạng trước, bộ nhớ đệm sau (bản mới tới máy ngay khi có mạng). Đổi CACHE_VERSION mỗi lần phát hành.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const SHELL_CACHE = `9draw-shell-${CACHE_VERSION}`;
 
 const SHELL = [
@@ -10,6 +10,7 @@ const SHELL = [
   './css/style.css',
   './js/app.js',
   './js/lib/engine.js',
+  './js/lib/magic.js',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',

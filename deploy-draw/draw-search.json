@@ -1,4 +1,5 @@
 [
+ {"name": "Phép màu: AI vẽ thêm hình ngộ nghĩnh", "keywords": ["ai", "phép màu", "vẽ thêm", "ngộ nghĩnh", "mặt cười", "nhân vật", "trẻ em", "vui"], "path": "", "blurb": "Vẽ hình tròn rồi bấm Phép màu: hình có mặt cười, chỗ trống có thêm nhân vật nhỏ."},
  {"name": "Vẽ tay", "keywords": ["vẽ", "vẽ tay", "draw", "vẽ hình", "tô màu", "phác thảo", "ghi chú tay"], "path": "", "blurb": "Vẽ bằng ngón tay hoặc bút cảm ứng trên giấy trắng, giấy kẻ ô."},
  {"name": "Bút dạ và tẩy", "keywords": ["bút dạ", "highlight", "tẩy", "xóa nét", "đổi màu", "cỡ nét"], "path": "", "blurb": "Chọn bút, bút dạ hoặc tẩy, đổi màu và cỡ nét ở thanh dưới."},
  {"name": "Lưu ảnh và chia sẻ", "keywords": ["lưu ảnh", "chia sẻ", "share", "đăng facebook", "gửi zalo", "xuất png", "sao chép ảnh"], "path": "", "blurb": "Bấm Xuất ảnh để lưu PNG hoặc chia sẻ lên mạng xã hội."},

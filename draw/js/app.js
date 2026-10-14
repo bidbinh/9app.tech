@@ -1,4 +1,5 @@
 // 9draw: vẽ tay, lưu ảnh, chia sẻ. Mọi thứ chạy trên máy; bản vẽ tự lưu trong trình duyệt.
+import { makeMagic } from './lib/magic.js';
 import { W, FORMATS, BGS, drawBackground, drawStroke, drawSeg, drawTail, replay, parseDoc, serializeDoc, round1 } from './lib/engine.js';
 
 const $ = (id) => document.getElementById(id);
@@ -16,7 +17,8 @@ function ls(op, k, v) { try { return op === 'get' ? localStorage.getItem(k) : lo
 
 let doc = parseDoc(ls('get', KEY_DOC));
 let redo = [];
-const pref = Object.assign({ tool: 'pen', color: COLORS[0], sizes: { pen: 8, hl: 36, er: 40 } }, (() => { try { return JSON.parse(ls('get', KEY_PREF)) || {}; } catch { return {}; } })());
+const pref = Object.assign({ auto: false, tool: 'pen', color: COLORS[0], sizes: { pen: 8, hl: 36, er: 40 } }, (() => { try { return JSON.parse(ls('get', KEY_PREF)) || {}; } catch { return {}; } })());
+pref.auto = pref.auto === true;
 if (!TOOL_NAMES[pref.tool]) pref.tool = 'pen';
 if (!/^#[0-9a-f]{6}$/i.test(pref.color)) pref.color = COLORS[0];
 for (const k of ['pen', 'hl', 'er']) if (!(pref.sizes[k] >= 2 && pref.sizes[k] <= 80)) pref.sizes[k] = { pen: 8, hl: 36, er: 40 }[k];
@@ -147,7 +149,9 @@ function endStroke() {
   if (s.t === 'hl') drawStroke(inkX, s);
   else if (s.p.length > 2) drawTail(inkX, s);   // nốt đoạn cuối, khớp với bản dựng lại
   doc.strokes.push(s); redo = [];
+  sinceMagic++; lastEnd = s.p.slice(-2);
   syncHistory(); saveSoon();
+  if (pref.auto) scheduleAuto();
 }
 function cancelStroke() {
   if (!cur) return;
@@ -172,7 +176,9 @@ function zoomAbout(cx, cy, ncx, ncy, k) {
 }
 
 stage.addEventListener('pointerdown', (e) => {
-  if (e.target.closest('button')) return;   // nút nổi (Vừa khung) không phải nét vẽ
+  if (e.target.closest('button')) return;   // nút nổi (Vừa khung, Phép màu) không phải nét vẽ
+  if (busy) return;                          // đang vẽ hình phép màu
+  clearTimeout(autoTimer);
   if (e.pointerType === 'pen') sawPen = true;
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   try { stage.setPointerCapture(e.pointerId); } catch { /* bỏ qua */ }
@@ -221,15 +227,15 @@ function syncHistory() {
   $('b-redo').disabled = redo.length === 0;
 }
 function undo() {
-  if (cur || !doc.strokes.length) return;
+  if (cur || busy || !doc.strokes.length) return;
   redo.push(doc.strokes.pop()); redrawInk(); syncHistory(); saveSoon();
 }
 function redoIt() {
-  if (cur || !redo.length) return;
+  if (cur || busy || !redo.length) return;
   doc.strokes.push(redo.pop()); redrawInk(); syncHistory(); saveSoon();
 }
 function clearAll() {
-  if (cur) return;
+  if (cur || busy) return;
   const last = doc.strokes[doc.strokes.length - 1];
   if (!last || last.t === 'clear') { toast('Giấy đang trống'); return; }
   doc.strokes.push({ t: 'clear' }); redo = [];
@@ -256,6 +262,44 @@ document.addEventListener('keydown', (e) => {
 for (const b of document.querySelectorAll('.tool')) b.addEventListener('click', () => setTool(b.dataset.tool));
 $('size').min = '2'; $('size').max = '80';
 $('size').addEventListener('input', (e) => { pref.sizes[pref.tool] = Number(e.target.value); updateSizeDot(); saveSoon(); });
+
+// ---------- Phép màu: tự vẽ thêm hình ngộ nghĩnh ----------
+let busy = false, sinceMagic = 0, lastMagic = 0, lastEnd = null, autoTimer = 0;
+const magicBtn = $('b-magic');
+function setBusy(v) { busy = v; magicBtn.disabled = v; magicBtn.classList.toggle('busy', v); }
+function runMagic(light) {
+  if (cur || busy) return;
+  const res = makeMagic(doc.strokes, { W, H, bg: doc.bg, seed: (Math.random() * 4294967296) >>> 0, light, focus: lastEnd });
+  if (!res.strokes) { if (!light) toast(res.reason === 'trống' ? 'Hãy vẽ gì đó trước, rồi bấm Phép màu nhé!' : 'Giấy đầy rồi, xóa bớt hoặc đổi sang giấy mới nhé'); return; }
+  const group = { t: 'magic', s: res.strokes };
+  doc.strokes.push(group); redo = []; sinceMagic = 0; lastMagic = Date.now();
+  syncHistory(); saveSoon(); toast(res.note);
+  const subs = res.strokes, step = Math.max(12, Math.min(70, 2200 / subs.length));
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (still) { redrawInk(); return; }
+  setBusy(true);
+  let i = 0;
+  const tick = () => {
+    for (let k = 0; k < (step < 20 ? 2 : 1) && i < subs.length; k++) drawStroke(inkX, subs[i++]);
+    if (i < subs.length) setTimeout(tick, step); else { setBusy(false); redrawInk(); }
+  };
+  tick();
+}
+function scheduleAuto() {
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(() => {
+    if (cur || busy || mode || sinceMagic < 1 || Date.now() - lastMagic < 6000) return;
+    runMagic(true);
+  }, 2000);
+}
+magicBtn.addEventListener('click', () => runMagic(false));
+const autoBtn = $('auto');
+function syncAuto() {
+  autoBtn.setAttribute('aria-checked', pref.auto ? 'true' : 'false');
+  $('auto-t').textContent = 'Tự thêm hình vui khi tôi dừng tay: ' + (pref.auto ? 'Bật' : 'Tắt');
+}
+autoBtn.addEventListener('click', () => { pref.auto = !pref.auto; syncAuto(); saveSoon(); });
+syncAuto();
 
 // ---------- Hộp thoại ----------
 for (const d of document.querySelectorAll('dialog')) {
@@ -292,7 +336,7 @@ const fileName = () => {
   return `9draw-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}.png`;
 };
 async function openOut() {
-  if (cur) return;
+  if (cur || busy) return;
   const blob = await new Promise((r) => compose().toBlob(r, 'image/png'));
   if (!blob) { toast('Không tạo được ảnh, thử lại'); return; }
   outBlob = blob;
