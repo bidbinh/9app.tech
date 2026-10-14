@@ -4,6 +4,7 @@ import { config, productionProblems } from './config.js';
 import { migrate, query } from './db.js';
 import { resolveSession } from './auth.js';
 import { teamRoutes } from './routes/teams.js';
+import { accountRoutes } from './routes/account.js';
 import { mealRoutes } from './routes/meals.js';
 import { moneyRoutes } from './routes/money.js';
 import { consoleApiRoutes } from './console-api.js';
@@ -12,6 +13,7 @@ export function buildApp() {
   const app = createApp();
   app.setAuthResolver(resolveSession);
   teamRoutes(app);
+  accountRoutes(app);
   mealRoutes(app);
   moneyRoutes(app);
   consoleApiRoutes(app);
