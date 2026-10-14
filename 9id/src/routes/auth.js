@@ -56,11 +56,24 @@ export async function rememberDevice(ctx, userId) {
   ctx.setCookie(DEVICE_COOKIE, t, { maxAge: DEVICE_DAYS * 86400 });
 }
 
-async function startSession(ctx, userRow, extra = {}) {
+// Thông báo "thiết bị mới" (chỉ khi đăng nhập thường): thiết bị không quen mà tài khoản đã có phiên khác đang hiệu lực.
+// Không kèm số điện thoại hay IP; tối đa một thông báo mỗi giờ. Phiên vừa tạo không nhận thông báo về chính nó.
+async function shouldNoteNewDevice(ctx, userId) {
+  if (await knownDevice(ctx, userId)) return false;
+  const others = (await query("SELECT count(*)::int AS n FROM sessions WHERE user_id=$1 AND last_used_at > now() - make_interval(days => $2)", [userId, config.sessionDays]))[0].n;
+  if (!others) return false;
+  const recent = (await query("SELECT 1 FROM notices WHERE user_id=$1 AND kind='new_device' AND created_at > now() - interval '1 hour'", [userId])).length;
+  return !recent;
+}
+
+async function startSession(ctx, userRow, extra = {}, { notifyNewDevice = false } = {}) {
+  const noteNew = notifyNewDevice ? await shouldNoteNewDevice(ctx, userRow.id) : false;
   await createSession({ query }, ctx, userRow.id);
   await rememberDevice(ctx, userRow.id);
   const u = { id: userRow.id, phone: userRow.phone, displayName: userRow.display_name, passwordWeak: userRow.password_weak, source: userRow.source, createdAt: userRow.created_at };
-  return { user: publicUser(u), next: safeNext(ctx.body.next), notices: await unseenNotices(userRow.id), ...extra };
+  const notices = await unseenNotices(userRow.id);
+  if (noteNew) await query("INSERT INTO notices(user_id, kind) VALUES($1,'new_device')", [userRow.id]);
+  return { user: publicUser(u), next: safeNext(ctx.body.next), notices, ...extra };
 }
 
 export function authRoutes(app) {
@@ -182,7 +195,7 @@ export function authRoutes(app) {
     } else {
       await query('UPDATE users SET last_seen_at=now() WHERE id=$1', [user.id]);
     }
-    return startSession(ctx, user, { mustChangePassword: user.password_weak });
+    return startSession(ctx, user, { mustChangePassword: user.password_weak }, { notifyNewDevice: true });
   }, { limit: 60, limitKey: 'login' });
 
   // ---------- phiên hiện tại ----------
