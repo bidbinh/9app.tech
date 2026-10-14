@@ -74,6 +74,7 @@ export function communityRoutes(app) {
     const kind = oneOf(b.kind ?? 'toa_nha', Object.keys(COMMUNITY_KINDS), 'Loại cộng đồng');
     const myName = noLinks(cleanText(b.myName, { max: config.maxNameLen, min: 1, field: 'Tên của bạn' }), 'Tên của bạn');
     if (b.agree !== true) throw new ApiError(400, 'rules_required', 'Hãy đồng ý với quy tắc cộng đồng để tiếp tục');
+    if (ctx.idDown) throw new ApiError(503, 'id_unavailable', 'Chưa kết nối được dịch vụ tài khoản 9app, thử lại sau ít phút');   // đã đăng nhập mà 9id lỗi: không tạo danh tính ẩn danh thứ hai
     const sid = ensureSession(ctx);
     const made = (await query("SELECT count(*)::int n FROM communities WHERE created_by_hash=$1 AND created_at > now() - interval '24 hours'", [sid]))[0].n;
     if (made >= config.maxCommunitiesPerDay) throw new ApiError(429, 'too_many', `Mỗi ngày chỉ tạo được ${config.maxCommunitiesPerDay} cộng đồng, mai bạn tạo tiếp nhé`);
@@ -112,6 +113,7 @@ export function communityRoutes(app) {
     const code = codeOf(ctx);
     const name = noLinks(cleanText(ctx.body.name, { max: config.maxNameLen, min: 1, field: 'Tên của bạn' }), 'Tên của bạn');
     if (ctx.body.agree !== true) throw new ApiError(400, 'rules_required', 'Hãy đồng ý với quy tắc cộng đồng để tiếp tục');
+    if (ctx.idDown) throw new ApiError(503, 'id_unavailable', 'Chưa kết nối được dịch vụ tài khoản 9app, thử lại sau ít phút');   // đã đăng nhập mà 9id lỗi: không tạo danh tính ẩn danh thứ hai
     const sid = ensureSession(ctx);
     const attempt = () => tx(async (c) => {
       const t = (await c.query('SELECT id, name FROM communities WHERE invite_code=$1 FOR UPDATE', [code]))[0];

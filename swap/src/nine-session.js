@@ -34,6 +34,7 @@ function idClient() {
 }
 
 function remember(h, user) {
+  cache.delete(h);   // làm mới: đưa mục về cuối Map để vòng bỏ mục cũ nhất không bỏ nhầm
   cache.set(h, { user, at: nowFn() });
   if (cache.size > CACHE_MAX) {
     const t = nowFn();

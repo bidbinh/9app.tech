@@ -37,6 +37,7 @@ Thiết kế: `../docs/superpowers/specs/2026-10-14-tich-hop-9id-9swap-design.md
 - **Nhận cộng đồng ẩn danh:** thẻ "Tài khoản 9app" ở trang chủ, người dùng bấm xác nhận (`POST /api/account/claim`). Trùng cộng đồng thì bỏ qua; không chiếm thành viên đã có `user_id`.
 - **Khóa theo người:** thành viên bị khóa vẫn nhận được và khóa được giữ; sang máy khác vẫn bị khóa, không vào lại được bằng mã mời.
 - **9id lỗi:** app vẫn chạy ẩn danh, thẻ tài khoản ẩn, chỉ `claim` trả 503.
+- **Gỡ tích hợp:** thành viên tạo/gia nhập lúc đã đăng nhập không có phiên ẩn danh; nếu sau đó bỏ `NINE_ID_SECRET` thì họ mất lối vào. Chỉ tắt khi chấp nhận điều này.
 - **Thử:** `npm test` (9id giả), `npm run e2e:account` (Chrome thật, ảnh vào `shots/account/`). Trước khi bật ở production, thử một lần với 9id thật.
 
 ## Triển khai

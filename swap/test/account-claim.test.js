@@ -154,3 +154,15 @@ test('nhận thành viên đang bị khóa vào tài khoản: khóa giữ nguyê
   assert.equal((await ok(other.get('/api/me'))).communities[0].banned, true);
   assert.equal((await other.post('/api/join/' + com.code, { name: 'Lại', agree: true })).status, 403);
 });
+
+test('đã đăng nhập mà 9id lỗi: tạo và gia nhập trả 503, không sinh thành viên ẩn danh thứ hai', async () => {
+  const q = mkUser('Q');
+  const com = await makeCommunity(['Chủ']);
+  const c = new Client('máy'); c.nine = q.token;
+  down = true; flushCaches();
+  try {
+    assert.equal((await mk(c, 'Cộng đồng Q', 'Q')).status, 503);
+    assert.equal((await c.post('/api/join/' + com.code, { name: 'Q', agree: true })).status, 503);
+  } finally { down = false; flushCaches(); }
+  assert.equal((await mem(com.cid)).length, 1);
+});
