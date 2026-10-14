@@ -35,8 +35,9 @@ Phục vụ tĩnh bất kỳ (ví dụ `npx serve .`); service worker cần http
 ## Bảo mật
 CSP chặt: `default-src 'none'; script-src 'self'; style-src 'self'` (không `unsafe-inline`; style động gán qua CSSOM). Dữ liệu người dùng không bao giờ đi vào `innerHTML`. Nhập JSON được lọc từng trường.
 
-## Chừa chỗ đồng bộ 9id
-Dữ liệu là 3 tập (`xe`, `nhatKy`, `hen`) + `meta`, mỗi bản ghi có `id` chuỗi duy nhất và tệp xuất có `phienBan`. Khi có 9id: thêm trường `capNhat` (ISO) cho mỗi bản ghi, gộp theo `id` + bản mới hơn thắng, và thay `js/lib/db.js`/`data.js#nhap` bằng bộ đồng bộ; giao diện không phải đổi. Mã hóa đầu cuối nên làm trước khi đẩy lên (biển số và ảnh là dữ liệu nhạy cảm).
+## Đồng bộ qua tài khoản 9app
+
+Tùy chọn, mặc định tắt: thẻ "Đồng bộ qua tài khoản 9app" ở màn Dữ liệu của tôi (cần đăng nhập 9id, có màn đồng ý rõ ràng). Đồng bộ ba tập `xe`, `nhatKy`, `hen`. Không đồng bộ: ảnh xe (giữ lại trên máy, không gửi lên) và `meta` (cài đặt riêng của máy). Gộp ba chiều theo bản ghi (`id`) ở máy, máy chủ chỉ lưu một tài liệu JSON có số phiên bản (`/id/api/sync/car` của 9id). Tự đồng bộ khi mở app và khi quay lại tab. Thư viện `js/lib/nine-sync.js`, `nine-sync-ui.js` chép từ `9id/public/` (đừng sửa tại chỗ). Spec: `docs/superpowers/specs/2026-10-14-dong-bo-9id-design.md`. Cần thêm `car` vào `SYNC_APPS` của 9id (mặc định đã có) và nginx phục vụ 9id cùng tên miền (`/id/`). Chưa mã hóa đầu cuối (biển số là dữ liệu nhạy cảm; việc sau).
 
 ## Hạn chế đã biết
 - Nhắc "trong app" chỉ hiện khi mở app (không có push). Nhắc đẩy qua tệp `.ics` của lịch điện thoại.

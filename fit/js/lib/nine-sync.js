@@ -86,9 +86,15 @@ export function createSync({ app, getData, setData, api = '/id/api/sync/', stora
     // tắt đồng bộ: giữ dữ liệu trên máy; quên ảnh chụp để lần bật sau gộp như lần đầu
     disable() { set('on', null); set('base', null); set('ver', null); },
     lastAt: () => get('at'),
-    // trạng thái đăng nhập: 'ok' | 'chua-dang-nhap' | 'loi'
+    // trạng thái đăng nhập: 'ok' | 'chua-dang-nhap' | 'loi'. Dùng GET <api>/../me (luôn 200, user:null khi chưa đăng nhập)
+    // để người dùng chưa đăng nhập không sinh lỗi 401 trong console trình duyệt.
     async probe() {
-      try { await call('GET'); return 'ok'; } catch (e) { return e.status === 401 ? 'chua-dang-nhap' : 'loi'; }
+      let r;
+      try { r = await fetchFn(api.replace(/sync\/?$/, '') + 'me', { method: 'GET', credentials: 'same-origin', headers: { accept: 'application/json' } }); } catch { return 'loi'; }
+      if (r.status === 401) return 'chua-dang-nhap';
+      if (!r.ok) return 'loi';
+      let j = null; try { j = await r.json(); } catch { return 'loi'; }
+      return j && j.user ? 'ok' : 'chua-dang-nhap';
     },
     async deleteRemote() { await call('DELETE'); set('base', null); set('ver', null); },
     // chạy một vòng đồng bộ; trả { changedLocal, version }

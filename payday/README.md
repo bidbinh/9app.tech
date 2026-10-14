@@ -51,9 +51,9 @@ node scripts/gen-search-index.mjs   # sinh lại search-index.json
 - Ghi nhanh chỉ lưu số tiền, danh mục, ngày, không lưu nguyên câu.
 - Nhận giọng nói do trình duyệt (Web Speech API) thực hiện; Chrome có thể gửi âm thanh tới máy chủ của hãng. App nói rõ điều này.
 
-## Đồng bộ 9id sau này
+## Đồng bộ qua tài khoản 9app
 
-Toàn bộ trạng thái là một đối tượng JSON thuần (`store.js: macDinh()`), xuất ra dạng `{ung_dung, phien_ban, xuat_luc, du_lieu}`. Mọi bản ghi (khoản chi, cố định, mục tiêu, vay, nhắc) đã có `id` ngẫu nhiên và các khoản chi có `ngay`, nên có thể đồng bộ theo bản ghi (gộp theo id, bản ghi mới hơn thắng) mà không đổi định dạng. Gợi ý: thêm một nút "Đồng bộ với 9id" ở trang Dữ liệu của tôi, mã hóa phía máy trước khi gửi, mặc định tắt. Hiện CHƯA có đồng bộ và CSP chưa cho kết nối ra ngoài.
+Tùy chọn, mặc định tắt: thẻ "Đồng bộ qua tài khoản 9app" ở màn Dữ liệu của tôi (cần đăng nhập 9id, có màn đồng ý rõ ràng). Đồng bộ nguyên khối `du_lieu` (lương, khoản chi, cố định, mục tiêu, vay, nhắc, quyết toán). Không đồng bộ: không có (mọi thứ trừ ảnh, app không có ảnh).. Gộp ba chiều theo bản ghi (`id`) ở máy, máy chủ chỉ lưu một tài liệu JSON có số phiên bản (`/id/api/sync/payday` của 9id). Tự đồng bộ khi mở app và khi quay lại tab. Thư viện `js/lib/nine-sync.js`, `nine-sync-ui.js` chép từ `9id/public/` (đừng sửa tại chỗ). Spec: `docs/superpowers/specs/2026-10-14-dong-bo-9id-design.md`. Cần thêm `payday` vào `SYNC_APPS` của 9id (mặc định đã có) và nginx phục vụ 9id cùng tên miền (`/id/`). Khoản chi không có dấu thời gian nên hai máy cùng sửa một khoản thì máy đang đồng bộ thắng. Chưa mã hóa đầu cuối.
 
 ## Triển khai
 

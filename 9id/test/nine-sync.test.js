@@ -76,6 +76,10 @@ function fakeServer() {
   s.fetch = async (url, opt) => {
     s.calls.push(opt.method);
     if (s.offline) throw new TypeError('fetch failed');
+    if (url.endsWith('/me')) {   // thăm dò đăng nhập: luôn 200 khi chưa đăng nhập (user:null)
+      if (s.status && s.status >= 500) return { ok: false, status: s.status, json: async () => ({}) };
+      return { ok: true, status: 200, json: async () => ({ user: s.status === 401 ? null : { id: 'u1' } }) };
+    }
     if (s.status) return { ok: false, status: s.status, json: async () => ({ error: { code: 'x', message: 'lỗi' } }) };
     if (opt.method === 'GET') return { ok: true, status: 200, json: async () => ({ version: s.version, data: s.data }) };
     if (opt.method === 'DELETE') { s.version = 0; s.data = null; return { ok: true, status: 200, json: async () => ({ ok: true }) }; }

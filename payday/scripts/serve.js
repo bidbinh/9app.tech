@@ -10,6 +10,7 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; ch
 
 function handler(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  if (p === '/id/api/me') { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end('{"user":null}'); }   // 9id giả: chưa đăng nhập (thẻ đồng bộ chỉ cần biết điều này)
   let file = null;
   if (p === '/payday') { res.writeHead(301, { Location: '/payday/' }); return res.end(); }
   if (p.startsWith('/payday/')) {
