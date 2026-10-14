@@ -26,7 +26,7 @@ test('tắt tích hợp: GET báo enabled:false, claim 404, gia sư ẩn danh ch
   try {
     const t = await newTutor('Cô N');
     const g = await ok(t.get('/api/account'));
-    assert.deepEqual(g, { enabled: false, loggedIn: false, idDown: false, user: null, loginPath: config.nineIdPublicPath, claimable: null, conflict: null });
+    assert.deepEqual(g, { enabled: false, loggedIn: false, idDown: false, user: null, loginPath: config.nineIdPublicPath, claimable: null, conflict: null, linked: false });
     assert.equal((await t.post('/api/account/claim')).status, 404);
     await ok(t.get('/api/students'));
   } finally { setIdClient({ verify }); }
@@ -174,4 +174,40 @@ test('người dùng khác không động được vào học sinh của tài kh
 test('tên hiển thị chứa HTML được trả nguyên văn (giao diện chỉ dùng textContent)', async () => {
   const h = mkUser('<img src=x onerror=alert(1)>');
   assert.equal((await ok(device(h).get('/api/account'))).user.displayName, '<img src=x onerror=alert(1)>');
+});
+
+test('linked chỉ đúng khi gia sư đang dùng là của tài khoản; sổ ẩn danh của máy thì không', async () => {
+  const u = mkUser('U');
+  const anon = await newTutor('Cô sổ ẩn danh');
+  anon.nine = u.token;
+  assert.equal((await ok(anon.get('/api/account'))).linked, false);
+  await ok(anon.post('/api/account/claim'));
+  assert.equal((await ok(anon.get('/api/account'))).linked, true);
+});
+
+test('khôi phục hoặc ghép bằng mã của chính gia sư tài khoản: không để lại phiên (cookie) trên máy', async () => {
+  resetHourly();
+  const m = mkUser('M');
+  const own = device(m);
+  await ok(start(own, 'Cô M'));
+  const code = (await ok(own.post('/api/me/recovery'))).recoveryCode;
+  const d1 = device(m);
+  await ok(d1.post('/api/recover', { code }));
+  assert.equal(d1.cookie, '', 'không nhận cookie tsid');
+  const pair = await ok(own.post('/api/devices/pair'));
+  const d2 = device(m);
+  await ok(d2.post('/api/devices/redeem', { code: pair.code }));
+  assert.equal(d2.cookie, '');
+  assert.equal((await new Client('anon').get('/api/me')).status, 401);
+});
+
+test('ghép thiết bị bị 409 vì tài khoản đã có sổ khác: mã ghép không bị đốt, dùng lại được ở máy khác', async () => {
+  resetHourly();
+  const s = mkUser('S2');
+  await ok(start(device(s), 'Cô S2'));
+  const other = await newTutor('Cô nguồn');
+  const pair = await ok(other.post('/api/devices/pair'));
+  assert.equal((await device(s).post('/api/devices/redeem', { code: pair.code })).status, 409);
+  const fresh = new Client('máy lạ');
+  await ok(fresh.post('/api/devices/redeem', { code: pair.code }));
 });

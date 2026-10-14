@@ -103,7 +103,7 @@ export function accountRoutes(app) {
     if (ctx.idDown) throw idUnavailable();
     // đã đăng nhập và đã có gia sư của tài khoản: không gắn thêm gia sư khác vào máy này (tránh hai danh tính)
     if (ctx.userId && ctx.tutor && ctx.tutor.user_id === ctx.userId && ctx.tutor.id !== t.id) throw new ApiError(409, 'already', 'Tài khoản 9app này đã có sổ gia sư');
-    await tx((c) => createSession(c, ctx, t.id));
+    if (!(ctx.userId && t.user_id === ctx.userId)) await tx((c) => createSession(c, ctx, t.id));   // gia sư của chính tài khoản đang đăng nhập: không để lại phiên trên máy
     return { me: await meView(t) };
   }, { limit: 30 });
 
@@ -141,8 +141,9 @@ export function accountRoutes(app) {
       const r = await c.query('DELETE FROM pair_codes WHERE code_hash=$1 AND expires_at > now() RETURNING tutor_id', [sha256hex(code)]);
       if (!r.length) throw new ApiError(404, 'not_found', 'Mã ghép không đúng hoặc đã hết hạn');
       if (ctx.userId && ctx.tutor && ctx.tutor.user_id === ctx.userId && ctx.tutor.id !== r[0].tutor_id) throw new ApiError(409, 'already', 'Tài khoản 9app này đã có sổ gia sư');
-      await createSession(c, ctx, r[0].tutor_id);
-      return (await c.query('SELECT * FROM tutors WHERE id=$1', [r[0].tutor_id]))[0];
+      const row = (await c.query('SELECT * FROM tutors WHERE id=$1', [r[0].tutor_id]))[0];
+      if (!(ctx.userId && row.user_id === ctx.userId)) await createSession(c, ctx, r[0].tutor_id);   // của chính tài khoản đang đăng nhập: không để lại phiên
+      return row;
     });
     return { me: await meView(t) };
   }, { limit: 30 });

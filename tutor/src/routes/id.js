@@ -21,6 +21,7 @@ export function idRoutes(app) {
       enabled: idEnabled(), loggedIn: !!ctx.userId, idDown: !!ctx.idDown,
       user: ctx.userId ? { displayName: ctx.userName || '' } : null,   // không bao giờ trả id hay số điện thoại
       loginPath: config.nineIdPublicPath, claimable: null, conflict: null,
+      linked: !!(ctx.userId && ctx.tutor && ctx.tutor.user_id === ctx.userId),   // gia sư đang dùng chính là của tài khoản (không phải sổ ẩn danh của máy)
     };
     if (!out.enabled || !ctx.userId || !ctx.sessHash) return out;
     const c = await candidate(query, ctx.sessHash, ctx.userId);

@@ -42,7 +42,7 @@
       var c = T9.nineCard(acc);
       if (c && slot.isConnected !== false) slot.appendChild(c);
       // quyền đến từ tài khoản 9app: thoát bằng nút Đăng xuất 9app, nút "khỏi máy này" không có tác dụng
-      if (acc && acc.enabled && acc.loggedIn) { var b = document.getElementById('local-logout'); if (b && b.parentNode) b.parentNode.removeChild(b); }
+      if (acc && acc.enabled && acc.loggedIn && acc.linked) { var b = document.getElementById('local-logout'); if (b && b.parentNode) b.parentNode.removeChild(b); }
     }, function () { /* 9id hay mạng lỗi: không hiện thẻ */ });
   };
   T9.nineCard = function (acc) {
@@ -65,8 +65,8 @@
       var claim = T9.btn('Gắn vào tài khoản', 'primary block', function () {
         return T9.busy(claim, function () {
           return T9.post('api/account/claim', {}).then(function (r) {
-            T9.toast(r.claimed ? 'Đã gắn vào tài khoản 9app của bạn.' : 'Chưa gắn được, thử lại nhé.', r.claimed ? undefined : 'err');
-            location.reload();
+            if (r.claimed) location.reload();
+            else T9.toast('Chưa gắn được, thử lại nhé.', 'err');
           });
         });
       });
