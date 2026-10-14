@@ -86,6 +86,8 @@ async function khoiDong() {
   dungThanhDuoi();
   window.addEventListener('hashchange', () => ve());
   ve();
+  // đồng bộ tự động (chỉ khi người dùng đã bật): nạp lười để không làm chậm lần mở đầu
+  import('./lib/dongbo.js').then(async (m) => { const u = await import('./lib/nine-sync-ui.js'); u.tuDongDongBo(m.dongBo, { lamMoi: () => ve(true) }); }).catch((e) => console.debug('[dong-bo] khởi động:', e && e.message));
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
     if (document.readyState === 'complete') navigator.serviceWorker.register('sw.js').catch(() => {});

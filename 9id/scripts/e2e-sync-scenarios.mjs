@@ -38,4 +38,11 @@ export const SCENARIOS = {
     read: (page) => page.evaluate(async () => (await import('./js/lib/data.js')).kho.nhatKy.map((x) => x.ghiChu).join(',')),
     confirm: (page) => clickText(page, 'Xóa bản trên máy chủ'),
   },
+  fit: {
+    dataHash: '#/them/du-lieu',
+    seed: (page, tag) => page.evaluate(async (t) => { const S = await import('./js/lib/store.js'); await S.luuChoi({ id: 'c-' + t, ngay: '2026-10-01', mon: t, phut: 30, rpe: 5, ghiChu: '' }); }, tag),
+    remove: (page, tag) => page.evaluate(async (t) => { const S = await import('./js/lib/store.js'); await S.xoaChoi('c-' + t); }, tag),
+    read: (page) => page.evaluate(async () => (await import('./js/lib/store.js')).dsChoi().map((x) => x.mon).join(',')),
+    confirm: (page) => clickText(page, 'Xóa bản trên máy chủ'),
+  },
 };

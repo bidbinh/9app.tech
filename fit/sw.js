@@ -1,6 +1,6 @@
 // Service worker của 9fit: lưu toàn bộ vỏ ứng dụng và dữ liệu bài tập để chạy ngoại tuyến.
 // Mạng trước, bộ nhớ đệm sau (bản mới tới máy ngay khi có mạng). Đổi CACHE_VERSION mỗi lần phát hành. Tệp này do scripts/make-sw.js sinh ra.
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const SHELL_CACHE = `9fit-shell-${CACHE_VERSION}`;
 
 const SHELL = [
@@ -27,7 +27,10 @@ const SHELL = [
   "./js/lib/an-toan.js",
   "./js/lib/calc.js",
   "./js/lib/db.js",
+  "./js/lib/dongbo.js",
   "./js/lib/fitness.js",
+  "./js/lib/nine-sync-ui.js",
+  "./js/lib/nine-sync.js",
   "./js/lib/parq.js",
   "./js/lib/routine.js",
   "./js/lib/schema.js",
@@ -75,6 +78,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (!url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;   // /id/ (đồng bộ) không đi qua bộ đệm
   event.respondWith((async () => {
     try {
       const res = await fetch(req);

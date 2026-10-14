@@ -6,6 +6,8 @@ import { caiDat, luuCaiDat, coGiongDoc, apDungCaiDat } from '../ui/timer.js';
 import * as rest from '../ui/rest.js';
 import { BAI_TAP } from '../data/exercises.js';
 import { CHUONG_TRINH } from '../data/programs.js';
+import { theDongBo } from '../lib/nine-sync-ui.js';
+import { dongBo, dangNhapUrl } from '../lib/dongbo.js';
 
 export function duLieu(ctx) {
   ctx.datTieuDe('Dữ liệu của tôi');
@@ -29,7 +31,7 @@ export function duLieu(ctx) {
   });
   ctx.root.append(
     h('a', { class: 'lnk', href: '#/them' }, '‹ Thêm'),
-    h('section', { class: 'hero' }, h('h1', {}, 'Dữ liệu của tôi'), h('p', {}, 'Dữ liệu sức khỏe là thông tin nhạy cảm. 9fit chỉ lưu trên máy này (IndexedDB của trình duyệt), không gửi lên máy chủ, không đăng nhập.')),
+    h('section', { class: 'hero' }, h('h1', {}, 'Dữ liệu của tôi'), h('p', {}, 'Dữ liệu sức khỏe là thông tin nhạy cảm. Mặc định 9fit chỉ lưu trên máy này (IndexedDB của trình duyệt), không gửi lên máy chủ và không cần tài khoản. Chỉ khi bạn tự bật đồng bộ ở thẻ bên dưới thì nhật ký tập luyện (không gồm kết quả sàng lọc sức khỏe) mới được lưu thêm trên máy chủ 9app.')),
     !db.trangThai.luuBen ? h('div', { class: 'note warn', role: 'alert', 'data-testid': 'canh-luu' }, h('b', {}, 'Trình duyệt đang không cho lưu bền. '), 'Dữ liệu chỉ giữ đến khi đóng trang (có thể do chế độ riêng tư). Hãy xuất sao lưu thường xuyên.') : null,
     h('div', { class: 'card' }, h('h2', {}, 'Đang lưu trên máy'),
       h('dl', { class: 'kv mt' },
@@ -58,7 +60,12 @@ export function duLieu(ctx) {
         toast('Đã xóa sạch dữ liệu trên máy này.');
         ctx.veLai();
       } }, 'Xóa sạch dữ liệu')),
-    h('div', { class: 'note' }, 'Đồng bộ qua tài khoản 9id: chưa có ở bản này. Khi có, đồng bộ sẽ là tùy chọn, cần bạn đồng ý rõ ràng và có thể xóa.'));
+    theDongBo({
+      h, sync: dongBo, tenApp: '9fit', dangNhapUrl,
+      duLieuGom: 'buổi tập, buổi chơi, số đo cơ thể, kết quả kiểm tra và mục tiêu',
+      duLieuKhong: 'kết quả sàng lọc sức khỏe, chương trình đang theo, cài đặt riêng của từng máy',
+      thongBao: (m) => toast(m), xacNhan: (t, n) => hoi(t, n, { ok: 'Xóa bản trên máy chủ', huy: 'Giữ lại', nguy: true }), lamMoi: () => ctx.veLai(),
+    }));
 }
 
 export function veUngDung(ctx) {
@@ -86,5 +93,5 @@ export function veUngDung(ctx) {
         h('li', {}, 'Không phải tư vấn y tế; không chẩn đoán, không điều trị.'),
         h('li', {}, 'Gợi ý tăng tạ và cảnh báo tải chỉ là quy tắc đơn giản, không biết tình trạng cơ thể của bạn.'),
         h('li', {}, 'Không có lời khuyên về ăn uống, thực phẩm chức năng hay thuốc.'),
-        h('li', {}, 'Chưa có AI, chưa đồng bộ 9id, chưa nối 9Sport.'))));
+        h('li', {}, 'Chưa có AI, chưa nối 9Sport. Đồng bộ qua tài khoản 9app là tùy chọn, mặc định tắt.'))));
 }
