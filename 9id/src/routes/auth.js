@@ -5,7 +5,8 @@ import * as pw from '../password.js';
 import * as sso from '../sso9sport.js';
 import { createSession, audit, COOKIE } from '../auth.js';
 import { requestOtp, verifyOtp, peekTicket, consumeTicket, ipKey } from '../otp.js';
-import { issueChallenge } from '../pow.js';
+import { issueChallenge, consumePow } from '../pow.js';
+import { isPhoneHeld, unavailable } from '../phone-hold.js';
 import { assertNotLocked, recordFailure, clear } from '../throttle.js';
 import { cleanText, normalizePhone, phoneHash, phoneHashes, safeNext, sha256hex, newToken, TOKEN_RE } from '../util.js';
 
@@ -82,7 +83,19 @@ export function authRoutes(app) {
 
   app.route('POST', '/api/otp/request', async (ctx) => {
     const phone = normalizePhone(ctx.body.phone);
-    return requestOtp(phone, ctx.ip, { purpose: ctx.body.purpose === undefined ? 'register' : ctx.body.purpose, pow: ctx.body.pow });
+    const purpose = ctx.body.purpose === undefined ? 'register' : ctx.body.purpose;
+    if (purpose === 'phone_change') {
+      // Đổi số: cần phiên; số mới phải khác số hiện tại. Số đã có chủ hoặc đang bị giữ chỗ: phản hồi GIỐNG HỆT nhưng KHÔNG gửi mã
+      // (không lộ số nào đã đăng ký, không dùng đổi số để gửi tin cho người khác).
+      if (!ctx.user) throw new ApiError(401, 'unauthorized', 'Bạn chưa đăng nhập hoặc phiên đã hết hạn.');
+      if (phone === ctx.user.phone) throw new ApiError(400, 'invalid_input', 'Đây đang là số điện thoại của tài khoản này');
+      const taken = (await query('SELECT 1 FROM users WHERE phone=$1', [phone])).length > 0 || await isPhoneHeld(null, phone, ctx.user.id);
+      if (taken) {
+        await consumePow(ctx.body.pow);
+        return { ok: true, resendAfterSec: config.otpResendSec, ttlSec: config.otpTtlSec };
+      }
+    }
+    return requestOtp(phone, ctx.ip, { purpose, pow: ctx.body.pow });
   }, { limit: 20, limitKey: 'otp-req' });
 
   app.route('POST', '/api/otp/verify', async (ctx) => {
@@ -98,6 +111,7 @@ export function authRoutes(app) {
     const hash = await pw.hash(password);
     const user = await tx(async (c) => {
       await consumeTicket(c, ctx.body.ticket, phone);
+      if (await isPhoneHeld(c, phone)) throw unavailable(409);
       const u = (await c.query(
         `INSERT INTO users(phone, display_name, password_hash) VALUES($1,$2,$3) ON CONFLICT (phone) DO NOTHING RETURNING *`, [phone, name, hash]))[0];
       if (!u) throw new ApiError(409, 'account_exists', 'Số điện thoại này đã có tài khoản 9app. Hãy đăng nhập hoặc chọn "Quên mật khẩu".');
@@ -128,6 +142,7 @@ export function authRoutes(app) {
     const hash = await pw.hash(finalPass);
     const user = await tx(async (c) => {
       await consumeTicket(c, ctx.body.ticket, phone);
+      if (await isPhoneHeld(c, phone)) throw unavailable(409);
       const u = (await c.query(
         `INSERT INTO users(phone, display_name, password_hash, password_weak, source) VALUES($1,$2,$3,$4,'9sport') ON CONFLICT (phone) DO NOTHING RETURNING *`,
         [phone, name, hash, pw.isWeakLegacy(finalPass)]))[0];
