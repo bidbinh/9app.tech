@@ -449,3 +449,6 @@ a.row-main:active { background: var(--press); }
 .av-letter { font-size: 16px; font-weight: 800; line-height: 1; }
 #btn-account.in .av .icon { display: none; }
 a.set-btn { color: var(--text); }
+.acc .rows { box-shadow: none; background: none; border-radius: 0; margin-top: 8px; border-top: 1px solid var(--line); }
+.acc .set-btn { padding: 0 4px; }
+.acc + .rows, .acc + .set-rows { margin-top: 12px; }

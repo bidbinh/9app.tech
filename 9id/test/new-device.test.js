@@ -65,3 +65,18 @@ test('đặt lại mật khẩu không tạo new_device (đã có thông báo pa
   await ok(c.post('/api/password/reset', { ticket, phone: a.phone, password: 'MatKhau-Moi-77' }), 'đặt lại');
   assert.equal(await countNew(a.phone), 0);
 });
+
+test('thiết bị vừa đăng nhập cũng không thấy thông báo về chính nó qua /api/me (giao diện gọi /api/me sau đăng nhập)', async () => {
+  const a = await signup('Hoa');
+  const { c } = await loginNew(a.phone);
+  const mine = await ok(c.get('/api/me'));
+  assert.ok(!mine.notices.some((n) => n.kind === 'new_device'), 'máy mới không thấy thông báo về chính nó');
+  const old = await ok(a.get('/api/me'));
+  assert.ok(old.notices.some((n) => n.kind === 'new_device'), 'máy cũ vẫn thấy');
+  // máy mới bấm "Tôi đã biết" cho các thông báo của nó: không được làm mất thông báo của máy cũ
+  await ok(c.post('/api/notices/seen'));
+  assert.ok((await ok(a.get('/api/me'))).notices.some((n) => n.kind === 'new_device'), 'máy cũ vẫn thấy sau khi máy mới bấm đã biết');
+  // máy cũ bấm đã biết thì hết
+  await ok(a.post('/api/notices/seen'));
+  assert.ok(!(await ok(a.get('/api/me'))).notices.some((n) => n.kind === 'new_device'));
+});

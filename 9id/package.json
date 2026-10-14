@@ -8,9 +8,16 @@
     "start": "node src/server.js",
     "dev": "node scripts/dev.js",
     "test": "node scripts/test.js",
-    "e2e": "node scripts/e2e.js"
+    "e2e": "node scripts/e2e.js",
+    "e2e:shared": "node scripts/e2e-shared.mjs"
   },
-  "engines": { "node": ">=20" },
-  "dependencies": { "pg": "^8.13.0" },
-  "devDependencies": { "embedded-postgres": "^18.4.0-beta.17" }
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^18.4.0-beta.17"
+  }
 }

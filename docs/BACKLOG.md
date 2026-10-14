@@ -15,6 +15,7 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
 ## A. Đang dở, cần chốt (ưu tiên cao nhất)
 
 - [x] **A1. Commit** xong 05/10/2026; đã push và merge vào `main` ngày 13/10/2026 qua PR #2 (a3ebd83). Ảnh chụp (`shots/`), `9app-site.tar`, bản sao lưu và `js/apps.js.local` được bỏ qua trong `.gitignore`.
+- [x] **A2a. 9id đăng nhập chung, dự án 1 (14/10/2026)** — mã xong, đã kiểm: phiên 365 ngày/30 thiết bị, thông báo thiết bị mới, đổi số + hoàn tác 7 ngày, `/id/nine.js`, launcher (`launcher-ux2/`) hiện đăng nhập; chưa lên server. Spec/kế hoạch: `docs/superpowers/specs|plans/2026-10-14-9id-dang-nhap-chung-*`.
 - [ ] **A2. 9id lên server:** role + DB trong `9ship-db`, nginx `/id/`, cổng OTP eSMS. Chốt câu hỏi mở mục 13 của spec (ngưỡng 2000 SMS/ngày, chi phí).
 - [ ] **A3. 9family chuyển sang 9id** (có dữ liệu thật; sao lưu `/home/tms/backups-9app/family-20261004-1647.dump`). Làm theo `9family/docs/CUTOVER-9ID.md`: dry-run, thử trên bản sao, sao lưu trước. Bản xem thử công khai không dùng tên thật của con.
 - [ ] **A4. Osin lên `osin.9app.tech`:** DNS + chứng chỉ, nginx, `apps.json` (`secret` + `receiptSecret`), `INTERNAL_KEYS` ở 9id, ô Osin ở launcher, gắn SDK vào từng app. Còn khóa Gemini, điều khoản dữ liệu, ý kiến luật sư.
@@ -37,6 +38,11 @@ Cập nhật: 2026-10-05. Trạng thái "đã lên server" lấy từ ghi chú 0
   - Giao diện giai đoạn 1 (Chuyến của tôi) đã xong trong `ticket/` (13/10/2026): chưa deploy, chưa đăng ký launcher/Console, trạng thái chuyến là dữ liệu mẫu. Nối Datacom ở `ticket/js/status.js` khi có sandbox.
   - [ ] 9ticket: tìm vé + đặt qua Datacom (cần sandbox, hợp đồng)
   - [ ] 9ticket: sân bay đi/đến, hành khách gia đình
+
+
+- [ ] **9id dự án 2 trở đi: tích hợp từng app** theo nhóm đã duyệt (bắt buộc: 9family đã dùng, Osin đã dùng, 9stay, 9Ship; tùy chọn: 9lunch, 9swap, 9hire, 9interview, 9tutor, car, fit, gift, payday): mỗi app một spec + kế hoạch (nhóm tùy chọn cần điểm nhận dữ liệu ẩn danh `POST /<app>/api/account/claim`). Sau đó nhập tài khoản 9Ship/9Sport, và quyết định về 9log/Gia phả/9Sport (đang giữ đăng nhập riêng).
+- [ ] **Quyết định: Life OS cũ ở thư mục gốc** (`index.html` cũ, `js/os.js`, `js/id.js` với băm `sdbm`, `localStorage`) chưa từng triển khai và không phải launcher đang chạy; xóa hay giữ?
+- [ ] **Triển khai launcher v19 (đăng nhập 9id)** theo `launcher-ux2/DEPLOY.md`, sau khi 9id đã lên server.
 
 ## C. Đã thảo luận kỹ, chưa duyệt (phải brainstorm lại trước khi làm)
 

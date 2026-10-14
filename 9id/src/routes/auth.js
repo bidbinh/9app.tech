@@ -28,8 +28,9 @@ export async function pendingApprovalCount(userId) {
       WHERE i.status='awaiting' AND i.expires_at > now()`, [userId]);
   return r[0].n;
 }
-export async function unseenNotices(userId) {
-  return (await query('SELECT id, kind, created_at FROM notices WHERE user_id=$1 AND seen_at IS NULL ORDER BY id DESC LIMIT 5', [userId])).map((n) => ({ id: n.id, kind: n.kind, at: n.created_at }));
+// sessionId: phiên đang xem (bỏ các thông báo dành cho thiết bị KHÁC, ví dụ "thiết bị mới" không hiện trên chính thiết bị đó)
+export async function unseenNotices(userId, sessionId = null) {
+  return (await query('SELECT id, kind, created_at FROM notices WHERE user_id=$1 AND seen_at IS NULL AND ($2::uuid IS NULL OR except_session IS NULL OR except_session <> $2::uuid) ORDER BY id DESC LIMIT 5', [userId, sessionId])).map((n) => ({ id: n.id, kind: n.kind, at: n.created_at }));
 }
 
 function loginKeys(phone, ip) {
@@ -69,11 +70,12 @@ async function shouldNoteNewDevice(ctx, userId) {
 
 export async function startSession(ctx, userRow, extra = {}, { notifyNewDevice = false } = {}) {
   const noteNew = notifyNewDevice ? await shouldNoteNewDevice(ctx, userRow.id) : false;
-  await createSession({ query }, ctx, userRow.id);
+  const hash = await createSession({ query }, ctx, userRow.id);
   await rememberDevice(ctx, userRow.id);
   const u = { id: userRow.id, phone: userRow.phone, displayName: userRow.display_name, passwordWeak: userRow.password_weak, source: userRow.source, createdAt: userRow.created_at };
-  const notices = await unseenNotices(userRow.id);
-  if (noteNew) await query("INSERT INTO notices(user_id, kind) VALUES($1,'new_device')", [userRow.id]);
+  const newSession = (await query('SELECT id FROM sessions WHERE token_hash=$1', [hash]))[0];
+  const notices = await unseenNotices(userRow.id, newSession ? newSession.id : null);
+  if (noteNew) await query("INSERT INTO notices(user_id, kind, except_session) VALUES($1,'new_device',$2)", [userRow.id, newSession ? newSession.id : null]);
   return { user: publicUser(u), next: safeNext(ctx.body.next), notices, ...extra };
 }
 
@@ -217,12 +219,12 @@ export function authRoutes(app) {
   app.route('GET', '/api/me', async (ctx) => {
     const u = ctx.user;
     if (!u) return { user: null };
-    return { user: publicUser(u), pendingInvitations: await pendingInvitationCount(u.phone), pendingApprovals: await pendingApprovalCount(u.id), notices: await unseenNotices(u.id) };
+    return { user: publicUser(u), pendingInvitations: await pendingInvitationCount(u.phone), pendingApprovals: await pendingApprovalCount(u.id), notices: await unseenNotices(u.id, ctx.sessionId) };
   });
 
   app.route('POST', '/api/notices/seen', async (ctx) => {
     if (!ctx.user) throw new ApiError(401, 'unauthorized', 'Bạn chưa đăng nhập hoặc phiên đã hết hạn.');
-    await query('UPDATE notices SET seen_at = now() WHERE user_id=$1 AND seen_at IS NULL', [ctx.user.id]);
+    await query('UPDATE notices SET seen_at = now() WHERE user_id=$1 AND seen_at IS NULL AND (except_session IS NULL OR except_session <> $2::uuid)', [ctx.user.id, ctx.sessionId]);
     return { ok: true };
   });
 
