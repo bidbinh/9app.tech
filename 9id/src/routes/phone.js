@@ -6,7 +6,8 @@ import { reauth } from '../reauth.js';
 import { peekTicket, consumeTicket } from '../otp.js';
 import { phoneHash } from '../util.js';
 import { isPhoneHeld, unavailable } from '../phone-hold.js';
-import { rememberDevice, publicUser } from './auth.js';
+import * as pw from '../password.js';
+import { rememberDevice, publicUser, startSession } from './auth.js';
 
 export function phoneRoutes(app) {
   // Đổi số điện thoại: vé OTP của số MỚI + nhập lại mật khẩu. Thành công thì số cũ được giữ chỗ phoneUndoDays ngày (cho phép hoàn tác).
@@ -48,4 +49,33 @@ export function phoneRoutes(app) {
     await rememberDevice(ctx, user.id);
     return { ok: true, user: publicUser(updated) };
   }, { limit: 20, limitKey: 'phone-change' });
+
+  // Hoàn tác đổi số: người giữ SỐ CŨ (đã xác minh OTP số cũ) lấy lại tài khoản trong phoneUndoDays ngày, bắt buộc đặt mật khẩu mới.
+  // Không cần phiên (người dùng vừa bị đuổi khỏi tài khoản). Mọi phiên/thiết bị cũ bị xóa nên kẻ đã đổi số bị đuổi.
+  app.route('POST', '/api/phone/undo', async (ctx) => {
+    const phone = await peekTicket(ctx.body.ticket, ctx.body.phone);
+    const password = pw.check(ctx.body.password, phone);
+    const hash = await pw.hash(password);
+    const cannot = () => new ApiError(400, 'undo_unavailable', 'Không thể hoàn tác: số này không được đổi gần đây, đã quá hạn hoặc đã được hoàn tác.');
+    const user = await tx(async (c) => {
+      const pc = (await c.query(
+        `SELECT id, user_id, new_phone_hash FROM phone_changes
+          WHERE old_phone = $1 AND undone_at IS NULL AND changed_at > now() - make_interval(days => $2)
+          ORDER BY changed_at DESC LIMIT 1 FOR UPDATE`, [phone, config.phoneUndoDays]))[0];
+      if (!pc) throw cannot();
+      const u = (await c.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [pc.user_id]))[0];
+      if (!u || phoneHash(u.phone) !== pc.new_phone_hash) throw cannot(); // đã đổi tiếp sang số khác
+      if ((await c.query('SELECT 1 FROM users WHERE phone=$1', [phone])).length) throw cannot();
+      await consumeTicket(c, ctx.body.ticket, phone);
+      const nu = (await c.query('UPDATE users SET phone=$2, password_hash=$3, password_weak=false, phone_verified_at=now() WHERE id=$1 RETURNING *', [u.id, phone, hash]))[0];
+      await c.query('UPDATE phone_changes SET undone_at = now() WHERE id=$1', [pc.id]);
+      await c.query('DELETE FROM sessions WHERE user_id=$1', [u.id]);
+      await c.query('DELETE FROM devices WHERE user_id=$1', [u.id]);
+      await c.query('DELETE FROM app_sessions WHERE user_id=$1', [u.id]);
+      await c.query("INSERT INTO notices(user_id, kind) VALUES($1,'phone_change_undone')", [u.id]);
+      await audit(c, u.id, 'phone_change_undone');
+      return nu;
+    });
+    return startSession(ctx, user);
+  }, { limit: 20, limitKey: 'phone-undo' });
 }

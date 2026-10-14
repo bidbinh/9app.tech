@@ -67,7 +67,7 @@ async function shouldNoteNewDevice(ctx, userId) {
   return !recent;
 }
 
-async function startSession(ctx, userRow, extra = {}, { notifyNewDevice = false } = {}) {
+export async function startSession(ctx, userRow, extra = {}, { notifyNewDevice = false } = {}) {
   const noteNew = notifyNewDevice ? await shouldNoteNewDevice(ctx, userRow.id) : false;
   await createSession({ query }, ctx, userRow.id);
   await rememberDevice(ctx, userRow.id);

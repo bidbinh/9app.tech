@@ -6,6 +6,7 @@ import { hmac, phoneHash, safeEqualHex, sha256hex, newToken, TOKEN_RE, normalize
 import { getProvider } from './otp-provider.js';
 import { consume } from './throttle.js';
 import { consumePow } from './pow.js';
+import { isPhoneHeld } from './phone-hold.js';
 
 export const ipKey = (ip) => hmac('ip', ip || '').slice(0, 24);
 const codeHash = (ph, salt, code) => hmac('otp', `${ph}|${salt}|${code}`);
@@ -102,7 +103,8 @@ export async function verifyOtp(phone, code, ip) {
     return { ticket: token, accountExists: exists };
   });
   if (out.err) throw out.err;
-  return out;
+  // số này vừa được đổi khỏi một tài khoản trong cửa sổ hoàn tác? (chỉ người đã chứng minh sở hữu số mới thấy cờ này)
+  return { ...out, phoneChangeUndoable: await isPhoneHeld(null, phone) };
 }
 
 const ticketBad = () => new ApiError(400, 'ticket_invalid', 'Phiên xác minh số điện thoại đã hết hạn. Hãy xác minh lại số điện thoại.');
