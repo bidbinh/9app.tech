@@ -48,7 +48,7 @@ async function open(role, size = [1280, 800], scheme = 'light') {
   return { page, close: () => ctx.close() };
 }
 const text = (page) => page.evaluate(() => document.body.innerText);
-const waitText = (page, t, timeout = 8000) => page.waitForFunction((x) => document.body.innerText.includes(x), { timeout }, t).catch(() => { throw new Error('Không thấy chữ: ' + t); });
+const waitText = (page, t, timeout = 8000) => page.waitForFunction((x) => document.body.innerText.includes(x), { timeout }, t).catch(async () => { const body = await page.evaluate(() => document.body.innerText.slice(0, 400)).catch(() => ''); throw new Error('Không thấy chữ: ' + t + ' | trang đang hiện: ' + body.split('\n').join(' / ')); });
 const snap = (page, name) => page.screenshot({ path: path.join(shots, name + '.png') });
 const setValue = (page, sel, v) => page.$eval(sel, (el, x) => { el.value = x; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }, v);
 const clickText = (page, tag, t) => page.evaluate((tg, x) => { const el = [...document.querySelectorAll(tg)].find((e) => e.textContent.trim() === x); if (!el) throw new Error('Không có ' + tg + ': ' + x); el.click(); }, tag, t);
@@ -239,19 +239,95 @@ try {
   await waitText(mp, 'Trang đặt phòng cho khách');
   check(true, 'quản lý có ô cấu hình trang đặt phòng cho khách');
 
-  // trang đặt phòng công khai của khách (điện thoại): tìm → OTP → giữ phòng → QR → tiền về → đã cọc
+  // danh mục nền: tòa → loại phòng → chủ → căn hàng loạt → hợp đồng → mở bán
+  await hash(mp, '#/danh-muc');
+  await waitText(mp, '1. Tòa nhà');
+  const step = async (sel, value, button, toastText) => {
+    if (sel) await setValue(mp, sel, value);
+    await clearToasts(mp);
+    await clickText(mp, 'button', button);
+    try { await waitText(mp, toastText); } catch (e) {
+      const err = await mp.evaluate(() => [...document.querySelectorAll('.err')].map((x) => x.textContent).join(' | '));
+      throw new Error(`${e.message} (lỗi trên trang: ${err || 'không có'})`);
+    }
+  };
+  await step('input[placeholder="Ví dụ: Vinhomes Ocean Park"]', 'Tòa E2E', 'Thêm tòa nhà', 'Đã thêm tòa nhà');
+  await step('input[placeholder^="Studio, 1 phòng"]', 'Studio E2E', 'Thêm loại phòng', 'Đã thêm loại phòng');
+  await step('input[placeholder="Tên chủ phòng"]', 'Chủ E2E', 'Thêm chủ phòng', 'Đã thêm chủ phòng');
+  await step('textarea', 'E2E-1\nE2E-2', 'Thêm các căn', 'Đã thêm 2 căn');
+  await mp.evaluate(() => document.querySelector('input[aria-label="Chọn căn E2E-1"]').click());
+  await step(null, null, 'Tạo hợp đồng cho các căn đã chọn', 'Đã tạo 1 hợp đồng');
+  await step(null, null, 'Mở bán cho các căn đã chọn', 'Đã mở 90 đêm cho 1 căn');
+  check((await text(mp)).includes('E2E-2') && (await text(mp)).includes('Chưa có HĐ'), 'danh mục hiện căn mới, căn chưa chọn chưa có hợp đồng');
+  await snap(mp, 'quanly-danh-muc');
+
+  // chợ phòng: chủ đăng tin → admin duyệt → khách tìm, xem chi tiết và đặt (điện thoại)
   await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
+  const ow = await open('chu1', [390, 844]);
+  const op1 = ow.page;
+  await hash(op1, '#/phong');
+  await waitText(op1, 'Đăng phòng, gửi duyệt');
+  await clickText(op1, 'a', '+ Đăng phòng mới');
+  await waitText(op1, 'Đăng phòng mới');
+  await setValue(op1, 'input[placeholder^="Ví dụ: Studio"]', 'Studio view biển E2E');
+  await clickText(op1, 'button', 'Tạo tin và tiếp tục');
+  await waitText(op1, 'Thông tin phòng');
+  await setValue(op1, 'textarea[placeholder^="Mỗi dòng một mã căn mới"]', 'E2E-901');
+  await clickText(op1, 'button', 'Thêm căn');
+  await waitText(op1, 'Chưa hoạt động (chờ duyệt)');
+  await op1.evaluate(async () => {
+    const dt = new DataTransfer();
+    for (let i = 0; i < 3; i++) {
+      const cv = document.createElement('canvas'); cv.width = 1200; cv.height = 900;
+      const g = cv.getContext('2d'); g.fillStyle = ['#0f766e', '#b45309', '#1d4ed8'][i]; g.fillRect(0, 0, 1200, 900); g.fillStyle = '#fff'; g.font = '64px sans-serif'; g.fillText('Anh ' + (i + 1), 480, 470);
+      const blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+      dt.items.add(new File([blob], 'p' + i + '.png', { type: 'image/png' }));
+    }
+    const inp = document.getElementById('photo-input'); inp.files = dt.files; inp.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await waitText(op1, 'Ảnh (3/12)', 25000);
+  await setValue(op1, 'textarea[maxlength="4000"]', 'Căn studio sáng sủa, đầy đủ tiện nghi, gần biển, thích hợp cho gia đình nhỏ và cặp đôi muốn nghỉ dưỡng thoải mái.');
+  await setValue(op1, 'input[placeholder="đ/đêm, chưa gồm VAT"]', '600000');
+  await setValue(op1, 'input[placeholder="Thứ Sáu, thứ Bảy"]', '800000');
+  await op1.evaluate(() => document.getElementById('attest').click());
+  await op1.evaluate(() => document.getElementById('am-wifi').click());
+  await clearToasts(op1);
+  await clickText(op1, 'button', 'Gửi duyệt');
+  await waitText(op1, 'Tin đang chờ admin duyệt');
+  await snap(op1, 'chu-tin-cho-duyet');
+  check(true, 'chủ tạo tin, thêm căn, tải 3 ảnh (tự thu nhỏ) và gửi duyệt');
+  await ow.close();
+
+  await hash(mp, '#/duyet');
+  await waitText(mp, 'Studio view biển E2E');
+  await mp.evaluate(() => document.querySelector('a.item[href^="#/duyet/"]').click());
+  await waitText(mp, 'Duyệt: giá và điều khoản');
+  await snap(mp, 'admin-duyet-tin');
+  await clearToasts(mp);
+  await clickText(mp, 'button', 'Duyệt tin');
+  await waitText(mp, 'Đã duyệt, tin đang hiển thị');
+  check(true, 'admin xem trước và duyệt tin');
+  const [e2eUnit] = await db.query("SELECT id FROM units WHERE code = 'E2E-901'");
+  const { Api: Api2 } = await import('../test/helper-http.js');
+  const r2 = await new Api2(srv, w.users.chu1).post('/api/units/' + e2eUnit.id + '/release', { action: 'open', from: '2026-11-02', to: '2026-11-12' });
+  check(r2.status === 200, 'chủ mở đêm cho thuê');
+
   const gu = await open(null, [390, 844]);
   const gp = gu.page;
   await gp.goto(srv.base + '/book/anstay', { waitUntil: 'networkidle0' });
-  await waitText(gp, 'Tìm phòng');
-  const gdates = await gp.$$('input[type=date]');
-  await gdates[0].evaluate((el) => { el.value = '2026-11-02'; });
-  await gdates[1].evaluate((el) => { el.value = '2026-11-04'; });
-  await clickText(gp, 'button', 'Tìm phòng');
-  await waitText(gp, 'Giá đã gồm VAT');
+  await waitText(gp, 'Studio view biển E2E');
+  check(await gp.$eval('.lcard img', (i) => i.complete && i.naturalWidth > 0), 'thẻ phòng có ảnh bìa');
   await snap(gp, 'khach-ket-qua');
-  await clickText(gp, 'button', 'Chọn');
+  await gp.evaluate(() => document.querySelector('a.lcard').click());
+  await waitText(gp, 'Giới thiệu');
+  const gdates = await gp.$$('input[type=date]');
+  await gdates[0].evaluate((el) => { el.value = '2026-11-03'; });
+  await gdates[1].evaluate((el) => { el.value = '2026-11-05'; });
+  await clickText(gp, 'button', 'Xem giá');
+  await waitText(gp, 'Chi tiết giá');
+  check((await text(gp)).includes('1.320.000'), 'khách thấy tổng 2 đêm ngày thường 1.320.000đ đã gồm VAT');
+  await snap(gp, 'khach-chi-tiet');
+  await clickText(gp, 'button', 'Đặt phòng');
   await waitText(gp, 'Thông tin của bạn');
   await gp.type('input[autocomplete=name]', 'Trần Thị Khách');
   await gp.type('input[type=tel]', '0912345678');
@@ -300,6 +376,7 @@ try {
   // ---- 4. Chủ phòng (điện thoại nhỏ, tối): chỉ thấy căn của mình, chặn ngày ----
   const own = await open('chu1', [360, 740], 'dark');
   const op = own.page;
+  await hash(op, '#/lich');
   await waitText(op, 'A1205');
   const ot = await text(op);
   check(ot.includes('A1206') && !ot.includes('B1\n') && !/\bB1\b/.test(ot.split('Chặn / mở bán ngày')[0]), 'chủ phòng chỉ thấy căn của mình trên lịch');

@@ -11,7 +11,7 @@ const PERMISSIONS = {
     'calendar.read.all', 'availability.search', 'quote.create', 'booking.create', 'booking.read.all', 'booking.cancel', 'booking.move',
     'booking.checkin', 'booking.checkout', 'payment.record', 'payment.refund', 'rates.write', 'promotion.write', 'settings.write',
     'release.any', 'release.own', 'statement.owner.read.all', 'statement.owner.read.own', 'statement.agent.read.all', 'statement.freeze',
-    'statement.payout', 'report.custody', 'report.occupancy', 'housekeeping.read', 'housekeeping.update', 'housekeeping.create', 'ical.manage', 'invite.create', 'member.manage', 'agent.manage', 'bank.review', 'bank.configure',
+    'statement.payout', 'report.custody', 'report.occupancy', 'listing.own', 'listing.review', 'setup.write', 'housekeeping.read', 'housekeeping.update', 'housekeeping.create', 'ical.manage', 'invite.create', 'member.manage', 'agent.manage', 'bank.review', 'bank.configure',
   ]),
   letan: new Set([
     'calendar.read.all', 'availability.search', 'quote.create', 'booking.create', 'booking.read.all', 'booking.cancel', 'booking.move',
@@ -20,7 +20,7 @@ const PERMISSIONS = {
   buongphong: new Set(['housekeeping.read', 'housekeeping.update']),
   ctv: new Set(AGENT),
   sale: new Set(AGENT),
-  chu: new Set(['release.own', 'calendar.read.own', 'statement.owner.read.own']),
+  chu: new Set(['release.own', 'calendar.read.own', 'statement.owner.read.own', 'listing.own', 'building.propose']),
 };
 
 export function can(role, action) {

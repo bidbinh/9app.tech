@@ -21,15 +21,29 @@ export async function createView(ctx, main) {
     quoteBox.replaceChildren(); guestBox.replaceChildren();
     const childAges = ints(ages.value);
     if (childAges.some((a) => !Number.isInteger(a) || a < 0 || a > 17)) throw new Error('Tuổi trẻ em phải là số từ 0 đến 17');
+    const nights = Math.round((new Date(cout.value) - new Date(cin.value)) / 86400000);
+    const lq = new URLSearchParams({ from: cin.value, to: cout.value, adults: adults.value });
+    if (childAges.length) lq.set('childAges', childAges.join(','));
+    // Phòng theo tin đăng (có ảnh, giá, hoa hồng) + loại phòng cũ chưa có tin (nếu còn)
+    const found = await api('GET', 'api/search-listings?' + lq);
     const qs = new URLSearchParams({ checkin: cin.value, checkout: cout.value, adults: adults.value, children: String(childAges.length) });
     const { roomTypes } = await api('GET', 'api/availability?' + qs);
-    const nights = Math.round((new Date(cout.value) - new Date(cin.value)) / 86400000);
-    availBox.replaceChildren(h('div', { class: 'card stack' }, h('h3', { text: `Còn trống ${dm(cin.value)} → ${dm(cout.value)} (${nights} đêm)` }),
-      h('ul', { class: 'list' }, roomTypes.map((t) => {
-        const btn = h('button', { class: 'btn' + (t.free ? '' : ' ghost'), type: 'button', text: t.free ? 'Chọn' : 'Hết phòng', disabled: !t.free, 'data-type': t.name });
-        btn.addEventListener('click', () => choose(t, childAges));
-        return h('li', null, h('div', { class: 'item' }, h('div', { class: 'm' }, h('b', { text: t.name }), h('small', { text: t.free ? `Còn ${t.free} căn` : 'Không còn căn nào' })), btn));
-      }))));
+    const legacy = roomTypes.filter((t) => !String(t.name).startsWith('Tin: '));
+    const items = found.listings.map((l) => {
+      const btn = h('button', { class: 'btn', type: 'button', text: 'Chọn', 'data-type': l.title });
+      btn.addEventListener('click', () => choose({ roomTypeId: l.roomTypeId, name: l.title, free: 1 }, childAges));
+      return h('li', null, h('div', { class: 'item' },
+        l.cover ? h('img', { src: 'photos/' + l.cover, alt: '', width: '72', height: '54', class: 'thumb' }) : null,
+        h('div', { class: 'm' }, h('b', { text: l.title }), h('small', { text: [l.district, l.province].filter(Boolean).join(', ') + ' · ' + l.capacityMax + ' khách' }),
+          h('small', { text: money(l.total) + ' (' + l.nights + ' đêm, đã gồm VAT)' + (agent && l.commission !== undefined ? ' · hoa hồng ' + money(l.commission) : '') })), btn));
+    });
+    for (const t of legacy) {
+      const btn = h('button', { class: 'btn' + (t.free ? '' : ' ghost'), type: 'button', text: t.free ? 'Chọn' : 'Hết phòng', disabled: !t.free, 'data-type': t.name });
+      btn.addEventListener('click', () => choose(t, childAges));
+      items.push(h('li', null, h('div', { class: 'item' }, h('div', { class: 'm' }, h('b', { text: t.name }), h('small', { text: t.free ? 'Còn ' + t.free + ' căn' : 'Không còn căn nào' })), btn)));
+    }
+    availBox.replaceChildren(h('div', { class: 'card stack' }, h('h3', { text: 'Còn trống ' + dm(cin.value) + ' → ' + dm(cout.value) + ' (' + nights + ' đêm)' }),
+      items.length ? h('ul', { class: 'list' }, items) : h('p', { class: 'note', text: 'Không có phòng nào phù hợp.' })));
   }));
 
   async function choose(type, childAges) {

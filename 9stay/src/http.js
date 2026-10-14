@@ -91,6 +91,19 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
     });
   }
 
+  // Thân nhị phân (ảnh): từ chối sớm theo Content-Length, đọc tối đa max byte.
+  function readBuffer(req, max) {
+    return new Promise((resolve, reject) => {
+      const declared = Number(req.headers['content-length']);
+      if (Number.isFinite(declared) && declared > max) { reject(new AppError('too_large', 'Tệp quá lớn', 413)); req.resume(); return; }
+      const chunks = [];
+      let size = 0; let tooBig = false;
+      req.on('data', (c) => { size += c.length; if (size > max) { tooBig = true; return; } chunks.push(c); });
+      req.on('end', () => (tooBig ? reject(new AppError('too_large', 'Tệp quá lớn', 413)) : resolve(Buffer.concat(chunks))));
+      req.on('error', reject);
+    });
+  }
+
   const pageCache = new Map();
   function sendIndex(res, head, file = 'index.html') {
     if (!pageCache.has(file)) pageCache.set(file, fs.readFileSync(path.join(PUBLIC, file), 'utf8'));
@@ -164,7 +177,7 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
 
       let body = {};
       let raw = '';
-      if (mutating) {
+      if (mutating && !r.opts.binary) {
         raw = await readBody(req);
         if (raw) {
           try { body = JSON.parse(raw); } catch { throw new AppError('bad_json', 'Dữ liệu gửi lên không hợp lệ', 400); }
@@ -174,6 +187,8 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
 
       const ctx = { req, res, params, body, rawBody: raw, ip, rid, now: clock(), query: Object.fromEntries(url.searchParams), cookies: parseCookies(req.headers.cookie), user: null, member: null };
       await authResolver(ctx, r.opts.auth || 'member');
+      if (mutating && r.opts.binary && r.opts.pre) await r.opts.pre(ctx); // kiểm quyền trước khi đọc thân (vai không có quyền không bắt máy chủ đệm tệp)
+      if (mutating && r.opts.binary) ctx.rawBuffer = await readBuffer(req, r.opts.maxBytes || cfg.maxBodyBytes);
 
       const out = await r.handler(ctx);
       if (res.writableEnded) return;

@@ -75,15 +75,15 @@ export function toast(msg, bad = false) {
 
 // Hiện lỗi API ngay trong khối (không dùng alert), kèm gợi ý khi đơn bị sửa bởi người khác.
 export function showError(box, e) {
-  const msg = e instanceof ApiError ? e.message : 'Có lỗi xảy ra';
+  const msg = (e && e.message) || 'Có lỗi xảy ra';
   box.replaceChildren(h('div', { class: 'err', role: 'alert', text: msg }));
 }
 
 // Chạy một hành động có nút: khóa nút trong lúc chạy, lỗi hiện ở box.
 export async function run(btn, box, fn) {
-  btn.disabled = true;
+  if (btn) btn.disabled = true;
   if (box) box.replaceChildren();
-  try { return await fn(); } catch (e) { if (box) showError(box, e); else toast(e.message, true); return undefined; } finally { btn.disabled = false; }
+  try { return await fn(); } catch (e) { if (box) showError(box, e); else toast(e.message, true); return undefined; } finally { if (btn) btn.disabled = false; }
 }
 
 export const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'r' + Math.random().toString(16).slice(2) + Date.now().toString(16));

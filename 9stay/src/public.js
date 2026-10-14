@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { AppError } from './errors.js';
+import { assertUuid } from './ids.js';
 import { getSetting } from './settings.js';
 import { todayVN, nightsBetween } from './time.js';
 import { ensureRatePlans, createQuote } from './pricing.js';
@@ -51,7 +52,9 @@ export async function offers(c, { org, checkin, checkout, adults, childAges, otp
   const avail = await roomTypeAvailability(c, { orgId: org.id, checkin, checkout, adults, children: childAges.length }, { now });
   const bank = await getBankAccount(c, org.id);
   const rooms = [];
-  for (const t of avail.filter((x) => x.free > 0)) {
+  // loại phòng thuộc tin đăng chỉ hiện khi tin đang hiển thị (tin nháp/chờ duyệt/tạm ngưng bị ẩn)
+  const hidden = new Set((await c.query("SELECT room_type_id FROM listings WHERE org_id = $1 AND status <> 'approved'", [org.id])).map((r) => r.room_type_id));
+  for (const t of avail.filter((x) => x.free > 0 && !hidden.has(x.roomTypeId))) {
     const q = await createQuote(c, { orgId: org.id, roomTypeId: t.roomTypeId, planId: plans.public, checkin, checkout, adults, childAges }, { now, persist: false });
     if (!q.ok) continue;
     rooms.push({ roomTypeId: t.roomTypeId, name: t.name, scarce: t.free <= 2, nights: q.lines.length, total: q.total, deposit: q.deposit });
@@ -61,8 +64,19 @@ export async function offers(c, { org, checkin, checkout, adults, childAges, otp
 }
 
 // Bước "đến nút thanh toán": khóa một căn của loại phòng trong holdMinutesPublic phút, trả mã biên nhận ngẫu nhiên.
-export async function book(c, { org, phone, roomTypeId, checkin, checkout, adults, childAges, guestName, expectedTotal = null, sessionToken = null }, { now = new Date() } = {}) {
+export async function book(c, { org, phone, listingId = null, roomTypeId: rtId, checkin, checkout, adults, childAges, guestName, expectedTotal = null, sessionToken = null }, { now = new Date() } = {}) {
   guestInput({ adults, childAges });
+  let roomTypeId = rtId;
+  if (listingId) {
+    assertUuid(listingId, 'phòng');
+    const [l] = await c.query("SELECT l.room_type_id FROM listings l JOIN buildings b ON b.id = l.building_id WHERE l.id = $1 AND l.org_id = $2 AND l.status = 'approved' AND b.status = 'approved'", [listingId, org.id]);
+    if (!l) throw new AppError('not_found', 'Phòng này hiện không nhận đặt', 404);
+    roomTypeId = l.room_type_id;
+  } else {
+    // loại phòng gắn với một tin thì tin phải đang hiển thị (tin chưa duyệt/bị ngưng không đặt qua đường này)
+    const [lt] = await c.query('SELECT status FROM listings WHERE room_type_id = $1 AND org_id = $2', [roomTypeId, org.id]);
+    if (lt && lt.status !== 'approved') throw new AppError('not_found', 'Phòng này hiện không nhận đặt', 404);
+  }
   await checkNights(c, org, checkin, checkout, todayVN(now));
   if (!(await getBankAccount(c, org.id))) throw new AppError('no_bank_account', 'Cơ sở chưa nhận thanh toán trực tuyến, vui lòng liên hệ trực tiếp', 409);
   const today = todayVN(now);
@@ -101,7 +115,9 @@ export async function receipt(c, { token }, { now = new Date() } = {}) {
     [ref.id],
   );
   const bal = await bookingBalance(c, { orgId: ref.org_id, bookingId: ref.id });
+  const [loc] = await c.query('SELECT bd.name, bd.address, bd.district, bd.province FROM bookings bk JOIN units u ON u.id = bk.unit_id JOIN buildings bd ON bd.id = u.building_id WHERE bk.id = $1', [ref.id]);
   const out = { code: b.code, status: b.status, checkin: b.checkin, checkout: b.checkout, roomType: b.room_type, guestName: b.guest_name, holdUntil: b.hold_until, total: bal.total, paid: bal.paid, due: bal.due, deposit: bal.depositRequired };
+  if (['da_coc', 'da_nhan', 'da_tra'].includes(b.status) && loc) out.location = { name: loc.name, address: loc.address, district: loc.district, province: loc.province };
   if (['giu', 'da_coc'].includes(b.status) && bal.due > 0) {
     const p = await paymentInfo(c, { orgId: ref.org_id, bookingId: ref.id });
     out.pay = { amount: p.amount, content: p.content, accountNumber: p.accountNumber, accountHolder: p.accountHolder, svg: p.svg };

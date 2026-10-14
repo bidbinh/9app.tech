@@ -10,9 +10,13 @@ import { adminRoutes } from './routes/admin.js';
 import { ownerRoutes } from './routes/owner.js';
 import { catalogRoutes } from './routes/catalog.js';
 import { bankRoutes } from './routes/bank.js';
+import { setupRoutes } from './routes/setup.js';
+import { listingRoutes } from './routes/listings.js';
 import { publicRoutes } from './routes/public.js';
 import { opsRoutes, syncFeed } from './routes/ops.js';
 import { cleanup } from './maintenance.js';
+import { extendListingRates } from './listings.js';
+import { sweepOrphanPhotos } from './photos.js';
 import { tx } from './db.js';
 import { expireHolds } from './bookings.js';
 
@@ -26,6 +30,8 @@ export function buildApp({ idClient, cfg = config, clock, fetchText } = {}) {
   ownerRoutes(app);
   catalogRoutes(app);
   bankRoutes(app, cfg);
+  setupRoutes(app);
+  listingRoutes(app);
   opsRoutes(app, { fetchText });
   publicRoutes(app, { idClient });
   return app;
@@ -45,7 +51,12 @@ export function startExpirer(intervalMs = 60_000) {
   let syncing = false;
   const slow = setInterval(async () => {
     n += 1;
-    if (n % 2 === 0) { try { await tx((c) => cleanup(c, { now: new Date() })); } catch (e) { console.error('[cleanup]', e && e.message); } }
+    if (n % 2 === 0) {
+      // mỗi việc một giao dịch riêng: một việc lỗi không hoàn tác việc khác
+      try { await tx((c) => cleanup(c, { now: new Date() })); } catch (e) { console.error('[cleanup]', e && e.message); }
+      try { await tx((c) => extendListingRates(c, { now: new Date() })); } catch (e) { console.error('[rates]', e && e.message); }
+      try { await tx((c) => sweepOrphanPhotos(c, { now: new Date() })); } catch (e) { console.error('[photos]', e && e.message); }
+    }
     if (syncing) return; // vòng trước chưa xong thì bỏ lượt, không chạy chồng
     syncing = true;
     try {
