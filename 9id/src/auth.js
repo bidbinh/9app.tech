@@ -7,7 +7,7 @@ import { sha256hex, newToken, TOKEN_RE, deviceLabel } from './util.js';
 export const COOKIE = SESSION_COOKIE;
 
 // Tra phiên theo token (từ cookie hoặc từ app khác gửi sang). Chỉ chấp nhận token đúng định dạng VÀ khớp một hàng do máy chủ cấp.
-// Hết hạn kiểm ở máy chủ: không dùng quá 90 ngày thì vô hiệu. Dùng thì gia hạn (tối đa mỗi giờ một lần ghi).
+// Hết hạn kiểm ở máy chủ: không dùng quá sessionDays ngày thì vô hiệu. Dùng thì gia hạn (tối đa mỗi giờ một lần ghi).
 export async function lookupSession(token) {
   if (typeof token !== 'string' || !TOKEN_RE.test(token)) return null;
   const hash = sha256hex(token);

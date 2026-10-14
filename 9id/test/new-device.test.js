@@ -80,3 +80,17 @@ test('thiết bị vừa đăng nhập cũng không thấy thông báo về chí
   await ok(a.post('/api/notices/seen'));
   assert.ok(!(await ok(a.get('/api/me'))).notices.some((n) => n.kind === 'new_device'));
 });
+
+test('kẻ có mật khẩu không dập được thông báo: phiên tạo SAU thông báo không thấy và không đánh dấu đã xem', async () => {
+  const victim = await signup('Nạn nhân');
+  const att = new Client('kẻ lạ', freshIp());
+  await ok(att.post('/api/login', { phone: victim.phone, password: PASS }), 'kẻ lạ đăng nhập lần 1');
+  assert.equal(await countNew(victim.phone), 1);
+  await ok(att.post('/api/logout'), 'đăng xuất');
+  await ok(att.post('/api/login', { phone: victim.phone, password: PASS }), 'đăng nhập lần 2 (máy đã quen)');
+  assert.equal(await countNew(victim.phone), 1, 'máy quen không tạo thêm');
+  const attMe = await ok(att.get('/api/me'));
+  assert.ok(!attMe.notices.some((n) => n.kind === 'new_device'), 'phiên tạo sau thông báo không được thấy nó');
+  await ok(att.post('/api/notices/seen'));
+  assert.ok((await ok(victim.get('/api/me'))).notices.some((n) => n.kind === 'new_device'), 'nạn nhân vẫn thấy sau khi kẻ lạ bấm đã biết');
+});

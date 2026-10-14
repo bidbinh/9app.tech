@@ -5,8 +5,8 @@ import * as pw from '../password.js';
 import * as sso from '../sso9sport.js';
 import { createSession, audit, COOKIE } from '../auth.js';
 import { requestOtp, verifyOtp, peekTicket, consumeTicket, ipKey } from '../otp.js';
-import { issueChallenge, consumePow } from '../pow.js';
-import { isPhoneHeld, unavailable } from '../phone-hold.js';
+import { issueChallenge } from '../pow.js';
+import { isPhoneHeld, unavailable, activeUndo } from '../phone-hold.js';
 import { assertNotLocked, recordFailure, clear } from '../throttle.js';
 import { cleanText, normalizePhone, phoneHash, phoneHashes, safeNext, sha256hex, newToken, TOKEN_RE } from '../util.js';
 
@@ -28,10 +28,14 @@ export async function pendingApprovalCount(userId) {
       WHERE i.status='awaiting' AND i.expires_at > now()`, [userId]);
   return r[0].n;
 }
-// sessionId: phiên đang xem (bỏ các thông báo dành cho thiết bị KHÁC, ví dụ "thiết bị mới" không hiện trên chính thiết bị đó)
+// sessionId: phiên đang xem. Thông báo "thiết bị mới" CHỈ hiện (và chỉ đánh dấu đã xem được) ở phiên tạo TRƯỚC thông báo và không phải
+// phiên gây ra nó: kẻ đăng nhập sau (kể cả cùng máy) không thấy và không dập được thông báo của chủ tài khoản.
+const VISIBLE = `($2::uuid IS NULL OR ((except_session IS NULL OR except_session <> $2::uuid)
+  AND (kind <> 'new_device' OR (SELECT created_at FROM sessions WHERE id = $2::uuid) < notices.created_at)))`;
 export async function unseenNotices(userId, sessionId = null) {
-  return (await query('SELECT id, kind, created_at FROM notices WHERE user_id=$1 AND seen_at IS NULL AND ($2::uuid IS NULL OR except_session IS NULL OR except_session <> $2::uuid) ORDER BY id DESC LIMIT 5', [userId, sessionId])).map((n) => ({ id: n.id, kind: n.kind, at: n.created_at }));
+  return (await query(`SELECT id, kind, created_at FROM notices WHERE user_id=$1 AND seen_at IS NULL AND ${VISIBLE} ORDER BY id DESC LIMIT 5`, [userId, sessionId])).map((n) => ({ id: n.id, kind: n.kind, at: n.created_at }));
 }
+export const markSeen = (userId, sessionId) => query(`UPDATE notices SET seen_at = now() WHERE user_id=$1 AND seen_at IS NULL AND ${VISIBLE}`, [userId, sessionId]);
 
 function loginKeys(phone, ip) {
   const ph = phoneHash(phone).slice(0, 32);
@@ -87,15 +91,10 @@ export function authRoutes(app) {
     const phone = normalizePhone(ctx.body.phone);
     const purpose = ctx.body.purpose === undefined ? 'register' : ctx.body.purpose;
     if (purpose === 'phone_change') {
-      // Đổi số: cần phiên; số mới phải khác số hiện tại. Số đã có chủ hoặc đang bị giữ chỗ: phản hồi GIỐNG HỆT nhưng KHÔNG gửi mã
-      // (không lộ số nào đã đăng ký, không dùng đổi số để gửi tin cho người khác).
+      // Đổi số: cần phiên; số mới phải khác số hiện tại. KHÔNG phân biệt số đã có chủ hay chưa ở bước này (cùng hạn mức, cùng phản hồi,
+      // cùng việc gửi mã) để không liệt kê được tài khoản; việc chặn số đã có chủ làm ở bước đổi số với thông điệp chung.
       if (!ctx.user) throw new ApiError(401, 'unauthorized', 'Bạn chưa đăng nhập hoặc phiên đã hết hạn.');
       if (phone === ctx.user.phone) throw new ApiError(400, 'invalid_input', 'Đây đang là số điện thoại của tài khoản này');
-      const taken = (await query('SELECT 1 FROM users WHERE phone=$1', [phone])).length > 0 || await isPhoneHeld(null, phone, ctx.user.id);
-      if (taken) {
-        await consumePow(ctx.body.pow);
-        return { ok: true, resendAfterSec: config.otpResendSec, ttlSec: config.otpTtlSec };
-      }
     }
     return requestOtp(phone, ctx.ip, { purpose, pow: ctx.body.pow });
   }, { limit: 20, limitKey: 'otp-req' });
@@ -219,12 +218,12 @@ export function authRoutes(app) {
   app.route('GET', '/api/me', async (ctx) => {
     const u = ctx.user;
     if (!u) return { user: null };
-    return { user: publicUser(u), pendingInvitations: await pendingInvitationCount(u.phone), pendingApprovals: await pendingApprovalCount(u.id), notices: await unseenNotices(u.id, ctx.sessionId) };
+    return { user: publicUser(u), pendingInvitations: await pendingInvitationCount(u.phone), pendingApprovals: await pendingApprovalCount(u.id), notices: await unseenNotices(u.id, ctx.sessionId), phoneUndo: await activeUndo(u.id) };
   });
 
   app.route('POST', '/api/notices/seen', async (ctx) => {
     if (!ctx.user) throw new ApiError(401, 'unauthorized', 'Bạn chưa đăng nhập hoặc phiên đã hết hạn.');
-    await query('UPDATE notices SET seen_at = now() WHERE user_id=$1 AND seen_at IS NULL AND (except_session IS NULL OR except_session <> $2::uuid)', [ctx.user.id, ctx.sessionId]);
+    await markSeen(ctx.user.id, ctx.sessionId);
     return { ok: true };
   });
 

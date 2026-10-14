@@ -21,6 +21,8 @@ test('trang Tài khoản có thẻ đổi số điện thoại gọi đúng API,
   assert.ok(s.includes("'Đổi số điện thoại'"), 'có nút Đổi số điện thoại');
   assert.ok(s.includes("purpose: 'phone_change'"));
   assert.ok(s.includes('api/phone/change'));
+  assert.ok(s.includes('api/phone/undo-lock'), 'có nút Khóa hoàn tác');
+  assert.ok(s.includes('phoneUndo'), 'hiện thẻ khi đang trong thời gian hoàn tác');
   assert.ok(s.includes("autocomplete: 'tel'"));
   assert.ok(s.includes("autocomplete: 'one-time-code'"));
 });

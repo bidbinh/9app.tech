@@ -15,6 +15,11 @@
       N.me = me; N.notices = rs[0].notices || [];
       N.clear(p);
       N.noticeCards(N.account).forEach(function (n) { p.appendChild(n); });
+      if (rs[0].phoneUndo) {
+        p.appendChild(N.notice('info', 'Bạn vừa đổi số điện thoại',
+          'Đến ' + N.dmy(rs[0].phoneUndo.until) + ', người đang giữ số cũ vẫn có thể hoàn tác việc đổi này. Nếu số cũ không còn do bạn giữ (đã đưa hoặc trả SIM), hãy khóa hoàn tác.',
+          N.btn('Khóa hoàn tác', 'ghost sm', function () { lockUndo(); })));
+      }
       p.appendChild(h('div', { class: 'card' }, [
         h('div', { class: 'row' }, [
           h('div', { class: 'avatar', text: N.initial(me.displayName) }),
@@ -107,6 +112,7 @@
         }
         N.onEnter(phone, send);
         holder.appendChild(h('p', { class: 'muted', text: 'Nhập số điện thoại mới. Mã xác thực sẽ gửi tới số mới; sau khi đổi, các thiết bị khác sẽ bị đăng xuất.' }));
+        holder.appendChild(h('p', { class: 'muted small', text: 'Trong 7 ngày sau khi đổi, người giữ số cũ có thể hoàn tác việc đổi (phòng khi tài khoản bị chiếm). Nếu số cũ không còn do bạn giữ, hãy khóa hoàn tác ngay sau khi đổi.' }));
         holder.appendChild(N.field('Số điện thoại mới', phone, 'Số di động Việt Nam, ví dụ 0912 345 678'));
         holder.appendChild(err); holder.appendChild(btn);
       }
@@ -137,6 +143,21 @@
         holder.appendChild(h('div', { class: 'links' }, [h('button', { class: 'linkbtn', type: 'button', text: 'Đổi số khác', onclick: function () { st.ticket = ''; stepPhone(); } })]));
       }
       stepPhone();
+    });
+  }
+
+  // Khóa hoàn tác: chủ tài khoản chủ động tắt khả năng hoàn tác (số cũ không còn do mình giữ). Cần nhập lại mật khẩu.
+  function lockUndo() {
+    N.sheet('Khóa hoàn tác đổi số', function (body, close) {
+      var pass = N.passField('Nhập mật khẩu để xác nhận', { autocomplete: 'current-password' });
+      var err = N.errBox(); var btn = N.btn('Khóa hoàn tác', 'primary block', go);
+      function go() {
+        err.hide();
+        N.busy(btn, function () { return N.post('api/phone/undo-lock', { password: pass.input.value }).then(function () { close(); N.toast('Đã khóa hoàn tác. Số cũ không còn được giữ chỗ.'); N.account(); }); }, function (e) { err.show(e.message); });
+      }
+      N.onEnter(pass.input, go);
+      body.appendChild(h('p', { text: 'Sau khi khóa, không ai (kể cả người giữ số cũ) hoàn tác được việc đổi số này, và số cũ có thể được người khác đăng ký.' }));
+      body.appendChild(pass.node); body.appendChild(err); body.appendChild(btn);
     });
   }
 

@@ -50,12 +50,14 @@ Hai tệp mới nằm lại không hại gì (index cũ không nạp). Dữ li�
 
 ---
 
-# Bổ sung (14/10/2026): hiển thị đăng nhập 9id ở trang Tài khoản (launcher v19)
+# Bổ sung (14/10/2026): hiển thị đăng nhập 9id ở trang Tài khoản (launcher v20)
 
-**Thứ tự bắt buộc: triển khai 9id trước (BACKLOG A2), rồi mới chép launcher này.** Nếu `/id/nine.js` chưa có, launcher vẫn chạy
-bình thường (không hiện khối đăng nhập, không lỗi JS) nhưng trình duyệt ghi một dòng 404 trong console.
+**Thứ tự bắt buộc: triển khai 9id trước (BACKLOG A2), rồi mới chép launcher này.** `nine.js` được launcher nạp bất đồng bộ (sau khi
+trang chủ đã dựng) và chỉ chèn khi máy chủ trả đúng JavaScript: nếu `/id/nine.js` chưa có (404), bị nginx trả `index.html`
+(`try_files`), hoặc 9id chậm/treo, launcher vẫn chạy bình thường (không hiện khối đăng nhập, không lỗi JS, không bị chặn); trình
+duyệt chỉ ghi một dòng 404 trong console khi chưa có.
 
-Đổi: `index.html` (nạp `/id/nine.js` trước `js/launcher.js?v=19`, khối `#acc-out`/`#acc-in`, chữ cái avatar, css `?v` +1), `css/style.css`
+Đổi: `index.html` (không còn thẻ script nine.js (nạp động), `js/launcher.js?v=20`, khối `#acc-out`/`#acc-in`, chữ cái avatar, css `?v` +1), `css/style.css`
 (khối "Tài khoản 9id" ở cuối tệp), `js/launcher.js` (khối "Tài khoản 9id", gọi `accountInit()`). Không đổi `apps.js`, `search.js`.
 Kiểm trước khi chép (như mục 0 ở trên: so md5 với bản trên máy chủ, sao lưu `.bak-id`), rồi:
 
