@@ -89,7 +89,7 @@
       L9.btn('Đăng xuất', 'ghost', function (e) {
         return L9.busy(e.currentTarget, function () {
           return fetch(acc.loginPath + 'api/logout', { method: 'POST', credentials: 'same-origin', headers: { 'x-requested-with': '9id', 'content-type': 'application/json' }, body: '{}' })
-            .then(function () { location.reload(); }, function () { L9.toast('Chưa đăng xuất được, hãy thử lại.'); });
+            .then(function (r) { if (!r.ok) throw new Error('logout'); location.reload(); }).catch(function () { L9.toast('Chưa đăng xuất được, hãy thử lại.'); });
         });
       }),
     ]));

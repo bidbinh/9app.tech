@@ -17,8 +17,11 @@ let nowFn = Date.now;
 export const setNow = (fn) => { nowFn = fn || Date.now; };
 
 const cache = new Map();   // băm token -> { user | null, at }
+const inflight = new Map(); // băm token -> Promise đang hỏi 9id (gộp các yêu cầu đồng thời cùng token)
+const CACHE_MAX = 5000;
+export const cacheSize = () => cache.size;
 let brokenAt = -Infinity;
-export function flushCaches() { cache.clear(); brokenAt = -Infinity; }
+export function flushCaches() { cache.clear(); inflight.clear(); brokenAt = -Infinity; }
 export function setIdClient(c) { override = c || null; client = null; flushCaches(); }
 
 export function idEnabled() {
@@ -30,22 +33,35 @@ function idClient() {
   return client;
 }
 
+function remember(h, user) {
+  cache.set(h, { user, at: nowFn() });
+  if (cache.size > CACHE_MAX) {
+    const t = nowFn();
+    for (const [k, v] of cache) if (t - v.at >= (v.user ? config.idCacheMs : NEG_MS)) cache.delete(k);   // bỏ mục hết hạn
+    for (const k of cache.keys()) { if (cache.size <= CACHE_MAX - 500) break; cache.delete(k); }          // vẫn quá trần: bỏ mục cũ nhất
+  }
+}
+
 // -> { userId, displayName } | null (token không hợp lệ/hết hạn). Ném lỗi khi 9id không đạt được hoặc trả dữ liệu lạ.
 export async function verifyToken(token) {
   if (typeof token !== 'string' || !TOKEN_RE.test(token)) return null;
   const h = sha256hex(token);
   const hit = cache.get(h);
-  const now = nowFn();
-  if (hit && now - hit.at < (hit.user ? config.idCacheMs : NEG_MS)) return hit.user;
-  if (config.idBreakMs > 0 && now - brokenAt < config.idBreakMs) throw new Error('9id tạm không đạt được');
-  let u;
-  try { u = await idClient().verify(token); } catch (e) { brokenAt = nowFn(); throw e; }
-  if (!u) { cache.set(h, { user: null, at: nowFn() }); return null; }
-  if (!u.userId || !UUID_RE.test(String(u.userId))) { brokenAt = nowFn(); throw new Error('9id trả dữ liệu không hợp lệ'); }
-  const user = { userId: String(u.userId).toLowerCase(), displayName: String(u.displayName || '').slice(0, 80) };
-  cache.set(h, { user, at: nowFn() });
-  if (cache.size > 5000) for (const [k, v] of cache) if (nowFn() - v.at > config.idCacheMs) cache.delete(k);
-  return user;
+  if (hit && nowFn() - hit.at < (hit.user ? config.idCacheMs : NEG_MS)) return hit.user;
+  const pending = inflight.get(h);
+  if (pending) return pending;                                   // đang có một lần hỏi cùng token: dùng chung kết quả
+  if (config.idBreakMs > 0 && nowFn() - brokenAt < config.idBreakMs) throw new Error('9id tạm không đạt được');
+  const p = (async () => {
+    let u;
+    try { u = await idClient().verify(token); } catch (e) { brokenAt = nowFn(); throw e; }
+    if (!u) { remember(h, null); return null; }
+    if (!u.userId || !UUID_RE.test(String(u.userId))) { brokenAt = nowFn(); throw new Error('9id trả dữ liệu không hợp lệ'); }
+    const user = { userId: String(u.userId).toLowerCase(), displayName: String(u.displayName || '').slice(0, 80) };
+    remember(h, user);
+    return user;
+  })().finally(() => { inflight.delete(h); });
+  inflight.set(h, p);
+  return p;
 }
 
 // Gắn ctx.userId / ctx.userName / ctx.idDown. Không bao giờ ném lỗi (app phải chạy ẩn danh khi 9id có vấn đề).

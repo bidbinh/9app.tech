@@ -33,7 +33,7 @@ DATABASE_URL=postgres://postgres:ship@localhost:5440/lunch npm start
 | `NODE_ENV` | | `production` bật cờ `Secure` cho cookie `lsid` |
 | `CONSOLE_API_KEY_ID`, `CONSOLE_API_SECRET` | trống | bật API quản trị cho 9app Console (trống thì các đường dẫn này trả 404) |
 | `NINE_ID_SECRET`, `NINE_ID_KEY_ID`, `NINE_ID_URL`, `NINE_ID_PUBLIC_PATH` | trống, `lunch`, `http://9id:8102/id`, `/id/` | bật đăng nhập 9id (tài khoản 9app dùng chung): bí mật >= 32 ký tự trùng khóa `lunch` trong `INTERNAL_KEYS` của 9id. Trống thì tích hợp tắt hẳn, app chạy ẩn danh như trước |
-| `NINE_ID_CACHE_MS`, `NINE_ID_TIMEOUT_MS`, `NINE_ID_BREAK_MS` | `60000`, `3000`, `1500` | đệm kết quả xác thực, hạn gọi 9id, cầu dao khi 9id lỗi |
+| `NINE_ID_CACHE_MS`, `NINE_ID_TIMEOUT_MS`, `NINE_ID_BREAK_MS` | `60000`, `1500`, `10000` | đệm kết quả xác thực, hạn gọi 9id, thời gian cầu dao khi 9id lỗi (giữ `BREAK >= TIMEOUT`) |
 | `RATE_LIMIT_PER_MIN` | `6000` | giới hạn yêu cầu mỗi IP mỗi phút (đồng nghiệp dùng chung IP công ty) |
 | `SESSION_LIMIT_PER_MIN` | `120` | giới hạn thao tác ghi mỗi phiên mỗi phút |
 
@@ -48,7 +48,7 @@ Di cư CSDL chạy tự động khi khởi động (`db/*.sql`, bảng `schema_m
 Thiết kế: `../docs/superpowers/specs/2026-10-14-tich-hop-9id-khuon-mau-design.md`. App **vẫn dùng ẩn danh như cũ**; đăng nhập 9id chỉ thêm khả năng giữ nhóm qua máy khác.
 
 - **Bật:** đặt `NINE_ID_SECRET` (>= 32 ký tự) và thêm cùng bí mật vào `INTERNAL_KEYS` của 9id dưới tên `lunch` (ví dụ `INTERNAL_KEYS=...,lunch:<bí mật>`). Nginx phải phục vụ 9id cùng tên miền (`/id/`) để cookie `nine_sid` (Path=/) tới được 9lunch. Không đặt bí mật thì tích hợp tắt, `GET /api/account` trả `{enabled:false}`.
-- **Hoạt động:** cookie `nine_sid` được xác thực qua 9id (`verify`, đệm 60 giây, đệm âm 15 giây cho cookie giả, cầu dao khi 9id lỗi). `members.user_id` gắn thành viên với người dùng; quyền xét theo phiên ẩn danh **hoặc** `user_id` nên đăng nhập ở máy mới vẫn thấy nhóm. Tạo/gia nhập nhóm khi đã đăng nhập gắn `user_id` ngay.
+- **Hoạt động:** cookie `nine_sid` được xác thực qua 9id (`verify`, đệm 60 giây, đệm âm 15 giây cho cookie giả, cầu dao khi 9id lỗi). `members.user_id` gắn thành viên với người dùng; quyền xét theo phiên ẩn danh **hoặc** `user_id` nên đăng nhập ở máy mới vẫn thấy nhóm. Tạo/gia nhập nhóm khi đã đăng nhập gắn `user_id` ngay và **không** nối phiên ẩn danh của máy (đăng xuất 9id là máy mất quyền; khi 9id lỗi, thành viên chỉ có quyền qua tài khoản tạm thời không truy cập được).
 - **Nhận nhóm ẩn danh:** `GET /api/account` liệt kê (`claimable`) các nhóm ẩn danh của **máy này** chưa gắn tài khoản; `POST /api/account/claim` gắn chúng (người dùng bấm xác nhận ở thẻ "Tài khoản 9app" ở trang chủ, không tự động). Nhóm mà người dùng đã là thành viên bằng tài khoản thì bỏ qua (`conflicts`). Không bao giờ chiếm thành viên đã có `user_id`.
 - **9id lỗi:** app vẫn chạy ẩn danh (không 5xx), thẻ tài khoản ẩn, chỉ `claim` trả 503.
 - **Thử:** `npm test` dùng 9id giả (máy khách bơm vào); `npm run e2e:account` chạy Chrome thật với 9id giả HTTP (ảnh vào `shots/account/`). Trước khi bật ở production, thử một lần với 9id thật.

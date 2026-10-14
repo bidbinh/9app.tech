@@ -1,6 +1,15 @@
 const env = process.env;
 const int = (v, d) => (v === undefined || v === '' ? d : Number.parseInt(v, 10));
 
+// Đường dẫn giao diện 9id cùng nguồn gốc: luôn dạng /xxx/ (một dấu / ở đầu, một dấu / ở cuối); giá trị lạ (có lược đồ, //host, gạch ngược) thì dùng /id/
+export function normPublicPath(v) {
+  let s = typeof v === 'string' ? v.trim() : '';
+  if (!s || s.includes(':') || s.startsWith('//') || s.includes('\\')) return '/id/';
+  if (!s.startsWith('/')) s = '/' + s;
+  if (!s.endsWith('/')) s += '/';
+  return s;
+}
+
 export const config = {
   production: env.NODE_ENV === 'production',
   port: int(env.PORT, 8097),
@@ -29,10 +38,10 @@ export const config = {
   nineIdUrl: (env.NINE_ID_URL || 'http://9id:8102/id').replace(/\/+$/, ''),
   nineIdKeyId: env.NINE_ID_KEY_ID || 'lunch',
   nineIdSecret: env.NINE_ID_SECRET || '',
-  nineIdPublicPath: env.NINE_ID_PUBLIC_PATH || '/id/',   // đường dẫn giao diện 9id trên cùng nguồn gốc (nginx)
+  nineIdPublicPath: normPublicPath(env.NINE_ID_PUBLIC_PATH),   // đường dẫn giao diện 9id trên cùng nguồn gốc (nginx)
   idCacheMs: int(env.NINE_ID_CACHE_MS, 60_000),
-  idTimeoutMs: int(env.NINE_ID_TIMEOUT_MS, 3000),
-  idBreakMs: int(env.NINE_ID_BREAK_MS, 1500),            // 9id vừa lỗi thì trong ngần này ms không gọi lại
+  idTimeoutMs: int(env.NINE_ID_TIMEOUT_MS, 1500),
+  idBreakMs: int(env.NINE_ID_BREAK_MS, 10_000),          // 9id vừa lỗi thì trong ngần này ms không gọi lại (>= hạn gọi, để 9id treo chỉ chặn một vài yêu cầu mỗi chu kỳ)
 };
 
 const DEFAULT_DB = 'postgres://postgres:ship@localhost:5440/lunch';

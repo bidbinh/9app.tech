@@ -35,3 +35,8 @@ test('không thêm script ngoài vào index.html (CSP chặt giữ nguyên)', ()
   const srcs = [...html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(srcs.every((u) => !/^(https?:)?\/\//.test(u) && !u.startsWith('/id/')), srcs.join());
 });
+
+test('đăng xuất ở giao diện chỉ tải lại khi 9id trả thành công (không báo đã đăng xuất khi 9id lỗi)', () => {
+  const s = read('home.js');
+  assert.ok(/if \(!r\.ok\)/.test(s), 'kiểm r.ok trước khi tải lại');
+});

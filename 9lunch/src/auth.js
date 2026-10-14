@@ -41,6 +41,7 @@ export async function memberFor(q, who, teamId) {
       WHERE m.team_id = $2 AND m.left_at IS NULL
         AND ( ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.member_id = m.id AND p.token_hash = $1))
               OR ($3::uuid IS NOT NULL AND m.user_id = $3::uuid) )
+      ORDER BY (m.user_id = $3::uuid) DESC NULLS LAST, m.joined_at, m.seq   -- máy có cả hai danh tính: ưu tiên tài khoản, rồi người vào trước
       LIMIT 1`, [sid, teamId, userId]);
   return rows[0] || null;
 }

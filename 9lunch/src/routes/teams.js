@@ -27,8 +27,15 @@ export function teamRoutes(app) {
   app.route('GET', '/api/me', async (ctx) => {
     if (!ctx.sid && !ctx.userId) return { teams: [] };
     await touch(ctx);
+    // mỗi nhóm một dòng: máy có cả thành viên ẩn danh lẫn thành viên tài khoản thì ưu tiên tài khoản (giống memberFor)
     const rows = await query(
-      `SELECT t.id, t.name, t.invite_code, m.id AS member_id, m.name AS my_name, m.role,
+      `WITH mine AS (
+         SELECT DISTINCT ON (m.team_id) m.* FROM members m
+          WHERE m.left_at IS NULL
+            AND ( ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.member_id = m.id AND p.token_hash = $1))
+                  OR ($2::uuid IS NOT NULL AND m.user_id = $2::uuid) )
+          ORDER BY m.team_id, (m.user_id = $2::uuid) DESC NULLS LAST, m.joined_at, m.seq)
+       SELECT t.id, t.name, t.invite_code, m.id AS member_id, m.name AS my_name, m.role,
               (SELECT count(*)::int FROM members x WHERE x.team_id = t.id AND x.left_at IS NULL) AS member_count,
               (SELECT COALESCE(SUM(c.amount),0) FROM charges c JOIN meals ml ON ml.id = c.meal_id
                 WHERE c.member_id = m.id AND c.member_id <> c.payee_id AND c.status <> 'da_nhan' AND ml.status <> 'huy') AS owe,
@@ -36,10 +43,7 @@ export function teamRoutes(app) {
                 WHERE c.payee_id = m.id AND c.member_id <> c.payee_id AND c.status <> 'da_nhan' AND ml.status <> 'huy') AS owed,
               (SELECT row_to_json(x) FROM (SELECT id, status, day::text AS day, venue_name FROM meals
                 WHERE team_id = t.id AND status IN ('binh_chon','dat_mon','thanh_toan') ORDER BY day DESC, created_at DESC LIMIT 1) x) AS active_meal
-         FROM members m JOIN teams t ON t.id = m.team_id
-        WHERE m.left_at IS NULL
-          AND ( ($1::text IS NOT NULL AND EXISTS (SELECT 1 FROM phien p WHERE p.member_id = m.id AND p.token_hash = $1))
-                OR ($2::uuid IS NOT NULL AND m.user_id = $2::uuid) )
+         FROM mine m JOIN teams t ON t.id = m.team_id
         ORDER BY m.joined_at DESC`, [ctx.sid || null, ctx.userId || null]);
     return {
       teams: rows.map((r) => ({
@@ -67,7 +71,7 @@ export function teamRoutes(app) {
           const m = (await c.query(
             "INSERT INTO members(team_id, name, role, bank_bin, bank_account, bank_holder, user_id) VALUES($1,$2,'chu',$3,$4,$5,$6) RETURNING id",
             [t.id, myName, bank?.bin ?? null, bank?.account ?? null, bank?.holder ?? null, ctx.userId || null]))[0];
-          await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
+          if (!ctx.userId) await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);   // đăng nhập: quyền đi qua tài khoản, máy không giữ lại sau khi đăng xuất
           return { team: { id: t.id, name, inviteCode: t.invite_code }, memberId: m.id };
         });
       } catch (e) { if (!uniqueViolation(e)) throw e; }
@@ -98,17 +102,14 @@ export function teamRoutes(app) {
     const attempt = () => tx(async (c) => {
       const t = (await c.query('SELECT id, name FROM teams WHERE invite_code=$1 FOR UPDATE', [code]))[0];
       if (!t) throw new ApiError(404, 'bad_code', 'Mã mời không đúng hoặc đã được đổi. Hỏi người tạo nhóm để lấy link mới.');
-      // đã là thành viên: qua phiên ẩn danh này hoặc qua tài khoản 9id -> dùng lại, thêm phiên này vào để máy này cũng nhận ra
+      // đã là thành viên: qua phiên ẩn danh này hoặc qua tài khoản 9id -> dùng lại
       const mine = await memberFor(c.query, { sid, userId: ctx.userId }, t.id);
-      if (mine) {
-        await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2) ON CONFLICT DO NOTHING', [sid, mine.id]);
-        return { team: { id: t.id, name: t.name }, memberId: mine.id, already: true };
-      }
+      if (mine) return { team: { id: t.id, name: t.name }, memberId: mine.id, already: true };   // KHÔNG nối thêm phiên ẩn danh của máy này (máy dùng chung)
       const all = await c.query('SELECT name FROM members WHERE team_id=$1 AND left_at IS NULL', [t.id]);
       if (all.length >= config.maxMembers) throw new ApiError(409, 'team_full', `Nhóm đã đủ ${config.maxMembers} người`);
       if (all.some((x) => normKey(x.name) === normKey(name))) throw new ApiError(409, 'name_taken', 'Trong nhóm đã có người tên này. Thêm họ hoặc chữ đệm để mọi người phân biệt được.');
       const m = (await c.query("INSERT INTO members(team_id, name, role, user_id) VALUES($1,$2,'thanh_vien',$3) RETURNING id", [t.id, name, ctx.userId || null]))[0];
-      await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
+      if (!ctx.userId) await c.query('INSERT INTO phien(token_hash, member_id) VALUES($1,$2)', [sid, m.id]);
       return { team: { id: t.id, name: t.name }, memberId: m.id };
     });
     try { return await attempt(); }

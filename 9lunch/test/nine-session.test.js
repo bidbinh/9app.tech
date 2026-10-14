@@ -2,7 +2,8 @@ import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { boot, shutdown, db, config } from './helper.js';
 const query = (...a) => db.query(...a);
-import { idEnabled, setIdClient, setNow, flushCaches, verifyToken, resolveUser } from '../src/nine-session.js';
+import { idEnabled, setIdClient, setNow, flushCaches, verifyToken, resolveUser, cacheSize } from '../src/nine-session.js';
+import { normPublicPath } from '../src/config.js';
 
 before(async () => { await boot(); });
 after(shutdown);
@@ -109,4 +110,38 @@ test('migration: members.user_id và chỉ mục duy nhất từng phần theo (
   await query("INSERT INTO members(team_id, name, role) VALUES($1,'D','thanh_vien')", [t]);
   await query("UPDATE members SET left_at = now() WHERE name='A'");
   await query("INSERT INTO members(team_id, name, role, user_id) VALUES($1,'E','thanh_vien',$2)", [t, UID]);
+});
+
+test('các lần xác thực đồng thời cùng một token được gộp thành một lần gọi 9id', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const f = fake(async () => { await gate; return { userId: UID, displayName: 'A' }; });
+  setIdClient(f);
+  const ctxs = Array.from({ length: 10 }, () => ctxOf(T));
+  const run = Promise.all(ctxs.map((c) => resolveUser(c)));
+  await new Promise((r) => setTimeout(r, 20));
+  release();
+  await run;
+  assert.equal(f.calls.length, 1, 'mười yêu cầu đồng thời chỉ hỏi 9id một lần');
+  assert.ok(ctxs.every((c) => c.userId === UID));
+});
+
+test('đệm âm có trần kích thước: nhiều cookie giả không làm bộ nhớ phình mãi', async () => {
+  setIdClient(fake(() => null));
+  for (let i = 0; i < 6000; i++) await resolveUser(ctxOf(String(i).padStart(43, 'z')));
+  assert.ok(cacheSize() <= 5000, 'kích thước đệm ' + cacheSize());
+});
+
+test('mặc định an toàn khi 9id treo: hạn gọi không lớn hơn thời gian cầu dao', async () => {
+  const { config: cfg } = await import('./helper.js');
+  assert.ok(cfg.idTimeoutMs <= cfg.idBreakMs || process.env.NINE_ID_BREAK_MS, `timeout ${cfg.idTimeoutMs} > break ${cfg.idBreakMs}`);
+});
+
+test('đường dẫn giao diện 9id được chuẩn hóa: luôn bắt đầu bằng một dấu / và kết thúc bằng /', () => {
+  assert.equal(normPublicPath('/id'), '/id/');
+  assert.equal(normPublicPath('/id/'), '/id/');
+  assert.equal(normPublicPath('id'), '/id/');
+  assert.equal(normPublicPath(''), '/id/');
+  assert.equal(normPublicPath('//evil.example/'), '/id/');
+  assert.equal(normPublicPath('https://evil.example/'), '/id/');
 });
