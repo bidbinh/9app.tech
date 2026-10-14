@@ -30,6 +30,12 @@ export function parseClients(v) {
   return m;
 }
 
+// Phiên trượt, không hạn cố định: chỉ hết hiệu lực khi sessionDays ngày liền không dùng (trình duyệt cũng giới hạn cookie ~400 ngày).
+export function readSessionPolicy(e) {
+  const pos = (v, d) => { const n = Number.parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
+  return { sessionDays: pos(e.SESSION_DAYS, 365), maxSessions: pos(e.MAX_SESSIONS, 30) };
+}
+
 export const config = {
   production: env.NODE_ENV === 'production',
   port: int(env.PORT, 8102),
@@ -79,6 +85,8 @@ export const config = {
   internalLast4Apps: new Set(String(env.INTERNAL_LAST4_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
   internalDelegateApps: new Set(String(env.INTERNAL_DELEGATE_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
   internalImportApps: new Set(String(env.INTERNAL_IMPORT_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
+  // App được nhờ 9id gửi/kiểm OTP xác minh số điện thoại cho khách (không tạo tài khoản), ví dụ trang đặt phòng công khai của 9stay
+  internalOtpApps: new Set(String(env.INTERNAL_OTP_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
   internalDelegateLimitPerMin: int(env.INTERNAL_DELEGATE_LIMIT_PER_MIN, 1200),
   claimDays: int(env.CLAIM_DAYS, 30),
   // app ở tên miền con riêng đăng nhập bằng mã dùng một lần: client + redirect_uri phải khớp CHÍNH XÁC (không wildcard)
@@ -100,8 +108,9 @@ export const config = {
   loginPhoneLimit: int(env.LOGIN_PHONE_LIMIT, 30),
   loginIpLimit: int(env.LOGIN_IP_LIMIT, 40),
   // giới hạn nghiệp vụ
-  sessionDays: 90,
-  maxSessions: 10,
+  ...readSessionPolicy(env),
+  phoneChangeDays: int(env.PHONE_CHANGE_DAYS, 30), // mỗi tài khoản đổi số tối đa một lần trong ngần ấy ngày
+  phoneUndoDays: int(env.PHONE_UNDO_DAYS, 7), // giữ chỗ số cũ và cho phép hoàn tác trong ngần ấy ngày
   maxFamiliesOwned: 10,
   maxFamiliesJoined: 20,
   maxChildren: 30,

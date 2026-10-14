@@ -45,6 +45,9 @@ export function createNineId({ baseUrl, keyId, secret, timeoutMs = 5000, fetchIm
     exchange: (code, client, redirectUri) => call('POST', '/internal/v1/exchange', { code, client, redirect_uri: redirectUri }),
     sessionValid: (sessionId9id) => call('POST', '/internal/v1/session-valid', { sessionId9id }),
     sessionEnd: (sessionId9id) => call('POST', '/internal/v1/session-end', { sessionId9id }),
+    // OTP xác minh số điện thoại cho khách (app phải nằm trong INTERNAL_OTP_APPS của 9id). ip = IP khách. Ném NineIdError (429 otp_too_soon/otp_limit, 400 otp_invalid...).
+    otpSend: (phone, ip) => call('POST', '/internal/v1/otp/send', { phone, ip }),
+    otpVerify: (phone, code, ip) => call('POST', '/internal/v1/otp/verify', { phone, code, ip }),
     userFamilies: (userId, token) => call('GET', `/internal/v1/users/${encodeURIComponent(userId)}/families`, undefined, token),
     members: (familyId, asUserId, token) => call('GET', `/internal/v1/families/${encodeURIComponent(familyId)}/members?as=${encodeURIComponent(asUserId)}`, undefined, token),
     children: (familyId, asUserId, token) => call('GET', `/internal/v1/families/${encodeURIComponent(familyId)}/children?as=${encodeURIComponent(asUserId)}`, undefined, token),

@@ -14,7 +14,7 @@ const root = path.join(here, '..');
 
 test('bảo trì: dọn OTP, vé, phiên quá hạn, lời mời hết hạn, nonce, idem, bộ đếm, nhật ký; giữ dữ liệu còn hạn', async () => {
   const keep = await signup('Giữ', {}); const old = await signup('Cũ', {});
-  await query("UPDATE sessions SET last_used_at = now() - interval '120 days' WHERE user_id=$1", [old.user.id]);
+  await query("UPDATE sessions SET last_used_at = now() - interval '400 days' WHERE user_id=$1", [old.user.id]);
   await query("INSERT INTO otps(phone_hash, code_hash, salt, expires_at, created_at) VALUES('p','c','s', now(), now() - interval '2 days')");
   await query("INSERT INTO otps(phone_hash, code_hash, salt, expires_at) VALUES('p2','c','s', now() + interval '5 minutes')");
   await query("INSERT INTO tickets(token_hash, phone_hash, expires_at) VALUES('t1','h', now() - interval '2 days')");
@@ -147,8 +147,8 @@ test('mọi bảng chứa mật khẩu/token chỉ lưu băm: không cột token
   const cols = await query("SELECT table_name, column_name FROM information_schema.columns WHERE table_schema='public'");
   const names = cols.map((c) => `${c.table_name}.${c.column_name}`);
   assert.ok(!names.some((n) => /(^|\.)(token|code|otp|password)$/.test(n)), names.filter((n) => /token|code|otp|password/.test(n)).join());
-  const phoneCols = names.filter((n) => /phone/.test(n) && !/verified/.test(n));
-  assert.deepEqual(phoneCols.sort(), ['invitations.phone_hash', 'invitations.phone_last4', 'otps.phone_hash', 'tickets.phone_hash', 'users.phone']);
+  const phoneCols = cols.filter((c) => /phone/.test(c.column_name) && !/verified/.test(c.column_name)).map((c) => `${c.table_name}.${c.column_name}`);
+  assert.deepEqual(phoneCols.sort(), ['invitations.phone_hash', 'invitations.phone_last4', 'otps.phone_hash', 'phone_changes.new_phone_hash', 'phone_changes.old_phone_hash', 'tickets.phone_hash', 'users.phone']);
 });
 
 test('CSDL: ràng buộc vai trò, một chủ, lời mời chờ duy nhất; xóa tài khoản cascade sạch', async () => {

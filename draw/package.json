@@ -1,0 +1,11 @@
+{
+  "name": "9draw",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "9draw - Vẽ tay nhanh trên điện thoại, lưu ảnh và chia sẻ lên mạng xã hội.",
+  "scripts": {
+    "test": "node --test test/",
+    "e2e": "node scripts/e2e.js"
+  }
+}

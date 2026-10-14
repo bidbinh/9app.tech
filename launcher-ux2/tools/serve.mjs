@@ -21,6 +21,9 @@ export function startServer(port) {
   const server = http.createServer((req, res) => {
     const p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     if (p === '/vannien/search-index.json') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify([{name:'Văn khấn',keywords:['văn khấn','khấn'],path:'#/van-khan',blurb:'Bài văn khấn (stub thử nghiệm cục bộ)'}])); return; } // production có tệp thật
+    // 9id (production: nginx chuyển /id/ tới dịch vụ 9id). Cục bộ: nine.js thật; /id/api/me mặc định "chưa đăng nhập" (test ghi đè bằng chặn yêu cầu).
+    if (p === '/id/nine.js') { res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' }); createReadStream(join(ROOT, '..', '9id', 'public', 'nine.js')).pipe(res); return; }
+    if (p === '/id/api/me') { res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' }); res.end('{"user":null}'); return; }
     const f = find(p);
     if (!f) { res.writeHead(404); res.end('nf'); return; }
     res.writeHead(200, { 'Content-Type': T[extname(f).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' });

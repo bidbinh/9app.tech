@@ -5,6 +5,7 @@ import { migrate, query } from './db.js';
 import { resolveSession } from './auth.js';
 import { authRoutes } from './routes/auth.js';
 import { accountRoutes } from './routes/account.js';
+import { phoneRoutes } from './routes/phone.js';
 import { familyRoutes } from './routes/families.js';
 import { internalRoutes } from './internal.js';
 import { oauthRoutes } from './oauth.js';
@@ -26,6 +27,7 @@ export async function maintenance() {
   await query("DELETE FROM pow_used WHERE at < now() - interval '1 hour'");
   await query("DELETE FROM devices WHERE last_used_at < now() - interval '400 days'");
   await query("DELETE FROM notices WHERE created_at < now() - interval '90 days'");
+  await query("DELETE FROM phone_changes WHERE changed_at < now() - interval '90 days'");
   await query("DELETE FROM audit WHERE at < now() - interval '180 days'");
 }
 
@@ -34,6 +36,7 @@ export function buildApp() {
   app.setAuthResolver(resolveSession);
   authRoutes(app);
   accountRoutes(app);
+  phoneRoutes(app);
   familyRoutes(app);
   internalRoutes(app);
   oauthRoutes(app);

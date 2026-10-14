@@ -13,6 +13,7 @@ npm install
 npm run dev      # http://localhost:8102/id/  (OTP in ra cửa sổ lệnh, dữ liệu giữ ở .data/)
 npm test         # dựng PostgreSQL tạm, chạy node:test (đơn vị + tích hợp), rồi dọn
 npm run e2e      # kiểm tra giao diện bằng Chrome thật (puppeteer-core), ảnh chụp vào shots/
+npm run e2e:shared  # ĐĂNG NHẬP CHUNG: 9id thật + launcher thật sau máy chủ đệm cùng nguồn gốc (đăng ký từ launcher, mở lại trình duyệt vẫn đăng nhập, đăng xuất chéo, đổi số, hoàn tác); ảnh vào shots/shared/
 ```
 
 `npm run dev` dùng cổng gửi OTP `console` (in mã ra log, chỉ dev). `npm run e2e` cần Chrome (`CHROME_PATH`) và puppeteer-core (`PUPPETEER_CORE`, đường dẫn module ESM); dùng cổng `mock`, chạy server ở cổng ngẫu nhiên, chụp 390x844, 360x740, 1280x800, sáng và tối.
@@ -45,18 +46,30 @@ npm run e2e      # kiểm tra giao diện bằng Chrome thật (puppeteer-core),
 | `SSO_9SPORT_URL` | trống | địa chỉ nội bộ của 9Sport để nhập tài khoản cũ (trống = tắt) |
 | `INTERNAL_KEYS` | trống | khóa API nội bộ cho các app: `family:SECRET,fin:SECRET` (secret >= 32 ký tự). Trống thì `/internal/` trả 404 |
 | `INTERNAL_LAST4_APPS` | trống | các key id được xin `phoneLast4` qua `verify` |
+| `INTERNAL_OTP_APPS` | trống | các key id được nhờ gửi/kiểm OTP xác minh số điện thoại cho khách qua `/internal/v1/otp/send` và `/otp/verify` (ví dụ `stay` cho trang đặt phòng công khai của 9stay). Dùng cùng cổng gửi và hạn mức với đăng ký (mục đích `verify` có hạn mức riêng theo số); không cấp vé, không tạo tài khoản; bỏ qua PoW vì app đã xác thực HMAC |
 | `INTERNAL_DELEGATE_APPS` | trống | app được dùng `as` không kèm token phiên (bị ghi nhật ký, giới hạn `INTERNAL_DELEGATE_LIMIT_PER_MIN`=1200). App khác phải kèm `X-9ID-Token`. **Osin phải có trong danh sách này** (không có cookie `nine_sid`; kiểm tích hợp: `osin/test/integration`) |
 | `INTERNAL_IMPORT_APPS` | trống | app được nhập gia đình hiện có (mục "Nhập gia đình") |
 | `OAUTH_CLIENTS` | trống | app ở tên miền con riêng đăng nhập bằng mã dùng một lần: `osin=https://osin.9app.tech/auth/callback;khac=...`. Khớp CHÍNH XÁC, https, không wildcard; mỗi client cần khóa cùng tên trong `INTERNAL_KEYS`. `OAUTH_REQUIRE_CONSENT=0` tắt màn "Cho phép" |
 | `INTERNAL_LIMIT_PER_MIN` | `6000` | hạn mức yêu cầu mỗi key mỗi phút |
 | `CONSOLE_API_KEY_ID`, `CONSOLE_API_SECRET` | trống | bật API cho 9app Console (trống thì `/admin-api/` trả 404) |
 | `TRUSTED_PROXY_HOPS` | `1` | số proxy tin cậy; IP khách lấy từ phần tử thứ n tính từ CUỐI của `X-Forwarded-For`; production yêu cầu >= 1 |
+| `SESSION_DAYS`, `MAX_SESSIONS` | `365`, `30` | phiên trượt, **không hạn cố định**: chỉ hết hiệu lực khi ngần ấy ngày liền không dùng (gia hạn mỗi lần dùng; trình duyệt giới hạn cookie ~400 ngày nên đừng đặt lớn hơn); số thiết bị tối đa mỗi người, vượt thì đẩy phiên ít dùng gần đây nhất |
+| `PHONE_CHANGE_DAYS`, `PHONE_UNDO_DAYS` | `30`, `7` | mỗi tài khoản đổi số tối đa một lần trong ngần ấy ngày; số cũ được giữ chỗ và hoàn tác được trong ngần ấy ngày (bảo trì xóa `phone_changes` sau 90 ngày cố định: giữ `PHONE_CHANGE_DAYS` ≤ 90 và ≥ `PHONE_UNDO_DAYS`) |
 | `RATE_LIMIT_PER_MIN`, `SESSION_LIMIT_PER_MIN` | `3000`, `180` | giới hạn yêu cầu mỗi IP, mỗi phiên |
 | `INVITES_PER_USER_DAY` | `20` | số lời mời mỗi người gửi mỗi ngày |
 
 Cập nhật lược đồ CSDL chạy tự động khi khởi động (`db/*.sql`, bảng `schema_migrations`, có khóa tư vấn nên hai bản khởi động đồng thời không đụng nhau). Dọn dữ liệu hết hạn chạy khi khởi động và mỗi 6 giờ.
 
 **Production từ chối khởi động** khi: `DATABASE_URL` thiếu/mẫu, `PHONE_PEPPER` hoặc `EDGE_SECRET` thiếu/ngắn/mẫu/lặp ký tự, `ESMS_ZALO_DATA` không phải JSON, `OAUTH_CLIENTS` có redirect không https/wildcard hoặc thiếu khóa HMAC, `OTP_PROVIDER` khác `esms` hoặc `esms` chưa đủ cấu hình, khóa `INTERNAL_KEYS` hoặc `CONSOLE_API_SECRET` ngắn/mẫu, `TRUSTED_PROXY_HOPS` < 1.
+
+## Đăng nhập chung cho mọi app (thiết kế: `../docs/superpowers/specs/2026-10-14-9id-dang-nhap-chung-design.md`)
+
+- **Một tài khoản (số điện thoại + mật khẩu, xác minh OTP một lần) cho mọi app cần đăng nhập.** Cookie `nine_sid` (Path=/ trên `9app.tech`) dùng chung cho mọi app cùng nguồn gốc; app ở tên miền con (Osin) dùng luồng authorize.
+- **Đăng nhập lâu dài:** phiên trượt, không hạn cố định; chỉ hết khi `SESSION_DAYS` (365) ngày liền không dùng; tối đa `MAX_SESSIONS` (30) thiết bị, vượt thì đẩy phiên **ít dùng gần đây nhất**. Mất máy: đăng xuất từ xa ở Tài khoản > Thiết bị.
+- **Thư viện trình duyệt** `GET /id/nine.js` (ES5): `Nine.me()`, `Nine.user()`, `Nine.login(next)`, `Nine.register(next)`, `Nine.logout()`, `Nine.require(ok, fail)`. App cùng nguồn gốc chỉ cần `<script src="/id/nine.js"></script>`; chưa đăng nhập thì `Nine.require` chuyển tới `/id/?next=...` rồi quay lại. Launcher dùng nó ở trang Tài khoản (`../launcher-ux2/`).
+- **Đổi số điện thoại:** `POST /api/otp/request {purpose:'phone_change'}` (cần phiên) rồi `/api/otp/verify` rồi `POST /api/phone/change {ticket, phone, password}`. Mỗi tài khoản đổi tối đa một lần trong `PHONE_CHANGE_DAYS` (30) ngày; thu hồi mọi phiên khác. Số cũ được **giữ chỗ `PHONE_UNDO_DAYS` (7) ngày**: người giữ số cũ xác minh OTP ở "Quên mật khẩu" (`verify` trả `phoneChangeUndoable`) rồi `POST /api/phone/undo {ticket, phone, password mới}` để lấy lại tài khoản (xóa mọi phiên của kẻ đã đổi). Chủ tài khoản có thể **khóa hoàn tác** (`POST /api/phone/undo-lock {password}`) nếu số cũ không còn do mình giữ; trong thời gian hoàn tác `/api/me` trả `phoneUndo: {until}`. `phone_changes` chỉ lưu băm số cũ/mới và bị xóa sau 90 ngày.
+- **Thông báo trong app** (bảng `notices`, hiện ở trang Gia đình và Tài khoản): `password_reset`, `new_device` (đăng nhập từ thiết bị lạ khi đã có phiên khác; không hiện trên chính thiết bị đó; tối đa 1 mỗi giờ), `phone_changed`, `phone_change_undone`.
+- Việc còn lại thuộc các dự án sau: tích hợp từng app (9lunch, 9swap, 9hire, 9interview, 9tutor, car/fit/gift/payday, 9Ship/9Sport), nhận dữ liệu ẩn danh vào tài khoản, và triển khai lên máy chủ (BACKLOG A2).
 
 ## Triển khai (máy chủ dùng chung)
 
@@ -102,6 +115,8 @@ X-9ID-Sig: hex(HMAC-SHA256(secret, ts \n nonce \n METHOD \n đường-dẫn-và-
 | Endpoint (gốc `http://9id:8102/id`) | Trả về |
 |---|---|
 | `POST /internal/v1/verify` `{token, fields?}` | `{userId, displayName, phoneLast4?}` hoặc 401 `invalid_session` |
+| `POST /internal/v1/otp/send` `{phone, ip}` | `{ok, resendAfterSec, ttlSec}`; 429 `otp_too_soon`/`otp_limit`, 503 `otp_unavailable`; chỉ app trong `INTERNAL_OTP_APPS` (403 nếu không). `ip` = IP khách do app chuyển tiếp |
+| `POST /internal/v1/otp/verify` `{phone, code, ip}` | `{verified: true}` hoặc 400 `otp_invalid`, 429 `otp_locked`; không cấp vé |
 | `GET /internal/v1/users/:uid/families` | `{families:[{id,name,role,memberCount,childCount}], pendingInvitations, pendingApprovals}` |
 | `GET /internal/v1/families/:fid/members?as=:uid` | `{role, members:[{userId,displayName,role,joinedAt}]}` |
 | `GET /internal/v1/families/:fid/children?as=:uid` | `{role, children:[{id,name,birthYear,linkedUserId,note?}], notesHidden}`; vai trò `con` chỉ thấy hồ sơ của mình, không có `note`; thành viên (không phải chủ) vừa vào dưới 24 giờ cũng không có `note` trừ khi chủ bật |

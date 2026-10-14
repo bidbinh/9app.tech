@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f3f7fd" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)"><meta name="color-scheme" content="light dark"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="9app">
 <meta name="description" content="Không gian ứng dụng của bạn — 9Ship, 9family, 9license, 9speed, Vạn Niên và nhiều hơn nữa.">
-<title>9app</title><link rel="manifest" href="manifest.webmanifest?v=13"><link rel="icon" href="icons/mark.svg?v=13" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=13"><link rel="icon" href="icons/icon-192.png?v=13" type="image/png" sizes="192x192"><link rel="stylesheet" href="css/style.css?v=18">
+<title>9app</title><link rel="manifest" href="manifest.webmanifest?v=13"><link rel="icon" href="icons/mark.svg?v=13" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=13"><link rel="icon" href="icons/icon-192.png?v=13" type="image/png" sizes="192x192"><link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -40,7 +40,7 @@
 <a class="brand" href="./" aria-label="9app — Trang chủ"><img src="icons/mark.svg?v=13" width="36" height="36" alt=""><span>app</span></a>
 <label class="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span class="visually">Tìm ứng dụng hoặc chức năng</span><input id="search" type="search" placeholder="Tìm app, dịch vụ…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-controls="fn-wrap view-home"><button class="search-clear" id="search-clear" type="button" aria-label="Xóa tìm kiếm" hidden><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></label>
 <button class="round-btn bell" id="btn-bell" type="button" aria-label="Thông báo"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" id="bell-dot" hidden></span></button>
-<button class="round-btn avatar" id="btn-account" type="button" aria-label="Tài khoản"><span class="av"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg></span></button>
+<button class="round-btn avatar" id="btn-account" type="button" aria-label="Tài khoản"><span class="av"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><span class="av-letter" id="av-letter" hidden></span></span></button>
 </header>
 
 <main class="main" id="view-home">
@@ -111,8 +111,16 @@
 <section class="page" id="account" hidden>
 <div class="page-head"><h1>Tài khoản</h1></div>
 <div class="card-note">
-<p>9app lưu ứng dụng ghim và ứng dụng vừa dùng trên máy này, không cần đăng nhập.</p>
+<p>9app lưu ứng dụng ghim và ứng dụng vừa dùng trên máy này. Đăng nhập là tùy chọn: hầu hết ứng dụng dùng được không cần đăng nhập.</p>
 <p class="muted" id="account-note"></p>
+</div>
+<div class="card-note acc" id="acc-out" hidden>
+<p><strong>Một tài khoản cho mọi app 9app cần đăng nhập.</strong> Các app khác vẫn dùng được không cần tài khoản.</p>
+<div class="acc-actions"><button class="acc-btn primary" id="acc-login" type="button">Đăng nhập</button><button class="acc-btn" id="acc-register" type="button">Đăng ký</button></div>
+</div>
+<div class="card-note acc" id="acc-in" hidden>
+<div class="acc-who"><span class="av acc-av" id="acc-av" aria-hidden="true"></span><div><div class="acc-name" id="acc-name"></div><div class="muted" id="acc-phone"></div></div></div>
+<ul class="rows set-rows"><li class="row"><a class="set-btn" id="acc-manage" href="/id/#/tai-khoan"><span>Quản lý tài khoản</span></a></li><li class="row"><button class="set-btn" id="acc-logout" type="button"><span>Đăng xuất</span></button></li></ul>
 </div>
 <ul class="rows set-rows">
 <li class="row"><button class="set-btn" id="set-hidden" type="button"><span>Ứng dụng đã ẩn</span><span class="set-val" id="set-hidden-n"></span></button></li>
@@ -137,6 +145,6 @@
 <script src="js/apps.js?v=32"></script>
 <script src="js/search.js?v=1"></script>
 <script src="js/home-config.js?v=1"></script>
-<script src="js/launcher.js?v=18"></script>
+<script src="js/launcher.js?v=20"></script>
 </body>
 </html>

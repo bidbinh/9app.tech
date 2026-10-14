@@ -6,6 +6,7 @@ import * as sso from '../sso9sport.js';
 import { createSession, audit, COOKIE } from '../auth.js';
 import { requestOtp, verifyOtp, peekTicket, consumeTicket, ipKey } from '../otp.js';
 import { issueChallenge } from '../pow.js';
+import { isPhoneHeld, unavailable, activeUndo } from '../phone-hold.js';
 import { assertNotLocked, recordFailure, clear } from '../throttle.js';
 import { cleanText, normalizePhone, phoneHash, phoneHashes, safeNext, sha256hex, newToken, TOKEN_RE } from '../util.js';
 
@@ -27,9 +28,14 @@ export async function pendingApprovalCount(userId) {
       WHERE i.status='awaiting' AND i.expires_at > now()`, [userId]);
   return r[0].n;
 }
-export async function unseenNotices(userId) {
-  return (await query('SELECT id, kind, created_at FROM notices WHERE user_id=$1 AND seen_at IS NULL ORDER BY id DESC LIMIT 5', [userId])).map((n) => ({ id: n.id, kind: n.kind, at: n.created_at }));
+// sessionId: phiên đang xem. Thông báo "thiết bị mới" CHỈ hiện (và chỉ đánh dấu đã xem được) ở phiên tạo TRƯỚC thông báo và không phải
+// phiên gây ra nó: kẻ đăng nhập sau (kể cả cùng máy) không thấy và không dập được thông báo của chủ tài khoản.
+const VISIBLE = `($2::uuid IS NULL OR ((except_session IS NULL OR except_session <> $2::uuid)
+  AND (kind <> 'new_device' OR (SELECT created_at FROM sessions WHERE id = $2::uuid) < notices.created_at)))`;
+export async function unseenNotices(userId, sessionId = null) {
+  return (await query(`SELECT id, kind, created_at FROM notices WHERE user_id=$1 AND seen_at IS NULL AND ${VISIBLE} ORDER BY id DESC LIMIT 5`, [userId, sessionId])).map((n) => ({ id: n.id, kind: n.kind, at: n.created_at }));
 }
+export const markSeen = (userId, sessionId) => query(`UPDATE notices SET seen_at = now() WHERE user_id=$1 AND seen_at IS NULL AND ${VISIBLE}`, [userId, sessionId]);
 
 function loginKeys(phone, ip) {
   const ph = phoneHash(phone).slice(0, 32);
@@ -56,11 +62,25 @@ export async function rememberDevice(ctx, userId) {
   ctx.setCookie(DEVICE_COOKIE, t, { maxAge: DEVICE_DAYS * 86400 });
 }
 
-async function startSession(ctx, userRow, extra = {}) {
-  await createSession({ query }, ctx, userRow.id);
+// Thông báo "thiết bị mới" (chỉ khi đăng nhập thường): thiết bị không quen mà tài khoản đã có phiên khác đang hiệu lực.
+// Không kèm số điện thoại hay IP; tối đa một thông báo mỗi giờ. Phiên vừa tạo không nhận thông báo về chính nó.
+async function shouldNoteNewDevice(ctx, userId) {
+  if (await knownDevice(ctx, userId)) return false;
+  const others = (await query("SELECT count(*)::int AS n FROM sessions WHERE user_id=$1 AND last_used_at > now() - make_interval(days => $2)", [userId, config.sessionDays]))[0].n;
+  if (!others) return false;
+  const recent = (await query("SELECT 1 FROM notices WHERE user_id=$1 AND kind='new_device' AND created_at > now() - interval '1 hour'", [userId])).length;
+  return !recent;
+}
+
+export async function startSession(ctx, userRow, extra = {}, { notifyNewDevice = false } = {}) {
+  const noteNew = notifyNewDevice ? await shouldNoteNewDevice(ctx, userRow.id) : false;
+  const hash = await createSession({ query }, ctx, userRow.id);
   await rememberDevice(ctx, userRow.id);
   const u = { id: userRow.id, phone: userRow.phone, displayName: userRow.display_name, passwordWeak: userRow.password_weak, source: userRow.source, createdAt: userRow.created_at };
-  return { user: publicUser(u), next: safeNext(ctx.body.next), notices: await unseenNotices(userRow.id), ...extra };
+  const newSession = (await query('SELECT id FROM sessions WHERE token_hash=$1', [hash]))[0];
+  const notices = await unseenNotices(userRow.id, newSession ? newSession.id : null);
+  if (noteNew) await query("INSERT INTO notices(user_id, kind, except_session) VALUES($1,'new_device',$2)", [userRow.id, newSession ? newSession.id : null]);
+  return { user: publicUser(u), next: safeNext(ctx.body.next), notices, ...extra };
 }
 
 export function authRoutes(app) {
@@ -69,7 +89,14 @@ export function authRoutes(app) {
 
   app.route('POST', '/api/otp/request', async (ctx) => {
     const phone = normalizePhone(ctx.body.phone);
-    return requestOtp(phone, ctx.ip, { purpose: ctx.body.purpose === undefined ? 'register' : ctx.body.purpose, pow: ctx.body.pow });
+    const purpose = ctx.body.purpose === undefined ? 'register' : ctx.body.purpose;
+    if (purpose === 'phone_change') {
+      // Đổi số: cần phiên; số mới phải khác số hiện tại. KHÔNG phân biệt số đã có chủ hay chưa ở bước này (cùng hạn mức, cùng phản hồi,
+      // cùng việc gửi mã) để không liệt kê được tài khoản; việc chặn số đã có chủ làm ở bước đổi số với thông điệp chung.
+      if (!ctx.user) throw new ApiError(401, 'unauthorized', 'Bạn chưa đăng nhập hoặc phiên đã hết hạn.');
+      if (phone === ctx.user.phone) throw new ApiError(400, 'invalid_input', 'Đây đang là số điện thoại của tài khoản này');
+    }
+    return requestOtp(phone, ctx.ip, { purpose, pow: ctx.body.pow });
   }, { limit: 20, limitKey: 'otp-req' });
 
   app.route('POST', '/api/otp/verify', async (ctx) => {
@@ -85,6 +112,7 @@ export function authRoutes(app) {
     const hash = await pw.hash(password);
     const user = await tx(async (c) => {
       await consumeTicket(c, ctx.body.ticket, phone);
+      if (await isPhoneHeld(c, phone)) throw unavailable(409);
       const u = (await c.query(
         `INSERT INTO users(phone, display_name, password_hash) VALUES($1,$2,$3) ON CONFLICT (phone) DO NOTHING RETURNING *`, [phone, name, hash]))[0];
       if (!u) throw new ApiError(409, 'account_exists', 'Số điện thoại này đã có tài khoản 9app. Hãy đăng nhập hoặc chọn "Quên mật khẩu".');
@@ -115,6 +143,7 @@ export function authRoutes(app) {
     const hash = await pw.hash(finalPass);
     const user = await tx(async (c) => {
       await consumeTicket(c, ctx.body.ticket, phone);
+      if (await isPhoneHeld(c, phone)) throw unavailable(409);
       const u = (await c.query(
         `INSERT INTO users(phone, display_name, password_hash, password_weak, source) VALUES($1,$2,$3,$4,'9sport') ON CONFLICT (phone) DO NOTHING RETURNING *`,
         [phone, name, hash, pw.isWeakLegacy(finalPass)]))[0];
@@ -182,19 +211,19 @@ export function authRoutes(app) {
     } else {
       await query('UPDATE users SET last_seen_at=now() WHERE id=$1', [user.id]);
     }
-    return startSession(ctx, user, { mustChangePassword: user.password_weak });
+    return startSession(ctx, user, { mustChangePassword: user.password_weak }, { notifyNewDevice: true });
   }, { limit: 60, limitKey: 'login' });
 
   // ---------- phiên hiện tại ----------
   app.route('GET', '/api/me', async (ctx) => {
     const u = ctx.user;
     if (!u) return { user: null };
-    return { user: publicUser(u), pendingInvitations: await pendingInvitationCount(u.phone), pendingApprovals: await pendingApprovalCount(u.id), notices: await unseenNotices(u.id) };
+    return { user: publicUser(u), pendingInvitations: await pendingInvitationCount(u.phone), pendingApprovals: await pendingApprovalCount(u.id), notices: await unseenNotices(u.id, ctx.sessionId), phoneUndo: await activeUndo(u.id) };
   });
 
   app.route('POST', '/api/notices/seen', async (ctx) => {
     if (!ctx.user) throw new ApiError(401, 'unauthorized', 'Bạn chưa đăng nhập hoặc phiên đã hết hạn.');
-    await query('UPDATE notices SET seen_at = now() WHERE user_id=$1 AND seen_at IS NULL', [ctx.user.id]);
+    await markSeen(ctx.user.id, ctx.sessionId);
     return { ok: true };
   });
 

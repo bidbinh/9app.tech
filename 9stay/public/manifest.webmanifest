@@ -1,0 +1,12 @@
+{
+  "name": "9stay",
+  "short_name": "9stay",
+  "description": "Quản lý và phân phối phòng cho nhiều chủ phòng",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f7f6",
+  "theme_color": "#0f766e",
+  "lang": "vi",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

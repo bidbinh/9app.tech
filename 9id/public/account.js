@@ -12,15 +12,21 @@
     Promise.all([N.get('api/me'), N.get('api/sessions'), N.get('api/blocks'), N.get('api/oauth/grants')]).then(function (rs) {
       var me = rs[0].user, sessions = rs[1].sessions, blocks = rs[2].blocks, grants = rs[3].grants;
       if (!me) { N.me = null; N.go('#/dang-nhap'); return; }
-      N.me = me;
+      N.me = me; N.notices = rs[0].notices || [];
       N.clear(p);
+      N.noticeCards(N.account).forEach(function (n) { p.appendChild(n); });
+      if (rs[0].phoneUndo) {
+        p.appendChild(N.notice('info', 'Bạn vừa đổi số điện thoại',
+          'Đến ' + N.dmy(rs[0].phoneUndo.until) + ', người đang giữ số cũ vẫn có thể hoàn tác việc đổi này. Nếu số cũ không còn do bạn giữ (đã đưa hoặc trả SIM), hãy khóa hoàn tác.',
+          N.btn('Khóa hoàn tác', 'ghost sm', function () { lockUndo(); })));
+      }
       p.appendChild(h('div', { class: 'card' }, [
         h('div', { class: 'row' }, [
           h('div', { class: 'avatar', text: N.initial(me.displayName) }),
           h('div', { class: 'col' }, [h('div', { class: 'b', text: me.displayName }), h('div', { class: 'muted', text: 'Số điện thoại ••••' + me.phoneLast4 })]),
           me.source === '9sport' ? N.chip('Từ 9Sport', 'info') : null,
         ]),
-        h('div', { class: 'btn-row' }, [N.btn('Đổi tên', 'ghost sm', function () { editName(me); }), N.btn('Đổi mật khẩu', 'ghost sm', function () { changePassword(); })]),
+        h('div', { class: 'btn-row' }, [N.btn('Đổi tên', 'ghost sm', function () { editName(me); }), N.btn('Đổi mật khẩu', 'ghost sm', function () { changePassword(); }), N.btn('Đổi số điện thoại', 'ghost sm', function () { changePhone(); })]),
       ]));
       if (me.passwordWeak) p.appendChild(N.notice('warn', 'Mật khẩu của bạn còn ngắn', 'Mật khẩu mới cần ít nhất 8 ký tự. Hãy đổi mật khẩu để an toàn hơn.', N.btn('Đổi mật khẩu ngay', 'primary sm', function () { changePassword(); })));
 
@@ -82,6 +88,75 @@
         }, function (e) { err.show(e.message); });
       }
       N.onEnter(pass.input, go);
+      body.appendChild(pass.node); body.appendChild(err); body.appendChild(btn);
+    });
+  }
+
+  // Đổi số điện thoại: OTP gửi tới số MỚI + mật khẩu hiện tại. Sau khi đổi, các thiết bị khác bị đăng xuất.
+  function changePhone() {
+    N.sheet('Đổi số điện thoại', function (body) {
+      var st = { phone: '', ticket: '' };
+      var holder = h('div', {});
+      body.appendChild(holder);
+      function stepPhone() {
+        N.clear(holder);
+        var phone = N.tel({ name: 'new-phone', autocomplete: 'tel', value: st.phone });
+        var err = N.errBox();
+        var btn = N.btn('Gửi mã xác thực', 'primary block', send);
+        function send() {
+          err.hide();
+          if (!phone.value.trim()) { err.show('Hãy nhập số điện thoại mới'); return; }
+          N.busy(btn, function () {
+            return N.getPow().then(function (pow) { return N.post('api/otp/request', { phone: phone.value, purpose: 'phone_change', pow: pow }); }).then(function () { st.phone = phone.value; st.ticket = ''; stepCode(); });
+          }, function (e) { err.show(e.message); });
+        }
+        N.onEnter(phone, send);
+        holder.appendChild(h('p', { class: 'muted', text: 'Nhập số điện thoại mới. Mã xác thực sẽ gửi tới số mới; sau khi đổi, các thiết bị khác sẽ bị đăng xuất.' }));
+        holder.appendChild(h('p', { class: 'muted small', text: 'Trong 7 ngày sau khi đổi, người giữ số cũ có thể hoàn tác việc đổi (phòng khi tài khoản bị chiếm). Nếu số cũ không còn do bạn giữ, hãy khóa hoàn tác ngay sau khi đổi.' }));
+        holder.appendChild(N.field('Số điện thoại mới', phone, 'Số di động Việt Nam, ví dụ 0912 345 678'));
+        holder.appendChild(err); holder.appendChild(btn);
+      }
+      function stepCode() {
+        N.clear(holder);
+        var code = h('input', { type: 'text', class: 'otp', inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: 6, pattern: '[0-9]*', 'aria-label': 'Mã xác thực 6 số', placeholder: '••••••' });
+        var pass = N.passField('Mật khẩu hiện tại', { name: 'password', autocomplete: 'current-password' });
+        var err = N.errBox();
+        var btn = N.btn('Đổi số điện thoại', 'primary block', go);
+        function go() {
+          err.hide();
+          var c = code.value.replace(/\D/g, '');
+          if (!st.ticket && c.length !== 6) { err.show('Mã gồm 6 chữ số'); return; }
+          if (!pass.input.value) { err.show('Hãy nhập mật khẩu hiện tại'); return; }
+          N.busy(btn, function () {
+            // mã OTP chỉ dùng được một lần: giữ vé để thử lại khi nhập sai mật khẩu
+            var vt = st.ticket ? Promise.resolve(st.ticket) : N.post('api/otp/verify', { phone: st.phone, code: c }).then(function (v) { st.ticket = v.ticket; return v.ticket; });
+            return vt.then(function (ticket) { return N.post('api/phone/change', { ticket: ticket, phone: st.phone, password: pass.input.value }); })
+              .then(function () { N.closeSheets(); N.toast('Đã đổi số điện thoại. Các thiết bị khác đã bị đăng xuất.'); N.account(); });
+          }, function (e) {
+            err.show(e.message);
+            if (e.code === 'ticket_invalid') { st.ticket = ''; setTimeout(stepPhone, 1500); }
+          });
+        }
+        N.onEnter(pass.input, go);
+        holder.appendChild(h('p', { text: 'Mã gồm 6 số đã gửi tới số điện thoại mới (qua Zalo hoặc tin nhắn). Mã có hiệu lực 5 phút.' }));
+        holder.appendChild(N.field('Mã xác thực', code)); holder.appendChild(pass.node); holder.appendChild(err); holder.appendChild(btn);
+        holder.appendChild(h('div', { class: 'links' }, [h('button', { class: 'linkbtn', type: 'button', text: 'Đổi số khác', onclick: function () { st.ticket = ''; stepPhone(); } })]));
+      }
+      stepPhone();
+    });
+  }
+
+  // Khóa hoàn tác: chủ tài khoản chủ động tắt khả năng hoàn tác (số cũ không còn do mình giữ). Cần nhập lại mật khẩu.
+  function lockUndo() {
+    N.sheet('Khóa hoàn tác đổi số', function (body, close) {
+      var pass = N.passField('Nhập mật khẩu để xác nhận', { autocomplete: 'current-password' });
+      var err = N.errBox(); var btn = N.btn('Khóa hoàn tác', 'primary block', go);
+      function go() {
+        err.hide();
+        N.busy(btn, function () { return N.post('api/phone/undo-lock', { password: pass.input.value }).then(function () { close(); N.toast('Đã khóa hoàn tác. Số cũ không còn được giữ chỗ.'); N.account(); }); }, function (e) { err.show(e.message); });
+      }
+      N.onEnter(pass.input, go);
+      body.appendChild(h('p', { text: 'Sau khi khóa, không ai (kể cả người giữ số cũ) hoàn tác được việc đổi số này, và số cũ có thể được người khác đăng ký.' }));
       body.appendChild(pass.node); body.appendChild(err); body.appendChild(btn);
     });
   }
