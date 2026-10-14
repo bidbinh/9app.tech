@@ -18,7 +18,8 @@ const { db, boot } = await import('../test/helper.js');
 const { startServer, apiWorld } = await import('../test/helper-http.js');
 await boot();
 const w = await apiWorld();
-const srv = await startServer();
+const otpSent = [];
+const srv = await startServer({ otpSender: { send: async (phone, code) => { otpSent.push({ phone, code }); } } });
 const START = srv.base + '/';
 
 const shots = path.join(process.cwd(), 'shots');
@@ -206,6 +207,38 @@ try {
   check(await mp.$eval('img.qr', (i) => i.complete && i.naturalWidth > 0), 'mã QR hiện ra (ảnh data: không bị CSP chặn)');
   check((await text(mp)).includes(qb.json.booking.code), 'nội dung chuyển khoản là mã đơn');
   await snap(mp, 'quanly-qr');
+
+  // trang đặt phòng công khai của khách (điện thoại): tìm → OTP → giữ phòng → QR → tiền về → đã cọc
+  await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
+  const gu = await open(null, [390, 844]);
+  const gp = gu.page;
+  await gp.goto(srv.base + '/book/anstay', { waitUntil: 'networkidle0' });
+  await waitText(gp, 'Tìm phòng');
+  const gdates = await gp.$$('input[type=date]');
+  await gdates[0].evaluate((el) => { el.value = '2026-11-02'; });
+  await gdates[1].evaluate((el) => { el.value = '2026-11-04'; });
+  await clickText(gp, 'button', 'Tìm phòng');
+  await waitText(gp, 'Giá đã gồm VAT');
+  await snap(gp, 'khach-ket-qua');
+  await clickText(gp, 'button', 'Chọn');
+  await waitText(gp, 'Thông tin của bạn');
+  await gp.type('input[autocomplete=name]', 'Trần Thị Khách');
+  await gp.type('input[type=tel]', '0912345678');
+  await clickText(gp, 'button', 'Gửi mã xác thực');
+  await waitText(gp, 'Đã gửi mã');
+  await gp.type('input[autocomplete=one-time-code]', otpSent.at(-1).code);
+  await clickText(gp, 'button', 'Xác nhận và giữ phòng');
+  await waitText(gp, 'Nội dung chuyển khoản');
+  check(await gp.$eval('img.qr', (i) => i.complete && i.naturalWidth > 0), 'khách thấy mã QR chuyển khoản');
+  check(/^\d+:\d{2}$/.test(await gp.$eval('#left', (e) => e.textContent)), 'có đồng hồ đếm ngược giữ phòng');
+  const gcode = await gp.$eval('.code', (e) => e.textContent);
+  const [gb] = await db.query('SELECT deposit_required FROM bookings WHERE code = $1', [gcode]);
+  await snap(gp, 'khach-thanh-toan');
+  await db.tx((c) => ingestBankTx(c, { orgId: w.orgId, provider: 'webhook', bankTxId: 'e2e-guest', amount: gb.deposit_required, content: gcode }, { now: new Date() }));
+  await waitText(gp, 'Đã nhận cọc', 15000);
+  check(true, 'tiền về qua webhook thì trang của khách tự chuyển sang đã cọc');
+  await snap(gp, 'khach-da-coc');
+  await gu.close();
   await mgr.close();
 
   // ---- 3. CTV (điện thoại): tìm, báo giá, giữ chỗ; không lộ căn ----

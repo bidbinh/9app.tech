@@ -10,9 +10,13 @@ import { adminRoutes } from './routes/admin.js';
 import { ownerRoutes } from './routes/owner.js';
 import { catalogRoutes } from './routes/catalog.js';
 import { bankRoutes } from './routes/bank.js';
+import { publicRoutes } from './routes/public.js';
+import { makeOtpSender } from './otp.js';
+import { tx } from './db.js';
+import { expireHolds } from './bookings.js';
 
 // idClient: { verify(token) -> { userId, displayName } | null }. Test truyền bản giả; production dùng máy khách 9id.
-export function buildApp({ idClient, cfg = config, clock } = {}) {
+export function buildApp({ idClient, cfg = config, clock, otpSender = makeOtpSender(cfg.otpMode) } = {}) {
   const app = createApp({ cfg, clock });
   app.setAuthResolver(makeAuthResolver({ idClient }));
   coreRoutes(app, cfg);
@@ -21,7 +25,20 @@ export function buildApp({ idClient, cfg = config, clock } = {}) {
   ownerRoutes(app);
   catalogRoutes(app);
   bankRoutes(app, cfg);
+  publicRoutes(app, { otpSender, otpReady: otpSender.ready !== false });
   return app;
+}
+
+// Nhả các đơn giữ chỗ quá hạn của mọi org mỗi phút (đặt phòng công khai chỉ giữ vài phút nên không thể chỉ nhả "lười").
+export function startExpirer(intervalMs = 60_000) {
+  const t = setInterval(async () => {
+    try {
+      const orgs = await tx((c) => c.query('SELECT id FROM orgs'));
+      for (const o of orgs) await tx((c) => expireHolds(c, { orgId: o.id, now: new Date() }));
+    } catch (e) { console.error('[expire]', e && e.message); }
+  }, intervalMs);
+  t.unref();
+  return () => clearInterval(t);
 }
 
 export async function start() {
@@ -34,6 +51,7 @@ export async function start() {
   await migrate();
   const idClient = createNineId({ baseUrl: config.nineIdUrl, keyId: config.nineIdKey, secret: config.nineIdSecret });
   const app = buildApp({ idClient });
+  startExpirer();
   const port = await app.listen(config.port);
   console.log(`9stay chạy tại http://localhost:${port}${config.basePath}/`);
   const stop = async () => { await app.close(); process.exit(0); };

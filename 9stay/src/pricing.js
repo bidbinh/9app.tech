@@ -135,7 +135,7 @@ export async function createPromotion(c, { orgId, name, kind, value, minNights =
 }
 
 // Báo giá có hạn. Chọn đúng MỘT ưu đãi có lợi nhất cho khách trong các ưu đãi đủ điều kiện. Chỉ lưu khi ok.
-export async function createQuote(c, { orgId, roomTypeId, planId, checkin, checkout, adults = 1, childAges = [], by = null }, { now = new Date() } = {}) {
+export async function createQuote(c, { orgId, roomTypeId, planId, checkin, checkout, adults = 1, childAges = [], by = null }, { now = new Date(), persist = true } = {}) {
   const nights = nightsBetween(checkin, checkout);
   const today = todayVN(now);
   if (checkin < today) throw new AppError('past_date', 'Ngày đến đã qua');
@@ -165,6 +165,7 @@ export async function createQuote(c, { orgId, roomTypeId, planId, checkin, check
     }
   }
   if (!best.ok) return { id: null, ...best };
+  if (!persist) return { id: null, promotionId: bestPromoId, ...best };
 
   const expiresAt = new Date(now.getTime() + settings.quoteHours * 3600 * 1000);
   const [row] = await c.query(

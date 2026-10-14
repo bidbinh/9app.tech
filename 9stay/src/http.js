@@ -91,10 +91,10 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
     });
   }
 
-  let indexCache = null;
-  function sendIndex(res, head) {
-    if (!indexCache) indexCache = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
-    const html = indexCache.replaceAll('__BASE__', cfg.basePath + '/');
+  const pageCache = new Map();
+  function sendIndex(res, head, file = 'index.html') {
+    if (!pageCache.has(file)) pageCache.set(file, fs.readFileSync(path.join(PUBLIC, file), 'utf8'));
+    const html = pageCache.get(file).replaceAll('__BASE__', cfg.basePath + '/');
     res.writeHead(200, { 'content-type': MIME['.html'], 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', 'cache-control': 'no-cache', 'content-security-policy': CSP });
     res.end(head ? undefined : html);
   }
@@ -104,6 +104,8 @@ export function createApp({ cfg = config, clock = () => new Date() } = {}) {
     if (pathname.includes('\0')) return false;
     const head = method === 'HEAD';
     const ext = path.extname(pathname).toLowerCase();
+    // Trang đặt phòng công khai của khách: /book/<slug>
+    if (!ext && /^\/book\/[a-z0-9-]+\/?$/.test(pathname)) { sendIndex(res, head, 'book.html'); return true; }
     if (pathname === '/' || pathname === '/index.html' || !ext) { sendIndex(res, head); return true; }
     const file = path.resolve(PUBLIC, '.' + path.sep + pathname.replace(/^[/\\]+/, ''));
     if (!file.startsWith(PUBLIC + path.sep)) return false;

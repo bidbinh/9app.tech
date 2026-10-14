@@ -51,7 +51,7 @@ export async function expireHolds(c, { orgId, now = new Date() }) {
   assertUuid(orgId, 'org');
   const rows = await c.query(
     `UPDATE bookings SET status = 'het_han', version = version + 1
-      WHERE id IN (SELECT b.id FROM bookings b WHERE b.org_id = $1 AND b.status = 'giu' AND b.hold_until IS NOT NULL AND b.hold_until < $2::timestamptz
+      WHERE id IN (SELECT b.id FROM bookings b WHERE b.org_id = $1 AND b.status = 'giu' AND b.hold_until IS NOT NULL AND b.hold_until < $2::timestamptz - (CASE WHEN b.source = 'web' THEN interval '10 minutes' ELSE interval '0' END)
                       AND NOT EXISTS (SELECT 1 FROM payments p WHERE p.booking_id = b.id)
                    ORDER BY b.id FOR UPDATE OF b SKIP LOCKED)
       RETURNING id`,
@@ -131,7 +131,7 @@ export async function createBooking(c, input, { now = new Date() } = {}) {
 
   let holdUntil = null;
   if (status === 'giu') {
-    const key = fromAgent ? 'booking.holdMinutesAgent' : 'booking.holdMinutesStaff';
+    const key = fromAgent ? 'booking.holdMinutesAgent' : source === 'web' ? 'booking.holdMinutesPublic' : 'booking.holdMinutesStaff';
     const minutes = await getSetting(c, { orgId, key, unitId, asOf: today });
     holdUntil = new Date(now.getTime() + minutes * 60 * 1000);
   }

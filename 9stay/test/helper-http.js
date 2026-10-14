@@ -17,8 +17,8 @@ export const fakeId = {
   },
 };
 
-export async function startServer({ idClient = fakeId, cfg = config, extra } = {}) {
-  const app = buildApp({ idClient, cfg, clock: () => NOW });
+export async function startServer({ idClient = fakeId, cfg = config, extra, otpSender } = {}) {
+  const app = buildApp({ idClient, cfg, clock: () => NOW, ...(otpSender ? { otpSender } : {}) });
   if (extra) extra(app);
   const port = await app.listen(0);
   return { app, port, base: `http://127.0.0.1:${port}${cfg.basePath}`, origin: `http://127.0.0.1:${port}`, close: () => app.close() };
