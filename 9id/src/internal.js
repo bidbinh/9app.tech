@@ -11,7 +11,8 @@ import { ApiError } from './errors.js';
 import { query, tx } from './db.js';
 import { lookupSession, audit } from './auth.js';
 import { requireMember, listMembers, listChildren, notesHidden } from './families.js';
-import { sha256hex, uuidParam, uuidBody, notFound, phoneHashes, phoneLast4, safeEqualHex, cleanText, intIn, hmac } from './util.js';
+import { requestOtp, verifyOtp } from './otp.js';
+import { sha256hex, normalizePhone, uuidParam, uuidBody, notFound, phoneHashes, phoneLast4, safeEqualHex, cleanText, intIn, hmac } from './util.js';
 
 const MAX_SKEW_S = 120;
 const NONCE_RE = /^[A-Za-z0-9_-]{16,64}$/;
@@ -130,6 +131,21 @@ export function internalRoutes(app) {
     const hidden = notesHidden(f);
     const children = (await listChildren(query, fid, f.role, as, { withArchived: false, hideNotes: hidden })).map((c) => ({ id: c.id, name: c.name, birthYear: c.birthYear, linkedUserId: c.linkedUserId, ...(c.note !== undefined ? { note: c.note } : {}) }));
     return { role: f.role, children, notesHidden: hidden };
+  });
+
+  // ---------- OTP xác minh số điện thoại cho khách của app khác (không tạo tài khoản, không cấp vé) ----------
+  // Cùng cổng gửi (Zalo ZNS rồi SMS), cùng hạn mức theo số/IP/toàn hệ với đăng ký. ip = địa chỉ khách do app chuyển tiếp (app đã tin cậy IP đó).
+  const needOtp = (ctx) => { if (!config.internalOtpApps.has(ctx.kid)) throw new ApiError(403, 'forbidden', 'App này không được phép gửi OTP'); };
+  const guestIp = (v) => (typeof v === 'string' && v.length > 0 && v.length <= 64 ? v : 'internal');
+  R('POST', '/otp/send', async (ctx) => {
+    needOtp(ctx);
+    const phone = normalizePhone(ctx.body.phone);
+    return requestOtp(phone, guestIp(ctx.body.ip), { purpose: 'verify', skipPow: true });
+  });
+  R('POST', '/otp/verify', async (ctx) => {
+    needOtp(ctx);
+    const phone = normalizePhone(ctx.body.phone);
+    return verifyOtp(phone, ctx.body.code, guestIp(ctx.body.ip), { noTicket: true });
   });
 
   // ---------- nhập gia đình ẩn danh hiện có: tạo gia đình (chưa có chủ) + hồ sơ con + mã nhận dùng một lần ----------

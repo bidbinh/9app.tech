@@ -46,6 +46,7 @@ npm run e2e:shared  # ĐĂNG NHẬP CHUNG: 9id thật + launcher thật sau máy
 | `SSO_9SPORT_URL` | trống | địa chỉ nội bộ của 9Sport để nhập tài khoản cũ (trống = tắt) |
 | `INTERNAL_KEYS` | trống | khóa API nội bộ cho các app: `family:SECRET,fin:SECRET` (secret >= 32 ký tự). Trống thì `/internal/` trả 404 |
 | `INTERNAL_LAST4_APPS` | trống | các key id được xin `phoneLast4` qua `verify` |
+| `INTERNAL_OTP_APPS` | trống | các key id được nhờ gửi/kiểm OTP xác minh số điện thoại cho khách qua `/internal/v1/otp/send` và `/otp/verify` (ví dụ `stay` cho trang đặt phòng công khai của 9stay). Dùng cùng cổng gửi và hạn mức với đăng ký (mục đích `verify` có hạn mức riêng theo số); không cấp vé, không tạo tài khoản; bỏ qua PoW vì app đã xác thực HMAC |
 | `INTERNAL_DELEGATE_APPS` | trống | app được dùng `as` không kèm token phiên (bị ghi nhật ký, giới hạn `INTERNAL_DELEGATE_LIMIT_PER_MIN`=1200). App khác phải kèm `X-9ID-Token`. **Osin phải có trong danh sách này** (không có cookie `nine_sid`; kiểm tích hợp: `osin/test/integration`) |
 | `INTERNAL_IMPORT_APPS` | trống | app được nhập gia đình hiện có (mục "Nhập gia đình") |
 | `OAUTH_CLIENTS` | trống | app ở tên miền con riêng đăng nhập bằng mã dùng một lần: `osin=https://osin.9app.tech/auth/callback;khac=...`. Khớp CHÍNH XÁC, https, không wildcard; mỗi client cần khóa cùng tên trong `INTERNAL_KEYS`. `OAUTH_REQUIRE_CONSENT=0` tắt màn "Cho phép" |
@@ -114,6 +115,8 @@ X-9ID-Sig: hex(HMAC-SHA256(secret, ts \n nonce \n METHOD \n đường-dẫn-và-
 | Endpoint (gốc `http://9id:8102/id`) | Trả về |
 |---|---|
 | `POST /internal/v1/verify` `{token, fields?}` | `{userId, displayName, phoneLast4?}` hoặc 401 `invalid_session` |
+| `POST /internal/v1/otp/send` `{phone, ip}` | `{ok, resendAfterSec, ttlSec}`; 429 `otp_too_soon`/`otp_limit`, 503 `otp_unavailable`; chỉ app trong `INTERNAL_OTP_APPS` (403 nếu không). `ip` = IP khách do app chuyển tiếp |
+| `POST /internal/v1/otp/verify` `{phone, code, ip}` | `{verified: true}` hoặc 400 `otp_invalid`, 429 `otp_locked`; không cấp vé |
 | `GET /internal/v1/users/:uid/families` | `{families:[{id,name,role,memberCount,childCount}], pendingInvitations, pendingApprovals}` |
 | `GET /internal/v1/families/:fid/members?as=:uid` | `{role, members:[{userId,displayName,role,joinedAt}]}` |
 | `GET /internal/v1/families/:fid/children?as=:uid` | `{role, children:[{id,name,birthYear,linkedUserId,note?}], notesHidden}`; vai trò `con` chỉ thấy hồ sơ của mình, không có `note`; thành viên (không phải chủ) vừa vào dưới 24 giờ cũng không có `note` trừ khi chủ bật |

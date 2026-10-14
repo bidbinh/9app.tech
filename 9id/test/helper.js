@@ -15,6 +15,7 @@ process.env.OAUTH_CLIENTS ??= 'osin=https://osin.9app.tech/auth/callback';
 process.env.INTERNAL_DELEGATE_APPS ??= 'family';
 process.env.INTERNAL_IMPORT_APPS ??= 'family';
 process.env.INTERNAL_LAST4_APPS ??= 'family';
+process.env.INTERNAL_OTP_APPS ??= 'family';
 process.env.CONSOLE_API_KEY_ID ??= 'hub';
 process.env.CONSOLE_API_SECRET ??= 'console-secret-0123456789abcdef-test-xx';
 if (!process.env.DATABASE_URL) throw new Error('Thiếu DATABASE_URL: chạy bằng `npm test` (tự dựng PostgreSQL) hoặc đặt DATABASE_URL tới CSDL thử nghiệm.');

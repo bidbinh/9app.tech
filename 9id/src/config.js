@@ -85,6 +85,8 @@ export const config = {
   internalLast4Apps: new Set(String(env.INTERNAL_LAST4_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
   internalDelegateApps: new Set(String(env.INTERNAL_DELEGATE_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
   internalImportApps: new Set(String(env.INTERNAL_IMPORT_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
+  // App được nhờ 9id gửi/kiểm OTP xác minh số điện thoại cho khách (không tạo tài khoản), ví dụ trang đặt phòng công khai của 9stay
+  internalOtpApps: new Set(String(env.INTERNAL_OTP_APPS || '').split(',').map((x) => x.trim()).filter(Boolean)),
   internalDelegateLimitPerMin: int(env.INTERNAL_DELEGATE_LIMIT_PER_MIN, 1200),
   claimDays: int(env.CLAIM_DAYS, 30),
   // app ở tên miền con riêng đăng nhập bằng mã dùng một lần: client + redirect_uri phải khớp CHÍNH XÁC (không wildcard)

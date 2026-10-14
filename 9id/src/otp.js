@@ -10,7 +10,8 @@ import { isPhoneHeld } from './phone-hold.js';
 
 export const ipKey = (ip) => hmac('ip', ip || '').slice(0, 24);
 const codeHash = (ph, salt, code) => hmac('otp', `${ph}|${salt}|${code}`);
-export const PURPOSES = ['register', 'reset', 'phone_change'];
+// 'verify': chỉ xác minh quyền dùng số (app khác nhờ qua /internal/v1/otp/*), không dẫn tới tạo tài khoản; có hạn mức riêng theo số
+export const PURPOSES = ['register', 'reset', 'phone_change', 'verify'];
 
 // Cảnh báo khi dùng 50% và 80% trần OTP toàn hệ trong 24 giờ (ghi log một lần mỗi mức mỗi ngày)
 const warned = { day: '', 50: false, 80: false };
@@ -25,9 +26,10 @@ function warnUsage(used, cap) {
 
 // Gửi OTP tới số E.164. Thứ tự: số hợp lệ -> proof-of-work -> hạn mức (trong giao dịch có khóa tư vấn, nên gửi đồng thời không vượt).
 // Phản hồi giống nhau dù số có tài khoản hay không.
-export async function requestOtp(phone, ip, { purpose = 'register', pow } = {}) {
+export async function requestOtp(phone, ip, { purpose = 'register', pow, skipPow = false } = {}) {
   if (!PURPOSES.includes(purpose)) throw new ApiError(400, 'invalid_input', 'Mục đích không hợp lệ');
-  await consumePow(pow);
+  // skipPow: chỉ cho đường nội bộ đã xác thực HMAC theo app (app tự chống lạm dụng ở phía nó; hạn mức theo số/IP/toàn hệ vẫn áp dụng)
+  if (!skipPow) await consumePow(pow);
   const ph = phoneHash(phone);
   const ipk = ipKey(ip);
   const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
@@ -76,7 +78,8 @@ export async function requestOtp(phone, ip, { purpose = 'register', pow } = {}) 
 
 // Kiểm mã. Lần sai đếm theo (OTP, IP): 5 lần sai từ CÙNG một IP, hoặc 20 lần sai tổng cộng, hoặc 25 lần dò mỗi ngày mỗi số thì khóa.
 // Nhờ vậy kẻ lạ ở IP khác không đốt được mã của chủ số bằng vài lần nhập bừa, mà vẫn không dò được 10^6 khả năng.
-export async function verifyOtp(phone, code, ip) {
+// noTicket: chỉ xác nhận mã (đốt mã), KHÔNG cấp vé đăng ký/đặt lại, nên người xác minh qua app khác không có đường tạo tài khoản.
+export async function verifyOtp(phone, code, ip, { noTicket = false } = {}) {
   const ipk = ipKey(ip);
   await consume('vi:' + ipk, { limit: config.verifyPerIpHour, windowSec: 3600, message: 'Bạn nhập mã quá nhiều lần, hãy thử lại sau' });
   const ph = phoneHash(phone);
@@ -97,12 +100,14 @@ export async function verifyOtp(phone, code, ip) {
       return { err: invalid() };
     }
     await c.query('UPDATE otps SET used_at = now() WHERE phone_hash=$1 AND used_at IS NULL', [ph]);
+    if (noTicket) return { verified: true };
     const token = newToken();
     await c.query('INSERT INTO tickets(token_hash, phone_hash, expires_at) VALUES($1,$2, now() + make_interval(secs => $3))', [sha256hex(token), ph, config.ticketTtlSec]);
     const exists = (await c.query('SELECT 1 FROM users WHERE phone=$1', [phone])).length > 0;
     return { ticket: token, accountExists: exists };
   });
   if (out.err) throw out.err;
+  if (out.verified) return { verified: true };
   // số này vừa được đổi khỏi một tài khoản trong cửa sổ hoàn tác? (chỉ người đã chứng minh sở hữu số mới thấy cờ này)
   return { ...out, phoneChangeUndoable: await isPhoneHeld(null, phone) };
 }
