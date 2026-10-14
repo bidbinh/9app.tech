@@ -45,13 +45,13 @@ export function requireUser(ctx) {
   return ctx.user;
 }
 
-// Tạo phiên mới và đặt cookie. c: ngữ cảnh giao dịch hoặc { query }. Giữ tối đa maxSessions phiên (cũ nhất bị loại).
+// Tạo phiên mới và đặt cookie. c: ngữ cảnh giao dịch hoặc { query }. Giữ tối đa maxSessions phiên (phiên ÍT DÙNG GẦN ĐÂY NHẤT bị loại, để máy dùng hằng ngày không bị đăng xuất).
 export async function createSession(c, ctx, userId) {
   const token = newToken();
   const hash = sha256hex(token);
   await c.query('INSERT INTO sessions(token_hash, user_id, ua) VALUES($1,$2,$3)', [hash, userId, deviceLabel(ctx.headers['user-agent'])]);
   await c.query(
-    `DELETE FROM sessions WHERE user_id = $1 AND id NOT IN (SELECT id FROM sessions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2)`,
+    `DELETE FROM sessions WHERE user_id = $1 AND id NOT IN (SELECT id FROM sessions WHERE user_id = $1 ORDER BY last_used_at DESC, created_at DESC LIMIT $2)`,
     [userId, config.maxSessions]);
   ctx.setCookie(COOKIE, token, { maxAge: config.sessionDays * 86400 });
   return hash;

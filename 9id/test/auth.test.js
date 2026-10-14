@@ -37,7 +37,7 @@ test('đăng ký đủ 3 bước: OTP -> vé -> tên + mật khẩu, phiên đ�
   assert.equal(reg.json.next, '/tutor/');
   assert.equal(JSON.stringify(reg.json).includes(phone.slice(1)), false, 'không trả số điện thoại');
   const sc = reg.setCookie.find((x) => x.startsWith('nine_sid='));
-  assert.match(sc, /Path=\/(;|$)/); assert.match(sc, /HttpOnly/); assert.match(sc, /SameSite=Lax/); assert.match(sc, /Max-Age=7776000/);
+  assert.match(sc, /Path=\/(;|$)/); assert.match(sc, /HttpOnly/); assert.match(sc, /SameSite=Lax/); assert.match(sc, /Max-Age=31536000/);
   assert.ok(!/Secure/.test(sc), 'không production thì chưa Secure');
   const me = await ok(c.get('/api/me'));
   assert.equal(me.user.displayName, 'Lan Nguyễn');
@@ -271,7 +271,7 @@ test('phiên: trượt 90 ngày ở máy chủ, gia hạn cookie khi dùng, toke
   await query("UPDATE sessions SET last_used_at = now() - interval '89 days' WHERE token_hash=$1", [h2]);
   const r = await b.get('/api/me');
   assert.ok(r.json.user, 'còn hạn');
-  assert.ok(r.setCookie.some((x) => x.startsWith('nine_sid=') && /Max-Age=7776000/.test(x)), 'cookie được cấp lại hạn mới');
+  assert.ok(r.setCookie.some((x) => x.startsWith('nine_sid=') && /Max-Age=31536000/.test(x)), 'cookie được cấp lại hạn mới');
   const after = (await query('SELECT last_used_at > now() - interval \'1 minute\' AS fresh FROM sessions WHERE token_hash=$1', [h2]))[0];
   assert.equal(after.fresh, true, 'trượt: last_used_at được làm mới');
   // cookie đúng định dạng nhưng không do máy chủ cấp / định dạng sai

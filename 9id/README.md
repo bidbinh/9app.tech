@@ -51,6 +51,7 @@ npm run e2e      # kiểm tra giao diện bằng Chrome thật (puppeteer-core),
 | `INTERNAL_LIMIT_PER_MIN` | `6000` | hạn mức yêu cầu mỗi key mỗi phút |
 | `CONSOLE_API_KEY_ID`, `CONSOLE_API_SECRET` | trống | bật API cho 9app Console (trống thì `/admin-api/` trả 404) |
 | `TRUSTED_PROXY_HOPS` | `1` | số proxy tin cậy; IP khách lấy từ phần tử thứ n tính từ CUỐI của `X-Forwarded-For`; production yêu cầu >= 1 |
+| `SESSION_DAYS`, `MAX_SESSIONS` | `365`, `30` | phiên trượt, **không hạn cố định**: chỉ hết hiệu lực khi ngần ấy ngày liền không dùng (gia hạn mỗi lần dùng; trình duyệt giới hạn cookie ~400 ngày nên đừng đặt lớn hơn); số thiết bị tối đa mỗi người, vượt thì đẩy phiên ít dùng gần đây nhất |
 | `RATE_LIMIT_PER_MIN`, `SESSION_LIMIT_PER_MIN` | `3000`, `180` | giới hạn yêu cầu mỗi IP, mỗi phiên |
 | `INVITES_PER_USER_DAY` | `20` | số lời mời mỗi người gửi mỗi ngày |
 
