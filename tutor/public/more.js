@@ -30,6 +30,63 @@
     });
   }
 
+  // ---------- thẻ tài khoản 9id (tùy chọn): chỉ hiện khi tích hợp bật và 9id trả lời được ----------
+  function loginUrl(acc, mode) {
+    // chỉ nhận đường dẫn tương đối cùng nguồn gốc (bắt đầu bằng một dấu /) từ máy chủ; next là trang hiện tại
+    if (typeof acc.loginPath !== 'string' || !/^\/(?!\/)/.test(acc.loginPath)) return null;
+    return acc.loginPath + '?next=' + encodeURIComponent(location.pathname + location.search + location.hash) + '#/' + mode;
+  }
+  // Gắn thẻ vào ô giữ chỗ khi tải xong: không làm chậm màn hình chính, lỗi thì thôi (app vẫn dùng ẩn danh)
+  T9.fillNineSlot = function (slot) {
+    T9.get('api/account').then(function (acc) {
+      var c = T9.nineCard(acc);
+      if (c && slot.isConnected !== false) slot.appendChild(c);
+      // quyền đến từ tài khoản 9app: thoát bằng nút Đăng xuất 9app, nút "khỏi máy này" không có tác dụng
+      if (acc && acc.enabled && acc.loggedIn) { var b = document.getElementById('local-logout'); if (b && b.parentNode) b.parentNode.removeChild(b); }
+    }, function () { /* 9id hay mạng lỗi: không hiện thẻ */ });
+  };
+  T9.nineCard = function (acc) {
+    if (!acc || !acc.enabled || acc.idDown) return null;
+    var inUrl = loginUrl(acc, 'dang-nhap'), upUrl = loginUrl(acc, 'dang-ky');
+    if (!inUrl) return null;
+    if (!acc.loggedIn) {
+      return h('div', { class: 'card', id: 'acc-card' }, [
+        h('h2', { text: 'Tài khoản 9app (không bắt buộc)' }),
+        h('p', { class: 'muted', text: 'Đăng nhập để giữ sổ gia sư và dùng trên máy khác mà không cần mã khôi phục. Không đăng nhập vẫn dùng bình thường.' }),
+        h('div', { class: 'btn-row' }, [
+          T9.btn('Đăng nhập', 'primary', function () { location.assign(inUrl); }),
+          T9.btn('Đăng ký', 'ghost', function () { location.assign(upUrl); }),
+        ]),
+      ]);
+    }
+    var kids = [h('h2', { text: 'Tài khoản 9app' }), h('p', { text: 'Đã đăng nhập: ' + (acc.user && acc.user.displayName ? acc.user.displayName : 'bạn') })];
+    if (acc.claimable) {
+      kids.push(h('p', { class: 'muted', text: 'Sổ gia sư "' + acc.claimable.tutorName + '" (' + acc.claimable.students + ' học sinh đang dạy) trên máy này chưa gắn vào tài khoản 9app.' }));
+      var claim = T9.btn('Gắn vào tài khoản', 'primary block', function () {
+        return T9.busy(claim, function () {
+          return T9.post('api/account/claim', {}).then(function (r) {
+            T9.toast(r.claimed ? 'Đã gắn vào tài khoản 9app của bạn.' : 'Chưa gắn được, thử lại nhé.', r.claimed ? undefined : 'err');
+            location.reload();
+          });
+        });
+      });
+      kids.push(claim);
+    }
+    if (acc.conflict) {
+      kids.push(h('p', { class: 'muted', text: 'Tài khoản 9app này đã có sổ gia sư, nên sổ "' + acc.conflict.tutorName + '" trên máy này được giữ riêng.' }));
+    }
+    kids.push(h('div', { class: 'btn-row' }, [
+      h('a', { class: 'btn ghost', href: acc.loginPath + '#/tai-khoan' }, ['Quản lý tài khoản']),
+      T9.btn('Đăng xuất 9app', 'ghost', function (e) {
+        return T9.busy(e.currentTarget, function () {
+          return fetch(acc.loginPath + 'api/logout', { method: 'POST', credentials: 'same-origin', headers: { 'x-requested-with': '9id', 'content-type': 'application/json' }, body: '{}' })
+            .then(function (r) { if (!r.ok) throw new Error('logout'); location.reload(); }).catch(function () { T9.toast('Chưa đăng xuất được, hãy thử lại.', 'err'); });
+        });
+      }),
+    ]));
+    return h('div', { class: 'card', id: 'acc-card' }, kids);
+  };
+
   T9.settings = function () {
     T9.frame({ title: 'Cài đặt', tab: 'cd' });
     var me = T9.me;
@@ -48,11 +105,14 @@
       } });
     }));
     var legal = T9.legalNotice(me.status);
+    var nineSlot = h('div');
+    T9.fillNineSlot(nineSlot);
     T9.mount([
       h('div', { class: 'card' }, [
         h('div', { class: 'row' }, [h('div', { class: 'avatar' }, [T9.initial(me.name)]), h('div', { class: 'col' }, [h('div', { class: 'big trunc', text: me.name }), h('div', { class: 'muted', text: T9.TUTOR_STATUS[me.status] || '' })]), T9.btn('Sửa', 'ghost sm', profileSheet)]),
         legal,
       ]),
+      nineSlot,   // ngay dưới hồ sơ: chủ yếu để đăng nhập và nhận sổ, không bị chôn cuối trang
       h('div', { class: 'card' }, [h('h2', { text: 'Tài khoản nhận học phí' }), h('p', { class: 'muted', text: 'Dùng để tạo mã QR chuyển khoản gửi phụ huynh. 9tutor không chuyển hay giữ tiền: phụ huynh chuyển thẳng vào tài khoản này.' }), bank.node, bankErr, h('div', { class: 'btn-row' }, [saveBank])]),
       h('div', { class: 'card' }, [h('h2', { text: 'Trang giới thiệu gia sư' }), h('p', { class: 'muted', text: me.publicProfileAllowed ? 'Tùy chọn: một trang ngắn để bạn gửi qua Zalo hoặc Facebook. 9tutor không môi giới và không có danh sách tìm gia sư.' : 'Không khả dụng với tình trạng giáo viên trường công lập.' }), h('div', { class: 'btn-row' }, [T9.link('#/gioi-thieu', { class: 'btn ghost' }, [me.publicProfileAllowed ? 'Thiết lập trang giới thiệu' : 'Xem lý do'])])]),
       h('div', { class: 'card' }, [h('h2', { text: 'Bảo mật và thiết bị' }),
@@ -66,7 +126,7 @@
       h('div', { class: 'card' }, [h('h2', { text: 'Tài khoản' }), h('div', { class: 'btn-row' }, [
         T9.btn('Đăng xuất khỏi máy này', 'ghost', function () {
           T9.confirm({ title: 'Đăng xuất?', text: 'Bạn chỉ vào lại được bằng mã khôi phục hoặc mã ghép từ thiết bị khác. Hãy chắc chắn đã lưu mã khôi phục.', ok: 'Đăng xuất', danger: true }).then(function (y) { if (y) T9.post('api/logout').then(function () { T9.me = null; T9.go('#/'); T9.route(); }, T9.fail); });
-        }),
+        }, { id: 'local-logout' }),
         T9.btn('Xóa tài khoản và dữ liệu', 'ghost danger-t', deleteAccount),
       ])]),
       h('p', { class: 'muted small center', text: '9tutor là sổ ghi chép cho gia sư. Không giữ tiền, không môi giới, không thay thế tư vấn pháp lý hay thuế.' }),

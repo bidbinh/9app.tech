@@ -27,6 +27,8 @@
 
   T9.welcome = function () {
     T9.bare(); T9.liveStop();
+    var nineSlot = h('div');
+    T9.fillNineSlot(nineSlot);
     T9.mount([
       h('div', { class: 'hero' }, [
         h('img', { src: 'icon.svg', alt: '', class: 'hero-logo', width: 88, height: 88 }),
@@ -43,6 +45,7 @@
         T9.btn('Bắt đầu, không cần đăng ký', 'primary block', function () { T9.go('#/bat-dau'); }),
         T9.btn('Tôi đã có tài khoản', 'ghost block', function () { T9.go('#/khoi-phuc'); }),
       ]),
+      nineSlot,
       h('p', { class: 'muted center small', text: 'Không cần email hay mật khẩu. 9tutor không giữ tiền của ai và không môi giới gia sư.' }),
     ]);
   };

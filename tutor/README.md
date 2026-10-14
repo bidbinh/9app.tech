@@ -36,6 +36,15 @@ Dùng PostgreSQL có sẵn: `DATABASE_URL=postgres://postgres:ship@localhost:544
 
 Cập nhật lược đồ CSDL chạy tự động khi khởi động (`db/*.sql`, bảng `schema_migrations`, có khóa tư vấn nên hai bản khởi động đồng thời không đụng nhau).
 
+## Tài khoản 9id (tùy chọn)
+Thiết kế: `../docs/superpowers/specs/2026-10-14-tich-hop-9id-khuon-mau-design.md`. App **vẫn dùng ẩn danh + mã khôi phục + mã ghép như cũ**; đăng nhập 9id chỉ thêm cách vào lại không cần mã.
+- **Bật:** đặt `NINE_ID_SECRET` (>= 32 ký tự) và thêm cùng bí mật vào `INTERNAL_KEYS` của 9id dưới tên `tutor`. Nginx phải phục vụ 9id cùng tên miền (`/id/`) để cookie `nine_sid` tới được 9tutor. Không đặt thì tích hợp tắt (`GET /api/account` trả `enabled:false`).
+- **Một tài khoản = một gia sư** (`tutors.user_id`, chỉ mục duy nhất). Quyền xét theo phiên ẩn danh **hoặc** tài khoản; có cả hai thì ưu tiên gia sư của tài khoản. Tạo lúc đã đăng nhập thì gắn `user_id` và không giữ phiên ẩn danh trên máy (đăng xuất 9id là máy mất quyền).
+- **Nhận:** thẻ "Tài khoản 9app" ở Cài đặt (và màn chào); người dùng bấm xác nhận (`POST /api/account/claim`). Tài khoản đã có gia sư thì sổ ẩn danh của máy giữ riêng (`conflict`). Không bao giờ chiếm gia sư đã có `user_id`. Khôi phục bằng mã hoặc ghép thiết bị vào gia sư khác khi tài khoản đã có sổ trả 409.
+- **9id lỗi:** app vẫn chạy ẩn danh, thẻ ẩn; đã đăng nhập mà 9id lỗi thì tạo/khôi phục/ghép trả 503, `claim` trả 503.
+- **Gỡ tích hợp:** gia sư tạo lúc đã đăng nhập không có phiên ẩn danh; bỏ `NINE_ID_SECRET` thì họ chỉ còn vào bằng mã khôi phục (mã vẫn được cấp khi tạo).
+- **Thử:** `npm test` (9id giả), `npm run e2e:account` (Chrome thật, ảnh vào `shots/account/`). Trước khi bật ở production, thử một lần với 9id thật.
+
 ## Triển khai (máy chủ dùng chung)
 
 1. Tạo vai trò và CSDL riêng trong container PostgreSQL của 9Ship (tên container theo máy chủ, ví dụ `9ship-db`):
