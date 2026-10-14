@@ -28,6 +28,17 @@ npm run e2e     # Chrome thật (puppeteer-core), ảnh chụp vào shots/
 | `MESSAGES_PER_HOUR` | 60 | tin nhắn/người/giờ |
 | `COMMUNITY_PHOTO_MB` | 120 | dung lượng ảnh tối đa mỗi cộng đồng |
 
+## Tài khoản 9id (tùy chọn)
+
+Thiết kế: `../docs/superpowers/specs/2026-10-14-tich-hop-9id-9swap-design.md` (khuôn mẫu chung: `...-khuon-mau-design.md`). App **vẫn dùng ẩn danh như cũ**; đăng nhập 9id chỉ thêm khả năng giữ cộng đồng qua máy khác.
+
+- **Bật:** đặt `NINE_ID_SECRET` (>= 32 ký tự) và thêm cùng bí mật vào `INTERNAL_KEYS` của 9id dưới tên `swap` (ví dụ `INTERNAL_KEYS=...,swap:<bí mật>`). Nginx phải phục vụ 9id cùng tên miền (`/id/`) để cookie `nine_sid` tới được 9swap. Không đặt bí mật thì tích hợp tắt, `GET /api/account` trả `{enabled:false}`.
+- **Hoạt động:** `members.user_id` gắn thành viên với tài khoản; quyền xét theo phiên ẩn danh **hoặc** `user_id`. Tạo/gia nhập khi đã đăng nhập gắn `user_id` và không nối phiên ẩn danh của máy.
+- **Nhận cộng đồng ẩn danh:** thẻ "Tài khoản 9app" ở trang chủ, người dùng bấm xác nhận (`POST /api/account/claim`). Trùng cộng đồng thì bỏ qua; không chiếm thành viên đã có `user_id`.
+- **Khóa theo người:** thành viên bị khóa vẫn nhận được và khóa được giữ; sang máy khác vẫn bị khóa, không vào lại được bằng mã mời.
+- **9id lỗi:** app vẫn chạy ẩn danh, thẻ tài khoản ẩn, chỉ `claim` trả 503.
+- **Thử:** `npm test` (9id giả), `npm run e2e:account` (Chrome thật, ảnh vào `shots/account/`). Trước khi bật ở production, thử một lần với 9id thật.
+
 ## Triển khai
 1. Trên PostgreSQL chung: `CREATE ROLE swap LOGIN PASSWORD '...'; CREATE DATABASE swap OWNER swap;`
 2. `cp .env.example .env`, điền `DATABASE_URL` (và khóa Console), rồi `docker compose -f docker-compose.server.yml up -d --build` (cổng 8099, mem 160m). Migration chạy tự động khi khởi động (khóa tư vấn 9102).
