@@ -43,13 +43,13 @@ test('verify: cookie nine_sid -> userId + tên, KHÔNG có số điện thoại;
   assert.equal((await internal('family', 'POST', '/internal/v1/verify', { token: tokenOf({ cookie: 'nine_sid=' + 'A'.repeat(43) }) })).status, 401);
 });
 
-test('verify gia hạn phiên trượt và bỏ qua phiên quá 90 ngày', async () => {
+test('verify gia hạn phiên trượt và bỏ qua phiên quá 365 ngày', async () => {
   const a = await signup('Trượt', {});
   const h = util.sha256hex(tokenOf(a));
   await query("UPDATE sessions SET last_used_at = now() - interval '30 days' WHERE token_hash=$1", [h]);
   assert.equal((await internal('family', 'POST', '/internal/v1/verify', { token: tokenOf(a) })).status, 200);
   assert.equal((await query("SELECT last_used_at > now() - interval '1 minute' AS f FROM sessions WHERE token_hash=$1", [h]))[0].f, true);
-  await query("UPDATE sessions SET last_used_at = now() - interval '91 days' WHERE token_hash=$1", [h]);
+  await query("UPDATE sessions SET last_used_at = now() - interval '366 days' WHERE token_hash=$1", [h]);
   assert.equal((await internal('family', 'POST', '/internal/v1/verify', { token: tokenOf(a) })).status, 401);
 });
 
