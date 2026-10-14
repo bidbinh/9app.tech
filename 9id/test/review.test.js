@@ -14,7 +14,7 @@ const root = path.join(here, '..');
 
 test('bảo trì: dọn OTP, vé, phiên quá hạn, lời mời hết hạn, nonce, idem, bộ đếm, nhật ký; giữ dữ liệu còn hạn', async () => {
   const keep = await signup('Giữ', {}); const old = await signup('Cũ', {});
-  await query("UPDATE sessions SET last_used_at = now() - interval '120 days' WHERE user_id=$1", [old.user.id]);
+  await query("UPDATE sessions SET last_used_at = now() - interval '400 days' WHERE user_id=$1", [old.user.id]);
   await query("INSERT INTO otps(phone_hash, code_hash, salt, expires_at, created_at) VALUES('p','c','s', now(), now() - interval '2 days')");
   await query("INSERT INTO otps(phone_hash, code_hash, salt, expires_at) VALUES('p2','c','s', now() + interval '5 minutes')");
   await query("INSERT INTO tickets(token_hash, phone_hash, expires_at) VALUES('t1','h', now() - interval '2 days')");

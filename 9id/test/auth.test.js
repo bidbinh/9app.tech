@@ -261,14 +261,14 @@ test('tài khoản cũ mật khẩu ngắn: vẫn đăng nhập được, bị n
   assert.match(row.password_hash, /^pbkdf2\$200000\$/);
 });
 
-test('phiên: trượt 90 ngày ở máy chủ, gia hạn cookie khi dùng, token lạ bị bỏ qua', async () => {
+test('phiên: trượt 365 ngày ở máy chủ, gia hạn cookie khi dùng, token lạ bị bỏ qua', async () => {
   const a = await signup('Phiên', {});
   const hash = sha256hex(tokenOf(a));
-  await query("UPDATE sessions SET last_used_at = now() - interval '91 days' WHERE token_hash=$1", [hash]);
-  assert.equal((await a.get('/api/me')).json.user, null, 'quá 90 ngày không dùng: hết hạn ở máy chủ');
+  await query("UPDATE sessions SET last_used_at = now() - interval '366 days' WHERE token_hash=$1", [hash]);
+  assert.equal((await a.get('/api/me')).json.user, null, 'quá 365 ngày không dùng: hết hạn ở máy chủ');
   const b = await signup('Phiên 2', {});
   const h2 = sha256hex(tokenOf(b));
-  await query("UPDATE sessions SET last_used_at = now() - interval '89 days' WHERE token_hash=$1", [h2]);
+  await query("UPDATE sessions SET last_used_at = now() - interval '364 days' WHERE token_hash=$1", [h2]);
   const r = await b.get('/api/me');
   assert.ok(r.json.user, 'còn hạn');
   assert.ok(r.setCookie.some((x) => x.startsWith('nine_sid=') && /Max-Age=31536000/.test(x)), 'cookie được cấp lại hạn mới');
