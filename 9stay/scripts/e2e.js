@@ -208,6 +208,15 @@ try {
   check((await text(mp)).includes(qb.json.booking.code), 'nội dung chuyển khoản là mã đơn');
   await snap(mp, 'quanly-qr');
 
+  await hash(mp, '#/bao-cao');
+  await waitText(mp, 'Công suất và doanh thu phòng');
+  await waitText(mp, 'RevPAR');
+  check((await text(mp)).includes('Doanh thu phòng'), 'báo cáo công suất/ADR/RevPAR hiển thị');
+  await snap(mp, 'quanly-bao-cao');
+  await hash(mp, '#/ngan-hang');
+  await waitText(mp, 'Trang đặt phòng cho khách');
+  check(true, 'quản lý có ô cấu hình trang đặt phòng cho khách');
+
   // trang đặt phòng công khai của khách (điện thoại): tìm → OTP → giữ phòng → QR → tiền về → đã cọc
   await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
   const gu = await open(null, [390, 844]);

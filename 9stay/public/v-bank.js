@@ -88,6 +88,21 @@ export async function bankView(ctx, main) {
       rest.length ? h('details', null, h('summary', { text: `Đã xử lý gần đây (${rest.length})` }), h('ul', { class: 'list' }, rest.map(row))) : null);
   }
 
+  const page = await api('GET', 'api/public-page');
+  const slug = h('input', { maxlength: '40', placeholder: 'ten-co-so', value: page.slug || '', autocapitalize: 'none' });
+  const en = h('input', { type: 'checkbox', id: 'pp-en', checked: page.enabled });
+  const pbox = h('div');
+  const link = h('p', { class: 'note', text: page.slug ? `Địa chỉ khách: ${location.origin}${new URL('book/' + page.slug, document.baseURI).pathname}` : '' });
+  const psave = h('button', { class: 'btn', type: 'button', text: 'Lưu trang đặt phòng' });
+  psave.addEventListener('click', () => run(psave, pbox, async () => {
+    await api('PUT', 'api/public-page', { slug: slug.value.trim().toLowerCase(), enabled: en.checked });
+    link.textContent = `Địa chỉ khách: ${location.origin}${new URL('book/' + slug.value.trim().toLowerCase(), document.baseURI).pathname}`;
+    toast('Đã lưu trang đặt phòng');
+  }));
+  const pageCard = h('div', { class: 'card stack' }, h('h2', { text: 'Trang đặt phòng cho khách' }),
+    h('p', { class: 'note', text: 'Khách tự tìm phòng, xác thực số điện thoại, giữ phòng và chuyển khoản. Cần cài tài khoản nhận tiền trước.' }),
+    field('Địa chỉ (a-z, 0-9, dấu gạch)', slug), h('div', { class: 'row tight' }, en, h('label', { for: 'pp-en', text: 'Đang mở cho khách' })), psave, link, pbox);
+
   main.replaceChildren(msg,
     h('div', { class: 'grid2' },
       h('div', { class: 'card stack' }, h('h2', { text: 'Tài khoản nhận tiền' }),
@@ -95,7 +110,8 @@ export async function bankView(ctx, main) {
         h('div', { class: 'row' }, field('Mã ngân hàng (BIN)', bin), field('Số tài khoản', num)), field('Tên chủ tài khoản', holder),
         acct.configured ? h('div', { class: 'row tight' }, rotate, h('label', { for: 'rot', text: 'Đổi địa chỉ webhook (địa chỉ cũ ngừng dùng)' })) : null,
         save, hook),
-      h('div', { class: 'card' }, listBox)));
+      h('div', { class: 'card' }, listBox)),
+    pageCard);
   if (acct.configured) rotate.id = 'rot';
   await loadInbox();
 }

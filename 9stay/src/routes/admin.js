@@ -5,6 +5,7 @@ import { ensureRatePlans, setRates, createPromotion } from '../pricing.js';
 import { setSetting } from '../settings.js';
 import { createAgent } from '../agents.js';
 import { custodyReport } from '../statements.js';
+import { occupancyReport } from '../reports.js';
 import { audit } from '../audit.js';
 
 async function planId(c, orgId, code) {
@@ -53,6 +54,11 @@ export function adminRoutes(app) {
       await audit(c, { orgId: ctx.member.orgId, actor: ctx.member.id, action: 'agent.create', target: a.id, data: { kind: b.kind, commissionPct: b.commissionPct } });
       return a;
     });
+  });
+
+  app.route('GET', '/api/reports/occupancy', async (ctx) => {
+    requirePerm(ctx, 'report.occupancy');
+    return tx((c) => occupancyReport(c, { orgId: ctx.member.orgId, from: ctx.query.from, to: ctx.query.to }));
   });
 
   app.route('GET', '/api/reports/custody', async (ctx) => {
