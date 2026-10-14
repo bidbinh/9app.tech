@@ -15,11 +15,12 @@ if (!fs.existsSync(CHROME)) { console.error('Không thấy Chrome: ' + CHROME); 
 const pg = await startEmbedded({ database: 'stay_e2e' });
 process.env.DATABASE_URL = pg.url;
 const { db, boot } = await import('../test/helper.js');
-const { startServer, apiWorld } = await import('../test/helper-http.js');
+const { startServer, apiWorld, makeFakeId } = await import('../test/helper-http.js');
 await boot();
 const w = await apiWorld();
-const otpSent = [];
-const srv = await startServer({ otpSender: { send: async (phone, code) => { otpSent.push({ phone, code }); } } });
+const e2eId = makeFakeId();
+const otpSent = e2eId.sent;
+const srv = await startServer({ idClient: e2eId });
 const START = srv.base + '/';
 
 const shots = path.join(process.cwd(), 'shots');

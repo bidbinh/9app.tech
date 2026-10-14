@@ -17,8 +17,31 @@ export const fakeId = {
   },
 };
 
-export async function startServer({ idClient = fakeId, cfg = config, extra, otpSender, fetchText } = {}) {
-  const app = buildApp({ idClient, cfg, clock: () => NOW, ...(otpSender ? { otpSender } : {}), ...(fetchText ? { fetchText } : {}) });
+// 9id giả có cả OTP khách: ghi lại mã đã "gửi", mã dùng một lần, tùy chọn ép lỗi.
+export function makeFakeId({ failSend = null, failVerify = null } = {}) {
+  const sent = [];
+  const live = new Map();
+  return {
+    sent,
+    verify: fakeId.verify,
+    async otpSend(phone, ip) {
+      if (failSend) throw failSend;
+      const code = String(100000 + sent.length * 7919 % 899999);
+      sent.push({ phone, code, ip });
+      live.set(phone, code);
+    },
+    async otpVerify(phone, code, ip) {
+      void ip;
+      if (failVerify) throw failVerify;
+      if (live.get(phone) !== code) { const { NineIdError } = await import('../src/nine-id.js'); throw new NineIdError(400, 'otp_invalid', 'Mã không đúng hoặc đã hết hạn'); }
+      live.delete(phone);
+      return { verified: true };
+    },
+  };
+}
+
+export async function startServer({ idClient = fakeId, cfg = config, extra, fetchText } = {}) {
+  const app = buildApp({ idClient, cfg, clock: () => NOW, ...(fetchText ? { fetchText } : {}) });
   if (extra) extra(app);
   const port = await app.listen(0);
   return { app, port, base: `http://127.0.0.1:${port}${cfg.basePath}`, origin: `http://127.0.0.1:${port}`, close: () => app.close() };

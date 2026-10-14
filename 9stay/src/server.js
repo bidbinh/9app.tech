@@ -13,12 +13,11 @@ import { bankRoutes } from './routes/bank.js';
 import { publicRoutes } from './routes/public.js';
 import { opsRoutes, syncFeed } from './routes/ops.js';
 import { cleanup } from './maintenance.js';
-import { makeOtpSender } from './otp.js';
 import { tx } from './db.js';
 import { expireHolds } from './bookings.js';
 
 // idClient: { verify(token) -> { userId, displayName } | null }. Test truyền bản giả; production dùng máy khách 9id.
-export function buildApp({ idClient, cfg = config, clock, otpSender = makeOtpSender(cfg.otpMode, { apiKey: cfg.esmsApiKey, secretKey: cfg.esmsSecretKey, brandname: cfg.esmsBrandname }), fetchText } = {}) {
+export function buildApp({ idClient, cfg = config, clock, fetchText } = {}) {
   const app = createApp({ cfg, clock });
   app.setAuthResolver(makeAuthResolver({ idClient }));
   coreRoutes(app, cfg);
@@ -28,7 +27,7 @@ export function buildApp({ idClient, cfg = config, clock, otpSender = makeOtpSen
   catalogRoutes(app);
   bankRoutes(app, cfg);
   opsRoutes(app, { fetchText });
-  publicRoutes(app, { otpSender, otpReady: otpSender.ready !== false });
+  publicRoutes(app, { idClient });
   return app;
 }
 

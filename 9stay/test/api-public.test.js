@@ -1,18 +1,20 @@
 import test, { before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { db, boot, shutdown } from './helper.js';
-import { startServer, apiWorld, as, Api } from './helper-http.js';
+import { startServer, apiWorld, as, Api, makeFakeId } from './helper-http.js';
+import { NineIdError } from '../src/nine-id.js';
 import { setBankAccount, ingestBankTx } from '../src/bank.js';
 import { NOW } from './helper.js';
 
 before(boot);
 after(shutdown);
-let srv, w, sent;
+let srv, w, sent, fake;
 beforeEach(async () => {
   await db.resetForTests();
   w = await apiWorld();
-  sent = [];
-  srv = await startServer({ otpSender: { send: async (phone, code) => { sent.push({ phone, code }); } } });
+  fake = makeFakeId();
+  sent = fake.sent;
+  srv = await startServer({ idClient: fake });
   await db.query("UPDATE orgs SET slug = 'anstay', public_enabled = true WHERE id = $1", [w.orgId]);
   await db.tx((c) => setBankAccount(c, { orgId: w.orgId, bin: '970436', account: '0123456789', holder: 'CONG TY ANSTAY' }));
 });
@@ -64,14 +66,43 @@ test('đầu vào xấu cho offers bị từ chối (400), không 500', async ()
   }
 });
 
-test('OTP: số sai định dạng; quá 3 lần/10 phút; sai mã; hết số lần thử', async () => {
+test('OTP: số sai định dạng; quá 3 lần/10 phút (cùng số dạng +84 tính chung); sai mã 400', async () => {
   assert.equal((await anon().post(`${P}/otp`, { phone: '123' })).status, 400);
+  assert.equal(sent.length, 0, 'số sai định dạng không gọi 9id');
   for (let i = 0; i < 3; i++) assert.equal((await anon().post(`${P}/otp`, { phone: '0901234567' })).status, 200);
-  assert.equal((await anon().post(`${P}/otp`, { phone: '+84 901 234 567' })).status, 429, 'cùng số ở dạng +84 cũng tính chung');
+  assert.equal((await anon().post(`${P}/otp`, { phone: '+84 901 234 567' })).status, 429);
+  assert.equal(sent.length, 3);
+  assert.equal(sent[0].phone, '0901234567', 'gửi sang 9id ở dạng chuẩn 0xxxxxxxxx');
   const good = sent.at(-1).code;
   const wrong = good === '000000' ? '111111' : '000000';
-  for (let i = 0; i < 5; i++) assert.equal((await anon().post(`${P}/otp/verify`, { phone: '0901234567', code: wrong })).status, 400);
-  assert.equal((await anon().post(`${P}/otp/verify`, { phone: '0901234567', code: good })).status, 400, 'đã quá 5 lần thử thì mã đúng cũng không dùng được');
+  assert.equal((await anon().post(`${P}/otp/verify`, { phone: '0901234567', code: wrong })).status, 400);
+  assert.equal((await anon().post(`${P}/otp/verify`, { phone: '0901234567', code: good })).status, 200);
+});
+
+test('IP khách được chuyển tiếp sang 9id để hạn mức theo IP của 9id có tác dụng', async () => {
+  await anon().post(`${P}/otp`, { phone: '0901234567' });
+  assert.ok(sent[0].ip && sent[0].ip.length > 0);
+});
+
+test('lỗi từ 9id được dịch cho khách: 429 giữ nguyên, 400 sai mã, lỗi khác thành 503 không lộ chi tiết', async () => {
+  const body = { phone: '0901234567', code: '123456' };
+  for (const [err, status, code] of [
+    [new NineIdError(429, 'otp_too_soon', 'Vui lòng đợi 60 giây trước khi xin mã mới'), 429, 'otp_rate'],
+    [new NineIdError(429, 'otp_limit', 'Số này đã nhận quá nhiều mã'), 429, 'otp_rate'],
+    [new NineIdError(503, 'otp_unavailable', 'chi-tiet-noi-bo-9id'), 503, 'otp_unavailable'],
+    [new Error('ECONNREFUSED 9id:8102'), 503, 'otp_unavailable'],
+  ]) {
+    await srv.close();
+    srv = await startServer({ idClient: makeFakeId({ failSend: err, failVerify: err }) });
+    const a = await anon().post(`${P}/otp`, { phone: '0901234567' });
+    assert.equal(a.status, status);
+    assert.equal(a.json.error.code, code);
+    assert.ok(!/chi-tiet-noi-bo|ECONNREFUSED/.test(a.text));
+    const v = await anon().post(`${P}/otp/verify`, body);
+    assert.ok([400, 429, 503].includes(v.status));
+    assert.ok(!/chi-tiet-noi-bo|ECONNREFUSED/.test(v.text));
+    await db.query('DELETE FROM otp_codes');
+  }
 });
 
 test('mã OTP dùng một lần; mã cũ không dùng được sau khi dùng', async () => {
@@ -81,11 +112,16 @@ test('mã OTP dùng một lần; mã cũ không dùng được sau khi dùng', a
   assert.equal((await anon().post(`${P}/otp/verify`, { phone: '0901234567', code })).status, 400);
 });
 
-test('gửi OTP tắt (production chưa nối nhà cung cấp): 503; lần gửi lỗi vẫn bị tính vào giới hạn', async () => {
+test('9id lỗi khi gửi: 503, nhưng lần xin vẫn bị tính vào giới hạn cục bộ; 9id không hỗ trợ OTP: offers báo otpReady=false và 503', async () => {
   await srv.close();
-  srv = await startServer({ otpSender: { send: async () => { const { AppError } = await import('../src/errors.js'); throw new AppError('otp_unavailable', 'x', 503); } } });
+  srv = await startServer({ idClient: makeFakeId({ failSend: new NineIdError(503, 'otp_unavailable', 'x') }) });
   assert.equal((await anon().post(`${P}/otp`, { phone: '0901234567' })).status, 503);
   assert.equal((await db.query('SELECT 1 FROM otp_codes')).length, 1);
+  await srv.close();
+  srv = await startServer({ idClient: { verify: async () => null } });
+  const o = await anon().get(`${P}/offers?${Q}`);
+  assert.equal(o.json.otpReady, false);
+  assert.equal((await anon().post(`${P}/otp`, { phone: '0901234567' })).status, 503);
 });
 
 test('đặt phòng cần phiên OTP; token sai/thiếu: 401', async () => {

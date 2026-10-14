@@ -2,7 +2,7 @@ import { tx } from '../db.js';
 import { AppError } from '../errors.js';
 import { requirePerm } from '../auth.js';
 import { audit } from '../audit.js';
-import { requestOtp, verifyOtp, sessionPhone, canonicalPhone } from '../otp.js';
+import { reserveSend, sendOtp, checkOtp, createSession, sessionPhone, canonicalPhone, otpAvailable } from '../otp.js';
 import { orgBySlug, offers, book, receipt, cancelByReceipt, getPublicPage, setPublicPage } from '../public.js';
 
 const csvInts = (v) => {
@@ -12,7 +12,8 @@ const csvInts = (v) => {
 const intQ = (v, d) => (v === undefined || v === '' ? d : (/^\d{1,2}$/.test(String(v)) ? Number(v) : Number.NaN));
 
 // Trang đặt phòng công khai: không cookie, định danh org bằng slug, mọi đầu vào do khách điều khiển nên kiểm kỹ và giới hạn tần suất.
-export function publicRoutes(app, { otpSender, otpReady = true }) {
+export function publicRoutes(app, { idClient }) {
+  const otpReady = otpAvailable(idClient);
   async function org(c, slug) {
     const o = await orgBySlug(c, slug);
     if (!o) throw new AppError('not_found', 'Không tìm thấy trang đặt phòng', 404);
@@ -25,17 +26,18 @@ export function publicRoutes(app, { otpSender, otpReady = true }) {
     return offers(c, { org: o, checkin: q.checkin, checkout: q.checkout, adults: intQ(q.adults, 1), childAges: csvInts(q.childAges), otpReady }, { now: ctx.now });
   }), { auth: 'none', limit: 60 });
 
-  // Ghi mã và commit TRƯỚC rồi mới gửi (không giữ kết nối CSDL khi chờ nhà cung cấp; lần gửi lỗi vẫn bị tính vào giới hạn).
+  // OTP do 9id gửi/kiểm (dùng chung cổng Zalo/SMS và hạn mức với 9Ship/9Sport). Ghi dấu lần xin và commit TRƯỚC rồi mới gọi 9id (không giữ kết nối CSDL khi chờ);
+  // lần gửi lỗi vẫn bị tính vào giới hạn cục bộ.
   app.route('POST', '/api/public/:slug/otp', async (ctx) => {
-    const r = await tx(async (c) => requestOtp(c, { orgId: (await org(c, ctx.params.slug)).id, phone: ctx.body.phone }, { now: ctx.now }));
-    await otpSender.send(r.phone, r.code);
+    const r = await tx(async (c) => reserveSend(c, { orgId: (await org(c, ctx.params.slug)).id, phone: ctx.body.phone }, { now: ctx.now }));
+    await sendOtp(idClient, { phone: r.phone, ip: ctx.ip });
     return { ok: true };
   }, { auth: 'none', limit: 10 });
 
   app.route('POST', '/api/public/:slug/otp/verify', async (ctx) => {
-    const r = await tx(async (c) => verifyOtp(c, { orgId: (await org(c, ctx.params.slug)).id, phone: ctx.body.phone, code: ctx.body.code }, { now: ctx.now }));
-    if (!r.ok) throw new AppError('otp_invalid', 'Mã không đúng hoặc đã hết hạn', 400);
-    return { token: r.token };
+    const orgId = await tx(async (c) => (await org(c, ctx.params.slug)).id);
+    const phone = await checkOtp(idClient, { phone: ctx.body.phone, code: ctx.body.code, ip: ctx.ip });
+    return { token: await tx((c) => createSession(c, { orgId, phone }, { now: ctx.now })) };
   }, { auth: 'none', limit: 20 });
 
   app.route('POST', '/api/public/:slug/book', async (ctx) => tx(async (c) => {
